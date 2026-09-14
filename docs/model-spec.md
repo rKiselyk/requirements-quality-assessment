@@ -88,7 +88,9 @@ Primary sources analyzed:
 - [Requirement properties](reference/2.1_Властивості_вимог.docx), Section 2.1;
 - [Requirements and product quality](reference/2.2_Взаємозвязок_вимог_і_якості.docx), Section 2.2;
 - [Requirements metrics system](reference/2.3_Система_метрик.docx), Section 2.3;
-
+- [Static methods](reference/3.1_Статичні_методи.docx), Section 3.1;
+- [Dynamic methods](reference/3.2_Динамічні_методи.docx), Section 3.2;
+- [Assessment method](reference/3.3_Метод_оцінювання.docx), Section 3.3;
 - [Process model](reference/4.1_Процесна_модель.docx), Section 4.1;
 - [Quality model](reference/4.2_Модель_якості.docx), Section 4.2;
 - [Risk model](reference/4.3_Модель_ризиків.docx), Section 4.3;
@@ -140,10 +142,10 @@ applicability set, or confirmation procedure are not operationally defined.
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; property-specific rule incomplete | Yes | `PARTIALLY_DEFINED` |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
-| Per-requirement feature/observation vector | Metrics system | 2.3 paragraphs 4 and 6-8 | `z_i` exists abstractly; concrete fields absent | Yes | `PARTIALLY_DEFINED` |
-| Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue | Candidate list | No research definition in supplied references | Candidate only | `MISSING` |
-| Conditions, expected reactions, criteria, metrics, thresholds, and units as signals | Requirement properties; requirements/product quality; metrics system | 2.1 Table 2.1; 2.2 Table 2.4; 2.3 Table 2.7 and paragraphs 17-21 | Semantic roles explicit; detector/linkage rules absent | Candidate | `PARTIALLY_DEFINED` |
-| Vague-term and linguistic-smell evidence | Requirement properties; metrics system | 2.1 paragraph 10; 2.3 paragraphs 12-16 | Signal families explicit; vocabulary, matching, and confirmation absent | Candidate | `PARTIALLY_DEFINED` |
+| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Section 7.2 | Six repeatable conceptual feature collections and primary consumers are approved; detector algorithms remain open | Yes | `DEFINED` at registry level; detectors `PARTIALLY_DEFINED` |
+| Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
+| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4 | Semantic features, linked quantitative concept, multiplicity, and primary consumers approved; detector/applicability rules absent | Yes | `DEFINED` conceptually; detector rules `MISSING` |
+| Vague-term and linguistic-smell evidence | Requirement properties; metrics system; dynamic methods; application example; researcher-approved Section 7.8 | 2.1 paragraph 10; 2.3 paragraphs 12-16; 3.2 paragraph 10; application Sections 2-3, 7-8, and 13 | `uk_vague_terms_v1` and deterministic source-only matching policy approved as a seed lexicon; richer linguistic coverage deferred | Yes | `PARTIALLY_APPROVED` |
 | Per-requirement Completeness score | None in supplied references | Not defined | No | Yes | `MISSING` |
 | Per-requirement Verifiability score | None in supplied references | Not defined | No | Yes | `MISSING` |
 | Per-requirement Unambiguity score | None in supplied references | Not defined | No | Yes | `MISSING` |
@@ -357,48 +359,461 @@ values, and supported units. No English linguistic profile is approved in this
 task. Future language profiles must be replaceable or additive without changing
 quality calculators. Evidence always points back to the original text.
 
-## 7. RequirementFeatures
+## 7. Feature & Evidence Contract — PARTIALLY APPROVED FOR MVP v0.1
+
+The researcher has approved the conceptual feature registry, primary consumer
+mappings, evidence contract, linked quantitative-constraint concept, explicit
+verification-method meaning, source-derived Ukrainian seed lexicon and matching
+policy, and core finding taxonomy. Deterministic structural/semantic detectors,
+quantitative parsing/linkage algorithms, and observation-to-quality-problem
+conversion rules remain open. The overall model specification therefore remains
+`DRAFT`, and feature extraction is not yet approved for implementation.
 
 Chapter 2 defines methodological constraints for features and metrics but not a
-complete executable feature schema. Every implemented metric must identify its
-object and applicability set, use a reproducible algorithm, declare polarity,
-record its data source and automation level, and preserve semantic context.
+complete executable feature schema. It requires a reproducible algorithm, a
+defined object and applicability set, known polarity, recorded data source and
+automation level, and preserved semantic context. It also distinguishes a
+primary observation from a measure and an interpreted indicator. Those
+distinctions produce the following required boundary:
 
-MVP v0.1 does not automatically classify requirements as functional,
-performance, security, reliability, usability, or any other category.
-Requirement type remains unspecified. Every feature or criterion uses the
-explicit applicability state `APPLICABLE`, `NOT_APPLICABLE`, or `UNKNOWN`.
-`NOT_APPLICABLE` and `UNKNOWN` must never be converted silently to score zero,
-and lack of applicability evidence is not evidence of a violation. Exact
-calculator propagation for these states remains unresolved under the
-characteristic-calculation gate.
+```text
+trimmed original Requirement text
+        ↓
+FeatureExtractor
+        ↓
+RequirementFeatures / FeatureObservation + Evidence
+        ↓ approved characteristic/model rule
+Finding
+        ↓ approved characteristic calculation
+CharacteristicAssessment
+```
 
-No feature is approved for implementation yet. The table below is a candidate
-registry, not an executable schema. It distinguishes source-supported semantic
-roles from proposed software fields.
+The `FeatureExtractor` detects observations and their evidence only. It does
+not calculate Completeness, Verifiability, or Unambiguity; it does not emit a
+`RequirementQualityProfile`; and it does not declare a scientific quality
+problem merely because a text signal matched. Both `SIGNAL` and
+`QUALITY_PROBLEM` findings belong after an approved calculator/model rule has
+interpreted an observation.
 
-| Identifier | Type | Semantic definition | Extraction evidence | Valid values/range | Source/reference | Consuming characteristics | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `has_actor` | Proposed boolean | Whether an accountable actor is explicitly expressed | Exact text span plus rule ID | Proposed `true/false` | Candidate in MVP-SPEC issue; not defined in supplied theory | Unresolved | `PROPOSED` |
-| `has_action` | Proposed boolean | Whether required behavior/action is explicitly expressed | Exact text span plus rule ID | Proposed `true/false` | Candidate in MVP-SPEC issue; not defined in supplied theory | Unresolved | `PROPOSED` |
-| `has_object` | Proposed boolean | Whether the action's affected object is explicit | Exact text span plus rule ID | Proposed `true/false` | Candidate in MVP-SPEC issue; not defined in supplied theory | Unresolved | `PROPOSED` |
-| `has_condition` | Proposed boolean | Whether an applicable condition, trigger, or scenario is explicit | Exact text span plus rule ID | Proposed `true/false` | 2.1 completeness definition; 2.2 quality-evidence examples; 2.3 metric groups | Likely Completeness; approval required | `PROPOSED` |
-| `has_metric` | Proposed boolean | Whether an observable measurable quantity is explicit | Exact quantity/criterion span plus rule ID | Proposed `true/false` | 2.1 verifiability discussion; 2.3 paragraphs 17-21 | Likely Verifiability; approval required | `PROPOSED` |
-| `has_threshold` | Proposed boolean | Whether an acceptance boundary or target value is explicit | Exact comparator/value span plus rule ID | Proposed `true/false` | 2.1 Table 2.1; 2.3 paragraphs 17-21 | Likely Verifiability and possibly Unambiguity; approval required | `PROPOSED` |
-| `has_unit` | Proposed boolean | Whether a detected numeric measure has an explicit unit | Exact unit span linked to its value | Proposed `true/false` | 2.3 paragraph 17 and Table 2.7 | Likely Verifiability; approval required | `PROPOSED` |
-| `has_expected_result` | Proposed boolean | Whether the required expected reaction, observable outcome, or acceptance result is explicit | Exact outcome/criterion span plus rule ID | Proposed `true/false` | 2.1 completeness definition; 2.2 Table 2.4; 2.3 primary-feature definition | Likely Completeness and Verifiability; approval required | `PROPOSED` |
-| `vague_terms` | Proposed evidence collection | Occurrences that signal possible multiple interpretations or subjectivity | Matched term, source span, rule/vocabulary version, and confirmation state | Proposed ordered collection; empty when none | 2.1 paragraph 10; 2.3 paragraphs 12-16; application examples | Likely Unambiguity; indicator is not automatically a confirmed defect | `PROPOSED` |
+### 7.1 Separation of contract concepts
 
-Chapter 2 explicitly supports the relevance of acceptance criteria, numerical
-bounds, units, measurement conditions, expected reactions, failure scenarios,
-and linguistic-smell signals. It also requires an applicability set and warns
-that an automatically detected smell is an indicator rather than proof of a
-defect. It does not define universal detectors. In particular, “у реальному
-часі”, “швидко”, and “надійно” are examples, not an approved complete
-vocabulary.
+| Concept | Meaning in this draft | May be produced by `FeatureExtractor`? | Scientific interpretation? | Status |
+| --- | --- | --- | --- | --- |
+| Raw text | The trimmed original requirement text, with original punctuation preserved | Input only | None | `DEFINED` by the approved input contract |
+| `Evidence` | An exact source-text span explaining why a detector produced an observation | Yes | None by itself | `APPROVED_FOR_MVP_V0.1` |
+| `FeatureObservation` | An explicit detected observation with linked evidence; optional detection processing state is separate from criterion applicability | Yes | It states detection only, not quality | Conceptual contract `APPROVED_FOR_MVP_V0.1`; detector algorithms open |
+| `Finding` | A downstream interpretation of observations under an approved model rule | No | Either a `SIGNAL` or an established `QUALITY_PROBLEM` | Core taxonomy `PARTIALLY_APPROVED`; conversion rules open |
+| `CharacteristicAssessment` | A later result for Completeness, Verifiability, or Unambiguity | No | Determined only by an approved characteristic rule | Outside this approval gate; calculation remains unresolved |
 
-Any additional feature must either have explicit theoretical support or be
-marked `PROPOSED` with a corresponding RQD and researcher approval.
+An observation such as “the text contains the exact phrase `швидко`” is not
+equivalent to “the requirement is ambiguous.” The first is reproducible lexical
+evidence. The second requires an approved interpretation or confirmation rule
+that the supplied references do not yet provide.
+
+### 7.2 Approved MVP feature registry and consumer mappings
+
+The following conceptual registry and singular feature identifiers are
+`APPROVED_FOR_MVP_V0.1`:
+
+```text
+RequirementFeatures:
+    condition_contexts[]
+    expected_results[]
+    acceptance_criteria[]
+    quantitative_constraints[]
+    verification_methods[]
+    vague_term_occurrences[]
+```
+
+Multiple observations of the same feature are allowed. The absence of an
+observation is not automatically a quality violation.
+
+| Approved `feature_id` | Approved collection | Semantic definition | Approved primary consumer(s) | Detector status |
+| --- | --- | --- | --- | --- |
+| `condition_context` | `condition_contexts[]` | An explicit condition, trigger, scenario, execution context, or measurement context under which behavior or a criterion applies | Completeness | OPEN under `RQD-006` |
+| `expected_result` | `expected_results[]` | An explicit expected reaction, observable outcome, or required behavior | Completeness | OPEN under `RQD-006` |
+| `acceptance_criterion` | `acceptance_criteria[]` | An explicit fulfilment or acceptance condition against which execution or an observation can be judged | Completeness and Verifiability | OPEN under `RQD-006`/`RQD-008` |
+| `quantitative_constraint` | `quantitative_constraints[]` | A linked measurable target or bound whose metric, comparator, value, unit, and context remain associated | Verifiability | Linked concept approved; detector OPEN under `RQD-008` |
+| `verification_method` | `verification_methods[]` | An explicitly stated reproducible verification method in the requirement text | Verifiability | Semantic feature approved; detector OPEN |
+| `vague_term_occurrence` | `vague_term_occurrences[]` | An exact occurrence from approved `uk_vague_terms_v1` | Unambiguity, as `SIGNAL` only | Seed lexicon/matching policy partially approved under `RQD-007` |
+
+The mappings above approve only which characteristic may consume each feature.
+They do not define score contributions, double-counting rules, or characteristic
+calculations. One source-text span may support more than one observation when
+the detector rule justifies each observation and preserves evidence.
+
+### 7.3 Semantic definitions and remaining detector gaps
+
+| Concept | Strongest source-supported definition | Always applicable? | Multiple occurrences? | Can absence currently be detected deterministically? | May one span support another concept? |
+| --- | --- | --- | --- | --- | --- |
+| Condition/context | Information establishing the condition, trigger, scenario, execution setting, or measurement conditions under which a reaction or bound applies | Not established. Local required elements depend on type/template, while automatic type classification is excluded | The sources do not impose a single-occurrence limit; the proposed representation preserves all detected occurrences | No. No grammar, lexical inventory, or applicability rule is defined | Yes conceptually; a condition may also be part of an acceptance criterion or quantitative context |
+| Expected result | The expected reaction, observable outcome, or required behavior to be understood or observed | Not established; the source ties required content to type/template | Yes in the proposed representation, including multi-clause requirements | No deterministic semantic detector or exhaustive absence rule is defined | Yes; an expected result may itself function as an acceptance criterion |
+| Acceptance criterion | A fulfilment condition that makes a requirement judgeable; Chapter 3 gives examples including a threshold, expected behavior, admissible range, or condition | Not universally established; Chapter 2 explicitly uses an applicability set | Yes in the proposed representation | No deterministic detector or criterion-sufficiency rule is defined | Yes; it may share a span with an expected result or quantitative constraint |
+| Verification method | An explicit reproducible method for establishing fulfilment, including test, analysis, inspection, measurement, or another stated procedure | No. A requirement can be verifiable without literally naming the method, and method need depends on requirement/characteristic type | Yes in the proposed representation | No. The absence of a literal method is not equivalent to non-verifiability | Yes; a procedure reference may also carry acceptance-criterion evidence |
+
+The approved contract permits one source span to support more than one feature
+observation when each observation is justified. Evidence references preserve
+the common source span without forcing one semantic label onto multi-purpose
+text. No dependency grammar, syntactic pattern, parser, regular expression, or
+semantic heuristic is approved by this decision.
+
+### 7.4 Detection and criterion applicability are separate
+
+The extractor reports explicit observations and evidence. The approved
+conceptual observation shape is:
+
+```text
+FeatureObservation:
+    feature_id
+    evidence_refs[]
+```
+
+When a detector needs an explicit processing state, it uses this conceptual
+state set:
+
+```text
+DetectionStatus:
+    DETECTED
+    NOT_DETECTED
+    UNRESOLVED
+```
+
+`DETECTED` means the detector produced an explicit observation supported by
+evidence. `NOT_DETECTED` means only that the detector did not find an
+observation according to its approved rule. `UNRESOLVED` means the detector
+could not determine the result. Neither `NOT_DETECTED` nor an empty feature
+collection is automatically a quality violation.
+
+Characteristic/model criteria separately use the already approved states:
+
+```text
+CriterionApplicability:
+    APPLICABLE
+    NOT_APPLICABLE
+    UNKNOWN
+```
+
+`APPLICABLE` means the assessment criterion applies to the requirement;
+`NOT_APPLICABLE` means an approved criterion rule establishes that it does not;
+and `UNKNOWN` means available information cannot establish applicability.
+These states primarily describe assessment criteria, not the mere existence of
+a raw text occurrence.
+
+The binding invariants remain:
+
+```text
+NOT_APPLICABLE != 0
+UNKNOWN != 0
+missing FeatureObservation != failed applicable criterion
+NOT_DETECTED != QUALITY_PROBLEM
+```
+
+A downstream characteristic rule must explicitly combine detection evidence,
+criterion applicability, and any required absence semantics. Those rules remain
+unapproved under the characteristic-calculation gate.
+
+### 7.5 Approved evidence contract
+
+```text
+Evidence:
+    evidence_id
+    requirement_id
+    feature_id
+    text
+    start_offset
+    end_offset
+    rule_id
+```
+
+| Field | Purpose | Approved constraint |
+| --- | --- | --- |
+| `evidence_id` | Stable reference from observations and later findings | Unique within one requirement assessment |
+| `requirement_id` | Anchors the evidence to its source requirement | Must identify the requirement whose trimmed original text supplies the span |
+| `feature_id` | Identifies the observation concept for which the span was captured | Must name an approved registry entry |
+| `text` | Preserves the exact source characters that caused the observation | Must equal the corresponding substring of trimmed original `Requirement.text`; never replace with normalized text |
+| `start_offset` | Locates the first source character | Zero-based Unicode code-point offset, inclusive |
+| `end_offset` | Locates the position immediately after the source span | Zero-based Unicode code-point offset, exclusive |
+| `rule_id` | Identifies the deterministic rule that produced the evidence | Must trace the evidence to the applicable approved detector rule |
+
+The approved offset invariant is:
+
+```text
+Requirement.text[start_offset:end_offset] == Evidence.text
+```
+
+Offsets refer to the trimmed original requirement text, not a normalized copy.
+Punctuation remains in `Requirement.text` and is included in `Evidence.text`
+only when it falls inside the detected span. Repeated occurrences remain
+separate evidence items with separate `evidence_id` values, even when their text
+is identical. One feature observation may reference multiple evidence items,
+and one source span may support multiple justified observations. Any ordering or
+overlap resolution beyond preserving each repeated occurrence belongs to the
+relevant detector contract.
+
+An absent or `NOT_DETECTED` observation has no source span to quote. A later
+finding based on approved absence semantics must preserve the requirement and
+detector/model rule; it must not fabricate an `Evidence` span.
+
+Normalized detector text must never replace original evidence text. If a
+detector later uses normalized forms internally, they are derived detector data,
+not source evidence, and the approved offsets still address the trimmed original
+text. `RQD-009` is closed for MVP v0.1 by this contract.
+
+### 7.6 Approved linked quantitative-constraint concept
+
+Independent booleans such as `has_metric`, `has_threshold`, and `has_unit` are
+insufficient because they lose which quantity, bound, unit, and context belong
+together. The following conceptual linkage model is
+`APPROVED_FOR_MVP_V0.1`:
+
+```text
+QuantitativeConstraintObservation:
+    metric
+    comparator
+    value
+    unit
+    context
+    evidence_refs[]
+```
+
+The fields form one linked observation, and `evidence_refs[]` preserves the
+original source spans supporting it. Partial observations are allowed: a
+detector may identify some components while leaving others unresolved.
+
+| Component | Approved semantic role | Detector decision still missing |
+| --- | --- | --- |
+| `metric` | Chapter 2 names an observable/measurable quantity; Chapter 3 names the object of measurement | Representation, vocabulary, semantic boundary, and detector |
+| `comparator` | Admissible boundary, threshold, target, upper/lower bound, and examples using `≤`, “не більше”, and “не нижче” support the concept | Allowed comparator forms, equivalence/normalization, and parser |
+| `value` | Numeric thresholds, target values, percentages, durations, counts, and ranges are explicit examples | Raw versus parsed type, decimal convention, ranges, percentiles, and multiple values |
+| `unit` | Unit of measurement is explicitly required for operationalized quantitative requirements when applicable | Supported unit registry, aliases, normalization, and attachment rule |
+| `context` | Measurement conditions, load profile, scenario, environment, and qualifying population are explicitly relevant | Context boundary, multiplicity, nesting, and linkage to one or several constraints |
+
+Approved partial-observation example:
+
+```text
+source:      "не більше 2 секунд"
+metric:      unresolved
+comparator:  <=
+value:       2
+unit:        seconds
+context:     unresolved
+```
+
+For the source example “Час відгуку ≤ 2 с при 500 одночасних користувачах”,
+the response-time metric, `≤` comparator, value `2`, unit `с`, and load context
+must remain associated. Likewise, the worked revision linking a four-second
+route-generation bound to 95 percent of requests under up to 300 concurrent
+requests must not become unrelated true/false flags. This approval does not decide
+whether a percentile qualifier or load limit is a nested constraint, context,
+or both; that decomposition remains part of `RQD-008`. No parser or regular
+expression, normalized numeric type, unit conversion, or linkage heuristic is
+approved here. `RQD-008` remains open.
+
+### 7.7 Proposed stable `rule_id` policy
+
+A `rule_id` identifies the deterministic rule that produced an observation,
+evidence item, or downstream finding. Its purposes are reproducibility,
+human-readable explanation, unit-test traceability, and comparison across
+versioned research changes.
+
+The proposed policy is:
+
+1. use a machine-readable, ASCII, case-stable identifier;
+2. keep an identifier's semantic meaning immutable after publication;
+3. issue a new identifier when detector semantics, applicability, or evidence
+   boundaries change materially; do not silently reuse an old identifier;
+4. retain deprecated identifiers in the rule registry for historical results;
+5. associate every identifier with the approving model-spec version, detector
+   description, input language/profile when relevant, and expected evidence;
+6. reference the same identifier from evidence, observations, findings, and
+   tests when they exercise the same rule;
+7. identify a vocabulary and its version separately from the generic matching
+   algorithm so either can change without obscuring provenance.
+
+Shapes such as `UK-VAGUE-001`, `QUANT-COMP-001`, and `COND-001` are conceptual
+examples only. This draft does not create the production rule-ID registry.
+
+### 7.8 Approved source-derived Ukrainian vague-term seed lexicon
+
+The following inventory contains only literal Ukrainian surface forms present
+in the supplied references. It is approved as `uk_vague_terms_v1` with the
+scientific status `SOURCE-DERIVED MVP SEED LEXICON`. Approval does not mean that
+every occurrence is ambiguous or that the list is a complete Ukrainian
+ambiguity vocabulary.
+
+| Approved literal | Source and location | Surrounding research meaning | Source treatment | Language | MVP status |
+| --- | --- | --- | --- | --- | --- |
+| `в реальному часі` | Application example, Section 2, Table 1, R1; Section 13 discussion | Update timing can be interpreted as different intervals without a bound | Confirmed defect in the demonstrational example; illustrative wording | Ukrainian | Approved exact phrase |
+| `у реальному часі` | Application example, Sections 2-3 discussion; Section 7, Table 6, `d1`; Section 8, Table 7, `R1 → R1′` | The phrase lacks a numeric limit and is replaced by bounded update and latency criteria | Confirmed ambiguity/defect in the demonstrational example and revised anti-pattern | Ukrainian | Approved exact phrase |
+| `реальний час` | Application example, Section 3, Table 2, Unambiguity row | Listed among terms that have no quantitative limits | Anti-pattern/example term | Ukrainian | Approved literal surface form |
+| `швидко` | Requirement properties, Section 2.1, paragraph 12; Application example, Section 2, Table 1, R2 and Section 3 | States intent but supplies no reproducible or quantitative criterion | Linguistic/operationalization signal; demonstrational undefined concept | Ukrainian | Approved exact token |
+| `швидкою` | Dynamic methods, Section 3.2, paragraph 10 | Example wording whose lack of operationalization limits construction of a correct test | Illustrative anti-pattern | Ukrainian | Approved exact token |
+| `зручною` | Dynamic methods, Section 3.2, paragraph 10 | Example wording whose lack of operationalization limits construction of a correct test | Illustrative anti-pattern | Ukrainian | Approved exact token |
+| `надійною` | Dynamic methods, Section 3.2, paragraph 10 | Example wording whose lack of operationalization limits construction of a correct test | Illustrative anti-pattern | Ukrainian | Approved exact token |
+| `надійно` | Application example, Section 2, Table 1, R3 and Section 3 | Listed as an undefined concept without a quantitative or verifiable criterion | Confirmed defect in the demonstrational example; illustrative wording | Ukrainian | Approved exact token |
+| `надійний захист` | Application example, Section 3, Table 2, security-specificity row | Protection is asserted without technical and verifiable criteria | Anti-pattern/example phrase | Ukrainian | Approved exact phrase; no automatic morphological relation to `надійно` |
+| `надійно захищені` | Application example, Section 7, Table 6, `d3` | Protection wording is treated as a defect when criteria are absent | Confirmed defect in the demonstrational risk example | Ukrainian | Approved exact phrase |
+
+Section 2.1, paragraph 10 supplies families rather than literal vocabulary:
+subjective formulations, vague adjectives/adverbs, weak modal constructions,
+pronoun references, and other language patterns. Those families are evidence
+that automated signals may be useful, but they are not executable Ukrainian
+entries. No literal terms were added from general knowledge. The remaining
+reference documents add no further explicit Ukrainian vague-term examples.
+
+This source-derived inventory is intentionally a narrow MVP seed and is not
+claimed to be a complete or generally sufficient Ukrainian ambiguity
+vocabulary. Reduced recall is accepted in MVP v0.1 in exchange for
+reproducibility and source traceability. No synonyms, lemmas, missing grammatical
+variants, or semantically similar terms may be generated automatically.
+
+Approved matching policy for MVP v0.1:
+
+- language: Ukrainian;
+- deterministic, case-insensitive matching;
+- token boundaries for single-token entries and phrase boundaries for
+  multi-token entries;
+- preservation of every occurrence as a separate evidence item;
+- stable vocabulary identifier `uk_vague_terms_v1`;
+- no semantic expansion, automatic synonym expansion, embedding similarity, or
+  LLM-based matching.
+
+Every lexicon match produces only an ambiguity-related `SIGNAL`. A match alone
+must never be reported as a confirmed ambiguity or `QUALITY_PROBLEM`. In
+particular, expressions related to `реальний час` may be valid when adequately
+defined by context or measurable bounds; their automatic occurrence remains a
+signal only.
+
+Case folding or other derived detector forms must preserve a map to the original
+source offsets and must not replace original evidence. Exact detector mechanics,
+including deterministic handling of nested phrase/token matches, remain open;
+no new vocabulary or semantic expansion may be introduced to resolve them.
+`RQD-007` is partially approved rather than closed because broader linguistic
+coverage remains a future research and validation issue.
+
+### 7.9 Explicit verification-method evidence
+
+`verification_method` is approved as a feature representing only an explicitly
+stated reproducible verification method in requirement text. Possible semantic
+categories include test, measurement, inspection, and analysis. These
+categories do not constitute a production vocabulary or detector.
+
+The references do not require every verifiable requirement to contain a literal
+method name. Therefore the extractor may produce only:
+
+```text
+explicit verification-method evidence
+```
+
+It must not produce:
+
+```text
+inferred verifiability
+```
+
+from text alone or merely because a requirement seems testable. A later
+Verifiability calculator may use explicit method evidence together with
+acceptance criteria and linked quantitative constraints, but only after its
+scientific rule is approved. No method-name vocabulary or procedure-sufficiency
+detector is approved by this decision.
+
+### 7.10 Partially approved finding taxonomy
+
+```text
+FindingKind:
+    SIGNAL
+    QUALITY_PROBLEM
+
+Finding:
+    code
+    characteristic
+    kind
+    explanation
+    evidence_refs[]
+    rule_id
+```
+
+This core taxonomy and conceptual structure are approved for MVP v0.1:
+
+- `code` is a stable machine-readable finding category, distinct from the
+  detector's `rule_id`;
+- `characteristic` identifies Completeness, Verifiability, or Unambiguity;
+- `kind` preserves whether the result is an automated indicator requiring
+  interpretation/model logic (`SIGNAL`) or a violation established by an
+  approved characteristic rule (`QUALITY_PROBLEM`);
+- `explanation` states what the approved rule concluded without overstating the
+  evidence;
+- `evidence_refs` supports direct explanation against original text;
+- `rule_id` identifies the approved interpretation rule that created the
+  finding.
+
+The `FeatureExtractor` emits observations and evidence, not confirmed quality
+defects. A downstream approved characteristic/model rule may transform
+observations into findings. Every vague-term occurrence produces only an
+ambiguity-related `SIGNAL`. It may never become `QUALITY_PROBLEM` from the match
+alone. A `QUALITY_PROBLEM` requires an approved characteristic rule that
+establishes the violation.
+
+Severity, probability, risk, numeric confidence, calibrated certainty, and
+evidence-reliability values are deliberately absent. Chapter 4 places some of
+these concepts in a broader defect/risk tuple, but they are outside MVP v0.1.
+`RQD-020` remains unresolved. `RQD-016` is partially approved because the core
+taxonomy and boundary are approved while exact observation-to-problem
+conversion rules remain in the characteristic-calculation gate.
+
+### 7.11 Actor, action, and object disposition
+
+| Earlier candidate | Research finding | MVP v0.1 disposition | Traceability disposition |
+| --- | --- | --- | --- |
+| `has_actor` | No supplied reference defines explicit actor presence as a required feature of Completeness, Verifiability, or Unambiguity | `DEFERRED_FROM_MVP_V0.1`; may become an optional future structural observation | Retained here and in the research traceability table as an earlier MVP-SPEC candidate |
+| `has_action` | Required/expected behavior is discussed, but the references do not define a general grammatical “action” field or detector | `DEFERRED_FROM_MVP_V0.1`; may become an optional future structural observation. Source-supported `expected_result` remains separate | Retained here and in the research traceability table |
+| `has_object` | No supplied reference defines an affected grammatical object as an MVP quality feature | `DEFERRED_FROM_MVP_V0.1`; may become an optional future structural observation | Retained here and in the research traceability table |
+
+These fields are not part of the approved MVP feature registry and are not erased
+from decision history. A later issue may reconsider them for template checking
+or structural analysis only after supplying a research definition and approved
+contract. They must not affect Completeness, Verifiability, or Unambiguity in
+MVP v0.1.
+
+### 7.12 Research-source traceability for this contract
+
+| Source | Contract evidence extracted |
+| --- | --- |
+| Requirement properties, Section 2.1, Table 2.1 and paragraphs 10-12; Table 2.3 | Local Completeness roles; reproducible Verifiability evidence; quantitative indicator/condition/bound; signal-versus-confirmed-ambiguity distinction; `швидко` example |
+| Requirements and product quality, Section 2.2, Table 2.4; Table 2.5 | Expected results and criteria; linked response-time, unit, and load-context example; preservation of semantic context |
+| Metrics system, Section 2.3, paragraphs 4-21 and 39-42; Tables 2.7-2.9 | Observation/measure/indicator separation; applicability; criteria, thresholds, units, conditions; explicit verification procedure; missing-value and optional reliability boundaries |
+| Static methods, Section 3.1, paragraphs 10-13 and 32-34 | Structured findings, rule/source/evidence traceability, operationalization components, and separation of findings from numeric indicators |
+| Dynamic methods, Section 3.2, paragraphs 5-10 and Table 3.4 | Requirement-to-criterion-to-procedure-to-observation chain; criterion forms; reproducible method meaning; `швидкою`, `зручною`, and `надійною` examples |
+| Assessment method, Section 3.3, canonicalization and interpretation discussion | Feature provenance, non-duplication, applicability metadata, and explanation traceability |
+| Risk model, Section 4.3, defect tuple | Evidence and rule traceability context; severity/confidence explicitly reserved for the broader risk model |
+| Application example, Sections 2-3, 7-8, and 13 | Exact vague-word occurrences; original and revised requirements; linked quantitative examples; demonstrational signal/problem cases |
+
+### 7.13 Remaining research decisions
+
+The approved portions above close `RQD-005` and `RQD-009` for MVP v0.1 and
+partially approve `RQD-007` and `RQD-016`. Implementation remains blocked by:
+
+1. deterministic textual/semantic detectors for `condition_context`,
+   `expected_result`, `acceptance_criterion`, and `verification_method`,
+   including explicit processing of `NOT_DETECTED` and `UNRESOLVED` (`RQD-006`);
+2. deterministic quantitative and criterion detection, component parsing,
+   partial-observation handling, and linkage rules (`RQD-008`);
+3. exact deterministic mechanics for token/phrase boundaries and nested matches
+   in the approved seed lexicon, without expanding its contents (`RQD-007`);
+4. criterion-applicability, missing-feature, and absence semantics used by each
+   characteristic calculation (`RQD-002`-`RQD-004`, `RQD-010`-`RQD-012`, and
+   `RQD-022`);
+5. exact observation-to-`QUALITY_PROBLEM` conversion rules and any handling of
+   overlapping evidence in characteristic calculations (`RQD-016` and the
+   characteristic-calculation gate);
+6. the production rule-ID registry and detector descriptions associated with
+   approved evidence;
+7. the still-unresolved decision on whether any evidence reliability or
+   detector-confidence representation belongs in MVP (`RQD-020`). No such value
+   is approved by this section.
+
+No decision in this section defines a calculation for `C`, `V`, or `U`, a
+coefficient, a weight, a threshold, a score contribution, or a rounding rule.
 
 ## 8. Completeness
 
@@ -430,9 +845,10 @@ interface, constraint, or significant scenario.
 The required elements by requirement type, the applicability rule, the mapping
 from detected elements to `a_i,C`, binary versus graded behavior, and treatment
 of overlap with Verifiability are unresolved. Actor/action/object fields are not
-defined by Chapter 2 and remain proposed implementation features.
+defined by Chapter 2 and are `DEFERRED_FROM_MVP_V0.1` as possible optional
+future structural observations; they cannot affect Completeness in v0.1.
 
-Researcher decisions RQD-002, RQD-005, RQD-006, RQD-010, and RQD-012 are
+Researcher decisions RQD-002, RQD-006, RQD-010, and RQD-012 are
 required.
 
 ### Formula and output range
@@ -487,7 +903,7 @@ The rule for determining applicability, requirement type, procedure presence,
 criterion presence, and linkage among quantity/unit/condition/bound is not
 defined. The mapping of those observations to `a_i,V` is also not defined.
 
-Researcher decisions RQD-003, RQD-005, RQD-008, RQD-010, and RQD-012 are
+Researcher decisions RQD-003, RQD-008, RQD-010, and RQD-012 are
 required.
 
 ### Formula and output range
@@ -533,12 +949,14 @@ requirements without confirmed ambiguity indicators.
 
 ### Operationalization requiring researcher approval
 
-The vocabulary, detector rules, context exceptions, confirmation procedure,
-applicability rule, and mapping of multiple signals to the intermediate
-`a_i,U` value are not defined. The text also does not resolve whether MVP uses
-review-confirmed ambiguities or deterministic detector signals only.
+The source-derived seed lexicon and high-level matching policy are approved, but
+exact detector mechanics, richer linguistic coverage, context exceptions,
+confirmation procedure, applicability rule, and mapping of multiple signals to
+the intermediate `a_i,U` value are not defined. The text also does not resolve
+whether MVP uses review-confirmed ambiguities or deterministic detector signals
+only.
 
-Researcher decisions RQD-004, RQD-005, RQD-007, RQD-008, RQD-010, RQD-012,
+Researcher decisions RQD-004, RQD-007, RQD-008, RQD-010, RQD-012,
 and RQD-016 are required.
 
 ### Formula and output range
@@ -630,17 +1048,19 @@ Chapter 2 and Chapter 4 establish these binding principles:
 3. unavailable or not-applicable evidence must not be replaced by numeric zero;
 4. critically incomplete evidence must not produce a falsely precise score.
 
-For feature and criterion applicability, MVP v0.1 represents the approved
-states `APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN`. `NOT_APPLICABLE` and
-`UNKNOWN` are distinct and neither is numeric zero. An `APPLICABLE` criterion's
+Feature detection and assessment applicability are separate. A detector may use
+`DETECTED`, `NOT_DETECTED`, or `UNRESOLVED` as processing states, while
+characteristic/model criteria use the approved applicability states
+`APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN`. `NOT_DETECTED` and a missing
+feature observation are not quality violations. `NOT_APPLICABLE` and `UNKNOWN`
+are distinct and neither is numeric zero. An `APPLICABLE` criterion's
 computed-versus-missing assessment state is a separate concern.
 
-These semantics are explicitly defined, but the concrete domain representation,
-console wording, aggregation behavior, and distinction between “missing data”
-and “insufficient evidence for a score” remain unresolved. Detector reliability
-may be represented by a vector `D`/`Rel`, but Chapter 2 requires it to come from
-separate validation rather than unsupported expert assignment. See RQD-012,
-RQD-020, and RQD-022.
+These semantics are explicitly defined, but concrete characteristic-state
+representation, console wording, aggregation behavior, and the distinction
+between “missing data” and “insufficient evidence for a score” remain
+unresolved. No detector-confidence or evidence-reliability value is approved
+for MVP v0.1; `RQD-020` remains unresolved. See RQD-012, RQD-020, and RQD-022.
 
 ## 15. Explainability requirements
 
@@ -655,9 +1075,10 @@ reported value
 ```
 
 Every detected problem must carry enough evidence for a human-readable reason.
-At minimum, the approved domain model will need a stable problem/rule ID, the
-affected requirement ID, an explanation, and evidence. Exact span and evidence
-structures remain subject to RQD-009 and RQD-016.
+Section 7 approves separate evidence and observation contracts and partially
+approves the core finding taxonomy with stable rule traceability. Exact
+observation-to-`QUALITY_PROBLEM` conversion remains unapproved under RQD-016 and
+the characteristic-calculation gate.
 
 Chapter 2 requires the implementation to preserve the distinction among a
 primary feature, a measure, and an interpreted indicator. It also requires an
@@ -776,29 +1197,29 @@ approval.
 | `RQD-002` | Approve an operational definition of per-requirement Completeness. | `PARTIALLY_RESOLVED` | Section 2.1 defines local Completeness through sufficient condition, expected reaction, and fulfilment-criterion information, with elements dependent on requirement type/template. It supplies no deterministic detection or scoring rule. | OPEN | MVP-04/05 as applicable, MVP-06 |
 | `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 define reproducible verification and relevant evidence, and give set-level ratios. They do not define an `a_i,V` calculation for one line. | OPEN | MVP-04/05 as applicable, MVP-07 |
 | `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `PARTIALLY_RESOLVED` | Section 2.1 defines one justified interpretation and gives boundary meanings for `a_i,U`; Sections 2.1 and 2.3 treat linguistic matches as signals rather than proof. Detector, confirmation, applicability, and intermediate-value rules remain absent. | OPEN | MVP-05, MVP-08 |
-| `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `ADDITIONAL_CONSTRAINTS` | Section 2.3 requires every metric to identify its object, reproducible algorithm, polarity, data source/automation, and semantic context, and distinguishes feature, measure, and indicator. RQD-023 supplies the applicability enum but not the MVP field registry. | OPEN | MVP-01, MVP-03-08 |
-| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_RESOLVED` | Section 2.1 supports condition, expected reaction, and fulfilment criterion as Completeness evidence. It neither requires the proposed actor/action/object schema nor supplies syntactic or semantic boundaries. | OPEN | MVP-04 and consuming calculators |
-| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `PARTIALLY_RESOLVED_BY_RQD_018` | Ukrainian, case-insensitive linguistic matching, original-text evidence, and punctuation preservation are approved. A closed vocabulary, executable match rules, exceptions, and versioning remain open. | OPEN | MVP-05, MVP-08 |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 identify observable quantity, unit, measurement conditions, admissible bound, acceptance criterion, and verification method as relevant evidence when applicable. Exact detection, applicability, and linkage are missing. | OPEN | MVP-04/05, MVP-07 |
-| `RQD-009` | Approve the evidence data structure. | `ADDITIONAL_CONSTRAINTS` | Section 2.3 requires reproducibility, source traceability, and separation of observation from interpretation; Chapter 4 requires explanations. Span, ordering, multiplicity, rule-ID, confirmation-state, and absent-evidence representations remain open. | OPEN | MVP-01, MVP-03-10 |
+| `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
+| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `STILL_BLOCKED_BY_MISSING_RESEARCH_DEFINITION` | Actor/action/object extraction is `DEFERRED_FROM_MVP_V0.1` and cannot affect Completeness, Verifiability, or Unambiguity. Deterministic detection boundaries for condition/context and expected result remain undefined. | OPEN | MVP-04 and consuming calculators |
+| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `PARTIALLY_APPROVED` | Section 7 approves the exact source-derived `uk_vague_terms_v1` seed lexicon and its Ukrainian-only, deterministic, case-insensitive, boundary-aware matching policy. Reduced recall is accepted; exact overlap/normalization mechanics and any broader coverage remain open, and matches are only `SIGNAL`. | OPEN — PARTIALLY APPROVED | MVP-05, MVP-08 |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `APPROVED_CONCEPT_DETECTOR_OPEN` | Section 7 approves the linked quantitative-constraint structure, partial observations, and unresolved fields. Component detection, parsing, nesting, linkage mechanics, and overlap disambiguation remain undefined. | OPEN | MVP-04/05, MVP-07 |
+| `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PARTIALLY_RESOLVED` | Section 2.1 places individual property values `a_ij` in `[0,1]`; Section 2.3 supplies generic and set-level metrics. Neither supplies executable per-requirement formulas for `a_i,C`, `a_i,V`, and intermediate `a_i,U`. | OPEN | MVP-06-08 |
 | `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PARTIALLY_RESOLVED` | Chapter 2 supports `[0,1]` and upward compliance orientation for individual properties and their property-level means. It does not approve binary versus graded MVP characteristic assessments. | OPEN | MVP-01, MVP-06-10 |
-| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `PARTIALLY_RESOLVED` | RQD-023 approves applicability states `APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN` and forbids converting the latter two to zero. Concrete assessment-state representation and calculator/aggregation propagation remain open. | OPEN | MVP-01, MVP-06-10 |
+| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `PARTIALLY_RESOLVED` | Section 7 separates optional detection status (`DETECTED`, `NOT_DETECTED`, `UNRESOLVED`) from criterion applicability (`APPLICABLE`, `NOT_APPLICABLE`, `UNKNOWN`). `NOT_DETECTED` is not a violation, missing observations are not proof, and neither `NOT_APPLICABLE` nor `UNKNOWN` becomes zero. Calculator/aggregation propagation remains open. | OPEN | MVP-01, MVP-06-10 |
 | `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation remains under RQD-012/RQD-022. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-015` | Approve numeric precision and rounding. | `UNRESOLVED` | Chapter 2 gives no calculation, aggregation, or presentation rounding policy. | OPEN | MVP-06-12 |
-| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `PARTIALLY_RESOLVED` | Chapter 2 identifies property defect families and distinguishes a raw automated signal from a confirmed defect. MVP problem IDs, conversion rules, severity, and reporter wording remain open. | OPEN | MVP-01, MVP-06-08, MVP-10 |
+| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `PARTIALLY_APPROVED` | Section 7 approves `SIGNAL` and `QUALITY_PROBLEM`, the minimal traceable finding schema, and the extractor/downstream-rule boundary. Exact observation-to-finding and signal-to-problem conversion rules remain open; severity, probability, risk, confidence, priority, and corrective action are excluded. | OPEN — PARTIALLY APPROVED | MVP-06-08, MVP-10 |
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `ADDITIONAL_CONSTRAINTS` | Chapter 2 provides qualitative cases and working set-level formula examples, but no approved expected per-line MVP feature vectors or scores. Examples must respect applicability and signal/confirmation distinctions. | OPEN | MVP-04-09, MVP-12 |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
 | `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
-| `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `PARTIALLY_RESOLVED` | Section 2.3 permits an applicability mask `B` and optional reliability vector `D`/`Rel`, but requires empirical validation rather than invented confidence values. MVP inclusion and semantics remain open. | OPEN, CONDITIONALLY BLOCKING | MVP-01, MVP-06-10 if included |
+| `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `UNRESOLVED` | Section 2.3 discusses possible reliability constructs but approves no MVP fields, values, scales, or semantics. The approved finding core excludes confidence, severity, probability, risk, priority, and corrective action. | OPEN, CONDITIONALLY BLOCKING | MVP-01, MVP-06-10 if included |
 | `RQD-021` | Supply or supersede the Chapter 2/§2.3 definitions referenced by Chapter 4. | `RESOLVED_BY_CHAPTER_2` | Sections 2.1, 2.2, and especially 2.3 are now present and integrated into this specification. Their remaining operational gaps are tracked by the other RQDs. | CLOSED AS RESEARCH INPUT | None directly |
 | `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `PARTIALLY_RESOLVED` | Chapter 2 and Chapter 4 prohibit false precision and distinguish missing from not applicable. Console wording and propagation into requirement and property-level specification profiles remain open. | OPEN | MVP-06-10, MVP-12 |
-| `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Requirement type remains unspecified; feature/criterion applicability is `APPLICABLE`, `NOT_APPLICABLE`, or `UNKNOWN`, with neither non-applicable nor unknown treated as zero. Exact calculator propagation remains under the characteristic-calculation gate. | CLOSED FOR MVP v0.1 | None directly |
+| `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Requirement type remains unspecified; criterion applicability is `APPLICABLE`, `NOT_APPLICABLE`, or `UNKNOWN`, with neither non-applicable nor unknown treated as zero. Detection status is represented separately. Exact calculator propagation remains under the characteristic-calculation gate. | CLOSED FOR MVP v0.1 | None directly |
 
 ### 18.1 RQDs approved or closed for MVP v0.1
 
-- `RQD-001`, `RQD-018`, `RQD-019`, and `RQD-023` are closed by explicit
+- `RQD-001`, `RQD-005`, `RQD-009`, `RQD-018`, `RQD-019`, and `RQD-023` are closed by explicit
   researcher approval for MVP v0.1.
 - `RQD-021` remains closed because the requested Chapter 2 sources are present
   and traced.
@@ -819,7 +1240,9 @@ decision.
 
 The remaining decisions are grouped into four approval gates:
 
-1. **Feature and evidence contract gate:** `RQD-005`-`RQD-009` and `RQD-016`.
+1. **Feature-detection and finding-conversion gate:** `RQD-006`, the remaining
+   mechanics under `RQD-007`, `RQD-008`, and `RQD-016`. `RQD-005` and
+   `RQD-009` are closed.
 2. **Characteristic-calculation gate:** `RQD-002`-`RQD-004`, `RQD-010`-
    `RQD-012`, and `RQD-022`.
 3. **Property aggregation and numeric-contract gate:** the still-open
@@ -843,8 +1266,20 @@ values are included in MVP v0.1. It is not permission to invent such values.
    contributes to local Completeness and also provides Verifiability evidence.
    Any shared feature and non-duplication rule requires approval.
 
-The next recommended approval gate is the **feature and evidence contract gate**
-(`RQD-005`-`RQD-009` and `RQD-016`), followed by the characteristic-calculation
-gate. Until the applicable gates are approved and this document's status is
-changed from `DRAFT`, feature rules, characteristic calculators, and
+The next recommended approval gate is the **feature-detection and
+finding-conversion gate**, followed by the characteristic-calculation gate.
+Until the applicable gates are approved and this document's status is changed
+from `DRAFT`, unapproved detector rules, characteristic calculators, and
 specification aggregation remain blocked.
+
+### 18.5 Downstream GitHub issue impact after contract approval
+
+The descriptions for #2, #4, #5, #6, #9, #11, and #14 were aligned narrowly
+with the approved contract. The adjustments record the approved registry,
+evidence offsets, detection/applicability separation, linked quantitative
+concept, explicit-only verification method, vague-term signal semantics,
+finding boundary, actor/action/object deferral, and profile-only MVP scope.
+
+These description updates do not unblock implementation. Issues #5, #6, and #9
+remain blocked by open detector and characteristic-calculation decisions; #11
+remains downstream of approved assessments; and #14 remains a research issue.
