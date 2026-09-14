@@ -7,8 +7,11 @@ Assessment system.
 
 For MVP v0.1, the system reads a UTF-8 text file containing one software
 requirement per line, extracts deterministic textual and structural features,
-calculates completeness, verifiability, and unambiguity, derives requirement-
-level and file-level quality, and prints explainable results to the console.
+calculates completeness, verifiability, and unambiguity, preserves them as a
+requirement-level quality profile, derives property-level specification
+summaries, and prints explainable results to the console. MVP v0.1 does not
+combine the three characteristics into a scalar requirement- or file-quality
+score and does not predict software-product quality.
 
 ## Research rules
 
@@ -46,8 +49,9 @@ Text file
 -> FeatureExtractor
 -> RequirementFeatures
 -> CharacteristicCalculators
--> RequirementQualityAggregator
--> FileQualityAggregator
+-> RequirementQualityProfile
+-> SpecificationQualityAggregator
+-> SpecificationQualityProfile
 -> ConsoleReporter
 ```
 
@@ -68,10 +72,11 @@ Text file
   this boundary.
 - Feature extraction must preserve evidence using the representation approved
   by the domain model.
-- Requirement-level and file-level aggregators operate on structured assessment
-  results, not raw files, CLI state, feature-extraction implementations, or
-  NLP-library-specific objects.
-- `ConsoleReporter` formats completed results and must not calculate scores.
+- Requirement-quality profiles and specification-level property aggregation
+  operate on structured assessment results, not raw files, CLI state,
+  feature-extraction implementations, or NLP-library-specific objects.
+- `ConsoleReporter` formats completed results and must not calculate assessments
+  or aggregate properties.
 
 ## Input policy for MVP v0.1
 
@@ -81,6 +86,16 @@ Text file
 - Ignore blank and whitespace-only lines.
 - Preserve original source line numbers and input order.
 - Generate requirement IDs automatically in processing order.
+- Preserve the original requirement text after the reader's trimming step and
+  preserve its punctuation for evidence.
+- Treat one input line as one requirement even when it contains multiple
+  grammatical sentences or clauses.
+- Support Ukrainian for language-dependent feature detection in MVP v0.1.
+- Keep future language profiles replaceable or additive without changing
+  quality calculators.
+- Do not classify requirement types automatically. Represent feature/criterion
+  applicability as `APPLICABLE`, `NOT_APPLICABLE`, or `UNKNOWN`; neither
+  `NOT_APPLICABLE` nor `UNKNOWN` may be silently converted to score zero.
 
 ## Engineering rules
 

@@ -1,6 +1,6 @@
 # Requirements Quality Assessment Model Specification
 
-**Status: DRAFT — requires researcher approval**
+**Status: DRAFT — approved scope decisions incorporated; operational rules remain**
 
 This document is the prospective authoritative implementation specification for
 MVP v0.1. It formalizes only what can be traced to the supplied research
@@ -23,10 +23,15 @@ from product quality. MVP v0.1 is narrower than the full research system: it is
 intended to evaluate three properties of an individual textual requirement and
 then produce requirement-level and file-level summaries.
 
-The individual textual requirement is the intended MVP unit of analysis, but
-this selection is **PROPOSED FOR RESEARCHER APPROVAL**. Chapter 2 supports that
-unit as a legitimate level of analysis; it does not by itself approve the exact
-MVP reduction or its scoring and aggregation rules.
+The researcher-approved MVP unit of analysis is one individual textual software
+requirement, `r_i`. For MVP input, one non-empty input line is one requirement.
+MVP v0.1 evaluates Requirement Quality as the quality of that requirement
+information artifact. It does not predict software-product quality.
+
+The primary per-requirement result is the multidimensional profile
+`A_i = (C_i, V_i, U_i)`. MVP v0.1 does not require a scalar integrated
+Requirement Quality score. A future integrated index would require a separate
+researcher-approved scientific decision.
 
 ## 2. Scope of MVP v0.1
 
@@ -39,24 +44,27 @@ deterministic textual and structural feature extraction
         ↓
 Completeness   Verifiability   Unambiguity
         ↓
-Requirement Quality
+RequirementQualityProfile (C, V, U)
         ↓
-File Quality
+property-level specification aggregation
+        ↓
+SpecificationQualityProfile (mean C, mean V, mean U)
         ↓
 explainable console output
 ```
 
-The proposed unit of analysis is one individual textual software requirement,
-represented in the input by one non-empty, trimmed line. This unit is
-**PROPOSED FOR RESEARCHER APPROVAL** under RQD-001. The reader policy itself is
-an approved engineering constraint: it preserves source line number and
-processing order and assigns IDs `R001`, `R002`, and so on.
+The unit of analysis is one individual textual software requirement, represented
+in the input by one non-empty, trimmed line. The reader preserves source line
+number and processing order and assigns IDs `R001`, `R002`, and so on.
 
-The following are outside MVP v0.1: database storage, REST API, web UI,
+The following are outside MVP v0.1: per-line Consistency or Traceability,
+specification/global Completeness, requirements coverage, product-quality
+prediction, risk, corrective actions, database storage, REST API, web UI,
 authentication, Docker, cloud infrastructure, custom neural-network training,
-LLM API integration, risk scoring, defect-probability prediction, corrective
-actions, iterative lifecycle reassessment, and advanced semantic consistency
-analysis.
+LLM API integration, defect-probability prediction, iterative lifecycle
+reassessment, and advanced semantic consistency analysis. These broader
+properties require a requirement set, artifact relationships, lifecycle
+evidence, or other context and remain future extensions.
 
 ## 3. Source and traceability policy
 
@@ -124,14 +132,14 @@ applicability set, or confirmation procedure are not operationally defined.
 | Versioned assessment state `P_j(stage, version)` | Process model | 4.1, state tuple | Yes at conceptual level | No | `OUT_OF_SCOPE_V0.1` |
 | Reassessment after changed evidence or specification | Process model | 4.1, update operator and feedback loop | Conceptual operator only | No | `OUT_OF_SCOPE_V0.1` |
 | Evidence coverage and reliability are distinct from score | Process and quality models | 4.1 Tables 4.2-4.4; 4.2 result tuple | Conceptually yes; numeric rules absent | Potentially | `PARTIALLY_DEFINED` |
-| Missing/not-applicable evidence is not zero | Requirement properties; metrics system; process and quality models | 2.3, paragraphs 16 and 39-42; 4.1 invariants; 4.2 feature formation | Three states and `NA` invariant defined; exact MVP representation incomplete | Yes | `PARTIALLY_DEFINED` |
+| Missing/not-applicable evidence is not zero | Requirement properties; metrics system; process and quality models; approved RQD-023 | 2.3, paragraphs 16 and 39-42; 4.1 invariants; 4.2 feature formation | Applicability states `APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN` are approved; exact calculator propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
 | Completeness of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraphs 11-12; Table 2.3 | Semantic definition and evidence classes available; executable rule absent | Yes | `PARTIALLY_DEFINED` |
 | Verifiability of an individual requirement | Requirement properties; metrics system | 2.1 Table 2.1 and paragraph 12; 2.3 paragraphs 17-21 | Semantic definition and evidence classes available; executable rule absent | Yes | `PARTIALLY_DEFINED` |
 | Unambiguity of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraph 10; Table 2.3 | Semantic definition and signal classes available; confirmation rule absent | Yes | `PARTIALLY_DEFINED` |
 | Consistency | Requirement properties; metrics system | 2.1 paragraphs 14-15; 2.3 paragraphs 28-30 | Defined primarily for a set of requirements | No, except as boundary context | `OUT_OF_SCOPE_V0.1` |
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; property-specific rule incomplete | Yes | `PARTIALLY_DEFINED` |
-| Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties | 2.1 paragraphs 22-24 | Formula explicit for one property; applicability/overall-quality meaning incomplete | Potentially | `PARTIALLY_DEFINED` |
+| Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
 | Per-requirement feature/observation vector | Metrics system | 2.3 paragraphs 4 and 6-8 | `z_i` exists abstractly; concrete fields absent | Yes | `PARTIALLY_DEFINED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue | Candidate list | No research definition in supplied references | Candidate only | `MISSING` |
 | Conditions, expected reactions, criteria, metrics, thresholds, and units as signals | Requirement properties; requirements/product quality; metrics system | 2.1 Table 2.1; 2.2 Table 2.4; 2.3 Table 2.7 and paragraphs 17-21 | Semantic roles explicit; detector/linkage rules absent | Candidate | `PARTIALLY_DEFINED` |
@@ -142,8 +150,8 @@ applicability set, or confirmation procedure are not operationally defined.
 | Characteristic score range for MVP | Requirement properties | 2.1 `a_ij ∈ [0,1]` and Table 2.3 | `[0,1]` compliance orientation supported; exact scale rule per property absent | Yes | `PARTIALLY_DEFINED` |
 | Requirements metric families and working dictionary | Metrics system | 2.3 Tables 2.7-2.8 | Aggregate formulas explicit; detector operands and applicability incomplete | Partially | `PARTIALLY_DEFINED` |
 | Applicability set and empty-denominator `NA` | Metrics system | 2.3 paragraphs 13-16 and 39 | Principle explicit; per-requirement applicability rules absent | Yes | `PARTIALLY_DEFINED` |
-| Requirement Quality Score from the three MVP characteristics | None in supplied references | Not defined | No | Yes | `MISSING` |
-| File Quality Score from requirement scores | None in supplied references | Not defined | No | Yes | `MISSING` |
+| Scalar Requirement Quality Score from the three MVP characteristics | None in supplied references; approved RQD-013 disposition | Not defined and intentionally deferred | No | No | `OUT_OF_SCOPE_V0.1` |
+| Scalar File Quality Score from requirement scores | None in supplied references; approved RQD-014 disposition | Not defined and intentionally deferred | No | No | `OUT_OF_SCOPE_V0.1` |
 | Product-quality predictor `y_hat_j = F_theta_j(X_j, C)` | Quality model | 4.2, general prediction form | Abstract form and `[0,1]` range; model class/parameters unset | No | `OUT_OF_SCOPE_V0.1` |
 | Logistic predictive baseline | Quality model and application example | 4.2 baseline; example Section 5 | Formula shown; example coefficients explicitly demonstrational | No | `OUT_OF_SCOPE_V0.1` |
 | Context-weighted product-quality index `Q_int` | Quality model and application example | 4.2 aggregation; example Section 6 | General weighted form; weights context-dependent | Not directly | `OUT_OF_SCOPE_V0.1` |
@@ -159,7 +167,7 @@ applicability set, or confirmation procedure are not operationally defined.
 
 | Concept | Explicitly defined by the dissertation | Derivable without a new scientific assumption | Implementation operationalization requiring researcher approval |
 | --- | --- | --- | --- |
-| **Requirement Quality** | A multidimensional quality of a requirements information artifact, evaluated through relevant properties at individual-requirement and/or specification level. It is not limited to grammatical correctness. | The MVP characteristics must remain named dimensions of requirement quality rather than be presented as observed or predicted product quality. | Selection of the MVP dimensions as sufficient, one-line unit semantics, and any single overall Requirement Quality Score. |
+| **Requirement Quality** | A multidimensional quality of a requirements information artifact, evaluated through relevant properties at individual-requirement and/or specification level. It is not limited to grammatical correctness. | The approved MVP profile is `A_i = (C_i, V_i, U_i)` for one textual requirement represented by one non-empty input line. It must not be presented as observed or predicted product quality. | Any future scalar integrated Requirement Quality index. |
 | **Completeness** | At individual level, sufficient information to understand the condition, expected reaction, and fulfilment criterion; at specification level, coverage of required functions, quality characteristics, interfaces, constraints, and significant scenarios. | Local completeness does not establish global coverage. Only elements applicable to the requirement type/template can be required locally. | Required element sets by type, element detectors, overlap with Verifiability, and mapping to `a_i,C`. |
 | **Unambiguity** | Wording allows one justified interpretation in its context. Absence of ambiguous terms and stable reviewer interpretation are evidence; linguistic smells are possible automated signals. | A detected smell cannot be reported as a confirmed ambiguity without an approved confirmation rule. | Vocabulary, context exceptions, confirmation procedure, applicability, and mapping of signals to `a_i,U`. |
 | **Verifiability** | A reproducible way exists to establish fulfilment. Evidence may include an acceptance criterion, threshold, test oracle, or analysis/inspection method. | For applicable quality requirements, quantity, unit, measurement conditions, and admissible boundary are distinct relevant observations; not every quality requirement must be numeric. | Requirement-type/applicability rules, evidence detection and linkage, and mapping to `a_i,V`. |
@@ -196,17 +204,21 @@ The following distinctions come from the research sources:
 - `C_data_j = (c_cov_j, c_rel_j)` represents evidence coverage and reliability.
 - `Expl_j` is an explanation traceable to source requirements and evidence.
 
-For MVP v0.1, the following symbols are reserved placeholders only:
+For MVP v0.1, the following profile symbols are approved:
 
 - `C_i`: Completeness assessment for requirement `i`;
 - `V_i`: Verifiability assessment for requirement `i`;
 - `U_i`: Unambiguity assessment for requirement `i`;
-- `Q_i`: overall Requirement Quality Score for requirement `i`;
-- `Q_file`: File Quality Score for the analyzed input.
+- `A_i = (C_i, V_i, U_i)`: `RequirementQualityProfile` for requirement `i`;
+- `C_file`: mean of applicable/computed `C_i` values;
+- `V_file`: mean of applicable/computed `V_i` values;
+- `U_file`: mean of applicable/computed `U_i` values;
+- `(C_file, V_file, U_file)`: `SpecificationQualityProfile` for the analyzed
+  input.
 
-Their ranges and functions are unresolved. These names must not be confused with
-the research document's product-quality set `Q` or contextual product index
-`Q_int`.
+Exact per-characteristic calculation rules and missing/`UNKNOWN` propagation
+remain unresolved. The profiles must not be confused with the research
+document's product-quality set `Q` or contextual product index `Q_int`.
 
 Chapter 2 supports a `[0,1]` compliance direction for individual property
 results `a_ik`, but adopting `C_i`, `V_i`, and `U_i` as exact instances of that
@@ -279,9 +291,9 @@ M_risk = (D, R_DQ, Psi, Pi, A_corr, G_D, ReEval, C)
 
 Chapter 2 defines the formulas above primarily for properties and metrics over
 sets of requirements. Their use does not determine a per-line scoring rule for
-each MVP characteristic, an overall Requirement Quality Score, or a File
-Quality Score. In particular, the formula for `x_k` aggregates one property and
-must not be silently substituted for `Q_file`.
+each MVP characteristic. The approved aggregation correction uses `x_k` only
+for the corresponding property in `SpecificationQualityProfile`; it does not
+combine Completeness, Verifiability, and Unambiguity into an overall scalar.
 
 The application example also demonstrates logistic prediction, contextual
 weighted aggregation, critical thresholds, and risk calculations. Its document
@@ -301,15 +313,17 @@ Text file
 → CompletenessCalculator
 → VerifiabilityCalculator
 → UnambiguityCalculator
-→ RequirementQualityAggregator
-→ FileQualityAggregator
+→ RequirementQualityProfile
+→ SpecificationQualityAggregator
+→ SpecificationQualityProfile
 → ConsoleReporter
 ```
 
 The calculators depend only on approved domain data contracts and approved
 rules in this specification. They do not depend on a reader, CLI, reporter,
 feature-extraction implementation, or NLP library. The feature extractor does
-not calculate any quality score. The reporter does not calculate or aggregate.
+not calculate quality assessments. The reporter does not calculate or
+aggregate.
 
 The broader research lifecycle includes architecture, implementation, testing,
 operation, risk, corrective action, and reassessment. MVP boundaries must not
@@ -319,10 +333,9 @@ implemented now.
 ## 6. Requirement representation
 
 Chapter 2 explicitly supports two units: an individual requirement and a set of
-requirements/specification. For MVP v0.1, selecting the individual textual
-requirement as the analysis unit is **PROPOSED FOR RESEARCHER APPROVAL**. The
-following representation is an approved engineering input contract from the
-backlog; it does not by itself approve the scientific scoring unit:
+requirements/specification. For MVP v0.1, the individual textual requirement is
+the researcher-approved analysis unit. The following representation is the
+approved input contract:
 
 | Field | Type | Meaning | Status |
 | --- | --- | --- | --- |
@@ -331,11 +344,18 @@ backlog; it does not by itself approve the scientific scoring unit:
 | `text` | string | Non-empty UTF-8 requirement text after trimming leading/trailing whitespace | `DEFINED` |
 
 Blank or whitespace-only lines are ignored. Requirement order matches the order
-of non-empty source lines.
+of non-empty source lines. The reader is Unicode-capable and decodes UTF-8.
+Original text is preserved after leading/trailing whitespace is trimmed;
+punctuation is not destroyed. One input line remains one `Requirement` even
+when it contains multiple grammatical sentences or clauses.
 
-Whether one line may contain multiple sentences, which natural languages the
-feature rules support, and how applicability is determined from text-only input
-remain unresolved in RQD-018 and RQD-023.
+Ukrainian is the officially supported natural language for language-dependent
+feature detection in MVP v0.1. Dictionary and linguistic matching may be
+case-insensitive. Language-independent detection may operate on approved
+constructs such as numbers, percentages, comparison operators, measurable
+values, and supported units. No English linguistic profile is approved in this
+task. Future language profiles must be replaceable or additive without changing
+quality calculators. Evidence always points back to the original text.
 
 ## 7. RequirementFeatures
 
@@ -343,6 +363,15 @@ Chapter 2 defines methodological constraints for features and metrics but not a
 complete executable feature schema. Every implemented metric must identify its
 object and applicability set, use a reproducible algorithm, declare polarity,
 record its data source and automation level, and preserve semantic context.
+
+MVP v0.1 does not automatically classify requirements as functional,
+performance, security, reliability, usability, or any other category.
+Requirement type remains unspecified. Every feature or criterion uses the
+explicit applicability state `APPLICABLE`, `NOT_APPLICABLE`, or `UNKNOWN`.
+`NOT_APPLICABLE` and `UNKNOWN` must never be converted silently to score zero,
+and lack of applicability evidence is not evidence of a violation. Exact
+calculator propagation for these states remains unresolved under the
+characteristic-calculation gate.
 
 No feature is approved for implementation yet. The table below is a candidate
 registry, not an executable schema. It distinguishes source-supported semantic
@@ -403,8 +432,8 @@ from detected elements to `a_i,C`, binary versus graded behavior, and treatment
 of overlap with Verifiability are unresolved. Actor/action/object fields are not
 defined by Chapter 2 and remain proposed implementation features.
 
-Researcher decisions RQD-001, RQD-002, RQD-005, RQD-006, RQD-010, RQD-012,
-RQD-019, and RQD-023 are required.
+Researcher decisions RQD-002, RQD-005, RQD-006, RQD-010, and RQD-012 are
+required.
 
 ### Formula and output range
 
@@ -458,8 +487,8 @@ The rule for determining applicability, requirement type, procedure presence,
 criterion presence, and linkage among quantity/unit/condition/bound is not
 defined. The mapping of those observations to `a_i,V` is also not defined.
 
-Researcher decisions RQD-003, RQD-005, RQD-008, RQD-010, RQD-012, and RQD-023
-are required.
+Researcher decisions RQD-003, RQD-005, RQD-008, RQD-010, and RQD-012 are
+required.
 
 ### Formula and output range
 
@@ -510,7 +539,7 @@ applicability rule, and mapping of multiple signals to the intermediate
 review-confirmed ambiguities or deterministic detector signals only.
 
 Researcher decisions RQD-004, RQD-005, RQD-007, RQD-008, RQD-010, RQD-012,
-RQD-016, and RQD-023 are required.
+and RQD-016 are required.
 
 ### Formula and output range
 
@@ -530,46 +559,51 @@ The application example supplies useful positive findings for vague phrases and
 revised bounded forms. It does not establish that every occurrence is always
 ambiguous or provide a complete vocabulary.
 
-## 11. Requirement Quality Score
+## 11. Requirement Quality Profile
 
-The required implementation relationship is:
+The approved implementation relationship is:
 
 ```text
-CharacteristicScore(C_i, V_i, U_i)
+CharacteristicAssessments(C_i, V_i, U_i)
         ↓
-RequirementQualityScore(Q_i)
+RequirementQualityProfile(A_i)
 ```
 
 Chapter 2 defines individual property results `a_i,C`, `a_i,V`, and `a_i,U`, but
-it deliberately preserves a multidimensional property profile rather than
-defining a single quality score for one requirement. Chapter 4's `Q_int` formula
-combines context-selected ISO product-quality characteristics, not the three MVP
-qualities of one requirement. Reusing either the set-level property mean or
-`Q_int` here would be an unsupported scientific adaptation.
+it deliberately preserves a multidimensional property profile. Therefore the
+primary result is `A_i = (C_i, V_i, U_i)`. No function combines these values,
+and no scalar `RequirementQualityScore` is required in MVP v0.1. Chapter 4's
+`Q_int` formula combines context-selected ISO product-quality characteristics,
+not the three MVP properties of one requirement, and must not be reused here.
+RQD-013's original scalar-score request is intentionally deferred from MVP
+v0.1.
 
-The aggregation function, weights or non-compensated rules, missing-score
-behavior, output range, and rounding are `MISSING` pending RQD-013.
+## 12. Specification Quality Profile
 
-## 12. File Quality Score
-
-The required implementation relationship is:
+The approved implementation relationship is:
 
 ```text
-RequirementQualityScore(Q_1, ..., Q_n)
+RequirementQualityProfile(A_1, ..., A_n)
         ↓
-FileQualityScore(Q_file)
+property-level specification aggregation
+        ↓
+SpecificationQualityProfile(C_file, V_file, U_file)
 ```
 
 Chapter 2 defines `x_k = (1/n) * sum_i(a_ik)` as the set-level indicator for one
-specific requirement property. It does not define an overall file-quality value
-aggregated from per-requirement `Q_i` values. It also warns against prematurely
-reducing the multidimensional metric profile to one integrated requirements-
-quality index. The application example scores a specification using
-demonstrational property values; it does not aggregate independently calculated
-line-level Requirement Quality Scores.
+specific requirement property. MVP v0.1 therefore preserves three separate
+aggregates:
 
-Arithmetic mean, weighted mean, minimum, penalty rules, and empty-file behavior
-must not be assumed. They are `MISSING` pending RQD-014.
+```text
+C_file = mean(C_i for applicable/computed C_i)
+V_file = mean(V_i for applicable/computed V_i)
+U_file = mean(U_i for applicable/computed U_i)
+```
+
+No scalar `FileQualityScore` combines these values. RQD-014's original scalar-
+score request is intentionally deferred from MVP v0.1. Exact missing/`UNKNOWN`
+propagation, empty-set behavior beyond the approved `NA` principle, numeric
+precision, and rounding remain unresolved under RQD-012, RQD-015, and RQD-022.
 
 ## 13. Numeric precision and rounding
 
@@ -595,6 +629,11 @@ Chapter 2 and Chapter 4 establish these binding principles:
 2. an empty applicability denominator yields `NA`, not zero;
 3. unavailable or not-applicable evidence must not be replaced by numeric zero;
 4. critically incomplete evidence must not produce a falsely precise score.
+
+For feature and criterion applicability, MVP v0.1 represents the approved
+states `APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN`. `NOT_APPLICABLE` and
+`UNKNOWN` are distinct and neither is numeric zero. An `APPLICABLE` criterion's
+computed-versus-missing assessment state is a separate concern.
 
 These semantics are explicitly defined, but the concrete domain representation,
 console wording, aggregation behavior, and distinction between “missing data”
@@ -648,8 +687,8 @@ vague_terms includes the exact span “швидко”.
 Characteristic scores:
 UNRESOLVED
 
-Requirement Quality Score:
-UNRESOLVED
+Requirement Quality Profile:
+(C, V, U) values UNRESOLVED
 ```
 
 ### Example B: measurable revised wording
@@ -669,8 +708,8 @@ subject to approved definitions in Section 7.
 Characteristic scores:
 UNRESOLVED
 
-Requirement Quality Score:
-UNRESOLVED
+Requirement Quality Profile:
+(C, V, U) values UNRESOLVED
 ```
 
 ### Example C: missing failure behavior
@@ -689,14 +728,14 @@ missing expected behavior for the stated failure condition.
 Characteristic scores:
 UNRESOLVED
 
-Requirement Quality Score:
-UNRESOLVED
+Requirement Quality Profile:
+(C, V, U) values UNRESOLVED
 ```
 
 Researcher-approved examples must eventually include expected features,
-characteristic scores, requirement-quality score, explanations, and boundary
-behavior. Demonstration coefficients and scores in the source example must not
-be reused as expected values.
+characteristic assessments, requirement-quality profiles, explanations, and
+boundary behavior. Demonstration coefficients and scores in the source example
+must not be reused as expected values.
 
 ## 17. Future extensions
 
@@ -719,119 +758,93 @@ including target, evidence, severity, confidence, stage, and version. MVP must
 not conflate a detected quality problem with a calibrated risk probability, and
 it need not implement those future fields now.
 
-## 18. Research Decision Status After Chapter 2 Review
+## 18. Current Research Decision Status
 
 Chapter 2 resolves terminology and imposes methodological constraints, but it
 does not turn the three MVP characteristics into executable per-line scoring
-rules. `RESOLVED_BY_CHAPTER_2` means that the research-input request itself is
-closed. `PARTIALLY_RESOLVED` means that Chapter 2 supplies a binding conceptual
-definition or part of the contract while an implementation decision remains.
-`ADDITIONAL_CONSTRAINTS` means that the decision is still open and Chapter 2
-narrows the acceptable answer. `UNRESOLVED` means that Chapter 2 supplies no
-answer sufficient for that decision.
+rules. Researcher approvals recorded below supersede earlier proposed or open
+statuses for their MVP scope. `DEFERRED_FROM_MVP_V0.1` means the requested
+scientific construct is intentionally not an implementation requirement for
+this release.
 
 No open item in this section may be answered by Codex without researcher
 approval.
 
-| ID | Research decision | Chapter 2 assessment | Binding evidence or remaining gap | Current status | Blocked MVP component(s) |
+| ID | Research decision | Assessment or approved decision | Binding evidence or remaining gap | Current status | Blocked MVP component(s) |
 | --- | --- | --- | --- | --- | --- |
-| `RQD-001` | Confirm that MVP assesses artifact quality of each individual requirement, not Predicted Product Quality, and define its relation to specification-level quality. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.2 explicitly distinguish individual-requirement properties, specification-level properties, and product-quality characteristics. For MVP v0.1, the individual textual requirement is the unit of analysis only as **PROPOSED FOR RESEARCHER APPROVAL**. | OPEN | MVP-01, MVP-06-09, MVP-12 |
+| `RQD-001` | Confirm that MVP assesses artifact quality of each individual requirement, not Predicted Product Quality, and define its relation to specification-level quality. | `APPROVED_FOR_MVP_V0.1` | One non-empty input line is one `r_i`; Requirement Quality is artifact quality, its primary result is `A_i = (C_i, V_i, U_i)`, and it is strictly separate from Predicted Product Quality. | CLOSED FOR MVP v0.1 | None |
 | `RQD-002` | Approve an operational definition of per-requirement Completeness. | `PARTIALLY_RESOLVED` | Section 2.1 defines local Completeness through sufficient condition, expected reaction, and fulfilment-criterion information, with elements dependent on requirement type/template. It supplies no deterministic detection or scoring rule. | OPEN | MVP-04/05 as applicable, MVP-06 |
 | `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 define reproducible verification and relevant evidence, and give set-level ratios. They do not define an `a_i,V` calculation for one line. | OPEN | MVP-04/05 as applicable, MVP-07 |
 | `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `PARTIALLY_RESOLVED` | Section 2.1 defines one justified interpretation and gives boundary meanings for `a_i,U`; Sections 2.1 and 2.3 treat linguistic matches as signals rather than proof. Detector, confirmation, applicability, and intermediate-value rules remain absent. | OPEN | MVP-05, MVP-08 |
-| `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `ADDITIONAL_CONSTRAINTS` | Section 2.3 requires every metric to identify its object, reproducible algorithm, polarity, data source/automation, and semantic context, and distinguishes feature, measure, and indicator. It does not define the MVP field registry. | OPEN | MVP-01, MVP-03-08 |
+| `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `ADDITIONAL_CONSTRAINTS` | Section 2.3 requires every metric to identify its object, reproducible algorithm, polarity, data source/automation, and semantic context, and distinguishes feature, measure, and indicator. RQD-023 supplies the applicability enum but not the MVP field registry. | OPEN | MVP-01, MVP-03-08 |
 | `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_RESOLVED` | Section 2.1 supports condition, expected reaction, and fulfilment criterion as Completeness evidence. It neither requires the proposed actor/action/object schema nor supplies syntactic or semantic boundaries. | OPEN | MVP-04 and consuming calculators |
-| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `ADDITIONAL_CONSTRAINTS` | Sections 2.1 and 2.3 identify smell families and require a signal to remain distinct from a confirmed ambiguity. They do not supply a closed vocabulary or executable match rules. | OPEN | MVP-05, MVP-08 |
+| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `PARTIALLY_RESOLVED_BY_RQD_018` | Ukrainian, case-insensitive linguistic matching, original-text evidence, and punctuation preservation are approved. A closed vocabulary, executable match rules, exceptions, and versioning remain open. | OPEN | MVP-05, MVP-08 |
 | `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 identify observable quantity, unit, measurement conditions, admissible bound, acceptance criterion, and verification method as relevant evidence when applicable. Exact detection, applicability, and linkage are missing. | OPEN | MVP-04/05, MVP-07 |
 | `RQD-009` | Approve the evidence data structure. | `ADDITIONAL_CONSTRAINTS` | Section 2.3 requires reproducibility, source traceability, and separation of observation from interpretation; Chapter 4 requires explanations. Span, ordering, multiplicity, rule-ID, confirmation-state, and absent-evidence representations remain open. | OPEN | MVP-01, MVP-03-10 |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PARTIALLY_RESOLVED` | Section 2.1 places individual property values `a_ij` in `[0,1]`; Section 2.3 supplies generic and set-level metrics. Neither supplies executable per-requirement formulas for `a_i,C`, `a_i,V`, and intermediate `a_i,U`. | OPEN | MVP-06-08 |
-| `RQD-011` | Approve score direction and valid range for each characteristic and both aggregate levels. | `PARTIALLY_RESOLVED` | Chapter 2 supports `[0,1]` and upward compliance orientation for individual properties and principal property metrics. It does not approve binary versus graded MVP scores, a Requirement Quality range, or a file aggregate range. | OPEN | MVP-01, MVP-06-10 |
-| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `PARTIALLY_RESOLVED` | Section 2.3 binds three states—computed, applicable but missing data, and not applicable—and forbids converting an empty applicability set to zero. Concrete domain states and calculator/aggregation behavior remain open. | OPEN | MVP-01, MVP-06-10 |
-| `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `UNRESOLVED` | Chapter 2 intentionally preserves a multidimensional requirements-property profile. Chapter 4's `Q_int` concerns Predicted Product Quality and cannot be reused. | OPEN | MVP-09, MVP-10-12 |
-| `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `ADDITIONAL_CONSTRAINTS` | Section 2.1 defines a set mean `x_k` for one property, not an aggregate of per-requirement overall scores. Section 2.3 cautions against an unsupported single integrated index. | OPEN | MVP-09, MVP-10-12 |
+| `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PARTIALLY_RESOLVED` | Chapter 2 supports `[0,1]` and upward compliance orientation for individual properties and their property-level means. It does not approve binary versus graded MVP characteristic assessments. | OPEN | MVP-01, MVP-06-10 |
+| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `PARTIALLY_RESOLVED` | RQD-023 approves applicability states `APPLICABLE`, `NOT_APPLICABLE`, and `UNKNOWN` and forbids converting the latter two to zero. Concrete assessment-state representation and calculator/aggregation propagation remain open. | OPEN | MVP-01, MVP-06-10 |
+| `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
+| `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation remains under RQD-012/RQD-022. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-015` | Approve numeric precision and rounding. | `UNRESOLVED` | Chapter 2 gives no calculation, aggregation, or presentation rounding policy. | OPEN | MVP-06-12 |
 | `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `PARTIALLY_RESOLVED` | Chapter 2 identifies property defect families and distinguishes a raw automated signal from a confirmed defect. MVP problem IDs, conversion rules, severity, and reporter wording remain open. | OPEN | MVP-01, MVP-06-08, MVP-10 |
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `ADDITIONAL_CONSTRAINTS` | Chapter 2 provides qualitative cases and working set-level formula examples, but no approved expected per-line MVP feature vectors or scores. Examples must respect applicability and signal/confirmation distinctions. | OPEN | MVP-04-09, MVP-12 |
-| `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `UNRESOLVED` | Chapter 2 uses examples and linguistic categories but specifies no implementation language or normalization contract. | OPEN | MVP-03-05, MVP-12 |
-| `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `PARTIALLY_RESOLVED` | Sections 2.1-2.3 define Consistency as conflict-free relations at set level, Traceability as artifact links, and global Completeness as specification coverage. Their theoretical scope is clearer, but inclusion as supporting features or explicit exclusion from MVP still needs approval. | OPEN | MVP-01, MVP-04-08 |
+| `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
+| `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
 | `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `PARTIALLY_RESOLVED` | Section 2.3 permits an applicability mask `B` and optional reliability vector `D`/`Rel`, but requires empirical validation rather than invented confidence values. MVP inclusion and semantics remain open. | OPEN, CONDITIONALLY BLOCKING | MVP-01, MVP-06-10 if included |
 | `RQD-021` | Supply or supersede the Chapter 2/§2.3 definitions referenced by Chapter 4. | `RESOLVED_BY_CHAPTER_2` | Sections 2.1, 2.2, and especially 2.3 are now present and integrated into this specification. Their remaining operational gaps are tracked by the other RQDs. | CLOSED AS RESEARCH INPUT | None directly |
-| `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `PARTIALLY_RESOLVED` | Chapter 2 and Chapter 4 prohibit false precision and distinguish missing from not applicable. Console wording and propagation into requirement/file aggregates remain open. | OPEN | MVP-06-10, MVP-12 |
-| `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `UNRESOLVED` | Section 2.3 makes `R_k^app` essential and requires `NA` for an empty applicability set, while Sections 2.1 and 2.3 make several elements type-dependent. The input contract supplies only line text and no approved type classifier or metadata. | OPEN | MVP-01, MVP-04-08, MVP-12 |
+| `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `PARTIALLY_RESOLVED` | Chapter 2 and Chapter 4 prohibit false precision and distinguish missing from not applicable. Console wording and propagation into requirement and property-level specification profiles remain open. | OPEN | MVP-06-10, MVP-12 |
+| `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Requirement type remains unspecified; feature/criterion applicability is `APPLICABLE`, `NOT_APPLICABLE`, or `UNKNOWN`, with neither non-applicable nor unknown treated as zero. Exact calculator propagation remains under the characteristic-calculation gate. | CLOSED FOR MVP v0.1 | None directly |
 
-### 18.1 RQDs resolved by Chapter 2
+### 18.1 RQDs approved or closed for MVP v0.1
 
-- `RQD-021` is closed because the requested Chapter 2 sources are now present
-  and traced. This does not close the scientific operationalization decisions
-  recorded separately.
+- `RQD-001`, `RQD-018`, `RQD-019`, and `RQD-023` are closed by explicit
+  researcher approval for MVP v0.1.
+- `RQD-021` remains closed because the requested Chapter 2 sources are present
+  and traced.
 
-### 18.2 RQDs partially resolved by Chapter 2
+### 18.2 Scalar-score RQDs deferred from MVP v0.1
 
-- `RQD-001`, `RQD-002`, `RQD-003`, `RQD-004`, `RQD-006`, `RQD-008`,
-  `RQD-010`, `RQD-011`, `RQD-012`, `RQD-016`, `RQD-019`, `RQD-020`, and
-  `RQD-022`.
+- `RQD-013` is closed for MVP v0.1 by retaining
+  `RequirementQualityProfile(C, V, U)` instead of inventing a scalar
+  `RequirementQualityScore`.
+- `RQD-014` is closed for MVP v0.1 by retaining property-level means in
+  `SpecificationQualityProfile(C_file, V_file, U_file)` instead of inventing a
+  scalar `FileQualityScore`.
 
-These items now have binding conceptual definitions or partial semantics, but
-still require researcher-approved implementation contracts.
+Any future scalar index requires a separate researcher-approved scientific
+decision.
 
-### 18.3 RQDs receiving additional constraints from Chapter 2
+### 18.3 Remaining implementation-blocking RQDs
 
-- `RQD-005`, `RQD-007`, `RQD-009`, `RQD-014`, and `RQD-017`.
+The remaining decisions are grouped into four approval gates:
 
-They remain open; Chapter 2 narrows acceptable solutions through applicability,
-reproducibility, evidence, confirmation, and multidimensionality constraints.
+1. **Feature and evidence contract gate:** `RQD-005`-`RQD-009` and `RQD-016`.
+2. **Characteristic-calculation gate:** `RQD-002`-`RQD-004`, `RQD-010`-
+   `RQD-012`, and `RQD-022`.
+3. **Property aggregation and numeric-contract gate:** the still-open
+   propagation aspects of `RQD-012` and `RQD-022`, plus `RQD-015`.
+4. **Scientific acceptance gate:** `RQD-017`.
 
-### 18.4 RQDs still unresolved after Chapter 2
+`RQD-020` is conditionally blocking only if confidence or evidence-reliability
+values are included in MVP v0.1. It is not permission to invent such values.
 
-- `RQD-013`, `RQD-015`, `RQD-018`, and `RQD-023`.
+### 18.4 Remaining design tensions
 
-All partially resolved and additional-constraint items also remain open for
-implementation even though Chapter 2 contributed evidence to them.
-
-### 18.5 New contradictions or design tensions exposed by Chapter 2
-
-1. **Unit of analysis.** Chapter 2 supports individual-requirement assessment
-   but also defines essential set-level properties. The MVP choice of one text
-   line as one requirement is therefore **PROPOSED FOR RESEARCHER APPROVAL**, not
-   a dissertation conclusion.
-2. **Multidimensional profile versus mandatory overall scores.** Chapter 2
-   preserves a vector of property metrics and warns against premature collapse
-   into one index, while the MVP output contract asks for one overall score per
-   requirement and one aggregate file score.
-3. **Automated signal versus confirmed defect.** A deterministic text detector
+1. **Automated signal versus confirmed defect.** A deterministic text detector
    can identify risk signals, while the research definition of Unambiguity uses
    confirmed ambiguity at its boundary values. Treating every match as a defect
    would contradict that distinction.
-4. **Applicability versus text-only input.** Chapter 2 requires type- and
-   applicability-aware denominators and `NA` behavior, while MVP input contains
-   no approved requirement type or metadata.
-5. **Local Completeness versus Verifiability overlap.** A fulfilment criterion
+2. **Applicability without type classification.** Requirement type remains
+   unspecified. Feature and criterion contracts must preserve `UNKNOWN` rather
+   than infer a type or violation, and calculators still need approved
+   propagation rules.
+3. **Local Completeness versus Verifiability overlap.** A fulfilment criterion
    contributes to local Completeness and also provides Verifiability evidence.
    Any shared feature and non-duplication rule requires approval.
-6. **Property-specific set means versus File Quality.** The defined `x_k` is a
-   mean for one property. It is not the requested aggregate of overall
-   per-requirement quality scores and cannot silently replace it.
-7. **Set-level properties versus per-line processing.** Consistency,
-   Traceability, and global coverage require relationships or expected sets
-   that cannot be established from an isolated line alone.
 
-### 18.6 Reduced implementation-blocking RQD list
-
-The remaining decisions can be handled as five approval gates rather than as
-an undifferentiated list:
-
-1. **Scope and applicability gate:** `RQD-001`, `RQD-019`, `RQD-023`.
-2. **Feature and evidence contract gate:** `RQD-005`-`RQD-009`, `RQD-016`,
-   `RQD-018`.
-3. **Characteristic-calculation gate:** `RQD-002`-`RQD-004`, `RQD-010`-
-   `RQD-012`, `RQD-022`.
-4. **Aggregation and numeric-contract gate:** `RQD-013`-`RQD-015`.
-5. **Scientific acceptance gate:** `RQD-017`.
-
-`RQD-020` is conditionally blocking only if confidence or evidence-reliability
-values are included in MVP v0.1. `RQD-021` is resolved and no longer blocks
-implementation.
-
-Until the applicable implementation gates are approved and this document's
-status is changed from `DRAFT`, feature rules, characteristic calculators, and
-quality aggregators remain blocked.
+The next recommended approval gate is the **feature and evidence contract gate**
+(`RQD-005`-`RQD-009` and `RQD-016`), followed by the characteristic-calculation
+gate. Until the applicable gates are approved and this document's status is
+changed from `DRAFT`, feature rules, characteristic calculators, and
+specification aggregation remain blocked.
