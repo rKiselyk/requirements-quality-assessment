@@ -815,6 +815,651 @@ partially approve `RQD-007` and `RQD-016`. Implementation remains blocked by:
 No decision in this section defines a calculation for `C`, `V`, or `U`, a
 coefficient, a weight, a threshold, a score contribution, or a rounding rule.
 
+### 7.14 Deterministic Feature Detection Contract — DRAFT FOR RESEARCHER APPROVAL
+
+This section is a researcher-reviewable detector proposal for the six approved
+feature families. Every rule, normalized form, boundary, linkage choice, and
+rule-ID convention introduced here is **PROPOSED FOR RESEARCHER APPROVAL**. It
+does not authorize implementation and does not change the approved registry or
+evidence contract in Sections 7.2 and 7.5.
+
+The proposal prefers explicit, local evidence and reproducibility over recall.
+It does not use domain common sense to supply missing meaning. It requires no
+LLM API, embedding, generative inference, or custom trained classifier. Parser
+assistance, where identified, means only a replaceable source of tokenization,
+lemma, part of speech, morphology, dependency relation, and clause boundaries
+behind the `FeatureExtractor` boundary. No NLP library is selected.
+
+#### 7.14.1 Corpus review and source classification
+
+All supplied research references were reviewed for semantic definitions and
+literal detector examples. A literal is `SOURCE-ATTESTED` only when it occurs in
+the supplied corpus. Occurrence in explanatory prose or a mathematical formula
+does not by itself establish that the literal is suitable as a requirement-text
+detector. Any proposed use of a source-attested literal remains an implementation
+operationalization requiring approval.
+
+| Source reviewed | Detector-relevant contribution | Literal-detector consequence |
+| --- | --- | --- |
+| Requirement properties, Section 2.1, paragraphs 10-12 and Tables 2.1/2.3 | Condition, expected reaction, fulfilment criterion, reproducible verification, quantitative indicator/condition/bound, and signal-versus-defect semantics | Supports the six feature meanings, but supplies no complete detector grammar; `швидко` is the only new literal already captured by the approved seed lexicon |
+| Requirements and product quality, Section 2.2, paragraph 4, paragraph 25, Tables 2.4/2.5 | Expected results, criteria, observable targets, response-time bound, and load context | Supplies the linked example `Час відгуку ≤ 2 с при 500 одночасних користувачах` and the duration construction `не довше ніж за 2 с` |
+| Metrics system, Section 2.3, paragraphs 4-21 and 39-42, Tables 2.7-2.9 | Primary-observation boundary, applicability, criteria, quantities, units, conditions, reproducible procedures, and missing states | Supports deterministic lexical baselines and unresolved states; it does not supply an exhaustive lexicon or parser |
+| Static methods, Section 3.1, paragraphs 10-13 and 32-34 | Operationalization components and traceable rule/evidence records | Supports preserving object of measurement, conditions, unit, target/bound, criterion, rule, and provenance |
+| Dynamic methods, Section 3.2, paragraphs 3-10 and 20-23, Tables 3.4/3.5 | Requirement-to-criterion-to-procedure-to-observation chain; threshold, expected behavior, admissible range, condition; named verification procedures | Supplies semantic and vocabulary candidates, not production lexical rules |
+| Assessment method, Section 3.3, paragraphs 10-11 and 46 | Canonicalization, provenance, deduplication, and detector version traceability | Supports stable rule provenance and avoiding duplicate interpreted inputs; it supplies no detector literal |
+| Process model, Section 4.1 | Lifecycle conditions, checkpoints, evidence availability, and missing-data invariants | No additional requirement-text detector literal is adopted from this source |
+| Quality model, Section 4.2 | Characteristic-specific context, evidence profiles, and later prediction | No additional requirement-text detector literal is adopted from this source |
+| Risk model, Section 4.3 | Traceable defect/finding context and later risk interpretation | Supports the finding boundary; no detector literal, risk value, or severity field is adopted |
+| Chapter 4 conclusions | Summary of the three broader models | No additional detector mechanic or literal is adopted |
+| Application example, Sections 2-3, 7-8, and 13, especially Tables 1, 2, 6, and 7 | Original and revised Ukrainian requirements with conditions, results, numeric bounds, units, contexts, verification references, and vague-term occurrences | Primary source for the source-attested Ukrainian requirement-text forms below; all example scores, weights, thresholds, and risk values remain demonstrational and excluded |
+
+The following feasibility classification is proposed:
+
+| Feature family | Proposed class | Smallest useful deterministic baseline | Linguistic information needed beyond the baseline |
+| --- | --- | --- | --- |
+| `condition_context` | `PARSER_ASSISTANCE_OPTIONAL` | Source-attested marker plus a conservatively delimited phrase/clause | Clause boundary and dependency attachment for nested, coordinated, or ambiguous contexts |
+| `expected_result` | `PARSER_ASSISTANCE_REQUIRED` | No scientifically defensible lexical-only baseline equates a word or arbitrary verb with a result | Tokenization, lemma, part of speech, morphology, dependency relation, coordination, negation, and clause boundary |
+| `acceptance_criterion` | `PARSER_ASSISTANCE_OPTIONAL` | An explicit linked quantitative bound can form a narrow baseline | Predicate/argument and clause attachment for non-numeric expected behaviors and conditions |
+| `quantitative_constraint` | `PARSER_ASSISTANCE_OPTIONAL` | Comparator/value/unit chunks and partial observations | Dependency or template relation for metric, population, measurement context, and nested constraints |
+| `verification_method` | `PARSER_ASSISTANCE_OPTIONAL` | Explicit method-naming constructions and named procedure phrases | Morphology and dependency role to distinguish a verification procedure from system behavior or discussion about testing |
+| `vague_term_occurrence` | `LEXICAL_BASELINE_FEASIBLE` | Exact approved seed matching with deterministic Unicode, boundary, overlap, and ordering mechanics | None for the approved seed baseline |
+
+#### 7.14.2 General proposed detector mechanics
+
+The following mechanics are **PROPOSED FOR RESEARCHER APPROVAL**:
+
+1. Each detector operates on one trimmed original `Requirement.text`. It may
+   use a derived matching view, but evidence always addresses original Unicode
+   code-point offsets.
+2. An evidence span is the smallest contiguous original substring that contains
+   the explicit text needed to justify that observation. Leading/trailing
+   whitespace and sentence-final punctuation are excluded. Punctuation inside
+   a semantic construction is included only when required by that construction.
+3. A comma may delimit a leading or trailing condition, but a comma between
+   digits in a decimal value does not delimit a clause. Full stop, semicolon,
+   question mark, and exclamation mark are hard candidate boundaries after
+   protected numeric/version tokens have been recognized. A colon or dash is
+   not automatically a boundary; its grammatical role must be established.
+4. Every distinct accepted occurrence produces a separate observation and
+   separate evidence, ordered by ascending `start_offset`. Repeated identical
+   text is not collapsed.
+5. Non-overlapping observations from one family are retained. One source span
+   may support different feature families. Same-family nested candidates use
+   the feature-specific policy below; semantic nesting is not erased merely to
+   make spans non-overlapping.
+6. A marker, number, unit, verb, or method word alone does not establish a
+   semantic observation unless its rule explicitly permits a partial
+   observation. Ambiguous attachment produces `UNRESOLVED`, not a guessed link.
+7. No detector crosses from one requirement line to another. No domain fact,
+   requirement type, missing argument, implicit unit, implicit verification
+   method, or implicit expected behavior is supplied from common sense.
+
+#### 7.14.3 `condition_context`
+
+**Source-attested requirement/example markers.** These literals occur in a
+requirement or requirement-like example in the supplied sources. Their proposed
+use as detector markers is not yet approved.
+
+| Literal | Semantic role in the source | Traceability | Proposed evidence end | Main false-positive risk |
+| --- | --- | --- | --- | --- |
+| `у разі` | Event/failure condition | Application example, Section 2, Table 1, R2 and R5 | End of the marker-headed phrase, before sentence punctuation | A noun phrase may describe a topic rather than condition required behavior |
+| `під час` | Temporal/load execution context | Application example, Section 2, Table 1, R4 | End of the marker-headed phrase | General temporal narrative not modifying a required result or criterion |
+| `якщо` | Clause-level trigger/failure condition | Application example, Section 8, Table 7, `R5 → R5′` | End of the subordinate clause; exclude its delimiting comma | Conditional language in a definition or formula rather than the requirement behavior |
+| `після` | Event/temporal trigger | Application example, Section 8, Table 7, `R2 → R2′` and `R5 → R5′` | End of the marker-headed phrase or clause | Narrative sequence, lifecycle timing, or a result phrase not functioning as a condition |
+| `при` | Load/measurement context | Requirements and product quality, Section 2.2, Table 2.5, semantic example; Application example, Section 8, Table 7, `R2 → R2′` | End of the attached phrase | Highly polysemous preposition; corpus prose also uses it in non-requirement senses |
+
+`коли` occurs in explanatory prose, for example Requirement properties,
+Section 2.1, paragraphs 5 and 15, and Metrics system, Section 2.3, paragraph 17,
+but not in an explicit supplied requirement example that establishes a detector
+boundary. `за умови` does not occur in the supplied corpus. They are therefore
+not `SOURCE-ATTESTED`
+requirement-example markers. Adding either to an executable marker inventory
+would be a **PROPOSED IMPLEMENTATION EXTENSION** requiring separate approval.
+
+The proposed detector accepts a condition only when a source-attested marker
+heads a non-empty phrase or clause and that phrase/clause explicitly modifies a
+required behavior, expected result, acceptance criterion, or quantitative
+bound. For a leading `якщо` clause, the evidence begins at `якщо` and ends
+immediately before the delimiting comma. For a postposed `у разі`, `під час`,
+`після`, or `при` phrase, evidence begins at the marker and ends at the phrase
+boundary, excluding following punctuation. A bare marker, an incomplete
+complement, or a marker whose attachment cannot be determined is not `DETECTED`.
+If a candidate exists but attachment or boundary is not deterministic, the
+result is `UNRESOLVED`.
+
+Coordinated conditions that have independent heads become separate observations.
+A shared condition is not duplicated merely because it governs several results;
+its one evidence item may be referenced by those results or constraints. A
+nested condition with its own trigger is retained as a separate observation.
+
+| Case | Source status and input | Proposed detector output | Evidence span(s) | Proposed rule family |
+| --- | --- | --- | --- | --- |
+| Positive | SOURCE-ATTESTED — Application example, Section 2, Table 1, R2: `Маршрут доставки повинен швидко перераховуватися у разі зміни дорожньої ситуації.` | `DETECTED`; one condition | `[49,80)` `у разі зміни дорожньої ситуації` | `COND-UK` |
+| Negative | SOURCE-ATTESTED — Application example, Section 2, Table 1, R3: `Персональні та комерційні дані повинні бути надійно захищені.` | `NOT_DETECTED` | none | `COND-UK` |
+| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система повідомляє про помилку при перевірці.` | `UNRESOLVED`; `при перевірці` may be temporal context or verification-method context | no accepted evidence; candidate `[31,44)` is diagnostic only | `COND-UK` |
+| Repeated | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Якщо сервіс недоступний, система зберігає запит; якщо зв’язок відновлено, система надсилає запит.` | `DETECTED`; two ordered conditions | `[0,23)` `Якщо сервіс недоступний`; `[49,72)` `якщо зв’язок відновлено` | `COND-UK` |
+| Punctuation | SOURCE-ATTESTED — Application example, Section 2, Table 1, R4: `Система повинна залишатися доступною під час пікового навантаження.` | `DETECTED`; final full stop excluded | `[37,66)` `під час пікового навантаження` | `COND-UK` |
+| Interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R2 → R2′` | `DETECTED`; load phrase is a condition and may also be quantitative context | `[117,159)` `при навантаженні до 300 одночасних запитів` | `COND-UK`, `QUANT` |
+
+#### 7.14.4 `expected_result`
+
+The sources express expected results through required behavior, observable
+outcomes, and reactions after a condition. Source-attested constructions include
+the Ukrainian modal forms `повинен`, `повинна`, and `повинні` in the Application
+example, Section 2, Table 1, R1-R4; `має`/`мають` in Requirements and product
+quality, Section 2.2, paragraph 4, and the Application example, Section 8,
+Table 7, `R2 → R2′`; and coordinated result clauses such as `події зберігаються`,
+`UI показує`, `виконується повторна спроба`, and `формують alert` in the
+Application example, Section 8, Table 7, `R5 → R5′`.
+
+Those words are evidence of how the sources express behavior; they are not an
+exhaustive verb or modal lexicon. The proposed detector requires a parser-assisted
+clause rule that establishes all of the following:
+
+- the clause asserts required behavior or an observable result, rather than
+  merely mentioning, describing, negating the definition of, or discussing it;
+- the predicate and its essential arguments/complements form an explicit result;
+- coordination and negation scopes are resolved; and
+- an initial or final condition can be separated without removing text essential
+  to the result.
+
+Evidence is the complete minimal result clause, including its subject when the
+subject is expressed locally, modal/normative construction, predicate, essential
+object/complement, and any bound that is part of the required result. A separable
+condition is excluded and preserved as `condition_context`. An arbitrary verb,
+the noun phrase `очікуваний результат`, or an assertion that behavior is “not
+defined” must not count. When the parser cannot determine clause or attachment
+scope, the detector returns `UNRESOLVED`; it does not fall back to “contains a
+verb.”
+
+Each independent coordinated result clause is a separate observation, even when
+several share one condition. A result span may also support an
+`acceptance_criterion` and a `quantitative_constraint`.
+
+| Case | Source status and input | Proposed detector output | Evidence span(s) | Proposed rule family |
+| --- | --- | --- | --- | --- |
+| Positive | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R2 → R2′` | `DETECTED`; required route result | `[44,116)` `новий маршрут для 95 % запитів має бути сформований не більше ніж за 4 с` | `RESULT-UK` |
+| Negative | SOURCE-ATTESTED — Application example, Section 2, Table 1, R6: `У двох частинах документа задано різний час завершення неактивної сесії: 15 і 30 хвилин.` | `NOT_DETECTED`; this reports a conflict, not a required system result | none | `RESULT-UK` |
+| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система контролює обробку запитів.` | `UNRESOLVED`; an indicative verb alone does not establish normative/expected-result force | no accepted evidence | `RESULT-UK` |
+| Repeated | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R5 → R5′` | `DETECTED`; four result clauses under two temporal conditions | `[39,65)` `події зберігаються у черзі`; `[67,93)` `UI показує статус degraded`; `[95,132)` `виконується повторна спроба з backoff`; `[145,159)` `формують alert` | `RESULT-UK` |
+| Punctuation | Same source case | The comma separates the leading condition; the semicolon separates the final temporal condition/result pair; neither punctuation enters result evidence | same four spans | `RESULT-UK` |
+| Interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R2 → R2′` | One result span may also support an acceptance criterion; its inner bound supports a quantitative observation | result `[44,116)`; bound `[96,116)` | `RESULT-UK`, `ACCEPT-UK`, `QUANT` |
+
+#### 7.14.5 `acceptance_criterion`
+
+Dynamic methods, Section 3.2, Table 3.4 defines a criterion through a threshold,
+expected behavior, admissible range, or condition. Requirement properties,
+Section 2.1, Table 2.1 treats a criterion, threshold, test oracle, analysis, or
+inspection method as possible Verifiability evidence. Metrics system,
+Section 2.3, paragraphs 18-21 distinguishes an explicit acceptance criterion
+from a reproducible verification procedure and from a quantitative quality
+criterion.
+
+The proposed lexical baseline accepts a quantitative expression as an
+`acceptance_criterion` only when it is linked to explicit required/expected
+behavior and supplies an admissible bound or target against which the behavior
+can be judged. A version, identifier, date, observed value, load description, or
+other number is not automatically a criterion. A quantitative context such as
+`при навантаженні до 300 одночасних запитів` is not automatically a pass/fail
+criterion for the result it qualifies.
+
+For non-numeric criteria, parser assistance must establish a complete observable
+behavior under an explicit condition such that fulfilment can be judged. This
+supports source cases such as the failure reactions in the Application example,
+Section 8, Table 7, `R5 → R5′`, but does not assume that every expected result is
+sufficiently precise to be an acceptance criterion.
+
+Evidence for a quantitative criterion is the minimal full clause containing the
+judged subject/behavior and bound, not the number alone. Evidence for a
+non-numeric criterion is the complete observable behavior clause plus a
+reference to any separately captured governing condition. One span may validly
+support `expected_result`, `acceptance_criterion`, and
+`quantitative_constraint`, because the sources give overlapping semantic roles;
+this permission does not imply universal equivalence.
+
+| Relationship | Proposed conclusion |
+| --- | --- |
+| Quantitative bound → acceptance criterion | Sometimes. Only an attached target/admissible bound for required behavior qualifies. |
+| Quantitative expression → acceptance criterion | Not universally. Versions, identifiers, observed counts, and context-only quantities do not qualify. |
+| Expected result → acceptance criterion | Not universally. The result must be observable and sufficiently explicit to judge fulfilment. |
+| Acceptance criterion → quantitative constraint | Not universally. Section 3.2 Table 3.4 explicitly permits expected behavior or a condition without a numeric bound. |
+
+| Case | Source status and input | Proposed detector output | Evidence span(s) | Proposed rule family |
+| --- | --- | --- | --- | --- |
+| Positive | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R2 → R2′` | `DETECTED`; route-generation bound is judgeable | `[44,116)` `новий маршрут для 95 % запитів має бути сформований не більше ніж за 4 с` | `ACCEPT-UK` |
+| Negative | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R7 → R7′`: `Для кожної критичної API-вимоги створити traceability link до acceptance test, NFR test та відповідного релізного критерію.` | `NOT_DETECTED`; it requests links but supplies no acceptance content | none | `ACCEPT-UK` |
+| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система забезпечує належний результат обробки.` | `UNRESOLVED`; neither an observable boundary nor a reproducibly judgeable behavior is explicit | no accepted evidence | `ACCEPT-UK` |
+| Repeated | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R5 → R5′` | `DETECTED` for each parser-confirmed observable failure reaction; each remains independently judgeable | result spans `[39,65)`, `[67,93)`, `[95,132)`, and `[145,159)`, with governing conditions `[0,37)` or `[134,144)` as applicable | `ACCEPT-UK` |
+| Punctuation | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R1 → R1′` | `DETECTED`; semicolon separates two candidate criteria rather than merging them | `[0,90)` update-frequency clause; `[92,177)` percentile-latency clause | `ACCEPT-UK` |
+| Interaction | Same `R2 → R2′` source case | Result and acceptance evidence may share `[44,116)`; quantitative evidence uses the inner bound and linked metric/context evidence | `[44,116)`, including `[96,116)` | `RESULT-UK`, `ACCEPT-UK`, `QUANT` |
+
+#### 7.14.6 `quantitative_constraint`
+
+This proposal preserves the approved linked shape and partial-observation
+policy. It does not create independent `has_metric`, `has_threshold`, or
+`has_unit` booleans.
+
+##### 7.14.6.1 Comparator forms
+
+The following are source-attested in quantitative requirement or
+requirement-like examples. The normalized operators are proposals, not approved
+mappings.
+
+| Source surface form | Proposed normalized meaning | Traceability | Status/qualification |
+| --- | --- | --- | --- |
+| `≤` | `LESS_THAN_OR_EQUAL` | Requirements and product quality, Section 2.2, Table 2.5, semantic example | `SOURCE-ATTESTED`; proposed mapping |
+| `не довше ніж` | `LESS_THAN_OR_EQUAL` for duration | Requirements and product quality, Section 2.2, paragraph 4 | `SOURCE-ATTESTED`; proposed mapping |
+| `не довше` | `LESS_THAN_OR_EQUAL` for duration | Dynamic methods, Section 3.2, paragraph 21 | `SOURCE-ATTESTED`; proposed mapping |
+| `не більше` | `LESS_THAN_OR_EQUAL` | Application example, Section 8, Table 7, `R1 → R1′` | `SOURCE-ATTESTED`; proposed mapping |
+| `не більше ніж` | `LESS_THAN_OR_EQUAL` | Application example, Section 8, Table 7, `R2 → R2′` | `SOURCE-ATTESTED`; proposed mapping |
+| `не нижче` | `GREATER_THAN_OR_EQUAL` | Application example, Section 8, Table 7, `R4 → R4′` | `SOURCE-ATTESTED`; proposed mapping |
+| `не рідше` | `NOT_LESS_FREQUENT`; numeric direction depends on whether the metric is frequency or interval | Application example, Section 8, Table 7, `R1 → R1′` | `SOURCE-ATTESTED`; the written-out count and normalized numeric operator remain unresolved |
+| `до` | upper bound with inclusivity `UNRESOLVED` | Application example, Section 8, Table 7, `R2 → R2′` | `SOURCE-ATTESTED`; mapping directly to `LESS_THAN_OR_EQUAL` would require an explicit decision |
+
+The literals `<`, `>`, `=`, and `≥` occur elsewhere in the corpus in formulas,
+state transitions, or model checkpoints, but not as supplied natural-language
+requirement comparator examples for this contract. `не менше` and `не пізніше`
+do not occur in the supplied corpus. `щонайменше` occurs in explanatory prose,
+not as an example requirement bound. Treating any of these forms as a production
+constraint comparator is a **PROPOSED IMPLEMENTATION EXTENSION**, not
+source-derived detector evidence. No mapping is approved here.
+
+Comparator evidence begins at the first comparator symbol/word and continues
+through any fixed grammatical material that belongs to the attested construction
+(`ніж`, or duration-introducing `за`) and the linked numeric/unit phrase. A
+negation or comparative word separated from a compatible value is not accepted.
+
+##### 7.14.6.2 Numeric forms
+
+| Form | Source-attested example and traceability | Proposed MVP treatment |
+| --- | --- | --- |
+| Integer | `2`, `500` in Requirements and product quality, Section 2.2, Table 2.5; `3`, `4`, `300`, `15`, `2` in Application example, Section 8, Table 7 | Accept ASCII digit integers in a linked quantitative candidate |
+| Decimal comma | `99,9 %` in Application example, Section 8, Table 7, `R4 → R4′` | Accept one comma between digits as a decimal separator; preserve raw text; proposed parsed value is decimal `99.9` without rounding |
+| Decimal point | `TLS 1.3` and `OAuth 2.0` in Application example, Section 8, Table 7, `R3 → R3′` | Source-attested as version identifiers, not measured values; do not treat as a quantitative constraint without an independently established metric/comparator relation |
+| Percentage | `95 %` in Requirements and product quality, Section 2.2, paragraph 4; `95 %` and `99,9 %` in Application example, Section 8, Table 7 | Accept the number plus percent sign as one value/unit chunk whether separated by the source-attested single space; do not infer a denominator not expressed by the clause |
+| Count/population | `500 одночасних користувачах` in Section 2.2 Table 2.5; `300 одночасних запитів` in Application example Table 7 | Preserve the count and population phrase; decide through linkage whether it is metric, constraint, or context |
+| Duration | `2 с` in Section 2.2 paragraph 4/Table 2.5; `3 с`, `4 с`, `15 с`, `2 хв`, and `15 хв` in Application example Table 7 | Accept only source-supported unit forms; no conversion between seconds and minutes |
+| Ordinal/percentile | `95-й перцентиль` in Application example, Section 8, Table 7, `R1 → R1′` | Preserve as metric qualifier; do not convert it to a percentage observation |
+| Written-out number | `одного разу` in the same `R1 → R1′` example | Source-attested, but parsing written-out Ukrainian numbers remains `UNRESOLVED`; do not silently parse it as numeric `1` |
+| Range | “допустимий діапазон” is a semantic category in Dynamic methods, Section 3.2, Table 3.4, but no literal requirement range syntax is supplied | No MVP range parser is proposed from current evidence |
+
+Signs, exponent notation, digit grouping, ordinals other than the attested
+percentile construction, dates, and symbolic variables are not approved numeric
+forms. A numeric token in a version, identifier, formula, or document reference
+must not count merely because it contains digits.
+
+##### 7.14.6.3 Unit forms
+
+| Surface form | Proposed normalized label | Traceability | Limitation |
+| --- | --- | --- | --- |
+| `с` | `SECOND` | Requirements and product quality, Section 2.2, paragraph 4/Table 2.5; Application example, Section 8, Table 7, R1′/R2′ | No implicit plural or conversion rule is needed for the abbreviation |
+| `хв` | `MINUTE` | Application example, Section 8, Table 7, R5′/R6′ | No conversion to seconds |
+| `хвилин` | `MINUTE` | Application example, Section 2, Table 1, R6 | Inflected forms not present in the sources are not generated |
+| `%` | `PERCENT` | Requirements and product quality, Section 2.2, paragraph 4; Application example, Section 8, Table 7 | A percent is not complete without its associated population/metric semantics |
+
+`користувачах`, `запитів`, and `разу` are source-attested count/population nouns,
+not entries in a general unit ontology. They may be preserved inside metric or
+context evidence. A future unit registry, SI/IT ontology, aliases, compound
+units, and unit conversion are outside this proposal.
+
+The approved partial-observation example in Section 7.6 contains `секунд` and
+normalizes it conceptually to `seconds`. This is an authoritative model-spec
+example, but `секунд` was not found as a quantitative requirement unit form in
+the supplied research references. Adding it to an executable unit inventory is
+therefore an explicit researcher decision, not a `SOURCE-ATTESTED` corpus claim.
+
+##### 7.14.6.4 Metric and context
+
+Source-attested metric expressions include `Час відгуку` (Requirements and
+product quality, Section 2.2, Table 2.5), a percentage of processed requests
+(Section 2.2, paragraph 4), `95-й перцентиль затримки від отримання GPS-події до
+відображення в UI` and update frequency (Application example, Section 8,
+Table 7, R1′), implicit route-generation duration (R2′), and `Місячна доступність
+сервісу` (R4′). They demonstrate metric roles but do not define an exhaustive
+metric vocabulary.
+
+The proposed lexical baseline therefore leaves `metric` unresolved unless an
+explicit nominal metric phrase is attached unambiguously to the bound. Parser
+assistance may extract the governing noun phrase and essential complements. It
+must not infer a metric such as latency merely because a duration occurs.
+
+Source-attested quantitative contexts include `при 500 одночасних
+користувачах` in Section 2.2 Table 2.5 and `при навантаженні до 300 одночасних
+запитів` in the Application example Table 7 R2′. A population qualifier such as
+`для 95 % запитів`, a temporal measurement window such as `Місячна`, and a load
+bound may be part of the metric, context, or a nested constraint. When the role
+is not unique, the component remains unresolved.
+
+`condition_context` and quantitative `context` are not duplicate semantics.
+The former is a general feature observation consumed by Completeness; the latter
+is the condition retained inside one linked quantitative observation. The same
+source evidence may support both. If a context contains its own measurable
+bound, it may also form a separate quantitative observation, provided each role
+is explicit and traceable.
+
+##### 7.14.6.5 Proposed linkage algorithm
+
+The following algorithm is **PROPOSED FOR RESEARCHER APPROVAL**:
+
+1. Build an offset-preserving matching view and identify protected numeric
+   chunks before punctuation segmentation. A decimal comma between digits is
+   part of the number; a period inside a recognized version candidate does not
+   make that version a quantitative value.
+2. Segment the requirement into parser-provided clauses when available. In the
+   lexical baseline, full stop, semicolon, question mark, and exclamation mark
+   are hard boundaries. Comma is a soft boundary and cannot by itself authorize
+   cross-clause linkage.
+3. Create one candidate around each explicit numeric/value chunk. Attach a
+   comparator only through a source-approved contiguous construction that
+   governs that value. Attach a unit only when it is in the same numeric phrase.
+   No arbitrary token-distance or character-distance threshold is used.
+4. Link a metric only when one governing metric phrase has an explicit template
+   or grammatical relation to the bound in the same clause. If zero such phrases
+   exist, leave `metric` unresolved. If more than one is compatible and grammar
+   does not decide, leave it unresolved rather than selecting the nearest.
+5. Link context only when a marker-headed phrase/clause modifies the same metric,
+   result, or bound. A unique grammatical attachment may cross a comma inside
+   the same sentence; it may not cross a hard boundary. Ambiguous context remains
+   unresolved.
+6. Do not merge distinct numeric anchors except through an approved range
+   construction. No range construction is approved by this proposal. Each bound
+   therefore remains independently traceable.
+7. A context bound may be represented both as the `context` of the primary
+   target and as its own partial quantitative observation. For `R2′`, the
+   proposed result is one route-generation-time observation linked to the load
+   context and one load-bound observation. This nested treatment itself requires
+   researcher approval.
+8. A candidate with an explicit comparator/value or value/unit relation becomes
+   a partial `QuantitativeConstraintObservation` even when metric or context is
+   unresolved. If digits may instead be a version, identifier, date, or label and
+   the rule cannot decide, no observation is created and the detector outcome is
+   `UNRESOLVED`.
+9. Order observations by the first referenced `start_offset`; order each
+   observation's evidence references by `(start_offset, end_offset, evidence_id)`.
+
+| Case | Source status and input | Proposed detector output | Evidence span(s) and linked fields | Proposed rule family |
+| --- | --- | --- | --- | --- |
+| Positive | SOURCE-ATTESTED — Requirements and product quality, Section 2.2, Table 2.5: `Час відгуку ≤ 2 с при 500 одночасних користувачах` | `DETECTED`; one primary constraint | metric `[0,11)`; bound `[12,17)` with comparator `LESS_THAN_OR_EQUAL`, value `2`, unit `SECOND`; context `[18,49)` | `QUANT` |
+| Negative | SOURCE-ATTESTED — Application example, Section 8, Table 7, R3′: `Дані передаються через TLS 1.3; доступ до API — за OAuth 2.0/OIDC; ...` | `NOT_DETECTED` for `1.3` and `2.0`; they are version identifiers without a bound relation | none for those numbers | `QUANT` |
+| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система використовує профіль 95.` | `UNRESOLVED`; `95` may be a label or quantity and has no explicit metric/comparator/unit relation | no accepted evidence | `QUANT` |
+| Repeated | SOURCE-ATTESTED — Application example, Section 8, Table 7, R1′ | `DETECTED`; frequency candidate and latency constraint remain separate | `[63,90)` `не рідше одного разу на 5 с` with written count unresolved; metric `[92,161)` and bound `[164,177)` `не більше 3 с` | `QUANT` |
+| Punctuation/decimal | SOURCE-ATTESTED — Application example, Section 8, Table 7, R4′: `Місячна доступність сервісу — не нижче 99,9 %; ...` | `DETECTED`; comma belongs to decimal and semicolon ends the constraint | metric `[0,27)`; bound `[30,45)` with comparator `GREATER_THAN_OR_EQUAL`, raw value `99,9`, unit `PERCENT` | `QUANT` |
+| Nested interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, R2′ | `DETECTED`; primary four-second route bound plus proposed nested load bound/context | primary bound `[96,116)`; context `[117,159)`; nested bound `[134,159)` with `до` inclusivity unresolved | `QUANT`, `COND-UK` |
+
+#### 7.14.7 `verification_method`
+
+The semantic contract remains “an explicitly stated reproducible verification
+method in the requirement text.” Source-derived candidate vocabulary includes:
+
+| Source-derived term/category | Traceability | Proposed interpretation limit |
+| --- | --- | --- |
+| `тестовий оракул`, `метод аналізу`, `інспекції` | Requirement properties, Section 2.1, Table 2.1, Verifiability row | Evidence categories, not sufficient as isolated words |
+| `процедура перевірки` / `відтворювана процедура перевірки` | Requirement properties, Section 2.1, paragraph 12; Metrics system, Section 2.3, paragraph 21/Table 2.8 | Must name or state the procedure in the requirement; a claim that one exists elsewhere is insufficient |
+| `тест` / `тестовий випадок`, `експеримент` / `експериментальна процедура` | Dynamic methods, Section 3.2, paragraphs 5-7 and Table 3.4 | Must function as the means of verification, not as an object discussed by the system |
+| Functional/scenario, performance/load/stress, integration/interoperability, recovery, security, usability, and configuration/platform test categories | Dynamic methods, Section 3.2, Table 3.5 | Source-derived candidate method names; English fragments are retained only when explicitly present in the Ukrainian sources |
+| `негативні security tests` | Application example, Section 8, Table 7, R3′ | Explicit named procedure category; does not by itself prove test sufficiency |
+| `acceptance test`, `NFR test` | Application example, Section 8, Table 7, R7′ | A link request is not the verification procedure content and must not become method evidence by name alone |
+| `спосіб розрахунку SLA` | Application example, Section 8, Table 7, R4′ | Names a method category but does not state the calculation; reproducibility from this line is unresolved |
+
+The proposed detector accepts a method only when a complete phrase explicitly
+names a verification procedure and grammatical/template context establishes
+that it is the means for establishing requirement fulfilment. Evidence includes
+the method head and its essential qualifiers; when needed to establish role, it
+also includes the governing phrase such as “перевіряється ... тестом.” A method
+word used as system behavior (`аналізує журнал`), an artifact/link target, a
+future promise to define a method, or a statement that a requirement seems
+testable must not count.
+
+Multiple coordinated method phrases are separate observations. A shared
+governing verification predicate may be referenced by each. If the phrase names
+a possible method but its role or reproducibility cannot be established, the
+outcome is `UNRESOLVED`. No method is inferred from a quantitative constraint.
+
+| Case | Source status and input | Proposed detector output | Evidence span(s) | Proposed rule family |
+| --- | --- | --- | --- | --- |
+| Positive | SOURCE-ATTESTED — Application example, Section 8, Table 7, R3′ | `DETECTED`; explicit named test category | `[158,182)` `негативні security tests` | `VERIFY-UK` |
+| Negative | SOURCE-ATTESTED — Application example, Section 2, Table 1, R2: `Маршрут доставки повинен швидко перераховуватися у разі зміни дорожньої ситуації.` | `NOT_DETECTED`; apparent testability does not state a method | none | `VERIFY-UK` |
+| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система виконує аналіз журналу.` | `UNRESOLVED`; `аналіз` may be system behavior rather than a verification procedure | no accepted evidence | `VERIFY-UK` |
+| Repeated | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Виконання перевіряється навантажувальним тестом та інспекцією журналу.` | `DETECTED`; two named methods | `[24,47)` `навантажувальним тестом`; `[51,69)` `інспекцією журналу` | `VERIFY-UK` |
+| Punctuation/boundary | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Виконання перевіряється тестом; аналіз журналу виконує система.` | `DETECTED` only for the first clause; semicolon prevents the second system behavior from attaching to the verification predicate | `[24,30)` `тестом` | `VERIFY-UK` |
+| Interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, R4′ | `UNRESOLVED` for `спосіб розрахунку SLA`; the line says a method is defined but does not state it | no accepted method evidence; quantitative availability criterion remains separate | `VERIFY-UK`, `QUANT` |
+
+#### 7.14.8 Exact `uk_vague_terms_v1` matching mechanics
+
+The ten approved literals in Section 7.8 remain unchanged. The following exact
+mechanics are **PROPOSED FOR RESEARCHER APPROVAL**.
+
+**Case handling.** Use Unicode `casefold()` rather than locale-sensitive case
+conversion or ASCII lowering. It provides a defined Unicode caseless operation
+and keeps the mechanism replaceable across language profiles. Both the
+requirement matching view and the approved lexicon are transformed identically.
+Because case folding can change code-point count for some Unicode characters,
+the matching view must retain a provenance map to original offsets. This is an
+implementation mechanic, not a change to `Evidence.text`.
+
+**Unicode normalization.** Normalize only the derived matching view and lexicon
+to NFC before case folding. NFC is proposed because canonically equivalent
+Ukrainian text, especially a decomposed base letter plus combining mark, should
+not fail matching solely because of encoding composition. Compatibility
+normalization (`NFKC`/`NFKD`) is not proposed because it may collapse
+typographically or semantically distinct source characters. Each transformed
+code-point interval retains the minimal covering original interval. A candidate
+is accepted only when transforming that exact original slice reproduces the
+matched lexicon entry. Original evidence and offsets are never normalized.
+
+**Token boundaries.** For a single-token entry, both sides must be start/end of
+text or a non-word boundary. A word constituent is a Unicode letter, combining
+mark, or number, plus connector punctuation and the apostrophe/hyphen characters
+that may join Ukrainian word forms (`'`, `’`, `ʼ`, `-`). Quotes, parentheses,
+commas, semicolons, colons, sentence punctuation, and whitespace are boundaries.
+This prevents `швидко` from matching inside a longer or hyphen-joined word while
+allowing quoted or punctuated occurrences.
+
+**Phrase boundaries.** A multi-token literal must match its complete
+case-folded NFC code-point sequence, including the literal single U+0020 spaces
+stored in `uk_vague_terms_v1`, and must satisfy the same outer word-boundary rule.
+The baseline does not collapse repeated whitespace, replace tabs, lemmatize, or
+generate inflected variants. Those changes would expand the approved literal
+inventory indirectly and require separate approval.
+
+**Overlap alternatives.** Under exact literal matching, the prompt's conceptual
+example `у реальному часі`/`реальний час` is not a character-span overlap:
+`реальному часі` and `реальний час` are different surface forms. Treating them
+as overlapping would require forbidden morphological expansion. The actual seed
+overlap is `надійно` at the start of `надійно захищені`.
+
+| Policy | Consequence for evidence and signals | Assessment |
+| --- | --- | --- |
+| `ALL_MATCHES` | Keeps both the phrase and nested token, producing two evidence items and two signals for one textual construction | Maximizes traceability but predictably double-counts the actual nested seed case |
+| `LONGEST_MATCH_ONLY` | Keeps the longest candidate among overlaps, but without a left-to-right rule can be underspecified for crossing or repeated candidates | Avoids the known nested duplicate but is not a complete selection algorithm |
+| `LEFTMOST_LONGEST_NON_OVERLAPPING` | At the earliest start, selects the longest span; ties use stable vocabulary order; discards candidates overlapping the selected span; resumes at its end | Recommended deterministic MVP policy; preserves one signal for one surface construction while keeping repeated non-overlapping occurrences |
+
+The recommendation is `LEFTMOST_LONGEST_NON_OVERLAPPING`. It is an
+implementation operationalization, not an approved scientific conclusion.
+Candidate enumeration and output ordering are:
+
+1. enumerate every exact boundary-valid candidate;
+2. sort by ascending original `start_offset`, descending original span length,
+   then stable `uk_vague_terms_v1` order;
+3. select the first candidate, discard only candidates whose spans overlap it,
+   and continue with the earliest remaining candidate; and
+4. emit selected observations in ascending `start_offset` order, with separate
+   evidence IDs for repeated occurrences.
+
+| Case | Source status and input | Proposed detector output | Evidence span(s) | Proposed rule family |
+| --- | --- | --- | --- | --- |
+| Positive/case | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система повинна ШВИДКО сформувати звіт.` | `DETECTED`; case-folded match, original uppercase evidence preserved | `[16,22)` `ШВИДКО` | `UK-VAGUE` |
+| Negative boundary | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система працює надшвидко.` | `NOT_DETECTED`; approved token is embedded in a longer word | none | `UK-VAGUE` |
+| Unresolved | Valid Unicode input and a functioning deterministic matcher make this detector total | Not meaningful for ordinary matching; `UNRESOLVED` is reserved for inability to construct/map the matching view, not for absence of a lexicon hit | none | `UK-VAGUE` |
+| Repeated | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Швидко сформувати звіт і швидко надіслати його.` | `DETECTED`; two observations | `[0,6)` `Швидко`; `[25,31)` `швидко` | `UK-VAGUE` |
+| Punctuation | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система повинна працювати «швидко», надійно.` | `DETECTED`; quotes/comma/full stop are outside the evidence | `[27,33)` `швидко`; `[36,43)` `надійно` | `UK-VAGUE` |
+| Actual overlap | SOURCE-ATTESTED wording — Application example, Section 2, Table 1, R3: `Персональні та комерційні дані повинні бути надійно захищені.` | `DETECTED`; proposed policy keeps the longer phrase and suppresses nested token candidate | `[44,60)` `надійно захищені`; nested `[44,51)` is not emitted | `UK-VAGUE` |
+
+#### 7.14.9 Detection status semantics
+
+The proposed semantics refine, but do not replace, Section 7.4:
+
+- `DETECTED`: at least one approved detector rule produced an explicit
+  observation with evidence. A partial quantitative observation is `DETECTED`
+  even when one or more component fields are unresolved.
+- `NOT_DETECTED`: the detector completed all applicable deterministic checks on
+  the valid requirement text, produced no observation, and encountered no
+  candidate whose semantic status could not be decided.
+- `UNRESOLVED`: no observation was accepted and at least one candidate could not
+  be deterministically classified or bounded with the approved information, or
+  required parser/matching processing was unavailable. It is not a low
+  confidence value and does not equal zero.
+
+If at least one observation is accepted and another candidate is unresolved,
+the family outcome is `DETECTED`; the unresolved candidate must remain available
+in an explainable detector diagnostic if such diagnostics are later approved.
+The three-state family outcome alone cannot represent both facts. No diagnostic
+schema or confidence value is approved here.
+
+An explicit status field on every observation would be redundant because an
+observation necessarily means `DETECTED`. For total lexical detectors such as
+the proposed `UK-VAGUE` baseline, `DETECTED`/`NOT_DETECTED` is derivable from the
+collection. For parser-assisted families, an optional family-level
+`FeatureDetectionOutcome(feature_id, status)` is proposed so an empty collection
+can be distinguished from `UNRESOLVED`. This wrapper is not part of the approved
+`RequirementFeatures` registry and requires researcher approval before any
+domain-model change.
+
+`NOT_DETECTED` does not mean a quality defect. `UNRESOLVED` does not mean zero,
+`NOT_APPLICABLE`, or `UNKNOWN` applicability. Criterion applicability remains a
+separate downstream concept.
+
+#### 7.14.10 Finding-conversion boundary
+
+The following one-observation-to-one-signal rule is **PROPOSED FOR RESEARCHER
+APPROVAL**:
+
+```text
+one accepted vague_term_occurrence
+        ↓ FIND-U-VAGUE family rule
+one Finding:
+    code = VAGUE_TERM_SIGNAL
+    characteristic = Unambiguity
+    kind = SIGNAL
+    explanation = identifies the exact approved seed literal and states that
+                  it is a potential ambiguity indicator, not a confirmed defect
+    evidence_refs = exactly the occurrence evidence reference(s)
+    rule_id = the approved FIND-U-VAGUE rule identifier
+```
+
+Repeated accepted occurrences therefore create repeated independently traceable
+signals. The proposed longest-overlap policy prevents a nested token and phrase
+from producing two signals for the same selected surface construction. No
+signal is automatically converted to `QUALITY_PROBLEM`.
+
+For `condition_context`, `expected_result`, `acceptance_criterion`,
+`quantitative_constraint`, and `verification_method`, feature detection alone
+produces observations and evidence only. It produces no finding. A later
+characteristic rule may interpret presence, absence, applicability, sufficiency,
+or interaction, but that rule belongs to the characteristic-calculation gate.
+This boundary is consistent with Requirement properties, Section 2.1,
+paragraph 10; Metrics system, Section 2.3, paragraphs 12-16 and 30; Static
+methods, Section 3.1, paragraphs 32-34; and the approved distinction in Section
+7.10: automatic observations are not automatically confirmed defects.
+
+#### 7.14.11 Proposed rule-ID convention
+
+Rule IDs should encode the feature/rule family and a stable sequence number.
+They should encode language only for language-dependent lexical or grammatical
+rules. They should not encode a mutable semantic version: material semantic,
+applicability, or evidence-boundary changes receive a new sequence number, while
+the rule registry records the approving model-spec revision.
+
+Proposed family shapes are:
+
+```text
+COND-UK-NNN
+RESULT-UK-NNN
+ACCEPT-UK-NNN
+QUANT-NNN
+QUANT-UK-NNN
+VERIFY-UK-NNN
+UK-VAGUE-NNN
+FIND-U-VAGUE-NNN
+```
+
+`UK` denotes the Ukrainian language profile. Language-independent symbolic or
+unit rules use `QUANT-NNN`; Ukrainian lexical comparators use `QUANT-UK-NNN`.
+`NNN` is a zero-padded stable rule number and does not imply priority. The
+examples above define families only; they do not create dozens of production
+IDs. Each eventual registry entry must state the immutable detector description,
+feature ID, language/profile, evidence boundary, source/approval reference,
+status, and superseding rule if any. Evidence uses the detector rule ID; a
+finding uses the interpretation/conversion rule ID that created the finding.
+
+#### 7.14.12 Readiness of the targeted RQDs
+
+No RQD is closed by this draft.
+
+| RQD | Readiness | Reason |
+| --- | --- | --- |
+| `RQD-006` | `PARTIALLY_READY` | Source-attested condition markers, boundaries, cases, and parser needs are proposed. Expected-result detection cannot be made a reliable lexical-only rule from the current evidence; the researcher must approve parser-assisted clause semantics or constrain the input to a template. Actor/action/object remain deferred. |
+| `RQD-007` | `READY_FOR_RESEARCHER_APPROVAL` | Casefold/NFC mapping, token/phrase boundaries, repeated ordering, and actual overlap behavior are fully proposed without changing the ten-entry seed. Broader vocabulary coverage remains outside this gate. |
+| `RQD-008` | `PARTIALLY_READY` | Source-attested comparator/numeric/unit forms and a conservative partial-observation linkage algorithm are proposed. Metric grammar, written-out numbers, range syntax, `до` inclusivity, nested-context treatment, and free-text attachment still require explicit decisions. |
+| `RQD-016` | `READY_FOR_RESEARCHER_APPROVAL` | The one-occurrence-to-one-`SIGNAL` rule and observation-only boundary for the other five features are explicit. Any `QUALITY_PROBLEM` conversion and characteristic scoring remain open in the later calculation gate. |
+
+`RQD-005` and `RQD-009` remain closed for MVP v0.1. `RQD-020` remains
+unresolved; this proposal adds no confidence, reliability, severity,
+probability, risk, priority, or corrective-action field.
+
+#### 7.14.13 Remaining researcher decisions
+
+1. Approve or reject the condition marker inventory, maximal phrase/clause
+   evidence boundary, and parser fallback behavior.
+2. Choose parser-assisted clause semantics or an explicit requirement template
+   for `expected_result`; lexical verbs alone are not proposed.
+3. Approve the quantitative-bound subset that may also form an acceptance
+   criterion and the parser rule for non-numeric criteria.
+4. Approve comparator mappings, particularly whether `до` is inclusive, and
+   decide whether decimal-point values, written-out numbers, and range syntax
+   enter MVP.
+5. Approve the minimal unit labels without conversions and decide whether count
+   nouns are metrics, units, or context in each construction.
+6. Approve metric/context grammatical linkage and whether a bounded load
+   context also becomes a separate nested quantitative observation.
+7. Approve the verification-method construction rule and decide whether a named
+   test category without procedure detail is sufficiently reproducible.
+8. Approve NFC plus `casefold()`, exact internal spaces, word constituents, and
+   `LEFTMOST_LONGEST_NON_OVERLAPPING` for `uk_vague_terms_v1`.
+9. Approve the optional family-level `FeatureDetectionOutcome` or retain only
+   collection-derived status and accept that `UNRESOLVED` cannot be represented
+   in `RequirementFeatures`.
+10. Approve the one-occurrence-to-one-`SIGNAL` rule and rule-ID convention.
+
+#### 7.14.14 Downstream GitHub issue impact after approval
+
+The following is a read-only impact assessment. No GitHub issue description is
+modified by this task, and no implementation is unblocked by the draft itself.
+
+| Issue | Narrow update after researcher approval |
+| --- | --- |
+| #4 MVP-03 | Record any approved family-level detection-outcome representation and the replaceable parser-information boundary; keep observations/evidence only and no findings |
+| #5 MVP-04 | Replace the open detector note with only the approved condition/result/criterion/quantitative rules, evidence boundaries, partial-observation behavior, and reference cases; keep actor/action/object deferred |
+| #6 MVP-05 | Record approved Unicode, token/phrase boundary, overlap, ordering, comparator, numeric, unit, and verification-method mechanics allocated to textual extraction |
+| #7 MVP-06 | No detector-only edit is required unless its input list is clarified after approval; it remains blocked by the Completeness calculation gate |
+| #8 MVP-07 | No detector-only edit is required unless its approved input observations are enumerated; it remains blocked by the Verifiability calculation gate |
+| #9 MVP-08 | Add only the approved one-occurrence-to-one-`SIGNAL` conversion and overlap consequence; keep all Unambiguity scoring and `QUALITY_PROBLEM` conversion blocked |
+| #14 MVP-SPEC | Record the researcher's approvals/rejections and resulting RQD readiness/status; do not mark the overall specification non-draft until all required gates are approved |
+
+#### 7.14.15 Guardrails preserved by this draft
+
+- No application code, production regular expression, parser, test under `src/`,
+  runtime dependency, or NLP-library choice is introduced.
+- No `C`, `V`, or `U` calculation, score contribution, coefficient, weight,
+  threshold, scale choice, or rounding rule is introduced.
+- The `uk_vague_terms_v1` inventory remains exactly the ten literals approved in
+  Section 7.8.
+- `QUALITY_PROBLEM` is never inferred directly from lexical matching.
+- `has_actor`, `has_action`, and `has_object` remain deferred from MVP v0.1.
+- `RQD-005` and `RQD-009` remain closed; `RQD-006`, `RQD-007`, `RQD-008`, and
+  `RQD-016` remain open at the readiness levels above; `RQD-020` remains
+  unresolved.
+
 ## 8. Completeness
 
 ### Explicitly defined by the dissertation
@@ -1198,9 +1843,9 @@ approval.
 | `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 define reproducible verification and relevant evidence, and give set-level ratios. They do not define an `a_i,V` calculation for one line. | OPEN | MVP-04/05 as applicable, MVP-07 |
 | `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `PARTIALLY_RESOLVED` | Section 2.1 defines one justified interpretation and gives boundary meanings for `a_i,U`; Sections 2.1 and 2.3 treat linguistic matches as signals rather than proof. Detector, confirmation, applicability, and intermediate-value rules remain absent. | OPEN | MVP-05, MVP-08 |
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
-| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `STILL_BLOCKED_BY_MISSING_RESEARCH_DEFINITION` | Actor/action/object extraction is `DEFERRED_FROM_MVP_V0.1` and cannot affect Completeness, Verifiability, or Unambiguity. Deterministic detection boundaries for condition/context and expected result remain undefined. | OPEN | MVP-04 and consuming calculators |
-| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `PARTIALLY_APPROVED` | Section 7 approves the exact source-derived `uk_vague_terms_v1` seed lexicon and its Ukrainian-only, deterministic, case-insensitive, boundary-aware matching policy. Reduced recall is accepted; exact overlap/normalization mechanics and any broader coverage remain open, and matches are only `SIGNAL`. | OPEN — PARTIALLY APPROVED | MVP-05, MVP-08 |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `APPROVED_CONCEPT_DETECTOR_OPEN` | Section 7 approves the linked quantitative-constraint structure, partial observations, and unresolved fields. Component detection, parsing, nesting, linkage mechanics, and overlap disambiguation remain undefined. | OPEN | MVP-04/05, MVP-07 |
+| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_READY` | Section 7.14 proposes source-attested condition markers, exact evidence boundaries, repeated/overlap behavior, reference cases, and parser-assisted expected-result semantics. Reliable expected-result detection still requires researcher approval of grammatical analysis or a constrained template. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | OPEN | MVP-04 and consuming calculators |
+| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `READY_FOR_RESEARCHER_APPROVAL` | The approved ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 proposes NFC plus Unicode `casefold()`, exact spaces, token/phrase boundaries, repeated ordering, and leftmost-longest non-overlap. Broader linguistic coverage remains out of this gate, and matches remain only `SIGNAL`. | OPEN — PARTIALLY APPROVED | MVP-05, MVP-08 |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_READY` | Section 7.14 proposes source-attested comparator/numeric/unit forms, partial observations, evidence spans, and conservative linkage without arbitrary distance thresholds. Metric grammar, `до` inclusivity, written-out numbers, ranges, nested context, and free-text attachment still require researcher decisions. | OPEN | MVP-04/05, MVP-07 |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PARTIALLY_RESOLVED` | Section 2.1 places individual property values `a_ij` in `[0,1]`; Section 2.3 supplies generic and set-level metrics. Neither supplies executable per-requirement formulas for `a_i,C`, `a_i,V`, and intermediate `a_i,U`. | OPEN | MVP-06-08 |
 | `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PARTIALLY_RESOLVED` | Chapter 2 supports `[0,1]` and upward compliance orientation for individual properties and their property-level means. It does not approve binary versus graded MVP characteristic assessments. | OPEN | MVP-01, MVP-06-10 |
@@ -1208,7 +1853,7 @@ approval.
 | `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation remains under RQD-012/RQD-022. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-015` | Approve numeric precision and rounding. | `UNRESOLVED` | Chapter 2 gives no calculation, aggregation, or presentation rounding policy. | OPEN | MVP-06-12 |
-| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `PARTIALLY_APPROVED` | Section 7 approves `SIGNAL` and `QUALITY_PROBLEM`, the minimal traceable finding schema, and the extractor/downstream-rule boundary. Exact observation-to-finding and signal-to-problem conversion rules remain open; severity, probability, risk, confidence, priority, and corrective action are excluded. | OPEN — PARTIALLY APPROVED | MVP-06-08, MVP-10 |
+| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `READY_FOR_RESEARCHER_APPROVAL` | Section 7.14 proposes one accepted `vague_term_occurrence` to one traceable Unambiguity `SIGNAL` and no finding from the other five feature families at extraction time. Any `QUALITY_PROBLEM` conversion and characteristic calculation remain open; severity, probability, risk, confidence, priority, and corrective action remain excluded. | OPEN — PARTIALLY APPROVED | MVP-06-08, MVP-10 |
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `ADDITIONAL_CONSTRAINTS` | Chapter 2 provides qualitative cases and working set-level formula examples, but no approved expected per-line MVP feature vectors or scores. Examples must respect applicability and signal/confirmation distinctions. | OPEN | MVP-04-09, MVP-12 |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
 | `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
@@ -1240,9 +1885,10 @@ decision.
 
 The remaining decisions are grouped into four approval gates:
 
-1. **Feature-detection and finding-conversion gate:** `RQD-006`, the remaining
-   mechanics under `RQD-007`, `RQD-008`, and `RQD-016`. `RQD-005` and
-   `RQD-009` are closed.
+1. **Feature-detection and finding-conversion gate:** Section 7.14 supplies a
+   draft for researcher review of `RQD-006`, the remaining mechanics under
+   `RQD-007`, `RQD-008`, and `RQD-016`. The proposals are not approved;
+   `RQD-005` and `RQD-009` remain closed.
 2. **Characteristic-calculation gate:** `RQD-002`-`RQD-004`, `RQD-010`-
    `RQD-012`, and `RQD-022`.
 3. **Property aggregation and numeric-contract gate:** the still-open
@@ -1272,14 +1918,18 @@ Until the applicable gates are approved and this document's status is changed
 from `DRAFT`, unapproved detector rules, characteristic calculators, and
 specification aggregation remain blocked.
 
-### 18.5 Downstream GitHub issue impact after contract approval
+### 18.5 Downstream GitHub issue impact after detector-contract approval
 
-The descriptions for #2, #4, #5, #6, #9, #11, and #14 were aligned narrowly
-with the approved contract. The adjustments record the approved registry,
-evidence offsets, detection/applicability separation, linked quantitative
-concept, explicit-only verification method, vague-term signal semantics,
-finding boundary, actor/action/object deferral, and profile-only MVP scope.
+Issues #4 through #9 and #14 were inspected without modification for the
+Section 7.14 research task. After researcher approval, #4 should record only an
+approved family-level outcome/parser boundary; #5 and #6 should receive the
+approved detector allocation, evidence, Unicode, boundary, linkage, and
+reference-case mechanics; #9 should receive only the approved one-occurrence-to-
+one-`SIGNAL` rule. #7 and #8 need no detector-only change unless their input
+observation lists are clarified, and they remain blocked by their respective
+characteristic-calculation gates. #14 should record the explicit approvals and
+resulting RQD statuses.
 
-These description updates do not unblock implementation. Issues #5, #6, and #9
-remain blocked by open detector and characteristic-calculation decisions; #11
-remains downstream of approved assessments; and #14 remains a research issue.
+No description is changed by this draft, no implementation issue is unblocked,
+and no issue may infer a `QUALITY_PROBLEM` or characteristic score from the
+proposed detector rules.
