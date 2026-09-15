@@ -47,6 +47,7 @@ Preserve this processing pipeline:
 Text file
 -> RequirementReader
 -> FeatureExtractor
+-> RequirementExtractionResult
 -> RequirementFeatures
 -> CharacteristicCalculators
 -> RequirementQualityProfile
@@ -67,7 +68,9 @@ Text file
 - Feature extraction and quality calculation must remain separate layers.
 - Any NLP-library-specific implementation must stay behind the feature
   extraction boundary.
-- `FeatureExtractor` accepts `Requirement` and returns `RequirementFeatures`.
+- `FeatureExtractor` accepts `Requirement` and returns
+  `RequirementExtractionResult` containing unchanged `RequirementFeatures` and
+  accepted `Evidence`.
   It must not calculate quality scores, and no NLP-specific object may escape
   this boundary.
 - Feature extraction must preserve evidence using the representation approved

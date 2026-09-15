@@ -311,7 +311,8 @@ Text file
 → RequirementReader
 → Requirement
 → FeatureExtractor
-→ RequirementFeatures
+→ RequirementExtractionResult (requirement, features, evidence)
+→ RequirementFeatures (result.features)
 → CompletenessCalculator
 → VerifiabilityCalculator
 → UnambiguityCalculator
@@ -381,7 +382,10 @@ trimmed original Requirement text
         ↓
 FeatureExtractor
         ↓
-RequirementFeatures / FeatureObservation + Evidence
+RequirementExtractionResult
+    ├── requirement: Requirement
+    ├── features: RequirementFeatures
+    └── evidence: tuple[Evidence, ...]
         ↓ approved characteristic/model rule
 Finding
         ↓ approved characteristic calculation
@@ -394,6 +398,15 @@ not calculate Completeness, Verifiability, or Unambiguity; it does not emit a
 problem merely because a text signal matched. Both `SIGNAL` and
 `QUALITY_PROBLEM` findings belong after an approved calculator/model rule has
 interpreted an observation.
+
+The public boundary is `Requirement -> FeatureExtractor ->
+RequirementExtractionResult`. The immutable result carries the exact input
+`Requirement`, the unchanged six-family `RequirementFeatures`, and accepted
+`Evidence`. The wrapper makes accepted observation `evidence_refs` resolvable
+without adding Evidence to or contaminating the six-family feature registry.
+Calculators remain independent of the extractor and use only structured domain
+features/assessment inputs authorized by their own contracts; the result wrapper
+contains no quality calculation.
 
 ### 7.1 Separation of contract concepts
 
@@ -560,6 +573,38 @@ detector later uses normalized forms internally, they are derived detector data,
 not source evidence, and the approved offsets still address the trimmed original
 text. `RQD-009` is closed for MVP v0.1 by this contract.
 
+#### 7.5.1 Approved extraction-result integrity (Issue #25)
+
+```python
+@dataclass(frozen=True, slots=True)
+class RequirementExtractionResult:
+    requirement: Requirement
+    features: RequirementFeatures
+    evidence: tuple[Evidence, ...]
+```
+
+Construction requires the three declared domain types, with `evidence` an
+immutable tuple containing only `Evidence`. For every evidence item,
+`evidence.requirement_id == result.requirement.id`. Before substring equality,
+its offsets must satisfy
+`0 <= evidence.start_offset <= evidence.end_offset <= len(result.requirement.text)`.
+The exact trimmed-source round-trip then holds:
+
+```python
+result.requirement.text[evidence.start_offset:evidence.end_offset] == evidence.text
+```
+
+Every `evidence_id` is unique within one result. Every accepted `evidence_ref`
+in all six family outcomes resolves to exactly one evidence item in that same
+result, whose `Evidence.feature_id` matches the referencing observation's
+approved `FeatureId` family. This covers simple `FeatureObservation`,
+`VagueTermOccurrence`, and both the top-level and every populated component's
+references in
+`QuantitativeConstraintObservation`. Its existing component-union invariant
+remains unchanged. Diagnostics and `DiagnosticSpan` are not accepted Evidence
+and do not need to resolve against this registry. Repeated identical literals
+at distinct offsets remain distinct evidence items with distinct IDs.
+
 ### 7.6 Approved linked quantitative-constraint concept
 
 Independent booleans such as `has_metric`, `has_threshold`, and `has_unit` are
@@ -632,9 +677,12 @@ The approved policy is:
 7. identify a vocabulary and its version separately from the generic matching
    algorithm so either can change without obscuring provenance.
 
-Shapes such as `UK-VAGUE-001`, `QUANT-COMP-001`, and `COND-001` are conceptual
-examples only. Semantic versions belong in registry metadata. This approval does
-not create the production rule-ID registry.
+`UK-VAGUE-001` is allocated as the production detection rule ID for the exact
+Section 7.14.8 `uk_vague_terms_v1` matcher. This allocation changes none of
+its matching semantics and implies no finding, confirmed ambiguity, score, or
+penalty. Shapes such as `QUANT-COMP-001` and `COND-001` remain conceptual
+examples only. Semantic versions belong in registry metadata. No speculative
+production rule-ID registry is created by this allocation.
 
 ### 7.8 Approved source-derived Ukrainian vague-term seed lexicon
 
@@ -813,8 +861,8 @@ blocked by:
 4. exact observation-to-`QUALITY_PROBLEM` conversion rules and any handling of
    overlapping evidence in characteristic calculations (`RQD-016` and the
    characteristic-calculation gate);
-5. the production rule-ID registry and detector descriptions associated with
-   approved evidence;
+5. production rule-ID allocations and detector descriptions for rules other
+   than the now-allocated exact Section 7.14.8 `UK-VAGUE-001` matcher;
 6. the still-unresolved decision on whether any evidence reliability or
    detector-confidence representation belongs in MVP (`RQD-020`). No such value
    is approved by this section.
@@ -1302,6 +1350,14 @@ Candidate enumeration and output ordering are:
 4. emit selected observations in ascending `start_offset` order, with separate
    evidence IDs for repeated occurrences.
 
+The production detection rule ID for this exact matcher is `UK-VAGUE-001`.
+Its accepted evidence IDs use `UK-VAGUE-001:E001`, `UK-VAGUE-001:E002`, and so
+on in selected occurrence order after the policy above. The ordinal is an
+engineering/provenance identifier unique within one requirement assessment;
+repeated identical literals at different offsets receive separate IDs. Future
+detector rules use their own production rule-ID prefix. This contract does not
+implement matching or assign quality meaning to a match.
+
 | Case | Source status and input | Approved detector output | Evidence span(s) | Approved rule family |
 | --- | --- | --- | --- | --- |
 | Positive/case | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система повинна ШВИДКО сформувати звіт.` | `DETECTED`; case-folded match, original uppercase evidence preserved | `[16,22)` `ШВИДКО` | `UK-VAGUE` |
@@ -1405,6 +1461,8 @@ IDs. Each eventual registry entry must state the immutable detector description,
 feature ID, language/profile, evidence boundary, source/approval reference,
 status, and superseding rule if any. Evidence uses the detector rule ID; a
 finding uses the interpretation/conversion rule ID that created the finding.
+`UK-VAGUE-001` is the one production allocation for the already-approved exact
+Section 7.14.8 matcher; the other family shapes remain unallocated.
 
 #### 7.14.12 Readiness of the targeted RQDs
 
@@ -1769,7 +1827,7 @@ The following invariants are mandatory:
 
 The parser adapter stays entirely inside the feature-extraction boundary. It
 accepts one domain `Requirement` and returns `ParserOutcome`. The public
-`FeatureExtractor` contract remains `Requirement -> RequirementFeatures`;
+`FeatureExtractor` contract is `Requirement -> RequirementExtractionResult`;
 calculators never import the adapter, spaCy, Stanza, or parser-neutral annotation
 types.
 
@@ -2030,7 +2088,7 @@ Their implementation scope remains limited as follows:
 | Issue | Impact | Proposed description/acceptance update |
 | --- | --- | --- |
 | #2 MVP-01 | the approved immutable domain/data-contract subset is safe to start after this PR is merged | implement six typed outcome wrappers, parser-neutral data/result structures, typed observations and invariants; retain calculation and propagation blockers |
-| #4 MVP-03 | record the selected default behind a parser-neutral, replaceable boundary | keep `Requirement -> RequirementFeatures`; no spaCy object crosses the adapter; record result-preventing versus annotation-incomplete behavior; adapter implementation requires allocation by its issue |
+| #4 MVP-03 | record the selected default behind a parser-neutral, replaceable boundary | use `Requirement -> RequirementExtractionResult` with unchanged `result.features`; no spaCy object crosses the adapter; record result-preventing versus annotation-incomplete behavior; adapter implementation requires allocation by its issue |
 | #5 MVP-04 | structural extraction still has an open grammar gate | source-attested condition/result/criterion cases and exact offset tests may guide later work, but `RQD-006` executable template/attachment grammar and complex `RQD-008` grammar are not approved here; actor/action/object stay deferred |
 | #6 MVP-05 | textual extraction still has an open grammar gate | keep source-span quantitative baseline independent of parser token boundaries and vague-term matching unchanged; complex grammar and new vocabulary remain unauthorized |
 | #14 MVP-SPEC | remain open with overall `DRAFT` status | record this section's approval and only the affected RQD/traceability updates; characteristic formulas, propagation, and rounding remain unresolved |

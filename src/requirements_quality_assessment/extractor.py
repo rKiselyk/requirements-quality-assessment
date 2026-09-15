@@ -2,9 +2,9 @@
 
 from typing import Protocol
 
-from .domain import Requirement, RequirementFeatures
+from .domain import Requirement, RequirementExtractionResult
 
 
 class FeatureExtractor(Protocol):
-    def extract(self, requirement: Requirement) -> RequirementFeatures:
+    def extract(self, requirement: Requirement) -> RequirementExtractionResult:
         ...
