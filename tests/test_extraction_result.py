@@ -125,13 +125,24 @@ def test_evidence_for_other_requirement_is_rejected():
         _result(evidence=(_evidence(requirement_id="R002"),))
 
 
-@pytest.mark.parametrize("start,end,text", [
-    (0, 6, "швидко"),  # length is valid, source spelling differs
-    (len(SOURCE) + 1, len(SOURCE) + 2, "x"),  # extent-valid but beyond source
-])
-def test_source_round_trip_rejects_mismatched_substring(start, end, text):
+def test_source_round_trip_rejects_mismatched_substring():
     with pytest.raises(ValueError, match="round-trip"):
-        _result(evidence=(_evidence(start=start, end=end, text=text),))
+        _result(evidence=(_evidence(start=0, end=6, text="швидко"),))
+
+
+@pytest.mark.parametrize("start,end,text", [
+    (len(SOURCE) + 1, len(SOURCE) + 1, ""),
+    (len(SOURCE) - 1, len(SOURCE) + 1, "x."),
+])
+def test_source_bounds_reject_out_of_source_spans(start, end, text):
+    evidence = _evidence(start=start, end=end, text=text)
+    with pytest.raises(ValueError, match="offsets must fall within"):
+        _result(evidence=(evidence,))
+
+
+def test_zero_length_span_at_source_end_is_not_forbidden():
+    evidence = _evidence(start=len(SOURCE), end=len(SOURCE), text="")
+    assert _result(evidence=(evidence,)).evidence == (evidence,)
 
 
 @pytest.mark.parametrize("family", [
@@ -144,12 +155,32 @@ def test_simple_observation_ref_must_resolve(family):
         _result(_features(family=family, observation=observation))
 
 
+def test_simple_reference_rejects_other_family_and_accepts_same_family():
+    observation = FeatureObservation(FeatureId.CONDITION_CONTEXT, ("E1",))
+    features = _features(observation=observation)
+    with pytest.raises(ValueError, match="must match condition_context feature family"):
+        _result(features, (_evidence(feature_id=FeatureId.VAGUE_TERM_OCCURRENCE),))
+    assert _result(features, (_evidence(),)).features is features
+
+
 def test_vague_occurrence_ref_must_resolve():
     observation = VagueTermOccurrence(
         FeatureId.VAGUE_TERM_OCCURRENCE, "uk_vague_terms_v1", "швидко", ("missing",),
     )
     with pytest.raises(ValueError, match="dangling accepted evidence_ref"):
         _result(_features(family=FeatureId.VAGUE_TERM_OCCURRENCE, observation=observation))
+
+
+def test_vague_reference_rejects_other_family_and_accepts_same_family():
+    observation = VagueTermOccurrence(
+        FeatureId.VAGUE_TERM_OCCURRENCE, "uk_vague_terms_v1", "швидко", ("E1",),
+    )
+    features = _features(family=FeatureId.VAGUE_TERM_OCCURRENCE,
+                         observation=observation)
+    with pytest.raises(ValueError, match="must match vague_term_occurrence feature family"):
+        _result(features, (_evidence(),))
+    correct = _evidence(feature_id=FeatureId.VAGUE_TERM_OCCURRENCE)
+    assert _result(features, (correct,)).evidence == (correct,)
 
 
 def _quantitative(*, metric=None, comparator=None, value=None, unit=None, context=None):
@@ -171,9 +202,27 @@ def test_quantitative_top_level_refs_are_traversed_and_must_resolve():
     observation = _quantitative()
     features = _features(family=FeatureId.QUANTITATIVE_CONSTRAINT,
                          observation=observation)
-    assert tuple(_accepted_evidence_refs(features))[:2] == observation.evidence_refs
+    assert tuple(_accepted_evidence_refs(features))[:2] == tuple(
+        (FeatureId.QUANTITATIVE_CONSTRAINT, ref) for ref in observation.evidence_refs
+    )
     with pytest.raises(ValueError, match="dangling accepted evidence_ref"):
-        _result(features, (_evidence("E1"),))
+        _result(features, (_evidence(
+            "E1", feature_id=FeatureId.QUANTITATIVE_CONSTRAINT,
+        ),))
+
+
+def test_quantitative_top_level_rejects_other_family_and_accepts_quantitative():
+    features = _features(family=FeatureId.QUANTITATIVE_CONSTRAINT,
+                         observation=_quantitative())
+    correct = (
+        _evidence("E1", feature_id=FeatureId.QUANTITATIVE_CONSTRAINT),
+        _evidence("E2", start=9, end=15,
+                  feature_id=FeatureId.QUANTITATIVE_CONSTRAINT),
+    )
+    assert _result(features, correct).evidence == correct
+    wrong = (_evidence("E1"), correct[1])
+    with pytest.raises(ValueError, match="must match quantitative_constraint feature family"):
+        _result(features, wrong)
 
 
 @pytest.mark.parametrize("component", ["metric", "comparator", "value", "unit", "context"])
@@ -190,10 +239,38 @@ def test_every_populated_quantitative_component_ref_is_traversed(component):
     features = _features(family=FeatureId.QUANTITATIVE_CONSTRAINT,
                          observation=observation)
     refs = tuple(_accepted_evidence_refs(features))
-    assert "E3" in refs[:len(observation.evidence_refs)]
-    assert refs.count("E3") >= 2  # top-level and component are both visited
+    edge = (FeatureId.QUANTITATIVE_CONSTRAINT, "E3")
+    assert edge in refs[:len(observation.evidence_refs)]
+    assert refs.count(edge) >= 2  # top-level and component are both visited
     with pytest.raises(ValueError, match="dangling accepted evidence_ref"):
-        _result(features, (_evidence("E1"), _evidence("E2", start=9, end=15)))
+        _result(features, (
+            _evidence("E1", feature_id=FeatureId.QUANTITATIVE_CONSTRAINT),
+            _evidence("E2", start=9, end=15,
+                      feature_id=FeatureId.QUANTITATIVE_CONSTRAINT),
+        ))
+
+
+@pytest.mark.parametrize("component", ["metric", "comparator", "value", "unit", "context"])
+def test_quantitative_component_rejects_other_family_and_accepts_quantitative(component):
+    parts = {
+        "metric": TextComponent(("E3",)),
+        "comparator": ComparatorComponent(
+            ComparatorLabel.UPPER_BOUND, BoundaryInclusivity.UNRESOLVED, ("E3",)),
+        "value": NumericValueComponent(Decimal("2"), ("E3",)),
+        "unit": UnitComponent(UnitLabel.SECOND, ("E3",)),
+        "context": TextComponent(("E3",)),
+    }
+    features = _features(family=FeatureId.QUANTITATIVE_CONSTRAINT,
+                         observation=_quantitative(**{component: parts[component]}))
+    correct = tuple(
+        _evidence(ref, start=offset, end=offset + 1,
+                  feature_id=FeatureId.QUANTITATIVE_CONSTRAINT)
+        for ref, offset in (("E1", 0), ("E2", 1), ("E3", 2))
+    )
+    assert _result(features, correct).evidence == correct
+    wrong = correct[:2] + (_evidence("E3", start=2, end=3),)
+    with pytest.raises(ValueError, match="must match quantitative_constraint feature family"):
+        _result(features, wrong)
 
 
 def test_diagnostics_are_not_accepted_evidence_refs():

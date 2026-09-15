@@ -585,8 +585,10 @@ class RequirementExtractionResult:
 
 Construction requires the three declared domain types, with `evidence` an
 immutable tuple containing only `Evidence`. For every evidence item,
-`evidence.requirement_id == result.requirement.id` and the exact trimmed-source
-round-trip holds:
+`evidence.requirement_id == result.requirement.id`. Before substring equality,
+its offsets must satisfy
+`0 <= evidence.start_offset <= evidence.end_offset <= len(result.requirement.text)`.
+The exact trimmed-source round-trip then holds:
 
 ```python
 result.requirement.text[evidence.start_offset:evidence.end_offset] == evidence.text
@@ -594,8 +596,10 @@ result.requirement.text[evidence.start_offset:evidence.end_offset] == evidence.t
 
 Every `evidence_id` is unique within one result. Every accepted `evidence_ref`
 in all six family outcomes resolves to exactly one evidence item in that same
-result. This covers simple `FeatureObservation`, `VagueTermOccurrence`, and both
-the top-level and every populated component's references in
+result, whose `Evidence.feature_id` matches the referencing observation's
+approved `FeatureId` family. This covers simple `FeatureObservation`,
+`VagueTermOccurrence`, and both the top-level and every populated component's
+references in
 `QuantitativeConstraintObservation`. Its existing component-union invariant
 remains unchanged. Diagnostics and `DiagnosticSpan` are not accepted Evidence
 and do not need to resolve against this registry. Repeated identical literals
