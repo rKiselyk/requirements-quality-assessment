@@ -75,6 +75,8 @@ class TokenAnnotation:
             not isinstance(self.head_token_id, int) or self.head_token_id < 0
         ):
             raise ValueError("head_token_id must refer to a domain token or be None")
+        if self.head_token_id == self.token_id:
+            raise ValueError("root head must be None, not a self-referential token ID")
 
 
 @dataclass(frozen=True, slots=True)

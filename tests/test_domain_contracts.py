@@ -142,6 +142,11 @@ def test_parser_offsets_round_trip_and_heads_remain_in_sentence() -> None:
         MorphFeature("Case", ("Nom", "Acc"))
 
 
+def test_parser_neutral_root_rejects_self_head() -> None:
+    with pytest.raises(ValueError, match="self-referential"):
+        _token(0, 0, "Кіт", 0, 3, 0)
+
+
 def _partial() -> QuantitativeConstraintObservation:
     return QuantitativeConstraintObservation(
         FeatureId.QUANTITATIVE_CONSTRAINT, None,
@@ -176,6 +181,54 @@ def test_quantitative_components_and_partial_observation() -> None:
         QuantitativeConstraintObservation(
             FeatureId.QUANTITATIVE_CONSTRAINT, None, partial.comparator, partial.value,
             None, None, partial.unresolved_components, ("E1",),
+        )
+
+
+@pytest.mark.parametrize("construct", [
+    lambda: FeatureObservation(FeatureId.CONDITION_CONTEXT, ()),
+    lambda: VagueTermOccurrence(FeatureId.VAGUE_TERM_OCCURRENCE,
+                                "uk_vague_terms_v1", "швидко", ()),
+    lambda: TextComponent(()),
+    lambda: ComparatorComponent(ComparatorLabel.UPPER_BOUND,
+                                BoundaryInclusivity.UNRESOLVED, ()),
+    lambda: NumericValueComponent(Decimal("2"), ()),
+    lambda: UnitComponent(UnitLabel.SECOND, ()),
+], ids=["simple", "vague", "text", "comparator", "numeric", "unit"])
+def test_accepted_observations_and_populated_components_require_evidence(construct) -> None:
+    with pytest.raises(ValueError, match="requires evidence_refs"):
+        construct()
+
+
+def test_quantitative_approved_anchors_allow_both_partial_shapes() -> None:
+    assert _partial().value.decimal_value == Decimal("99.9")  # comparator + value
+    value_and_unit = QuantitativeConstraintObservation(
+        FeatureId.QUANTITATIVE_CONSTRAINT, None, None,
+        NumericValueComponent(Decimal("2"), ("E1",)),
+        UnitComponent(UnitLabel.SECOND, ("E2",)), None,
+        (QuantitativeComponentName.COMPARATOR,), ("E1", "E2"),
+    )
+    assert value_and_unit.comparator is None
+    assert value_and_unit.unit.label is UnitLabel.SECOND
+
+
+def test_quantitative_observation_rejects_empty_and_unanchored_components() -> None:
+    with pytest.raises(ValueError, match=r"comparator \+ value or value \+ unit"):
+        QuantitativeConstraintObservation(
+            FeatureId.QUANTITATIVE_CONSTRAINT, None, None, None, None, None,
+            (), (),
+        )
+    with pytest.raises(ValueError, match=r"comparator \+ value or value \+ unit"):
+        QuantitativeConstraintObservation(
+            FeatureId.QUANTITATIVE_CONSTRAINT, TextComponent(("E1",)),
+            ComparatorComponent(ComparatorLabel.LESS_THAN_OR_EQUAL,
+                                BoundaryInclusivity.INCLUSIVE, ("E2",)),
+            None, None, None, (), ("E1", "E2"),
+        )
+    with pytest.raises(ValueError, match=r"comparator \+ value or value \+ unit"):
+        QuantitativeConstraintObservation(
+            FeatureId.QUANTITATIVE_CONSTRAINT, None, None,
+            NumericValueComponent(Decimal("2"), ("E1",)), None, None,
+            (), ("E1",),
         )
 
 
