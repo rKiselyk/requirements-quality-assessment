@@ -1471,6 +1471,556 @@ unblocked by detector approval alone.
   `RQD-016` is approved while its calculation-side conversion remains open; and
   `RQD-020` remains unresolved.
 
+### 7.15 Parser & Domain Operationalization Contract — DRAFT FOR RESEARCHER APPROVAL
+
+This section is an engineering and representation proposal. It does not become
+binding, change an RQD status, authorize feature-extractor implementation, or
+supersede Sections 7.1-7.14 until the researcher explicitly approves it. It
+introduces no characteristic formula, score, weight, threshold, rounding rule,
+new quality criterion, automatic requirement-type classifier, or confidence
+value.
+
+The proposal resolves two representation gates left by Section 7.14:
+
+1. select a versioned Ukrainian parser package that remains replaceable behind
+   a parser-neutral adapter; and
+2. define the minimum typed observation/outcome structures needed by MVP-01 so
+   `DETECTED`, `NOT_DETECTED`, `UNRESOLVED`, partial quantitative observations,
+   and mixed accepted-plus-unresolved results remain explicit.
+
+The parser is an engineering dependency of feature extraction, not part of the
+scientific model. Parser output is fallible annotation input. A dependency arc,
+lemma, POS tag, or sentence boundary is never by itself a feature observation,
+finding, applicability decision, or quality result.
+
+#### 7.15.1 Evaluation scope and evidence classification
+
+The candidate review used official project and model documentation current on
+2026-09-15:
+
+- [spaCy Ukrainian pipelines](https://spacy.io/models/uk),
+  [spaCy token API](https://spacy.io/api/token), and the official
+  [`uk_core_news_sm` 3.8.0 metadata](https://raw.githubusercontent.com/explosion/spacy-models/master/meta/uk_core_news_sm-3.8.0.json);
+- the official [spaCy 3.8.16 release](https://github.com/explosion/spaCy/releases/tag/v3.8.16);
+- [Stanza pipeline documentation](https://stanfordnlp.github.io/stanza/pipeline.html),
+  [data-object and offset documentation](https://stanfordnlp.github.io/stanza/data_objects.html),
+  [model download/offline documentation](https://stanfordnlp.github.io/stanza/download_models.html),
+  and the official
+  [1.14.0 resource manifest](https://raw.githubusercontent.com/stanfordnlp/stanza-resources/main/resources_1.14.0.json);
+- the official [Stanza 1.14.0 release](https://github.com/stanfordnlp/stanza/releases/tag/v1.14.0)
+  and [Stanza language-pack licensing note](https://stanfordnlp.github.io/stanza/performance.html);
+- the upstream
+  [UD Ukrainian-IU README](https://raw.githubusercontent.com/UniversalDependencies/UD_Ukrainian-IU/master/README.md)
+  and [license](https://raw.githubusercontent.com/UniversalDependencies/UD_Ukrainian-IU/master/LICENSE.txt)
+  for training-corpus scope and licensing context.
+
+The dissertation examples reviewed for this gate were the source-attested
+requirements and revisions already transcribed in Section 7.14.1, especially
+`R1'`-`R5'` and the negative case `R6`. They are research traceability examples,
+not a gold parser corpus. Two additional strings were used only to probe an
+apostrophe, coordination, and an ordinary finite verb. They are labelled
+`SYNTHETIC TECHNICAL CASE — NOT DISSERTATION EVIDENCE` and carry no scientific
+authority.
+
+No labelled requirements-domain Ukrainian parser benchmark was found in the
+repository or created by this evaluation. Consequently, the candidate
+comparison supports an engineering selection only. It does not establish
+parser accuracy, detector recall, detector precision, or scientific validity.
+
+#### 7.15.2 Minimum annotation capability
+
+An MVP parser backend must expose all of the following through the neutral
+contract:
+
+| Capability | Required use |
+| --- | --- |
+| deterministic tokenization with source offsets | construct exact source-span evidence without replacing `Requirement.text` |
+| sentence boundaries | bound sentence-local dependency identifiers and provide a conservative structural scope |
+| lemma | support only rules whose approved definition explicitly calls for a lemma; it does not expand `uk_vague_terms_v1` |
+| Universal POS (`UPOS`) | distinguish approved grammatical candidates without library-specific tag objects |
+| morphology | preserve UD-style key/value features needed by an approved rule |
+| dependency head and relation | support conservative clause and attachment checks required by Section 7.14 |
+
+Named entities, vectors/embeddings, sentiment, parser probabilities, beam
+scores, model tensors, and library-native document/token objects are excluded
+from the MVP boundary. Clause observations remain detector decisions; the
+parser contract does not assert a universal clause segmentation.
+
+#### 7.15.3 Candidate comparison
+
+The minimum credible candidates are the current official Ukrainian pipelines
+from spaCy and Stanza. No third candidate was added because no additional
+library was needed to exercise the required annotation contract, and adding an
+unverified option would not improve this gate.
+
+| Dimension | spaCy `uk_core_news_sm` 3.8.0 | Stanza 1.14.0 Ukrainian `iu` package |
+| --- | --- | --- |
+| Ukrainian tokenization | Yes | Yes, with `tokenize` and `mwt` processors |
+| sentence boundaries | Yes (`parser`/`senter`) | Yes (`tokenize`) |
+| lemma | Yes (`lemmatizer`) | Yes (`lemma`, default `iu_nocharlm`) |
+| UPOS and morphology | Yes (`morphologizer`; `Token.pos_` and `Token.morph`) | Yes (`pos`, default `iu_charlm`; `Word.upos` and `Word.feats`) |
+| dependencies | Yes (`parser`; head and dependency relation) | Yes (`depparse`, default `iu_charlm`; head and relation) |
+| source offsets | `Token.idx` plus token length; adapter conversion is straightforward | documented `start_char`/`end_char`; adapter must map syntactic words conservatively |
+| CPU/offline operation | official metadata says CPU-optimized; installed Python package loads without network access | supports `use_gpu=False` and offline loading after an explicit model download |
+| version identity | model is a normal versioned Python package compatible with spaCy `>=3.8.0,<3.9.0` | library and resource manifest are versioned; individual processor artifacts have manifest identities/checksums |
+| reproducible acquisition | exact model wheel and SHA-256 are published in official metadata | resource manifest supplies package choices and MD5 values; deployment must freeze the complete processor set and resource manifest |
+| published model size | 14 MB package metadata, with no word vectors | no single comparable package-size claim; default `iu` resolves several processor, pretrain, and character-language-model files |
+| observed local model footprint | 43,136,050 bytes in the isolated Windows environment | 333,363,122 bytes for the downloaded resource directory in the same environment |
+| observed one-process load | 0.707 s in one isolated run | 2.671 s in the same isolated run |
+| integration surface | spaCy plus model package and the model's declared Ukrainian morphology dependencies | Stanza plus PyTorch and a separately managed model directory |
+| software license | [MIT](https://raw.githubusercontent.com/explosion/spaCy/master/LICENSE) | [Apache-2.0](https://raw.githubusercontent.com/stanfordnlp/stanza/main/LICENSE) |
+| model/data licensing signal | selected model metadata declares MIT and names the MIT-licensed `Ukr-Synth` source; transitive dependency notices still require release review | Stanza describes language-pack licensing only to the extent Stanford owns rights; upstream UD Ukrainian-IU declares CC BY-NC-SA 4.0, so distribution/commercial use requires project/legal review |
+| training-domain signal | official model page labels the pipeline as news written text; metadata identifies `Ukr-Synth`; neither is a requirements corpus | UD Ukrainian-IU reports mixed web/news/legal/fiction and other genres; it is not a requirements corpus |
+| current maintenance signal | official spaCy releases and 3.8-compatible Ukrainian model metadata were current when reviewed | Stanza 1.14.0 and resource manifest 1.14.0 were current when reviewed |
+
+The local footprint and timing observations are `INDICATIVE ONLY — NOT A
+BENCHMARK`. They are single-machine engineering observations with no warm-up,
+statistical analysis, service-level threshold, or quality interpretation.
+
+#### 7.15.4 Narrow empirical spike
+
+An isolated temporary environment evaluated spaCy 3.8.16 with
+`uk_core_news_sm` 3.8.0 and Stanza 1.14.0 with resource manifest 1.14.0 and the
+default Ukrainian `iu` syntax processors. Both were forced to CPU operation and
+offline inference after explicit installation/download. No package, model,
+lockfile, source file, or test was added to the repository.
+
+Observed behavior on six source-attested examples and two clearly labelled
+synthetic technical cases:
+
+- both candidates returned exact source-offset round trips for every emitted
+  token in all eight strings;
+- both preserved Ukrainian apostrophe text and produced UPOS, morphology,
+  lemmas, sentence boundaries, heads, and dependency relations;
+- both kept every tested semicolon-coordinated requirement on one sentence,
+  demonstrating that detector clause logic cannot be delegated to sentence
+  segmentation alone;
+- spaCy kept decimal-comma `99,9` as one token, while Stanza emitted `99`, `,`,
+  and `9`; therefore the approved quantitative lexical baseline must operate on
+  source spans and may not assume that a numeric value is one parser token;
+- spaCy kept `1.3` and `2.0` intact but split `tenant-ами`; Stanza split version
+  numbers around the period but kept `tenant-ами`; therefore technical-token
+  shapes must not become undocumented semantic rules;
+- dependency attachments differed in coordinated examples even where surface
+  tokens matched. The accepted/unresolved outcome contract is therefore
+  required; a backend parse must not be treated as unquestionable truth.
+
+Across the eight strings, the single-run average processing observations were
+approximately 6.2 ms for spaCy and 124.3 ms for Stanza. These values are recorded
+only to confirm practical local CPU execution and relative integration cost in
+that environment. They are not acceptance thresholds, performance promises, or
+scientific comparison results.
+
+#### 7.15.5 Engineering recommendation
+
+**Proposed MVP backend:** spaCy 3.8.16 with the official
+`uk_core_news_sm` 3.8.0 package, loaded with `ner` disabled and the tokenizer,
+morphologizer, parser/sentence-boundary support, attribute ruler, and lemmatizer
+retained.
+
+This recommendation is based on the following bounded engineering reasons:
+
+1. it supplies every minimum annotation and exact source offset required by the
+   neutral contract;
+2. the selected package is CPU-oriented, has no vectors, and had a materially
+   smaller observed model footprint and integration stack in the narrow spike;
+3. the library/model compatibility range, package version, checksum, source,
+   and model license are explicit in official metadata; and
+4. the empirical cases exposed no offset failure that would prevent exact
+   Evidence construction.
+
+The recommendation does **not** claim superior linguistic accuracy. Both
+candidates have a domain mismatch, and neither was evaluated against a labelled
+Ukrainian requirements corpus. Stanza remains a viable replacement if later
+validation or deployment constraints favour it, provided an adapter satisfies
+the same invariants and its model/data licensing is approved.
+
+The runtime dependency must not be added until this draft is researcher-approved
+and an implementation issue authorizes it. At that point, reproducibility must
+freeze the exact spaCy and model package versions and verify the official model
+wheel SHA-256. Processing must never download a model implicitly. A missing or
+incompatible model is a structured parser failure, not a reason to switch model
+versions silently.
+
+#### 7.15.6 Parser-neutral contract
+
+The contract below is conceptual and language/library neutral. Names show the
+minimum typed fields; they do not prescribe a particular Python framework.
+
+```text
+ParserMetadata
+  provider_id: str
+  library_version: str
+  model_package: str
+  model_version: str
+  language: str
+
+MorphFeature
+  name: str
+  values: tuple[str, ...]
+
+SentenceAnnotation
+  sentence_id: int
+  start_offset: int
+  end_offset: int
+
+TokenAnnotation
+  token_id: int
+  sentence_id: int
+  text: str
+  start_offset: int
+  end_offset: int
+  lemma: str | None
+  upos: str | None
+  morphology: tuple[MorphFeature, ...]
+  head_token_id: int | None
+  dependency_relation: str | None
+
+ParsedRequirement
+  requirement_id: str
+  text: str
+  sentences: tuple[SentenceAnnotation, ...]
+  tokens: tuple[TokenAnnotation, ...]
+  parser: ParserMetadata
+
+ParserDiagnostic
+  code: ParserDiagnosticCode
+  explanation: str
+
+ParserOutcome
+  parsed_requirement: ParsedRequirement | None
+  diagnostics: tuple[ParserDiagnostic, ...]
+```
+
+`ParserDiagnosticCode` has the minimum infrastructure values
+`PARSER_UNAVAILABLE`, `PARSER_PROCESSING_FAILED`,
+`ANNOTATION_INCOMPLETE`, and `OFFSET_INVARIANT_FAILED`. These values describe
+processing, not requirement quality. They carry no severity, probability,
+confidence, or score.
+
+The following invariants are mandatory:
+
+1. `ParsedRequirement.requirement_id` equals the input `Requirement.id`, and
+   `ParsedRequirement.text` is value-identical to the already-trimmed
+   `Requirement.text`. The parser may not normalize, rewrite, or become the
+   source of record for requirement text.
+2. All sentence and token offsets use the Section 7.2 convention: zero-based
+   Unicode code-point indices, start inclusive and end exclusive, against that
+   exact `Requirement.text`.
+3. Every emitted token satisfies
+   `Requirement.text[start_offset:end_offset] == text`. Provider-native byte or
+   UTF-16 offsets must be converted and validated by the adapter.
+4. Token IDs are zero-based, unique, and in source order within one requirement.
+   Sentence IDs are zero-based and in source order.
+5. A non-root `head_token_id` refers to a token in the same sentence. A root has
+   `head_token_id = None`; provider-native root indices never cross the boundary.
+6. `upos` and `dependency_relation` use UD-compatible string labels.
+   Morphological features are immutable tuples sorted by feature name and value
+   for deterministic equality/serialization. Provider-native objects and XPOS
+   tagsets do not cross the boundary.
+7. Empty or missing annotations required by an approved detector produce an
+   incomplete parser/detector outcome. They are not guessed from another field.
+8. If a backend multi-word-token analysis cannot be mapped to exact source
+   spans satisfying invariant 3, the adapter returns
+   `OFFSET_INVARIANT_FAILED`; it must not fabricate offsets or evidence.
+9. On successful parsing, `parsed_requirement` is present and fatal diagnostics
+   are absent. On failure it is absent and at least one diagnostic is present.
+10. Parser annotations do not contain `Evidence`, observations, findings,
+    applicability, or quality values. Only approved detectors may convert
+    source-aligned annotations into feature observations and exact Evidence.
+
+The parser adapter stays entirely inside the feature-extraction boundary. It
+accepts one domain `Requirement` and returns `ParserOutcome`. The public
+`FeatureExtractor` contract remains `Requirement -> RequirementFeatures`;
+calculators never import the adapter, spaCy, Stanza, or parser-neutral annotation
+types.
+
+#### 7.15.7 Detection-outcome representation
+
+Two representation strategies were considered:
+
+| Strategy | Benefit | Defect |
+| --- | --- | --- |
+| store one mutable/explicit `DetectionStatus` next to observations | superficially direct | permits contradictions such as `NOT_DETECTED` with observations and cannot alone express accepted observations plus unresolved candidates |
+| store observations, processing completeness, and structured diagnostics; derive `DetectionStatus` | represents all four required cases and prevents divergent stored state | callers must use one specified derivation rule |
+
+**Proposed strategy:** derive `DetectionStatus` from an immutable generic
+outcome wrapper:
+
+```text
+DetectionProcessingStatus = COMPLETE | INCOMPLETE
+
+DetectionDiagnostic
+  code: str
+  explanation: str
+  rule_id: str
+  candidate_span: DiagnosticSpan | None
+
+DiagnosticSpan
+  text: str
+  start_offset: int
+  end_offset: int
+
+FeatureDetectionOutcome[T]
+  feature_id: FeatureId
+  observations: tuple[T, ...]
+  processing_status: DetectionProcessingStatus
+  diagnostics: tuple[DetectionDiagnostic, ...]
+```
+
+The derived status is exactly:
+
+```text
+if observations is not empty:
+    DetectionStatus = DETECTED
+else if processing_status == COMPLETE:
+    DetectionStatus = NOT_DETECTED
+else:
+    DetectionStatus = UNRESOLVED
+```
+
+`processing_status = INCOMPLETE` requires at least one diagnostic. Diagnostics
+record why processing was incomplete; they are not accepted Evidence and do not
+create a finding. A diagnostic candidate span follows the same Unicode offset
+convention and must round-trip to its exact text. Diagnostic codes must be
+stable and rule-specific when implemented; this draft does not invent dozens of
+production codes.
+
+This single structure represents the required cases without null overloading:
+
+| Case | `observations` | processing | derived status | diagnostics |
+| --- | --- | --- | --- | --- |
+| A — accepted detections only | non-empty | `COMPLETE` | `DETECTED` | empty |
+| B — no accepted detection after complete processing | empty | `COMPLETE` | `NOT_DETECTED` | empty |
+| C — unresolved only | empty | `INCOMPLETE` | `UNRESOLVED` | non-empty |
+| D — accepted observations plus unresolved candidates | non-empty | `INCOMPLETE` | `DETECTED` | non-empty; mixed state remains visible |
+
+`RequirementFeatures` contains exactly six `FeatureDetectionOutcome` fields,
+one per approved feature family. The existing notation `condition_contexts[]`,
+`expected_results[]`, `acceptance_criteria[]`,
+`quantitative_constraints[]`, `verification_methods[]`, and
+`vague_term_occurrences[]` refers to each corresponding wrapper's
+`observations` tuple. This adds processing metadata, not a seventh feature
+family. Every collection is immutable and ordered by its earliest referenced
+Evidence offset, with the already-approved family-specific tie rules applied.
+
+`DetectionStatus` remains entirely separate from
+`CriterionApplicability = APPLICABLE | NOT_APPLICABLE | UNKNOWN`. Neither enum
+may be converted into the other. In particular, parser failure is not
+`NOT_APPLICABLE`, and `UNKNOWN` applicability is not an unresolved detector
+candidate.
+
+#### 7.15.8 Parser failure and degraded operation
+
+Parser availability is not allowed to turn missing analysis into false
+certainty:
+
+- detector families or subrules that do not consume parser output continue
+  deterministically from the exact source text;
+- a parser-required family returns `INCOMPLETE` with a diagnostic when parsing
+  is unavailable, fails, violates offsets, or omits a required annotation;
+- a parser-optional family may preserve accepted lexical observations and also
+  return `INCOMPLETE` diagnostics for candidates whose approved attachment check
+  could not be completed;
+- `NOT_DETECTED` is permitted only when every applicable approved check for that
+  family completed and produced no observation;
+- downstream calculators and aggregators must not convert parser diagnostics,
+  `UNRESOLVED`, missing observations, or incomplete processing into zero or a
+  `QUALITY_PROBLEM`. Their final propagation policy remains open under
+  `RQD-012`.
+
+The minimum diagnostic explains the affected feature family, stable detector
+rule, machine-readable reason code, human-readable reason, and exact candidate
+span when one exists. Raw exceptions, model tensors, and stack traces remain in
+technical logging and do not enter the domain outcome.
+
+#### 7.15.9 Stable observation shapes
+
+Simple span-based families use the already-approved minimal core:
+
+```text
+FeatureObservation
+  feature_id: FeatureId
+  evidence_refs: tuple[str, ...]
+```
+
+This type is sufficient for `condition_context`, `expected_result`,
+`acceptance_criterion`, and `verification_method` because their approved MVP
+meaning is carried by the feature ID, detector rule, and exact referenced
+Evidence. It must not grow parser tags, confidence, or duplicated source text.
+
+Vague-term occurrences use a small typed specialization:
+
+```text
+VagueTermOccurrence
+  feature_id: VAGUE_TERM_OCCURRENCE
+  vocabulary_id: str
+  matched_literal: str
+  evidence_refs: tuple[str, ...]
+```
+
+For MVP v0.1, `vocabulary_id` is `uk_vague_terms_v1` and `matched_literal` is
+one of its ten exact canonical entries. The referenced Evidence, not
+`matched_literal`, preserves the original case, whitespace, punctuation, and
+offsets. The matcher remains exactly as approved in Section 7.14.8; parser
+lemmas do not expand it and `RQD-007` remains closed.
+
+#### 7.15.10 Quantitative-constraint representation
+
+The linked quantitative observation remains partial and evidence-first:
+
+```text
+QuantitativeComponentName =
+  METRIC | COMPARATOR | VALUE | UNIT | CONTEXT
+
+ComparatorLabel =
+  LESS_THAN_OR_EQUAL | GREATER_THAN_OR_EQUAL |
+  NOT_LESS_FREQUENT | UPPER_BOUND
+
+BoundaryInclusivity = INCLUSIVE | UNRESOLVED
+
+UnitLabel = SECOND | MINUTE | PERCENT
+
+TextComponent
+  evidence_refs: tuple[str, ...]
+
+ComparatorComponent
+  label: ComparatorLabel
+  inclusivity: BoundaryInclusivity | None
+  evidence_refs: tuple[str, ...]
+
+NumericValueComponent
+  decimal_value: Decimal
+  evidence_refs: tuple[str, ...]
+
+UnitComponent
+  label: UnitLabel
+  evidence_refs: tuple[str, ...]
+
+QuantitativeConstraintObservation
+  feature_id: QUANTITATIVE_CONSTRAINT
+  metric: TextComponent | None
+  comparator: ComparatorComponent | None
+  value: NumericValueComponent | None
+  unit: UnitComponent | None
+  context: TextComponent | None
+  unresolved_components: tuple[QuantitativeComponentName, ...]
+  evidence_refs: tuple[str, ...]
+```
+
+Component rules are:
+
+1. Every populated component references the exact Evidence that justified it.
+   The top-level `evidence_refs` is the stable, de-duplicated, source-ordered
+   union of all accepted component evidence. Original spellings such as `с`,
+   `хв`, `секунд`, `%`, or `99,9` live only in Evidence; normalized labels and
+   `Decimal` values never replace raw text.
+2. Decimal-comma text is parsed deterministically to `Decimal` only after its
+   exact raw span is preserved. Binary floating point, unit conversion,
+   implicit scaling, and rounding are prohibited.
+3. `LESS_THAN_OR_EQUAL` and `GREATER_THAN_OR_EQUAL` carry
+   `inclusivity = INCLUSIVE`. Approved Ukrainian `до` carries
+   `label = UPPER_BOUND` and `inclusivity = UNRESOLVED`; it is never normalized
+   to `LESS_THAN_OR_EQUAL`. `NOT_LESS_FREQUENT` has
+   `inclusivity = None` because the approved form expresses frequency rather
+   than a boundary-inclusion decision.
+4. `SECOND`, `MINUTE`, and `PERCENT` are labels for the approved source forms,
+   not a unit ontology. No conversion relation is implied.
+5. A component that could not be resolved is `None` and is named in
+   `unresolved_components`. A `None` component not named there was not
+   explicitly expressed in the accepted partial observation. A populated
+   component cannot also be listed as unresolved.
+6. The observation is valid when at least the approved anchor components are
+   linked under Section 7.14.6. It need not contain all five components.
+7. Written-out numbers, generic ranges, complex count-noun role inference,
+   inferred metrics, and nested load-context structures remain outside this
+   representation gate. They remain open/deferred under `RQD-008` rather than
+   being guessed.
+
+#### 7.15.11 Reproducibility, licensing, and distribution policy
+
+If approved and later implemented, the parser integration must follow this
+policy:
+
+1. pin `spacy==3.8.16` and `uk_core_news_sm==3.8.0` in the implementation
+   dependency mechanism authorized by its issue;
+2. verify the official model wheel SHA-256
+   `d20adb50b42c0dcfdedf4994dabcb96789a64983a9ab560d0c6c38a59e8efb58`
+   during controlled acquisition and record the model identity in
+   `ParserMetadata`;
+3. install models as explicit deployment artifacts; do not auto-download,
+   auto-upgrade, or silently fall back during requirement processing;
+4. keep the binary model and download cache out of the source repository unless
+   a separately reviewed distribution decision explicitly vendors them;
+5. include the spaCy/model/transitive dependency license notices required by
+   the chosen distribution mode and perform a release-time dependency-license
+   inventory. This technical review is not legal advice;
+6. treat any future model or parser upgrade as a controlled change requiring
+   the same source-span validation cases, rule-registry compatibility review,
+   and explicit approval when observed detector behavior changes; and
+7. permit a replacement backend only through the adapter contract and the same
+   invariants. Calculators and domain quality profiles must remain unchanged.
+
+The non-selected Stanza option must not be adopted merely by changing a package
+name. Its frozen processor/resource set, artifact checksums, PyTorch footprint,
+offline packaging, and the upstream Ukrainian model/data licensing implications
+must first be approved for the target distribution context.
+
+#### 7.15.12 RQD status recommendations after approval
+
+These are recommendations, not status changes made by this draft:
+
+| RQD | Recommendation after explicit researcher approval | Boundary |
+| --- | --- | --- |
+| `RQD-006` | close the remaining parser-operationalization part for the MVP v0.1 implementation boundary | selected backend, adapter fields, failure semantics, and conservative unresolved behavior become implementable; actor/action/object remain deferred and no “any verb” fallback is introduced |
+| `RQD-008` | keep `PARTIALLY_APPROVED / OPEN` | quantitative data representation is resolved, but complex metric/context grammar, count-noun roles, nested context, written-out numbers, and generic ranges remain open/deferred |
+| `RQD-012` | mark the detector-side data-representation portion resolved; keep the RQD open | all four detection cases have a stable representation, but calculator and aggregation propagation of incomplete/unknown/not-applicable states remains undecided |
+| `RQD-020` | keep `UNRESOLVED` and excluded from these contracts | no confidence or evidence-reliability field is introduced; implementation cannot add one without a later approved decision |
+
+#### 7.15.13 Downstream issue impact and proposed narrow updates
+
+No GitHub issue is edited by this draft. After researcher approval, the issue
+descriptions should be aligned narrowly as follows:
+
+| Issue | Impact | Proposed description/acceptance update |
+| --- | --- | --- |
+| #2 MVP-01 | safe to start the domain/data-contract subset after approval | add the six immutable `FeatureDetectionOutcome` wrappers, parser-neutral annotation/result structures, typed simple/vague/quantitative observations, derived status invariants, and construction tests; retain all calculation and propagation blockers |
+| #4 MVP-03 | boundary can name a concrete default without leaking it | specify `Requirement -> RequirementFeatures`, an internal parser-adapter port, no library-native objects across the boundary, structured degraded behavior, and a replaceability contract test |
+| #5 MVP-04 | approved structural baseline can use the selected backend after #2/#4 | add exact offset/head/sentence adapter tests and source-attested condition/result/criterion cases; ambiguous attachment must produce diagnostics/`INCOMPLETE`; do not implement actor/action/object or complex `RQD-008` grammar |
+| #6 MVP-05 | textual extraction keeps lexical authority over quantitative spans | add decimal-comma and technical-token regression cases showing source-span matching independent of parser token boundaries; keep `uk_vague_terms_v1` mechanics unchanged and do not route it through parser lemmas |
+| #14 MVP-SPEC | researcher approval would make this section binding | record the approval date/scope and then update only the affected RQD/traceability rows; keep the overall specification `DRAFT` while formulas, propagation, and rounding remain unresolved |
+
+Approval of this section unblocks neither characteristic calculators nor
+specification aggregation. It authorizes only the domain contract and parser
+boundary work explicitly allocated to later issues.
+
+#### 7.15.14 Decision record and guardrails
+
+**Proposal owner:** Codex technical evaluation.
+
+**Decision required:** researcher approval of (a) the spaCy
+`uk_core_news_sm` 3.8.0 selection with spaCy 3.8.16, (b) the parser-neutral
+contract, (c) the derived detection-outcome wrapper, and (d) the typed
+observation shapes. Until approval, the decision remains `PROPOSED`.
+
+Guardrails preserved:
+
+- the six approved feature families and all Section 7.14 detection semantics
+  remain unchanged;
+- raw trimmed text, punctuation, exact Evidence, and Unicode code-point offsets
+  remain authoritative;
+- `uk_vague_terms_v1` remains unchanged and `RQD-007` remains closed;
+- no parser output directly creates a finding, `QUALITY_PROBLEM`,
+  applicability value, score, penalty, or reward;
+- no arbitrary proximity threshold, new comparator, new unit alias, inferred
+  metric, written-number rule, or range grammar is introduced;
+- `has_actor`, `has_action`, and `has_object` remain deferred from MVP v0.1;
+- `DetectionStatus` remains separate from `CriterionApplicability`;
+- no confidence, reliability, severity, probability, risk, priority, or
+  corrective-action field is added; and
+- no application code, test, package declaration, or runtime dependency is
+  changed by this research gate.
+
 ## 8. Completeness
 
 ### Explicitly defined by the dissertation
