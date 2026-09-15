@@ -5,6 +5,7 @@ from .detection import (
     DetectionDiagnostic, DetectionProcessingStatus, DetectionStatus,
     DiagnosticSpan, FeatureDetectionOutcome,
 )
+from .extraction import RequirementExtractionResult
 from .features import FeatureObservation, RequirementFeatures, VagueTermOccurrence
 from .parser import (
     MorphFeature, ParsedRequirement, ParserDiagnostic, ParserDiagnosticCode,
@@ -23,6 +24,7 @@ __all__ = [
     "FeatureId", "FeatureObservation", "MorphFeature", "NumericValueComponent",
     "ParsedRequirement", "ParserDiagnostic", "ParserDiagnosticCode", "ParserMetadata",
     "ParserOutcome", "QuantitativeComponentName", "QuantitativeConstraintObservation",
-    "Requirement", "RequirementFeatures", "SentenceAnnotation", "TextComponent",
+    "Requirement", "RequirementExtractionResult", "RequirementFeatures",
+    "SentenceAnnotation", "TextComponent",
     "TokenAnnotation", "UnitComponent", "UnitLabel", "VagueTermOccurrence",
 ]

@@ -8,7 +8,8 @@ from typing import get_type_hints
 
 from requirements_quality_assessment.domain import (
     DetectionProcessingStatus, FeatureDetectionOutcome, FeatureId,
-    FeatureObservation, Requirement, RequirementFeatures,
+    Evidence, FeatureObservation, Requirement, RequirementExtractionResult,
+    RequirementFeatures,
 )
 from requirements_quality_assessment.extractor import FeatureExtractor
 
@@ -39,38 +40,40 @@ def _features(*, observed_condition: bool = False) -> RequirementFeatures:
 
 
 class StubExtractor:
-    def __init__(self, result: RequirementFeatures) -> None:
+    def __init__(self, result: RequirementExtractionResult) -> None:
         self.result = result
 
-    def extract(self, requirement: Requirement) -> RequirementFeatures:
+    def extract(self, requirement: Requirement) -> RequirementExtractionResult:
         assert isinstance(requirement, Requirement)
         return self.result
 
 
 class AlternateExtractor:
-    def __init__(self, result: RequirementFeatures) -> None:
+    def __init__(self, result: RequirementExtractionResult) -> None:
         self.result = result
 
-    def extract(self, requirement: Requirement) -> RequirementFeatures:
+    def extract(self, requirement: Requirement) -> RequirementExtractionResult:
         assert isinstance(requirement, Requirement)
         return self.result
 
 
 def _run_extractor(
     extractor: FeatureExtractor, requirement: Requirement
-) -> RequirementFeatures:
+) -> RequirementExtractionResult:
     return extractor.extract(requirement)
 
 
-def test_extract_accepts_requirement_and_returns_existing_six_family_result() -> None:
+def test_extract_accepts_requirement_and_returns_evidence_with_six_family_features() -> None:
     requirement = Requirement("R001", 2, "Система формує звіт.")
-    result = _features()
+    result = RequirementExtractionResult(requirement, _features(), ())
 
     returned = StubExtractor(result).extract(requirement)
 
     assert returned is result
-    assert isinstance(returned, RequirementFeatures)
-    assert {field.name for field in fields(returned)} == {
+    assert isinstance(returned, RequirementExtractionResult)
+    assert returned.requirement is requirement
+    assert returned.evidence == ()
+    assert {field.name for field in fields(returned.features)} == {
         "condition_contexts", "expected_results", "acceptance_criteria",
         "quantitative_constraints", "verification_methods", "vague_term_occurrences",
     }
@@ -78,12 +81,17 @@ def test_extract_accepts_requirement_and_returns_existing_six_family_result() ->
 
 def test_structural_implementations_are_replaceable_for_a_protocol_consumer() -> None:
     requirement = Requirement("R002", 3, "Якщо є запит, система формує звіт.")
-    first_result = _features()
-    second_result = _features(observed_condition=True)
+    first_result = RequirementExtractionResult(requirement, _features(), ())
+    second_result = RequirementExtractionResult(
+        requirement, _features(observed_condition=True),
+        (Evidence("E1", requirement.id, FeatureId.CONDITION_CONTEXT,
+                  requirement.text[:4], 0, 4, "COND-UK-001"),),
+    )
 
     assert _run_extractor(StubExtractor(first_result), requirement) is first_result
     assert _run_extractor(AlternateExtractor(second_result), requirement) is second_result
-    assert second_result.condition_contexts.observations != first_result.condition_contexts.observations
+    assert (second_result.features.condition_contexts.observations
+            != first_result.features.condition_contexts.observations)
 
 
 def test_public_signature_has_only_domain_input_and_output() -> None:
@@ -91,7 +99,7 @@ def test_public_signature_has_only_domain_input_and_output() -> None:
     hints = get_type_hints(FeatureExtractor.extract)
 
     assert tuple(parameters) == ("self", "requirement")
-    assert hints == {"requirement": Requirement, "return": RequirementFeatures}
+    assert hints == {"requirement": Requirement, "return": RequirementExtractionResult}
 
 
 def test_importing_boundary_requires_no_nlp_runtime() -> None:
