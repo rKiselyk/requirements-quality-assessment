@@ -638,16 +638,23 @@ Approved partial-observation example:
 
 ```text
 source:      "не більше 2 секунд"
-metric:      unresolved
+metric:      None (not expressed in the first-production anchor)
 comparator:  <=
 value:       2
 unit:        seconds
-context:     unresolved
+context:     None (not expressed in the first-production anchor)
 ```
+
+This baseline example does not name `METRIC` or `CONTEXT` in
+`unresolved_components`. An explicitly expressed candidate whose role cannot
+be resolved instead uses `None` with the corresponding unresolved entry, as
+specified in Section 7.15.10.
 
 For the source example “Час відгуку ≤ 2 с при 500 одночасних користувачах”,
 the response-time metric, `≤` comparator, value `2`, unit `с`, and load context
-must remain associated. Likewise, the worked revision linking a four-second
+must remain associated if a separately approved metric/context grammar later
+extracts those roles. The first-production baseline accepts only the explicit
+`≤ 2 с` anchor. Likewise, the worked revision linking a four-second
 route-generation bound to 95 percent of requests under up to 300 concurrent
 requests must not become unrelated true/false flags. This approval does not decide
 whether a percentile qualifier or load limit is a nested constraint, context,
@@ -680,9 +687,12 @@ The approved policy is:
 `UK-VAGUE-001` is allocated as the production detection rule ID for the exact
 Section 7.14.8 `uk_vague_terms_v1` matcher. This allocation changes none of
 its matching semantics and implies no finding, confirmed ambiguity, score, or
-penalty. Shapes such as `QUANT-COMP-001` and `COND-001` remain conceptual
-examples only. Semantic versions belong in registry metadata. No speculative
-production rule-ID registry is created by this allocation.
+penalty. `QUANT-001` and `QUANT-UK-001` are allocated only for the narrow
+first-production quantitative lexical baseline in Section 7.14.6.6, by
+researcher-approved Issue #29. Shapes such as `QUANT-COMP-001` and `COND-001`
+remain conceptual examples only. Semantic versions belong in registry
+metadata. No speculative production rule-ID registry is created by these
+allocations.
 
 ### 7.8 Approved source-derived Ukrainian vague-term seed lexicon
 
@@ -1177,10 +1187,13 @@ Table 7, R1′), implicit route-generation duration (R2′), and `Місячна
 сервісу` (R4′). They demonstrate metric roles but do not define an exhaustive
 metric vocabulary.
 
-The approved lexical baseline therefore leaves `metric` unresolved unless an
-explicit nominal metric phrase is attached unambiguously to the bound. Parser
-assistance may extract the governing noun phrase and essential complements. It
-must not infer a metric such as latency merely because a duration occurs.
+The first-production lexical baseline in Section 7.14.6.6 does not infer or
+attach a metric: `metric = None` without an `unresolved_components` entry when
+no metric candidate is expressed as part of the accepted anchor. A separately
+approved grammar may later attach an explicit nominal metric phrase
+unambiguously to the bound. Parser assistance may then extract the governing
+noun phrase and essential complements. It must not infer a metric such as
+latency merely because a duration occurs.
 
 Source-attested quantitative contexts include `при 500 одночасних
 користувачах` in Section 2.2 Table 2.5 and `при навантаженні до 300 одночасних
@@ -1212,22 +1225,25 @@ The following conservative linkage algorithm is approved for the baseline:
    comparator only through a source-approved contiguous construction that
    governs that value. Attach a unit only when it is in the same numeric phrase.
    No arbitrary token-distance or character-distance threshold is used.
-4. Link a metric only when one governing metric phrase has an explicit template
-   or grammatical relation to the bound in the same clause. If zero such phrases
-   exist, leave `metric` unresolved. If more than one is compatible and grammar
-   does not decide, leave it unresolved rather than selecting the nearest.
-5. Link context only when a marker-headed phrase/clause modifies the same metric,
-   result, or bound. A unique grammatical attachment may cross a comma inside
-   the same sentence; it may not cross a hard boundary. Ambiguous context remains
-   unresolved.
+4. Link a metric only under a separately approved template or grammatical rule
+   relating one governing metric phrase to the bound in the same clause. If an
+   expressed candidate cannot be resolved, name `METRIC` in
+   `unresolved_components`; do not select the nearest among compatible phrases.
+   The first-production anchor alone does not attempt this linkage.
+5. Link context only under a separately approved rule when a marker-headed
+   phrase/clause modifies the same metric, result, or bound. A unique
+   grammatical attachment may cross a comma inside the same sentence; it may
+   not cross a hard boundary. Ambiguous context remains unresolved. The
+   first-production anchor alone does not attempt this linkage.
 6. Do not merge distinct numeric anchors except through an approved range
    construction. No generic range construction is approved. Each bound
    therefore remains independently traceable.
 7. A context bound may be represented both as the `context` of the primary
    target and as its own partial quantitative observation only when both roles
    are explicit under an approved grammar/template rule. Until that concrete
-   nested-context rule is approved, preserve the context evidence and leave the
-   separate-observation decision unresolved.
+   nested-context rule is approved, leave that nested-role decision unresolved;
+   the first-production subset creates only its separately accepted anchors,
+   not speculative metric/context Evidence.
 8. A candidate with an explicit comparator/value or value/unit relation becomes
    a partial `QuantitativeConstraintObservation` even when metric or context is
    unresolved. If digits may instead be a version, identifier, date, or label and
@@ -1241,9 +1257,108 @@ The following conservative linkage algorithm is approved for the baseline:
 | Positive | SOURCE-ATTESTED — Requirements and product quality, Section 2.2, Table 2.5: `Час відгуку ≤ 2 с при 500 одночасних користувачах` | `DETECTED`; one primary constraint | metric `[0,11)`; bound `[12,17)` with comparator `LESS_THAN_OR_EQUAL`, value `2`, unit `SECOND`; context `[18,49)` | `QUANT` |
 | Negative | SOURCE-ATTESTED — Application example, Section 8, Table 7, R3′: `Дані передаються через TLS 1.3; доступ до API — за OAuth 2.0/OIDC; ...` | `NOT_DETECTED` for `1.3` and `2.0`; they are version identifiers without a bound relation | none for those numbers | `QUANT` |
 | Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система використовує профіль 95.` | `UNRESOLVED`; `95` may be a label or quantity and has no explicit metric/comparator/unit relation | no accepted evidence | `QUANT` |
-| Repeated | SOURCE-ATTESTED — Application example, Section 8, Table 7, R1′ | `DETECTED`; frequency candidate and latency constraint remain separate | `[63,90)` `не рідше одного разу на 5 с` with written count unresolved; metric `[92,161)` and bound `[164,177)` `не більше 3 с` | `QUANT` |
+| Repeated | SOURCE-ATTESTED — Application example, Section 8, Table 7, R1′ | `DETECTED` for the `не більше 3 с` bound; the distinct `не рідше одного разу на 5 с` frequency construction awaits separately approved production grammar | First-production accepted bound `[164,177)` `не більше 3 с`; `[63,90)` frequency construction and metric `[92,161)` remain research linkage candidates, not first-production Evidence | `QUANT` |
 | Punctuation/decimal | SOURCE-ATTESTED — Application example, Section 8, Table 7, R4′: `Місячна доступність сервісу — не нижче 99,9 %; ...` | `DETECTED`; comma belongs to decimal and semicolon ends the constraint | metric `[0,27)`; bound `[30,45)` with comparator `GREATER_THAN_OR_EQUAL`, raw value `99,9`, unit `PERCENT` | `QUANT` |
 | Nested interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, R2′ | `DETECTED`; primary four-second route bound with linked load context; separate nested load observation remains unresolved | primary bound `[96,116)`; context `[117,159)`; nested candidate `[134,159)` with comparator `UPPER_BOUND` and inclusivity `UNRESOLVED` | `QUANT`, `COND-UK` |
+
+The metric/context and nested-role entries in this research traceability table
+do not allocate production grammar. In particular, the frequency candidate
+`не рідше одного разу на 5 с` is not an accepted `QUANT-UK-001` anchor:
+its written-out count is outside the first-production numeric baseline.
+
+##### 7.14.6.6 First-production quantitative lexical allocation (Issue #29)
+
+Only the following production IDs are allocated for this narrow baseline.
+Both produce `quantitative_constraint` observations and accepted Evidence;
+neither creates findings or characteristic scores.
+
+| Rule ID | Profile and accepted anchor | Evidence boundary | Approval and status |
+| --- | --- | --- | --- |
+| `QUANT-001` | Language-independent symbolic `≤` linked to an approved ASCII numeric value; or an approved value + unit fallback not consumed by a higher-precedence accepted comparator anchor | One contiguous explicit comparator/value/unit or value/unit construction, excluding outside whitespace and sentence-final punctuation | Issue #29; allocated for first production |
+| `QUANT-UK-001` | Ukrainian `не довше ніж`, `не довше`, `не більше ніж`, `не більше`, `не нижче`, or `до`, linked through the approved contiguous construction to an approved ASCII numeric value and, where present, an approved unit | One contiguous explicit comparator/value/unit construction, including fixed grammatical material such as duration-introducing `за` when required | Issue #29; allocated for first production |
+
+The numeric forms remain ASCII digit integers and a single decimal comma
+between digits. The only unit surfaces are `с`, `хв`, `хвилин`, `секунд`, and
+`%`, with labels `SECOND`, `MINUTE`, and `PERCENT` as in Section 7.14.6.3.
+No decimal-point measured values, scientific notation, grouping, new aliases,
+conversion, generic ranges, or written-out-number parsing are allocated.
+`QUANT-001` does not accept `<`, `>`, `=`, or `≥` as comparator forms.
+
+For `QUANT-001`, `≤` maps to `LESS_THAN_OR_EQUAL` with `INCLUSIVE`
+inclusivity. For `QUANT-UK-001`, `не довше ніж`, `не довше`, `не більше ніж`, and
+`не більше` map to `LESS_THAN_OR_EQUAL` with `INCLUSIVE` inclusivity;
+`не нижче` maps to `GREATER_THAN_OR_EQUAL` with `INCLUSIVE` inclusivity;
+`до` maps to `UPPER_BOUND` with `UNRESOLVED` inclusivity. The domain label
+`NOT_LESS_FREQUENT` remains approved, but `не рідше` is deliberately not
+allocated to this first production subset. Its supplied construction
+`не рідше одного разу на 5 с` depends on written-out-number semantics
+deferred here. A future separately approved rule may operationalize that
+specific construction without general written-number parsing.
+
+Baseline candidate precedence is exactly:
+
+```text
+1. Ukrainian lexical comparator candidate
+2. symbolic comparator candidate
+3. value + unit fallback
+```
+
+An approved value + unit fallback may be accepted when it is not consumed by a
+higher-precedence accepted comparator anchor. A fallback wholly contained by
+such an accepted anchor does not create a duplicate observation: `не більше 3 с`
+yields one `не більше 3 с` observation, not another for `3 с`.
+Distinct anchors elsewhere in the same requirement remain separate, ordered
+by their earliest referenced Evidence `start_offset`; this precedence does
+not authorize arbitrary cross-observation merging.
+
+One contiguous accepted anchor Evidence may be referenced by all populated
+baseline components explicitly contained in it (`comparator`, `value`,
+`unit`). No speculative component-specific duplicate Evidence is required.
+Its exact source spelling and zero-based Unicode code-point offsets must
+round-trip to the trimmed original requirement text. Accepted Evidence IDs
+use source-order ordinals per rule within one requirement assessment:
+
+```text
+QUANT-001:E001, QUANT-001:E002, ...
+QUANT-UK-001:E001, QUANT-UK-001:E002, ...
+```
+
+The distinct rule prefixes preserve ID uniqueness within one
+`RequirementExtractionResult`. A baseline anchor populates only the explicit
+comparator/value/unit components it contains: `metric = None` and
+`context = None`, without automatically naming `METRIC` or `CONTEXT` in
+`unresolved_components`. `None` plus an unresolved entry denotes an
+explicitly expressed candidate whose role could not be resolved; `None`
+without such an entry denotes absence/unexpressed content. Metric/context
+grammar, count-noun roles, and nested context/constraint representation
+remain open under `RQD-008`.
+
+`QUANT_UNRESOLVED_NUMERIC_CANDIDATE` is the allocated detector diagnostic
+code for an approved ASCII numeric candidate that forms neither an accepted
+comparator + value nor value + unit anchor and cannot deterministically be
+excluded by an already-approved negative rule. In the existing model-spec
+example `Система використовує профіль 95.`, its diagnostic candidate span is
+exactly `95`, and its `rule_id` is `QUANT-001`. The span is diagnostic only:
+no accepted Evidence,
+observation, Finding, confidence, or severity is created for this candidate.
+The recognized technical-version cases `TLS 1.3` and `OAuth 2.0` remain
+`NOT_DETECTED` for those numeric strings, without this diagnostic; this
+negative case is not a general identifier ontology.
+
+The approved outcome semantics apply to this family without a stored
+`DetectionStatus`:
+
+| Accepted observations | Unresolved candidates | Processing | Derived status |
+| --- | --- | --- | --- |
+| present | none | `COMPLETE`, no diagnostics | `DETECTED` |
+| none | none | `COMPLETE`, no diagnostics | `NOT_DETECTED` |
+| none | present | `INCOMPLETE`, diagnostics present | `UNRESOLVED` |
+| present | present | `INCOMPLETE`, diagnostics present | `DETECTED` |
+
+This allocation does not close `RQD-008`: complex metric/context grammar,
+count-noun roles, nested constraint/context representation, written-out
+numbers, generic ranges, and future `не рідше` production grammar remain
+`PARTIALLY APPROVED / OPEN`.
 
 #### 7.14.7 `verification_method`
 
@@ -1461,8 +1576,11 @@ IDs. Each eventual registry entry must state the immutable detector description,
 feature ID, language/profile, evidence boundary, source/approval reference,
 status, and superseding rule if any. Evidence uses the detector rule ID; a
 finding uses the interpretation/conversion rule ID that created the finding.
-`UK-VAGUE-001` is the one production allocation for the already-approved exact
-Section 7.14.8 matcher; the other family shapes remain unallocated.
+`UK-VAGUE-001` remains the production allocation for the already-approved exact
+Section 7.14.8 matcher. `QUANT-001` and `QUANT-UK-001` are the only quantitative
+production allocations, with the immutable first-production meanings,
+source-aligned evidence boundaries, profiles, and Issue #29 approval recorded
+in Section 7.14.6.6. The other family shapes remain unallocated.
 
 #### 7.14.12 Readiness of the targeted RQDs
 
@@ -2033,7 +2151,13 @@ Component rules are:
    explicitly expressed in the accepted partial observation. A populated
    component cannot also be listed as unresolved.
 6. The observation is valid when at least the approved anchor components are
-   linked under Section 7.14.6. It need not contain all five components.
+   linked under Section 7.14.6. It need not contain all five components. The
+   first-production baseline in Section 7.14.6.6 does not infer `metric` or
+   `context`: each is `None` and is not automatically listed in
+   `unresolved_components` merely because it was not part of the accepted
+   comparator/value/unit anchor. One contiguous anchor Evidence may support
+   every populated baseline component it explicitly contains, without
+   component-specific duplicate Evidence.
 7. Written-out numbers, generic ranges, complex count-noun role inference,
    inferred metrics, and nested load-context structures remain outside this
    representation gate. They remain open/deferred under `RQD-008` rather than
@@ -2076,7 +2200,7 @@ overall RQD whose remaining research rules are still open:
 | RQD | Status after approval | Approved portion and remaining boundary |
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Concrete executable parser/template grammar for `expected_result`, ambiguous condition attachment, non-numeric acceptance criteria, and verification-method grammatical role remains open. Selecting spaCy does not define these scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
-| `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation and conservative baseline are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, and generic ranges remain open/deferred. |
+| `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, and Issue #29 first-production provenance/precedence/diagnostic contract are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future `не рідше` production grammar remain open/deferred. |
 | `RQD-012` | `OPEN`; detector-side representation `RESOLVED FOR MVP v0.1` | The four detection cases and mixed state have stable data representation. Calculator/aggregation propagation of `UNKNOWN`, `NOT_APPLICABLE`, incomplete processing, and insufficient evidence remains unresolved. |
 | `RQD-020` | `UNRESOLVED` | No confidence or evidence-reliability value or field is approved. |
 
@@ -2515,7 +2639,7 @@ approval.
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
 | `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_APPROVED` | Section 7.14 approves source-attested condition markers, conservative evidence boundaries, parser-optional condition attachment, parser-required expected-result semantics, and no arbitrary-verb fallback. Section 7.15 approves the spaCy backend and neutral data/processing boundary; executable grammar for expected results, ambiguous condition attachment, non-numeric acceptance, and verification-method grammatical role remains open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; Unambiguity calculation remains gated separately |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Section 7.14 approves the narrow conservative quantitative baseline; Section 7.15 approves its typed partial data representation. `до` is `UPPER_BOUND` with inclusivity `UNRESOLVED`. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, and generic ranges remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.6.6 and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, and typed partial data representation. `до` is `UPPER_BOUND` with inclusivity `UNRESOLVED`. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PARTIALLY_RESOLVED` | Section 2.1 places individual property values `a_ij` in `[0,1]`; Section 2.3 supplies generic and set-level metrics. Neither supplies executable per-requirement formulas for `a_i,C`, `a_i,V`, and intermediate `a_i,U`. | OPEN | MVP-06-08 |
 | `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PARTIALLY_RESOLVED` | Chapter 2 supports `[0,1]` and upward compliance orientation for individual properties and their property-level means. It does not approve binary versus graded MVP characteristic assessments. | OPEN | MVP-01, MVP-06-10 |
