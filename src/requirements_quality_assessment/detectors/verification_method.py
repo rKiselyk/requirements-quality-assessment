@@ -231,6 +231,16 @@ def _ukrainian_heads(tokens: tuple[TokenAnnotation, ...]) -> tuple[TokenAnnotati
     )
 
 
+def _has_neighboring_verbal_material(tokens: tuple[TokenAnnotation, ...]) -> bool:
+    """Reject an A member whose suffix is not solely a named method phrase.
+
+    VERIFY-UK-001 does not allocate grammar for carving a method noun phrase
+    out of neighboring behavior.  A parser-visible verb inside the proposed
+    member therefore makes its complete Evidence boundary unresolved.
+    """
+    return any(token.upos in {"VERB", "AUX"} for token in tokens)
+
+
 def _selected_phrase_candidates(
     text: str,
     view: str,
@@ -561,12 +571,30 @@ class VerificationMethodBaselineDetector:
                                         unresolved.append(_Span(method_start, segment.end))
                                 else:
                                     valid = []
-                                    for index, heads in enumerate(member_heads):
+                                    for index, (member, heads) in enumerate(
+                                        zip(members, member_heads)
+                                    ):
                                         head = heads[0]
-                                        role_ok = _has_morph_value(head, "Case", "Ins")
+                                        member_tokens = _tokens_in_span(
+                                            parsed,
+                                            segment.sentence_id,
+                                            member.start,
+                                            member.end,
+                                        )
+                                        role_ok = (
+                                            _has_morph_value(head, "Case", "Ins")
+                                            and not _has_neighboring_verbal_material(
+                                                member_tokens
+                                            )
+                                        )
                                         if index == 0:
-                                            role_ok = role_ok and _is_oblique(
-                                                head.dependency_relation
+                                            role_ok = (
+                                                role_ok
+                                                and _is_oblique(
+                                                    head.dependency_relation
+                                                )
+                                                and head.head_token_id
+                                                == predicate.token_id
                                             )
                                         valid.append(role_ok)
                                     if all(valid):

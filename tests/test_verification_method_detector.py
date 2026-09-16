@@ -238,6 +238,59 @@ def test_construction_a_wrong_role_is_unresolved_with_exact_member_span(
     assert outcome.diagnostics[0].candidate_span.text == "навантажувальним тестом"
 
 
+def test_construction_a_oblique_instrument_must_depend_on_governing_predicate():
+    text = "Виконання перевіряється тестом."
+    specs = (
+        _TokenSpec("Виконання", lemma="виконання"),
+        _TokenSpec("перевіряється", lemma="перевірятися", upos="VERB"),
+        _TokenSpec(
+            "тестом",
+            lemma="тест",
+            relation="obl",
+            morphology=_instrumental(),
+            head=0,
+        ),
+    )
+
+    _, _, outcome, evidence = _scan(text, specs)
+
+    assert evidence == ()
+    assert outcome.observations == ()
+    assert outcome.processing_status is DetectionProcessingStatus.INCOMPLETE
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert [item.code for item in outcome.diagnostics] == [
+        UNRESOLVED_CANDIDATE_CODE
+    ]
+    assert outcome.diagnostics[0].candidate_span.text == "тестом"
+
+
+def test_construction_a_does_not_include_neighboring_behavior_in_evidence():
+    text = "Виконання перевіряється система реєструє тестом."
+    specs = (
+        _TokenSpec("перевіряється", lemma="перевірятися", upos="VERB"),
+        _TokenSpec("система", lemma="система", relation="nsubj", head=2),
+        _TokenSpec("реєструє", lemma="реєструвати", upos="VERB"),
+        _TokenSpec(
+            "тестом",
+            lemma="тест",
+            relation="obl",
+            morphology=_instrumental(),
+            head=0,
+        ),
+    )
+
+    _, _, outcome, evidence = _scan(text, specs)
+
+    assert evidence == ()
+    assert outcome.observations == ()
+    assert outcome.processing_status is DetectionProcessingStatus.INCOMPLETE
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert [item.code for item in outcome.diagnostics] == [
+        UNRESOLVED_CANDIDATE_CODE
+    ]
+    assert outcome.diagnostics[0].candidate_span.text == "система реєструє тестом"
+
+
 @pytest.mark.parametrize(
     ("label", "delimiter", "method", "specs"),
     [
