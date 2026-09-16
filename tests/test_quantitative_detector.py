@@ -88,6 +88,10 @@ def scan(text: str):
          BoundaryInclusivity.INCLUSIVE, Decimal("3"), UnitLabel.SECOND),
         ("не нижче 99,9 %", QUANT_UK_RULE_ID, ComparatorLabel.GREATER_THAN_OR_EQUAL,
          BoundaryInclusivity.INCLUSIVE, Decimal("99.9"), UnitLabel.PERCENT),
+        ("не нижче 99,9%", QUANT_UK_RULE_ID, ComparatorLabel.GREATER_THAN_OR_EQUAL,
+         BoundaryInclusivity.INCLUSIVE, Decimal("99.9"), UnitLabel.PERCENT),
+        ("≤ 95%", QUANT_RULE_ID, ComparatorLabel.LESS_THAN_OR_EQUAL,
+         BoundaryInclusivity.INCLUSIVE, Decimal("95"), UnitLabel.PERCENT),
         ("до 300", QUANT_UK_RULE_ID, ComparatorLabel.UPPER_BOUND,
          BoundaryInclusivity.UNRESOLVED, Decimal("300"), None),
         ("не довше ніж за 2 с", QUANT_UK_RULE_ID,
@@ -122,6 +126,9 @@ def test_comparator_reference_cases(
         ("5 хв", Decimal("5"), UnitLabel.MINUTE),
         ("5 хвилин", Decimal("5"), UnitLabel.MINUTE),
         ("99,9 %", Decimal("99.9"), UnitLabel.PERCENT),
+        ("99,9%", Decimal("99.9"), UnitLabel.PERCENT),
+        ("95 %", Decimal("95"), UnitLabel.PERCENT),
+        ("95%", Decimal("95"), UnitLabel.PERCENT),
     ],
 )
 def test_value_unit_fallbacks_and_every_supported_unit(text, value, unit):
@@ -301,6 +308,13 @@ def test_unit_literal_is_not_matched_inside_longer_word(text):
     outcome, evidence = scan(text)
     assert outcome.observations == evidence == ()
     assert [item.candidate_span.text for item in outcome.diagnostics] == ["3"]
+
+
+def test_joined_alphabetic_unit_is_not_authorized_by_percent_layout():
+    outcome, evidence = scan("3с")
+    assert outcome.observations == evidence == outcome.diagnostics == ()
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.NOT_DETECTED
 
 
 def test_no_numeric_candidate_is_complete_not_detected():

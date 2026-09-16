@@ -223,6 +223,18 @@ def _match_unit(text: str, start: int) -> tuple[str, UnitLabel, int] | None:
     return None
 
 
+def _match_unit_after_value(
+    text: str,
+    value_end: int,
+) -> tuple[str, UnitLabel, int] | None:
+    if text.startswith("%", value_end):
+        return "%", UnitLabel.PERCENT, value_end + 1
+    separator = re.match(r"\s+", text[value_end:])
+    if separator is None:
+        return None
+    return _match_unit(text, value_end + separator.end())
+
+
 def _match_value_unit(
     text: str,
     after_prefix: int,
@@ -246,13 +258,7 @@ def _match_value_unit(
             or _contained(numeric.start(), numeric.end(), _unsupported_numeric_spans(text))):
         return None
 
-    unit_separator = re.match(r"\s+", text[numeric.end():])
-    if unit_separator is None:
-        return _ValueUnit(
-            numeric.start(), numeric.end(), numeric.group(), None, None, None,
-        )
-    unit_start = numeric.end() + unit_separator.end()
-    unit = _match_unit(text, unit_start)
+    unit = _match_unit_after_value(text, numeric.end())
     if unit is None:
         return _ValueUnit(
             numeric.start(), numeric.end(), numeric.group(), None, None, None,
@@ -340,10 +346,7 @@ def _numeric_spans(text: str) -> tuple[tuple[int, int, str], ...]:
 def _fallback_candidates(text: str) -> tuple[_Candidate, ...]:
     candidates: list[_Candidate] = []
     for start, end, value_text in _numeric_spans(text):
-        separator = re.match(r"\s+", text[end:])
-        if separator is None:
-            continue
-        unit = _match_unit(text, end + separator.end())
+        unit = _match_unit_after_value(text, end)
         if unit is None:
             continue
         _, unit_label, unit_end = unit
