@@ -142,9 +142,9 @@ applicability set, or confirmation procedure are not operationally defined.
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; property-specific rule incomplete | Yes | `PARTIALLY_DEFINED` |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
-| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; executable parser/template detector grammar remains open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
+| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001` and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
-| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; executable parser/template rules and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
+| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001` supplies a narrow condition/context baseline, while general parser/template rules and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
 | Vague-term and linguistic-smell evidence | Requirement properties; metrics system; dynamic methods; application example; researcher-approved Sections 7.8 and 7.14 | 2.1 paragraph 10; 2.3 paragraphs 12-16; 3.2 paragraph 10; application Sections 2-3, 7-8, and 13 | `uk_vague_terms_v1` and exact MVP seed-matching mechanics approved; richer linguistic coverage deferred without keeping `RQD-007` open | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Completeness score | None in supplied references | Not defined | No | Yes | `MISSING` |
 | Per-requirement Verifiability score | None in supplied references | Not defined | No | Yes | `MISSING` |
@@ -443,7 +443,7 @@ observation is not automatically a quality violation.
 
 | Approved `feature_id` | Approved collection | Semantic definition | Approved primary consumer(s) | Detector status |
 | --- | --- | --- | --- | --- |
-| `condition_context` | `condition_contexts[]` | An explicit condition, trigger, scenario, execution context, or measurement context under which behavior or a criterion applies | Completeness | Source-attested marker strategy and conservative boundaries approved; ambiguous attachment remains `UNRESOLVED` under open `RQD-006` |
+| `condition_context` | `condition_contexts[]` | An explicit condition, trigger, scenario, execution context, or measurement context under which behavior or a criterion applies | Completeness | `COND-UK-001` is allocated for the deterministic first-production leading/postposed subset in Section 7.14.3; general parser-assisted attachment remains open under `RQD-006` |
 | `expected_result` | `expected_results[]` | An explicit expected reaction, observable outcome, or required behavior | Completeness | `PARSER_ASSISTANCE_REQUIRED` strategy and Section 7.15 backend/data boundary approved; executable parser/template grammar remains open under `RQD-006` |
 | `acceptance_criterion` | `acceptance_criteria[]` | An explicit fulfilment or acceptance condition against which execution or an observation can be judged | Completeness and Verifiability | Narrow quantitative baseline and parser-assisted non-numeric strategy approved; concrete grammar remains open under `RQD-006`/`RQD-008` |
 | `quantitative_constraint` | `quantitative_constraints[]` | A linked measurable target or bound whose metric, comparator, value, unit, and context remain associated | Verifiability | Partial observations and conservative linkage approved; complex grammar remains open under `RQD-008` |
@@ -689,7 +689,9 @@ Section 7.14.8 `uk_vague_terms_v1` matcher. This allocation changes none of
 its matching semantics and implies no finding, confirmed ambiguity, score, or
 penalty. `QUANT-001` and `QUANT-UK-001` are allocated only for the narrow
 first-production quantitative lexical baseline in Section 7.14.6.6, by
-researcher-approved Issue #29. Shapes such as `QUANT-COMP-001` and `COND-001`
+researcher-approved Issue #29. `COND-UK-001` is allocated only for the narrow
+first-production condition/context baseline in Section 7.14.3, by
+researcher-approved Issue #35. Shapes such as `QUANT-COMP-001` and `COND-001`
 remain conceptual examples only. Semantic versions belong in registry
 metadata. No speculative production rule-ID registry is created by these
 allocations.
@@ -859,8 +861,9 @@ The approved portions above close `RQD-005`, `RQD-007`, and `RQD-009` for MVP
 v0.1 and approve the extractor-side portion of `RQD-016`. Implementation remains
 blocked by:
 
-1. concrete, replaceable parser/template operationalization for the approved
-   `condition_context`, `expected_result`, `acceptance_criterion`, and
+1. parser/template operationalization beyond the approved `COND-UK-001`
+   subset for general `condition_context` attachment, plus executable
+   `expected_result`, non-numeric `acceptance_criterion`, and
    `verification_method` strategies (`RQD-006`);
 2. complex quantitative grammar, ambiguous metric/context attachment, nested
    constraint representation, and deliberately deferred numeric/range forms
@@ -872,7 +875,8 @@ blocked by:
    overlapping evidence in characteristic calculations (`RQD-016` and the
    characteristic-calculation gate);
 5. production rule-ID allocations and detector descriptions for rules other
-   than the now-allocated exact Section 7.14.8 `UK-VAGUE-001` matcher;
+   than the allocated `COND-UK-001`, `QUANT-001`, `QUANT-UK-001`, and
+   `UK-VAGUE-001` baselines;
 6. the still-unresolved decision on whether any evidence reliability or
    detector-confidence representation belongs in MVP (`RQD-020`). No such value
    is approved by this section.
@@ -979,35 +983,150 @@ rules below.
 `коли` occurs in explanatory prose, for example Requirement properties,
 Section 2.1, paragraphs 5 and 15, and Metrics system, Section 2.3, paragraph 17,
 but not in an explicit supplied requirement example that establishes a detector
-boundary. `за умови` does not occur in the supplied corpus. They are therefore
-not `SOURCE-ATTESTED`
-requirement-example markers. Adding either to an executable marker inventory
-would be a **PROPOSED IMPLEMENTATION EXTENSION** requiring separate approval.
+boundary. `за умови` does not occur in the supplied corpus. Neither is approved
+for the first-production inventory. No synonym, generated form, morphological
+variant, or semantic equivalent may be added.
 
-The approved detector strategy accepts a condition only when a source-attested marker
-heads a non-empty phrase or clause and that phrase/clause explicitly modifies a
-required behavior, expected result, acceptance criterion, or quantitative
-bound. For a leading `якщо` clause, the evidence begins at `якщо` and ends
-immediately before the delimiting comma. For a postposed `у разі`, `під час`,
-`після`, or `при` phrase, evidence begins at the marker and ends at the phrase
-boundary, excluding following punctuation. A bare marker, an incomplete
-complement, or a marker whose attachment cannot be determined is not `DETECTED`.
-If a candidate exists but attachment or boundary is not deterministic, the
-result is `UNRESOLVED`.
+##### 7.14.3.1 First-production allocation (Issue #35)
 
-Coordinated conditions that have independent heads become separate observations.
-A shared condition is not duplicated merely because it governs several results;
-its one evidence item may be referenced by those results or constraints. A
-nested condition with its own trigger is retained as a separate observation.
+`COND-UK-001` is the only production rule allocated by this contract. Its
+marker inventory is exactly:
 
-| Case | Source status and input | Approved detector output | Evidence span(s) | Approved rule family |
-| --- | --- | --- | --- | --- |
-| Positive | SOURCE-ATTESTED — Application example, Section 2, Table 1, R2: `Маршрут доставки повинен швидко перераховуватися у разі зміни дорожньої ситуації.` | `DETECTED`; one condition | `[49,80)` `у разі зміни дорожньої ситуації` | `COND-UK` |
-| Negative | SOURCE-ATTESTED — Application example, Section 2, Table 1, R3: `Персональні та комерційні дані повинні бути надійно захищені.` | `NOT_DETECTED` | none | `COND-UK` |
-| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система повідомляє про помилку при перевірці.` | `UNRESOLVED`; `при перевірці` may be temporal context or verification-method context | no accepted evidence; candidate `[31,44)` is diagnostic only | `COND-UK` |
-| Repeated | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Якщо сервіс недоступний, система зберігає запит; якщо зв’язок відновлено, система надсилає запит.` | `DETECTED`; two ordered conditions | `[0,23)` `Якщо сервіс недоступний`; `[49,72)` `якщо зв’язок відновлено` | `COND-UK` |
-| Punctuation | SOURCE-ATTESTED — Application example, Section 2, Table 1, R4: `Система повинна залишатися доступною під час пікового навантаження.` | `DETECTED`; final full stop excluded | `[37,66)` `під час пікового навантаження` | `COND-UK` |
-| Interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, `R2 → R2′` | `DETECTED`; load phrase is a condition and may also be quantitative context | `[117,159)` `при навантаженні до 300 одночасних запитів` | `COND-UK`, `QUANT` |
+```text
+якщо
+у разі
+під час
+після
+при
+```
+
+The detector matches markers on an offset-preserving derived view produced by
+NFC normalization followed by Unicode `casefold()`. Original
+`Requirement.text` remains unchanged and authoritative. Derived-view matches
+must be mapped back to zero-based Unicode code-point offsets in that original
+trimmed text; transformed-view indices must not be used directly as source
+offsets. Evidence and diagnostic spans preserve the exact original substring.
+
+For multi-token markers `у разі` and `під час`, each canonical space may match
+one or more Unicode whitespace characters. This is formatting tolerance only:
+punctuation, reordered or inserted words, lemmatization, generated morphology,
+and semantic expansion are not permitted. Marker tokens use the complete-token
+outer lexical boundaries already approved in Section 7.14.6.1: a Unicode
+Letter, Mark, Number, Connector_Punctuation, or one of `'`, `’`, `ʼ`, and `-`
+is a word constituent. In particular, `при` cannot match inside a longer joined
+word. The vague-term `LEFTMOST_LONGEST_NON_OVERLAPPING` policy is not
+transferred to condition candidates; this family uses only the structural
+templates below.
+
+Full stop, semicolon, question mark, and exclamation mark are hard condition
+candidate boundaries after protected numeric tokens have been recognized. A
+candidate cannot cross one of these boundaries. Sentence-final punctuation is
+excluded from Evidence. A decimal comma inside an approved numeric expression
+is not a clause delimiter. Colon and dash do not independently authorize a
+condition boundary.
+
+The first-production subset establishes attachment only through one of these
+two anchors in the governing non-condition portion of the same hard segment:
+
+1. a complete lexical token whose value on the same NFC-then-Unicode-
+   `casefold()` view is exactly `повинен`, `повинна`, `повинні`, `має`, or
+   `мають`; or
+2. an already accepted `QUANT-001` or `QUANT-UK-001` observation in that
+   governing portion.
+
+The five normative surfaces are attachment anchors only. Their use here does
+not create an `expected_result` observation and does not approve general
+expected-result grammar. The future detector must reuse
+`QuantitativeBaselineDetector` for the quantitative anchor and must not
+duplicate its grammar. Only an accepted quantitative observation establishes
+the anchor; an unresolved numeric candidate or diagnostic does not. A
+quantitative anchor is not copied into condition Evidence and does not alter the
+quantitative observation.
+
+**Leading template.** The approved form is:
+
+```text
+<marker> <non-empty condition>, <governing behavior>
+```
+
+Ignoring only leading whitespace, the marker begins the current hard segment.
+Evidence starts at the marker and ends at the character immediately before the
+delimiting comma. The governing remainder after the comma must contain one of
+the approved attachment anchors. `якщо` is accepted only in this
+comma-delimited leading template for first production. No arbitrary clause
+interpretation is authorized. For example:
+
+```text
+Якщо сервіс недоступний, система повинна зберегти запит.
+```
+
+produces Evidence `Якщо сервіс недоступний`.
+
+**Postposed template.** Only `у разі`, `під час`, `після`, and `при` may begin
+a first-production postposed candidate. Evidence starts at the marker and
+extends to the current hard-boundary end, excluding sentence-final punctuation.
+The governing prefix before the marker must contain one of the approved
+attachment anchors. Postposed `якщо` is not accepted. If comma or coordination
+makes the candidate boundary ambiguous, the candidate remains unresolved; the
+detector must not guess its phrase boundary.
+
+Each accepted candidate creates exactly one Evidence item and one observation:
+
+```python
+FeatureObservation(
+    feature_id=FeatureId.CONDITION_CONTEXT,
+    evidence_refs=(evidence_id,),
+)
+```
+
+Evidence has `feature_id = CONDITION_CONTEXT` and
+`rule_id = COND-UK-001`. Accepted Evidence IDs are
+`COND-UK-001:E001`, `COND-UK-001:E002`, and so on. Their ordinals are assigned
+independently of other rule families by ascending accepted source occurrence
+within one requirement assessment. Accepted observations are returned by
+ascending Evidence `start_offset`; repeated identical text at distinct offsets
+remains separate. Diagnostics are also source ordered.
+
+`COND_UNRESOLVED_CANDIDATE` is the allocated diagnostic code for an approved
+marker-headed, non-empty apparent phrase or clause whose attachment or
+first-production boundary cannot be decided. Its `rule_id` is `COND-UK-001`.
+The diagnostic is not Evidence and creates no `FeatureObservation`. A bare
+marker without a non-empty complement is deterministically rejected and creates
+no Evidence. A requirement with no approved marker candidate completes with no
+observation, Evidence, or diagnostic.
+
+The family outcome semantics are:
+
+| Accepted observations | Unresolved candidates | Processing | Derived status |
+| --- | --- | --- | --- |
+| present | none | `COMPLETE`, no diagnostics | `DETECTED` |
+| none | none | `COMPLETE`, no diagnostics | `NOT_DETECTED` |
+| none | present | `INCOMPLETE`, diagnostics present | `UNRESOLVED` |
+| present | present | `INCOMPLETE`, diagnostics present | `DETECTED` |
+
+The following cases are binding for this allocation:
+
+| Case | Input | First-production result |
+| --- | --- | --- |
+| Source-attested postposed condition | `Маршрут доставки повинен швидко перераховуватися у разі зміни дорожньої ситуації.` | One observation with Evidence `у разі зміни дорожньої ситуації` |
+| Source-attested postposed context | `Система повинна залишатися доступною під час пікового навантаження.` | One observation with Evidence `під час пікового навантаження` |
+| Quantitative attachment | `Час відгуку ≤ 2 с при 500 одночасних користувачах` | The postposed candidate `при 500 одночасних користувачах` may attach through the accepted `QUANT-001` observation in the governing prefix; no metric or quantitative-context field is inferred |
+| Unresolved attachment | `Система повідомляє про помилку при перевірці.` | No observation or Evidence; one `COND_UNRESOLVED_CANDIDATE` diagnostic with candidate span `[31,44)` `при перевірці`, `processing_status = INCOMPLETE`, and derived status `UNRESOLVED`; no verification-method or temporal-context meaning is inferred |
+
+The source-attested `при навантаженні до 300 одночасних запитів` form may
+likewise produce one condition Evidence span beginning at `при` when its
+governing prefix has an accepted anchor. The nested `до 300` candidate remains
+independently governed by the quantitative contract; this rule does not infer
+or populate the `metric` or `context` field of a
+`QuantitativeConstraintObservation`.
+
+This allocation approves no general subordinate-clause or dependency-based
+attachment, no coordinated-condition grammar beyond a separately
+deterministic candidate, and no general modal or expected-result grammar.
+`RQD-006` therefore remains `PARTIALLY APPROVED / OPEN` for general
+parser-assisted condition attachment, expected-result grammar, broader
+subordinate-clause attachment, non-numeric acceptance grammar, and
+verification-method grammatical role.
 
 #### 7.14.4 `expected_result`
 
@@ -1626,7 +1745,10 @@ finding uses the interpretation/conversion rule ID that created the finding.
 Section 7.14.8 matcher. `QUANT-001` and `QUANT-UK-001` are the only quantitative
 production allocations, with the immutable first-production meanings,
 source-aligned evidence boundaries, profiles, and Issue #29 approval recorded
-in Section 7.14.6.6. The other family shapes remain unallocated.
+in Section 7.14.6.6. `COND-UK-001` is the only condition/context production
+allocation, with the immutable first-production templates, attachment anchors,
+evidence boundaries, and Issue #35 approval recorded in Section 7.14.3.1. The
+other family shapes remain unallocated.
 
 #### 7.14.12 Readiness of the targeted RQDs
 
@@ -1636,7 +1758,7 @@ operational rules.
 
 | RQD | Readiness | Reason |
 | --- | --- | --- |
-| `RQD-006` | `PARTIALLY_APPROVED / OPEN` | Source-attested condition markers, conservative phrase/clause boundaries, parser-optional condition attachment, and parser-required expected-result semantics are approved. No arbitrary verb rule is allowed. Concrete parser/template operationalization remains open; actor/action/object remain deferred. |
+| `RQD-006` | `PARTIALLY_APPROVED / OPEN` | `COND-UK-001` approves the exact five-marker first-production inventory, NFC/casefold matching, two narrow attachment anchors, leading/postposed templates, diagnostic, and outcome semantics. General parser-assisted condition attachment, broader subordinate-clause grammar, and executable expected-result grammar remain open; no arbitrary verb rule is allowed and actor/action/object remain deferred. |
 | `RQD-007` | `APPROVED_FOR_MVP_V0.1 / CLOSED` | NFC plus Unicode `casefold()`, Unicode-aware token boundaries, Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING` are approved without changing the ten-entry seed. Broader vocabulary coverage is future work and does not keep this MVP decision open. |
 | `RQD-008` | `PARTIALLY_APPROVED / OPEN` | The narrow quantitative acceptance baseline, partial observations, approved comparator/numeric/unit forms, and conservative linkage without arbitrary distance thresholds are approved. Written-out numbers and generic ranges are outside the baseline; complex metric/context grammar and nested representation remain open. |
 | `RQD-016` | `EXTRACTOR_SIDE_APPROVED_FOR_MVP_V0.1 / OPEN` | One accepted vague-term occurrence produces one Unambiguity `SIGNAL`; the other five families produce observations/evidence only. Any `QUALITY_PROBLEM` conversion and characteristic scoring remain open in the later calculation gate. |
@@ -1646,15 +1768,16 @@ unresolved; this approval adds no confidence, reliability, severity,
 probability, risk, priority, or corrective-action field.
 
 The later Section 7.15 approval resolves the backend and domain-representation
-parts of these open items. It does not close `RQD-006` executable grammar or
-`RQD-008` complex grammar.
+parts of these open items. The `COND-UK-001` allocation resolves only the
+first-production condition subset; it does not close broader `RQD-006` grammar
+or `RQD-008` complex grammar.
 
 #### 7.14.13 Remaining researcher decisions
 
-1. Define the concrete replaceable parser/template operationalization for
-   condition attachment, expected-result clauses, non-numeric acceptance
-   criteria, and explicitly named verification procedures (`RQD-006`). No NLP
-   library is selected by this contract.
+1. Define parser/template operationalization beyond the `COND-UK-001`
+   first-production condition subset: general condition attachment,
+   expected-result clauses, non-numeric acceptance criteria, and explicitly
+   named verification procedures (`RQD-006`).
 2. Define any approved complex metric/context grammar, count-noun roles, and
    nested load-context representation (`RQD-008`). Ambiguous linkage remains
    `UNRESOLVED`; no arbitrary distance threshold may be introduced.
@@ -1670,7 +1793,8 @@ parts of these open items. It does not close `RQD-006` executable grammar or
 
 This list records what Section 7.14 left open at that gate. Section 7.15 later
 resolves the backend and detector-side data-representation portions of items 1
-and 4, but not item 1's executable grammar or the remaining research decisions.
+and 4. Issue #35 later resolves only the `COND-UK-001` first-production subset
+of item 1, not its remaining general grammar or the other research decisions.
 
 #### 7.14.14 Downstream GitHub issue alignment
 
@@ -1683,7 +1807,7 @@ unblocked by detector approval alone.
 | Issue | Approved narrow alignment |
 | --- | --- |
 | #4 MVP-03 | Record approved `DetectionStatus` semantics and the replaceable parser-information boundary while deferring the concrete mixed-state domain representation; keep observations/evidence only and no findings |
-| #5 MVP-04 | Record approved condition/result/criterion/quantitative strategies, evidence boundaries, partial-observation behavior, and reference cases; keep concrete parser operationalization and actor/action/object deferred |
+| #5 MVP-04 | Record approved condition/result/criterion/quantitative strategies, evidence boundaries, partial-observation behavior, and reference cases; `COND-UK-001` now supplies only the first-production condition subset, while general parser operationalization and actor/action/object remain deferred |
 | #6 MVP-05 | Record approved Unicode, token/phrase boundary, overlap, ordering, comparator, numeric, unit, linkage, and verification-method mechanics allocated to textual extraction |
 | #7 MVP-06 | No detector-only edit is required unless its input list is clarified after approval; it remains blocked by the Completeness calculation gate |
 | #8 MVP-07 | No detector-only edit is required unless its approved input observations are enumerated; it remains blocked by the Verifiability calculation gate |
@@ -1709,10 +1833,12 @@ unblocked by detector approval alone.
 
 Researcher approval on 2026-09-15 makes the parser-backend and domain
 representation decisions in this section binding for MVP v0.1, with the
-ParserOutcome and `RQD-006` corrections below. It does not approve concrete
-executable parser/template detector grammar, authorize application
-implementation in this research pass, or change the overall specification from
-`DRAFT`. It introduces no characteristic formula, score, weight, threshold,
+ParserOutcome and `RQD-006` corrections below. This section does not itself
+approve concrete executable parser/template detector grammar; the later
+Issue #35 approval in Section 7.14.3.1 allocates only the narrow lexical
+`COND-UK-001` subset. Neither approval authorizes application implementation in
+its contract-only research pass or changes the overall specification from
+`DRAFT`. They introduce no characteristic formula, score, weight, threshold,
 rounding rule, new quality criterion, automatic requirement-type classifier,
 or confidence value.
 
@@ -2245,7 +2371,7 @@ overall RQD whose remaining research rules are still open:
 
 | RQD | Status after approval | Approved portion and remaining boundary |
 | --- | --- | --- |
-| `RQD-006` | `PARTIALLY APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Concrete executable parser/template grammar for `expected_result`, ambiguous condition attachment, non-numeric acceptance criteria, and verification-method grammatical role remains open. Selecting spaCy does not define these scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
+| `RQD-006` | `PARTIALLY APPROVED / OPEN` | Backend and parser-neutral operationalization are approved, and Issue #35 allocates the deterministic `COND-UK-001` first-production subset. General parser-assisted condition attachment, broader subordinate-clause attachment, executable `expected_result` grammar, non-numeric acceptance criteria, and verification-method grammatical role remain open. Selecting spaCy does not define those scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
 | `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, and Issue #32 matching-view and protected deferred-frequency exclusion are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
 | `RQD-012` | `OPEN`; detector-side representation `RESOLVED FOR MVP v0.1` | The four detection cases and mixed state have stable data representation. Calculator/aggregation propagation of `UNKNOWN`, `NOT_APPLICABLE`, incomplete processing, and insufficient evidence remains unresolved. |
 | `RQD-020` | `UNRESOLVED` | No confidence or evidence-reliability value or field is approved. |
@@ -2259,7 +2385,7 @@ Their implementation scope remains limited as follows:
 | --- | --- | --- |
 | #2 MVP-01 | the approved immutable domain/data-contract subset is safe to start after this PR is merged | implement six typed outcome wrappers, parser-neutral data/result structures, typed observations and invariants; retain calculation and propagation blockers |
 | #4 MVP-03 | record the selected default behind a parser-neutral, replaceable boundary | use `Requirement -> RequirementExtractionResult` with unchanged `result.features`; no spaCy object crosses the adapter; record result-preventing versus annotation-incomplete behavior; adapter implementation requires allocation by its issue |
-| #5 MVP-04 | structural extraction still has an open grammar gate | source-attested condition/result/criterion cases and exact offset tests may guide later work, but `RQD-006` executable template/attachment grammar and complex `RQD-008` grammar are not approved here; actor/action/object stay deferred |
+| #5 MVP-04 | structural extraction still has an open general grammar gate | the later Issue #35 contract allocates only `COND-UK-001`; general condition attachment, result/criterion grammar, and complex `RQD-008` grammar remain open, while actor/action/object stay deferred |
 | #6 MVP-05 | textual extraction still has an open grammar gate | keep source-span quantitative baseline independent of parser token boundaries and vague-term matching unchanged; complex grammar and new vocabulary remain unauthorized |
 | #14 MVP-SPEC | remain open with overall `DRAFT` status | record this section's approval and only the affected RQD/traceability updates; characteristic formulas, propagation, and rounding remain unresolved |
 
@@ -2278,7 +2404,8 @@ conversion. MVP-04 and MVP-05 are not fully unblocked.
 the parser-neutral contract with the code-to-outcome correction in Section
 7.15.6, (c) the derived immutable detection-outcome wrapper and separate
 DiagnosticSpan, and (d) the minimal typed observation and quantitative shapes.
-`RQD-006` stays `PARTIALLY APPROVED / OPEN` for executable scientific grammar;
+`RQD-006` stays `PARTIALLY APPROVED / OPEN` for executable scientific grammar
+beyond the allocated `COND-UK-001` subset;
 the overall model specification stays `DRAFT`.
 
 Guardrails preserved:
@@ -2683,7 +2810,7 @@ approval.
 | `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 define reproducible verification and relevant evidence, and give set-level ratios. They do not define an `a_i,V` calculation for one line. | OPEN | MVP-04/05 as applicable, MVP-07 |
 | `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `PARTIALLY_RESOLVED` | Section 2.1 defines one justified interpretation and gives boundary meanings for `a_i,U`; Sections 2.1 and 2.3 treat linguistic matches as signals rather than proof. Detector, confirmation, applicability, and intermediate-value rules remain absent. | OPEN | MVP-05, MVP-08 |
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
-| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_APPROVED` | Section 7.14 approves source-attested condition markers, conservative evidence boundaries, parser-optional condition attachment, parser-required expected-result semantics, and no arbitrary-verb fallback. Section 7.15 approves the spaCy backend and neutral data/processing boundary; executable grammar for expected results, ambiguous condition attachment, non-numeric acceptance, and verification-method grammatical role remains open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
+| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_APPROVED` | Section 7.14 allocates `COND-UK-001` for the exact five-marker first-production condition/context subset, including its normalization, narrow attachment anchors, structural templates, evidence boundaries, diagnostic, and outcomes. Section 7.15 approves the spaCy backend and neutral data/processing boundary. General parser-assisted condition attachment, broader subordinate-clause attachment, executable expected-result grammar, non-numeric acceptance, and verification-method grammatical role remain open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; Unambiguity calculation remains gated separately |
 | `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.6.6 and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, and typed partial data representation. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and the protected deferred-frequency exclusion without accepting `не рідше`. `до` is `UPPER_BOUND` with inclusivity `UNRESOLVED`. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
@@ -2728,8 +2855,9 @@ The remaining decisions are grouped into four approval gates:
 1. **Remaining feature-operationalization and finding-conversion gate:** Section
    7.14 records approved detector strategies and baselines. Section 7.15
    approves the backend and domain representation, while `RQD-006` remains
-   open for concrete executable parser/template grammar and `RQD-008` remains
-   open for complex metric/context grammar and nested representation;
+   open for parser/template grammar beyond the `COND-UK-001` first-production
+   subset and `RQD-008` remains open for complex metric/context grammar and
+   nested representation;
    `RQD-016` remains open only beyond its approved extractor-side contract.
    `RQD-007` is closed
    for the MVP seed matcher.
@@ -2756,9 +2884,10 @@ values are included in MVP v0.1. It is not permission to invent such values.
    contributes to local Completeness and also provides Verifiability evidence.
    Any shared feature and non-duplication rule requires approval.
 
-The next recommended research work is concrete executable parser/template
-detector grammar under `RQD-006`, complex metric/context grammar under
-`RQD-008`, and then the characteristic-calculation gate. The Section 7.15
+The next recommended research work is parser/template detector grammar beyond
+the `COND-UK-001` first-production subset under `RQD-006`, complex
+metric/context grammar under `RQD-008`, and then the
+characteristic-calculation gate. The Section 7.15
 domain/data-contract subset of MVP-01 may start only after PR #19 is merged.
 Until the other applicable gates are approved, unapproved detector rules,
 characteristic calculators, and specification aggregation remain blocked;
