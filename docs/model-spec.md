@@ -1138,6 +1138,25 @@ through any fixed grammatical material that belongs to the attested construction
 (`ніж`, or duration-introducing `за`) and the linked numeric/unit phrase. A
 negation or comparative word separated from a compatible value is not accepted.
 
+For `QUANT-UK-001`, match only the six allocated Ukrainian comparator literals
+on an offset-preserving derived view: normalize to NFC, then apply Unicode
+`casefold()` to both source and literals. Original `Requirement.text` is never
+changed. Map derived-view matches back to zero-based Unicode code-point offsets
+in the trimmed original text; transformed-view indices must never be used
+directly as Evidence offsets. Evidence text is always the exact original
+`Requirement.text[start_offset:end_offset]`, preserving source case,
+normalization form, whitespace, and punctuation inside the accepted anchor.
+
+Canonical spaces between tokens of a multi-token comparator may match one or
+more Unicode whitespace characters. This is formatting tolerance only:
+punctuation cannot replace the separator, and lexical tokens cannot be
+inserted, omitted, reordered, inflected, or semantically expanded. Match
+comparator words as complete lexical tokens. At outer boundaries, a Unicode
+Letter, Mark, Number, Connector_Punctuation, or one of `'`, `’`, `ʼ`, `-` is a
+word constituent. In particular, `до` cannot match inside a longer joined
+word. This matching policy does not add comparator vocabulary or transfer the
+vague-term matcher's overlap policy to quantitative detection.
+
 ##### 7.14.6.2 Numeric forms
 
 | Form | Source-attested example and traceability | Approved MVP treatment |
@@ -1302,6 +1321,33 @@ Baseline candidate precedence is exactly:
 2. symbolic comparator candidate
 3. value + unit fallback
 ```
+
+Before accepting step 3, protect exactly the deferred frequency construction
+`не рідше одного разу на <approved numeric value> <approved duration unit>`.
+Its fixed ordered lexical tokens are `не`, `рідше`, `одного`, `разу`, `на`;
+the numeric value uses only the ASCII-integer or single-decimal-comma baseline
+in Section 7.14.6.2, and the duration unit surface is only `с`, `секунд`,
+`хв`, or `хвилин`. Match the fixed Ukrainian tokens on the same
+offset-preserving NFC-then-Unicode-`casefold()` view, with complete lexical
+token boundaries and one or more Unicode whitespace characters between the
+fixed tokens, value, and unit. No punctuation or arbitrary material may be
+inserted into this construction. This is a protected exclusion, not a fourth
+production observation rule or a general suppression of other `не рідше`
+phrases.
+
+A `QUANT-001` value + unit fallback wholly contained in that protected source
+span is ineligible at step 3. For `не рідше одного разу на 5 с`, the nested
+`5 с` creates no Evidence or observation. Its numeric candidate creates no
+`QUANT_UNRESOLVED_NUMERIC_CANDIDATE` diagnostic either: it is deterministically
+accounted for by the protected deferred construction. The protected span
+itself creates no Evidence, observation, or diagnostic. With no other baseline
+candidate, the outcome has empty observations, Evidence, and diagnostics,
+`COMPLETE` processing, and derived `NOT_DETECTED`: this means no accepted
+first-production anchor, not that the deferred source phrase is semantically
+non-quantitative. The exclusion neither constructs `NOT_LESS_FREQUENT` nor
+parses `одного` as numeric `1`; it calculates no frequency or interval meaning.
+It requires no new Evidence rule ID. The only accepted production IDs remain
+`QUANT-001` and `QUANT-UK-001`.
 
 An approved value + unit fallback may be accepted when it is not consumed by a
 higher-precedence accepted comparator anchor. A fallback wholly contained by
@@ -2200,7 +2246,7 @@ overall RQD whose remaining research rules are still open:
 | RQD | Status after approval | Approved portion and remaining boundary |
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Concrete executable parser/template grammar for `expected_result`, ambiguous condition attachment, non-numeric acceptance criteria, and verification-method grammatical role remains open. Selecting spaCy does not define these scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
-| `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, and Issue #29 first-production provenance/precedence/diagnostic contract are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future `не рідше` production grammar remain open/deferred. |
+| `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, and Issue #32 matching-view and protected deferred-frequency exclusion are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
 | `RQD-012` | `OPEN`; detector-side representation `RESOLVED FOR MVP v0.1` | The four detection cases and mixed state have stable data representation. Calculator/aggregation propagation of `UNKNOWN`, `NOT_APPLICABLE`, incomplete processing, and insufficient evidence remains unresolved. |
 | `RQD-020` | `UNRESOLVED` | No confidence or evidence-reliability value or field is approved. |
 
@@ -2639,7 +2685,7 @@ approval.
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
 | `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_APPROVED` | Section 7.14 approves source-attested condition markers, conservative evidence boundaries, parser-optional condition attachment, parser-required expected-result semantics, and no arbitrary-verb fallback. Section 7.15 approves the spaCy backend and neutral data/processing boundary; executable grammar for expected results, ambiguous condition attachment, non-numeric acceptance, and verification-method grammatical role remains open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; Unambiguity calculation remains gated separately |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.6.6 and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, and typed partial data representation. `до` is `UPPER_BOUND` with inclusivity `UNRESOLVED`. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.6.6 and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, and typed partial data representation. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and the protected deferred-frequency exclusion without accepting `не рідше`. `до` is `UPPER_BOUND` with inclusivity `UNRESOLVED`. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PARTIALLY_RESOLVED` | Section 2.1 places individual property values `a_ij` in `[0,1]`; Section 2.3 supplies generic and set-level metrics. Neither supplies executable per-requirement formulas for `a_i,C`, `a_i,V`, and intermediate `a_i,U`. | OPEN | MVP-06-08 |
 | `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PARTIALLY_RESOLVED` | Chapter 2 supports `[0,1]` and upward compliance orientation for individual properties and their property-level means. It does not approve binary versus graded MVP characteristic assessments. | OPEN | MVP-01, MVP-06-10 |
