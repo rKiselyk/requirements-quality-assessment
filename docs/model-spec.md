@@ -142,9 +142,9 @@ applicability set, or confirmation procedure are not operationally defined.
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; property-specific rule incomplete | Yes | `PARTIALLY_DEFINED` |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
-| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
+| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, `VERIFY-UK-001`, and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
-| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001` supplies a narrow condition/context baseline, `RESULT-UK-001` a narrow normative-modal expected-result baseline, and `ACCEPT-QUANT-001` a clause-level quantitative acceptance baseline, while general parser/template rules, non-numeric acceptance grammar, and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
+| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001` supplies a narrow condition/context baseline, `RESULT-UK-001` a narrow normative-modal expected-result baseline, `ACCEPT-QUANT-001` a clause-level quantitative acceptance baseline, and `VERIFY-UK-001` the three explicitly governed verification-method constructions, while general parser/template rules, non-numeric acceptance grammar, and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
 | Vague-term and linguistic-smell evidence | Requirement properties; metrics system; dynamic methods; application example; researcher-approved Sections 7.8 and 7.14 | 2.1 paragraph 10; 2.3 paragraphs 12-16; 3.2 paragraph 10; application Sections 2-3, 7-8, and 13 | `uk_vague_terms_v1` and exact MVP seed-matching mechanics approved; richer linguistic coverage deferred without keeping `RQD-007` open | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Completeness score | None in supplied references | Not defined | No | Yes | `MISSING` |
 | Per-requirement Verifiability score | None in supplied references | Not defined | No | Yes | `MISSING` |
@@ -367,7 +367,7 @@ mappings, evidence contract, linked quantitative-constraint concept, explicit
 verification-method meaning, source-derived Ukrainian seed lexicon and matching
 policy, and core finding taxonomy. Narrow production contracts are allocated
 for condition/context, expected result, quantitative constraint, quantitative
-acceptance criterion, and vague-term occurrence; broader structural/semantic
+acceptance criterion, verification method, and vague-term occurrence; broader structural/semantic
 grammar and observation-to-quality-problem conversion rules remain open. The
 overall model specification therefore remains `DRAFT`.
 
@@ -448,7 +448,7 @@ observation is not automatically a quality violation.
 | `expected_result` | `expected_results[]` | An explicit expected reaction, observable outcome, or required behavior | Completeness | `RESULT-UK-001` is allocated for the narrow parser-assisted normative-modal first-production subset in Section 7.14.4.1; broader expected-result grammar remains open under `RQD-006` |
 | `acceptance_criterion` | `acceptance_criteria[]` | An explicit fulfilment or acceptance condition against which execution or an observation can be judged | Completeness and Verifiability | `ACCEPT-QUANT-001` is allocated for the first-production clause-level composition of accepted `RESULT-UK-001` and contained judgeable `QUANT-001`/`QUANT-UK-001` observations in Section 7.14.5.1; non-numeric acceptance grammar and complex quantitative roles remain open under `RQD-006`/`RQD-008` |
 | `quantitative_constraint` | `quantitative_constraints[]` | A linked measurable target or bound whose metric, comparator, value, unit, and context remain associated | Verifiability | Partial observations and conservative linkage approved; complex grammar remains open under `RQD-008` |
-| `verification_method` | `verification_methods[]` | An explicitly stated reproducible verification method in the requirement text | Verifiability | Explicit-only strategy approved; concrete grammar/template operationalization remains open |
+| `verification_method` | `verification_methods[]` | An explicitly stated reproducible verification method in the requirement text | Verifiability | `VERIFY-UK-001` is allocated for the parser-required first-production governing-predicate, explicit-label, and exact declared-test constructions in Section 7.14.7.1; broader verification-method grammar remains open under `RQD-006` |
 | `vague_term_occurrence` | `vague_term_occurrences[]` | An exact occurrence from approved `uk_vague_terms_v1` | Unambiguity, as `SIGNAL` only | Seed lexicon and deterministic matching mechanics approved; `RQD-007` closed for MVP v0.1 |
 
 The mappings above approve only which characteristic may consume each feature.
@@ -696,7 +696,10 @@ researcher-approved Issue #35. `RESULT-UK-001` is allocated only for the
 narrow parser-assisted normative-modal expected-result subset in Section
 7.14.4.1, by researcher-approved Issue #39. `ACCEPT-QUANT-001` is allocated
 only for the clause-level quantitative acceptance composition in Section
-7.14.5.1, by researcher-approved Issue #43. Shapes such as `QUANT-COMP-001`
+7.14.5.1, by researcher-approved Issue #43. `VERIFY-UK-001` is allocated only
+for the three parser/template verification-role constructions in Section
+7.14.7.1, including the Issue #47 researcher decision resolving the exact R3′
+source declaration. Shapes such as `QUANT-COMP-001`
 and `COND-001` remain conceptual examples only. Semantic versions belong in
 registry metadata. No speculative production rule-ID registry is created by
 these allocations.
@@ -766,7 +769,10 @@ coverage is future research and does not keep the MVP decision open.
 `verification_method` is approved as a feature representing only an explicitly
 stated reproducible verification method in requirement text. Possible semantic
 categories include test, measurement, inspection, and analysis. These
-categories do not constitute a production vocabulary or detector.
+categories do not by themselves constitute accepted production evidence.
+Section 7.14.7.1 allocates only the narrow source-derived candidate vocabulary
+and role constructions of `VERIFY-UK-001`; vocabulary presence alone remains
+insufficient.
 
 The references do not require every verifiable requirement to contain a literal
 method name. Therefore the extractor may produce only:
@@ -784,8 +790,8 @@ inferred verifiability
 from text alone or merely because a requirement seems testable. A later
 Verifiability calculator may use explicit method evidence together with
 acceptance criteria and linked quantitative constraints, but only after its
-scientific rule is approved. No method-name vocabulary or procedure-sufficiency
-detector is approved by this decision.
+scientific rule is approved. `VERIFY-UK-001` does not determine method
+sufficiency, procedure quality, applicability, or a Verifiability score.
 
 ### 7.10 Partially approved finding taxonomy
 
@@ -868,9 +874,10 @@ blocked by:
 
 1. parser/template operationalization beyond the approved `COND-UK-001`
    condition subset, `RESULT-UK-001` expected-result subset, and quantitative
-   `ACCEPT-QUANT-001` composition, including general condition attachment,
+   `ACCEPT-QUANT-001` composition and beyond the three `VERIFY-UK-001`
+   verification-role constructions, including general condition attachment,
    broader expected-result grammar, non-numeric `acceptance_criterion`, and
-   `verification_method` strategies (`RQD-006`);
+   broader `verification_method` strategies (`RQD-006`);
 2. complex quantitative grammar, ambiguous metric/context attachment, nested
    constraint representation, and deliberately deferred numeric/range forms
    beyond the approved baseline (`RQD-008`);
@@ -882,7 +889,8 @@ blocked by:
    characteristic-calculation gate);
 5. production rule-ID allocations and detector descriptions for rules other
    than the allocated `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`,
-   `QUANT-001`, `QUANT-UK-001`, and `UK-VAGUE-001` baselines;
+   `VERIFY-UK-001`, `QUANT-001`, `QUANT-UK-001`, and `UK-VAGUE-001`
+   baselines;
 6. the still-unresolved decision on whether any evidence reliability or
    detector-confidence representation belongs in MVP (`RQD-020`). No such value
    is approved by this section.
@@ -940,6 +948,12 @@ The following feasibility classification is approved:
 | `quantitative_constraint` | `PARSER_ASSISTANCE_OPTIONAL` | Comparator/value/unit chunks and partial observations | Dependency or template relation for metric, population, measurement context, and nested constraints |
 | `verification_method` | `PARSER_ASSISTANCE_OPTIONAL` | Explicit method-naming constructions and named procedure phrases | Morphology and dependency role to distinguish a verification procedure from system behavior or discussion about testing |
 | `vague_term_occurrence` | `LEXICAL_BASELINE_FEASIBLE` | Exact approved seed matching with deterministic Unicode, boundary, overlap, and ordering mechanics | None for the approved seed baseline |
+
+The family-level `PARSER_ASSISTANCE_OPTIONAL` classification remains unchanged.
+The narrower first-production `VERIFY-UK-001` rule is nevertheless
+`PARSER_REQUIRED`, as specified in Section 7.14.7.1, because candidate method
+vocabulary alone cannot distinguish verification procedure from behavior,
+discussion, artifact/reference use, or a promise to define a method later.
 
 #### 7.14.2 General approved detector mechanics
 
@@ -1132,7 +1146,7 @@ deterministic candidate, and no general modal or expected-result grammar.
 `RQD-006` therefore remains `PARTIALLY APPROVED / OPEN` for general
 parser-assisted condition attachment, expected-result grammar, broader
 subordinate-clause attachment, non-numeric acceptance grammar, and
-verification-method grammatical role.
+verification-method grammar beyond `VERIFY-UK-001`.
 
 #### 7.14.4 `expected_result`
 
@@ -1390,8 +1404,8 @@ This allocation resolves only the deterministic normative-modal
 first-production subset. `RQD-006` remains `PARTIALLY APPROVED / OPEN` for
 general expected-result grammar, non-modal or inherited normative force,
 coordinated results, general negation, implicit subjects, general condition
-attachment beyond `COND-UK-001`, non-numeric acceptance grammar, and the
-verification-method grammatical role.
+attachment beyond `COND-UK-001`, non-numeric acceptance grammar, and
+verification-method grammar beyond `VERIFY-UK-001`.
 
 #### 7.14.5 `acceptance_criterion`
 
@@ -1644,7 +1658,7 @@ Finding, characteristic calculation, applicability rule, score, or full
 
 `RQD-006` remains `PARTIALLY APPROVED / OPEN` for general expected-result and
 condition attachment, non-numeric acceptance grammar, and verification-method
-grammatical role. `RQD-008` remains `PARTIALLY APPROVED / OPEN` for complex
+grammar beyond `VERIFY-UK-001`. `RQD-008` remains `PARTIALLY APPROVED / OPEN` for complex
 metric/context grammar, count-noun and nested quantitative roles, written-out
 numbers, generic ranges, and other deferred quantitative forms.
 
@@ -1967,33 +1981,478 @@ method in the requirement text.” Source-derived candidate vocabulary includes:
 | `acceptance test`, `NFR test` | Application example, Section 8, Table 7, R7′ | A link request is not the verification procedure content and must not become method evidence by name alone |
 | `спосіб розрахунку SLA` | Application example, Section 8, Table 7, R4′ | Names a method category but does not state the calculation; reproducibility from this line is unresolved |
 
-The approved explicit-only strategy accepts a method only when a complete phrase explicitly
-names a verification procedure and grammatical/template context establishes
-that it is the means for establishing requirement fulfilment. Evidence includes
-the method head and its essential qualifiers; when needed to establish role, it
-also includes the governing phrase such as “перевіряється ... тестом.” A method
-word used as system behavior (`аналізує журнал`), an artifact/link target, a
-future promise to define a method, or a statement that a requirement seems
-testable must not count.
+The approved explicit-only strategy accepts a method only when a complete phrase
+explicitly names a verification procedure and one of the approved grammatical
+or template constructions establishes its verification role. A method word used
+as system behavior, an artifact/link target, a future promise to define a
+method, or a statement that a requirement seems testable must not count. A name
+by itself is not evidence that the method is reproducible, and apparent
+testability never implies `verification_method`.
 
-A named procedure or test category is accepted only when an approved grammatical
-or template construction establishes its verification role. A name by itself is
-not evidence that the method is reproducible, and apparent testability never
-implies `verification_method`.
+##### 7.14.7.1 First-production parser/template allocation (Issue #47)
 
-Multiple coordinated method phrases are separate observations. A shared
-governing verification predicate may be referenced by each. If the phrase names
-a possible method but its role or reproducibility cannot be established, the
-outcome is `UNRESOLVED`. No method is inferred from a quantitative constraint.
+`VERIFY-UK-001` is the only verification-method production rule allocated by
+this contract. It produces `FeatureId.VERIFICATION_METHOD` observations and
+accepted Evidence only. It creates no Finding, applicability decision,
+characteristic assessment, method-sufficiency judgment, or score.
 
-| Case | Source status and input | Approved detector output | Evidence span(s) | Approved rule family |
-| --- | --- | --- | --- | --- |
-| Positive | SOURCE-ATTESTED — Application example, Section 8, Table 7, R3′ | `DETECTED`; explicit named test category | `[158,182)` `негативні security tests` | `VERIFY-UK` |
-| Negative | SOURCE-ATTESTED — Application example, Section 2, Table 1, R2: `Маршрут доставки повинен швидко перераховуватися у разі зміни дорожньої ситуації.` | `NOT_DETECTED`; apparent testability does not state a method | none | `VERIFY-UK` |
-| Unresolved | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Система виконує аналіз журналу.` | `UNRESOLVED`; `аналіз` may be system behavior rather than a verification procedure | no accepted evidence | `VERIFY-UK` |
-| Repeated | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Виконання перевіряється навантажувальним тестом та інспекцією журналу.` | `DETECTED`; two named methods | `[24,47)` `навантажувальним тестом`; `[51,69)` `інспекцією журналу` | `VERIFY-UK` |
-| Punctuation/boundary | SYNTHETIC TEST CASE — NOT DISSERTATION EVIDENCE: `Виконання перевіряється тестом; аналіз журналу виконує система.` | `DETECTED` only for the first clause; semicolon prevents the second system behavior from attaching to the verification predicate | `[24,30)` `тестом` | `VERIFY-UK` |
-| Interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, R4′ | `UNRESOLVED` for `спосіб розрахунку SLA`; the line says a method is defined but does not state it | no accepted method evidence; quantitative availability criterion remains separate | `VERIFY-UK`, `QUANT` |
+Exactly two detector diagnostics are allocated:
+
+| Diagnostic code | Binding use |
+| --- | --- |
+| `VERIFY_UNRESOLVED_CANDIDATE` | A source phrase names or plausibly describes a verification method, but the approved first-production rule cannot establish its verification role, method boundary, coordination scope, or reproducibility status. |
+| `VERIFY_PARSER_BLOCKED` | Parser-required role analysis cannot execute safely. |
+
+Both diagnostics use `rule_id = VERIFY-UK-001`. A diagnostic is neither
+Evidence nor a `FeatureObservation`. An unresolved method candidate creates no
+accepted Evidence and no observation; an exact candidate span is preserved in
+the diagnostic when its source boundary is known.
+
+Although the broader family remains `PARSER_ASSISTANCE_OPTIONAL`, this
+first-production rule is `PARSER_REQUIRED`. Method vocabulary alone cannot
+distinguish a verification procedure from system behavior, discussion about
+testing, references to test artifacts, or promises to define a method later.
+The detector may consume only the existing parser-neutral structures
+`SentenceAnnotation` and `TokenAnnotation`, using these fields:
+
+```text
+text
+lemma
+upos
+morphology
+head_token_id
+dependency_relation
+sentence_id
+start_offset
+end_offset
+```
+
+No spaCy-native object enters detector logic. No domain field or parser
+contract is added by this allocation. Original `Requirement.text` remains the
+authoritative source.
+
+For approved lexical and template anchors, comparison uses a derived view
+formed by NFC normalization followed by Unicode `casefold()`. Evidence offsets
+remain zero-based Unicode code-point offsets into the original trimmed source.
+NFKC, NFKD, synonym generation, embedding similarity, LLM classification,
+semantic expansion, and automatic translation are not authorized.
+
+The approved Ukrainian candidate method-head lemmas are exactly:
+
+```text
+тест
+інспекція
+аналіз
+експеримент
+```
+
+The parser lemma may recognize inflected Ukrainian source surfaces. No complete
+hand-generated morphology list is authorized. The explicit source-derived
+candidate phrases retained by this allocation are exactly:
+
+```text
+тестовий оракул
+метод аналізу
+процедура перевірки
+відтворювана процедура перевірки
+тестовий випадок
+експериментальна процедура
+```
+
+The source-attested English fragments retained are exactly:
+
+```text
+test
+tests
+security test
+security tests
+acceptance test
+NFR test
+негативні security tests
+```
+
+No additional English method category or automatic translation is authorized.
+All of these are candidate evidence only. In particular, the presence of any
+of the following is insufficient by itself:
+
+```text
+аналіз
+тест
+інспекція
+експеримент
+acceptance test
+NFR test
+security tests
+```
+
+The binding invariant is:
+
+```text
+named method candidate
+!=
+accepted verification_method
+```
+
+unless one of constructions A, B, or C below establishes the verification role.
+
+**Construction A — governing verification predicate.** The approved predicate
+surfaces are exactly:
+
+```text
+перевіряється
+перевіряються
+```
+
+No additional verification verb is authorized. Within one parser sentence and
+semicolon hard segment, a method phrase is accepted under construction A only
+when one applicable approved predicate is present, the candidate belongs to
+that governing construction, parser-neutral grammar establishes its
+means/instrument role, the phrase is source-contiguous, it contains an approved
+method head, and any coordination can be deterministically separated.
+
+For an uncoordinated Ukrainian method phrase, or the governing head of an
+approved coordinated method list under construction A, the conservative
+instrumental relation is:
+
+```text
+dependency_relation = obl
+or dependency_relation = obl:*
+and morphology includes Case = Ins
+```
+
+This is only a grammatical detector rule. It introduces no semantic-role
+labelling, actor/action/object feature, or new method ontology. A parse that
+does not establish the approved relation deterministically produces
+`VERIFY_UNRESOLVED_CANDIDATE`; the detector does not add another dependency
+relation merely to fit provider output. A later coordinated member is admitted
+only through the exact `та`/`і` method-list rule below and an instrumental
+`Case = Ins` method head. No separate dependency relation is allocated or
+required for that member; if the approved surface, morphology, and list
+boundary do not establish it deterministically, the list is unresolved.
+
+The binding input:
+
+```text
+Виконання перевіряється навантажувальним тестом.
+```
+
+is `DETECTED` with Evidence exactly:
+
+```text
+навантажувальним тестом
+```
+
+The governing verification predicate is not part of Evidence when the named
+method phrase is independently source-contiguous.
+
+**Construction B — explicit verification label.** The approved template is:
+
+```text
+<label> <delimiter> <named method phrase>
+```
+
+Approved labels are exactly:
+
+```text
+перевірка
+метод перевірки
+процедура перевірки
+```
+
+Approved delimiters are exactly:
+
+```text
+:
+—
+-
+```
+
+A method phrase following the label may be accepted only when it remains in the
+same parser sentence and semicolon hard segment, contains an approved candidate
+method head or complete approved phrase, and has a deterministic source
+boundary. For example:
+
+```text
+Перевірка: навантажувальний тест.
+Перевірка — негативні security tests.
+Метод перевірки: інспекція журналу.
+```
+
+Evidence excludes the label, delimiter, and terminal punctuation.
+
+**Construction C — exact declaration of a named test method.** The approved
+template is exactly:
+
+```text
+визначено <named test-method phrase>
+```
+
+The only governing surface is `визначено`. No other form, generated morphology,
+or synonym is authorized. Construction C is restricted to the already-approved
+test family:
+
+```text
+тест
+test
+tests
+```
+
+and source-approved test phrases or categories built around those fragments.
+It does not authorize arbitrary `аналіз`, `інспекція`, `експеримент`, `метод`,
+`процедура`, or `розрахунок` after `визначено`.
+
+After normalized matching of `визначено`, the named test-method phrase must
+begin immediately, ignoring only Unicode whitespace. It must remain inside the
+same parser sentence and semicolon hard segment. The template cannot skip an
+intervening noun, artifact head, or reference phrase. Therefore constructions
+equivalent to these do not qualify through construction C:
+
+```text
+визначено посилання на acceptance test
+визначено документ для NFR test
+```
+
+Construction C uses parser-neutral sentence/segment information and
+deterministic phrase delimitation. It allocates no dependency relation and no
+provider-specific tree shape. An independent predicate, unresolved
+coordination, or ambiguous method boundary produces
+`VERIFY_UNRESOLVED_CANDIDATE` rather than guessed acceptance. Construction C
+adds no coordination grammar.
+
+The complete source-attested R3′ requirement from Application example,
+Section 8, Table 7 is:
+
+```text
+Дані передаються через TLS 1.3; доступ до API — за OAuth 2.0/OIDC; критичні операції журналюються; дані клієнтів логічно ізолюються між tenant-ами; визначено негативні security tests.
+```
+
+Its relevant declaration clause is:
+
+```text
+визначено негативні security tests.
+```
+
+It is executable under `VERIFY-UK-001` construction C and is `DETECTED`.
+Accepted Evidence is exactly `[158,182)`:
+
+```text
+негативні security tests
+```
+
+The governing `визначено` and terminal full stop are excluded.
+
+Accepted method Evidence under all three constructions is the minimal complete
+source-contiguous named method phrase. It includes, as applicable, the method
+head, adjectival/category qualifier, and essential local complement identifying
+the named procedure. Binding Evidence examples are:
+
+```text
+навантажувальним тестом
+інспекцією журналу
+негативні security tests
+```
+
+Evidence excludes the governing verification predicate, explicit verification
+label, label delimiter, coordinator, neighboring behavior, unrelated next
+clause, semicolon, and sentence-terminal punctuation. Every item must satisfy:
+
+```python
+evidence.text == requirement.text[
+    evidence.start_offset:evidence.end_offset
+]
+```
+
+The only first-production method-list coordinators are `та` and `і`. One
+approved governing predicate or explicit label may govern several
+deterministically separable method phrases, and each phrase creates a separate
+observation. Construction C may use no coordination interpretation beyond this
+already-approved deterministic method-list rule. A phrase list whose boundary
+cannot be separated deterministically produces
+`VERIFY_UNRESOLVED_CANDIDATE`; coordinators do not enter Evidence.
+
+The binding coordinated input:
+
+```text
+Виконання перевіряється навантажувальним тестом та інспекцією журналу.
+```
+
+produces two observations with source-ordered Evidence:
+
+```text
+навантажувальним тестом
+інспекцією журналу
+```
+
+Parser sentence boundaries are primary. Within one parser sentence, semicolon
+(`;`) is a hard verification-role boundary: a governing predicate, label, or
+declaration cannot attach across it. Colon and dash are not general
+segmentation rules; they have special meaning only in construction B. The
+detector does not raw-split source on every full stop independently of parser
+sentence boundaries.
+
+The binding boundary input:
+
+```text
+Виконання перевіряється тестом; аналіз журналу виконує система.
+```
+
+is `DETECTED` only for Evidence `тестом`. The second clause does not inherit
+`перевіряється`.
+
+The system-behavior case:
+
+```text
+Система виконує аналіз журналу.
+```
+
+has candidate span `аналіз журналу` but no approved verification-role
+construction. Its binding result is:
+
+```text
+observations = ()
+evidence = ()
+diagnostic = VERIFY_UNRESOLVED_CANDIDATE
+processing_status = INCOMPLETE
+derived status = UNRESOLVED
+```
+
+System behavior is not reinterpreted as verification because `аналіз` is a
+candidate method word.
+
+The source-attested apparent-testability case:
+
+```text
+Маршрут доставки повинен швидко перераховуватися у разі зміни дорожньої ситуації.
+```
+
+has no named method candidate and produces empty observations, Evidence, and
+diagnostics with `COMPLETE / NOT_DETECTED`. No method is inferred from apparent
+testability.
+
+A named method without constructions A, B, or C is unresolved rather than
+accepted. This includes isolated `acceptance test`, `NFR test`, and
+`security tests` mentions. A reference to a test artifact, link, ticket, or a
+request to add, provide, or link a test does not itself state a reproducible
+verification method. General artifact/link parsing is not allocated. In
+particular, the source-derived `acceptance test` and `NFR test` remain
+non-accepted when they function only as references or artifacts, and
+construction C applies only to the immediate exact declaration template.
+
+The complete source-attested R4′ context from Application example, Section 8,
+Table 7 is:
+
+```text
+Місячна доступність сервісу — не нижче 99,9 %; визначено допустимі виключення та спосіб розрахунку SLA.
+```
+
+The exact candidate `спосіб розрахунку SLA` at `[81,102)` remains protected and
+unresolved because the actual calculation procedure is not stated. It creates
+no observation or accepted Evidence and produces
+`VERIFY_UNRESOLVED_CANDIDATE`, `processing_status = INCOMPLETE`, and derived
+status `UNRESOLVED`; its exact source span is preserved in the diagnostic.
+Construction C does not apply even to a form containing
+`визначено спосіб розрахунку SLA`, because that phrase is not an approved named
+test/test-category phrase. `розрахунок` is not added as a method head and no SLA
+calculation procedure is inferred.
+
+No verification method may be inferred from `RESULT-UK-001`, `QUANT-001`,
+`QUANT-UK-001`, or `ACCEPT-QUANT-001`. For example:
+
+```text
+Система повинна відповісти не більше ніж за 2 с.
+```
+
+may have detected `expected_result`, `quantitative_constraint`, and
+`acceptance_criterion` observations while `verification_method` remains
+`NOT_DETECTED`, unless an approved method is separately stated. A future
+verification detector must not depend on `QuantitativeBaselineDetector` or
+`AcceptanceCriterionBaselineDetector` for method inference.
+
+Each accepted method creates only the existing observation shape:
+
+```python
+FeatureObservation(
+    feature_id=FeatureId.VERIFICATION_METHOD,
+    evidence_refs=(evidence_id,),
+)
+```
+
+No `method_type`, confidence, severity, score, probability, parser tags,
+reproducibility score, or procedure-quality field is added. Evidence IDs are:
+
+```text
+VERIFY-UK-001:E001
+VERIFY-UK-001:E002
+...
+```
+
+assigned in accepted source order within one requirement. Repeated identical
+method phrases at different source offsets remain separate Evidence items.
+Accepted observations and Evidence are ordered by ascending Evidence
+`start_offset`; diagnostics with candidate spans are source ordered. A
+parser-blocked diagnostic without a source span follows source-bound
+diagnostics if both can coexist.
+
+For any parser blocking diagnostic:
+
+```text
+PARSER_UNAVAILABLE
+PARSER_PROCESSING_FAILED
+ANNOTATION_INCOMPLETE
+OFFSET_INVARIANT_FAILED
+```
+
+the verification result is exactly:
+
+```text
+observations = ()
+evidence = ()
+processing_status = INCOMPLETE
+diagnostic = VERIFY_PARSER_BLOCKED
+derived status = UNRESOLVED
+```
+
+Parser failure never becomes `NOT_DETECTED` or `NOT_APPLICABLE`, and raw
+provider errors do not become Evidence.
+
+The family outcome semantics are:
+
+| Condition | Processing and derived status |
+| --- | --- |
+| accepted method(s), no diagnostics | `COMPLETE / DETECTED` |
+| no accepted method and no method candidate | `COMPLETE / NOT_DETECTED` |
+| method candidate with unresolved role, boundary, coordination, or reproducibility | `INCOMPLETE / UNRESOLVED` |
+| accepted method(s) plus an unresolved candidate elsewhere | `INCOMPLETE / DETECTED` |
+| parser blocked | `INCOMPLETE / UNRESOLVED` |
+
+This allocation preserves the Section 7.14.10 and `RQD-016` boundary:
+verification-method detection produces observations, accepted Evidence, and
+diagnostics only. It produces no Finding, `QUALITY_PROBLEM`, Verifiability
+score, or other characteristic calculation.
+
+`RQD-006` remains `PARTIALLY APPROVED / OPEN`. `VERIFY-UK-001` resolves only:
+
+```text
+Construction A: перевіряється / перевіряються + instrumental method
+Construction B: explicit verification label + delimiter + named method
+Construction C: визначено + immediately following named test-method phrase
+```
+
+Still open are broader expected-result grammar, general condition attachment,
+non-numeric acceptance grammar, general declaration predicates, general
+verification predicates and labels, arbitrary method noun phrases, broader
+coordination, general artifact/reference interpretation, imperative
+verification instructions, implicit procedures, semantic inference of
+reproducibility, and richer procedure-content grammar. This allocation does not
+close general verification-method grammar.
+
+This contract does not approve or implement
+`VerificationMethodBaselineDetector`, characteristic calculation,
+Verifiability scoring, method sufficiency scoring, method taxonomy output,
+testability inference, method inference from quantitative constraints or
+acceptance criteria, new English method vocabulary, general artifact/link
+resolution, requirement-type inference, Finding conversion, applicability,
+`C`/`V`/`U` calculations, `FeatureExtractor` orchestration, or CLI/PoC work.
 
 #### 7.14.8 Exact `uk_vague_terms_v1` matching mechanics
 
@@ -2187,8 +2646,11 @@ acceptance-criterion production allocation, with its accepted result anchor,
 quantitative containment, judgeability, clause-level deduplication, degraded
 outcomes, and Issue #43 approval recorded in Section 7.14.5.1. In particular,
 `ACCEPT-UK-NNN` remains an unallocated family shape for a future separately
-approved non-numeric or other Ukrainian grammatical rule. The other family
-shapes remain unallocated.
+approved non-numeric or other Ukrainian grammatical rule. `VERIFY-UK-001` is
+the only verification-method production allocation, with its three approved
+role constructions, candidate inventory, Evidence boundary, diagnostics, and
+Issue #47 approval recorded in Section 7.14.7.1. The remaining family shapes
+remain unallocated.
 
 #### 7.14.12 Readiness of the targeted RQDs
 
@@ -2198,7 +2660,7 @@ operational rules.
 
 | RQD | Readiness | Reason |
 | --- | --- | --- |
-| `RQD-006` | `PARTIALLY_APPROVED / OPEN` | `COND-UK-001` approves the exact five-marker first-production condition subset. `RESULT-UK-001` approves the exact five-surface parser-assisted normative-modal expected-result subset, its explicit local subject and lexical predicate chain, edge-condition separation, evidence boundary, diagnostics, and outcome semantics. `ACCEPT-QUANT-001` reuses those accepted result clauses as its only required-behavior anchors and adds no parser grammar. General condition attachment, broader/non-modal or inherited normative force, coordinated results, general negation, implicit subjects, non-numeric acceptance grammar, and verification-method grammatical role remain open; no arbitrary verb rule is allowed and actor/action/object remain deferred. |
+| `RQD-006` | `PARTIALLY_APPROVED / OPEN` | `COND-UK-001` approves the exact five-marker first-production condition subset. `RESULT-UK-001` approves the exact five-surface parser-assisted normative-modal expected-result subset, its explicit local subject and lexical predicate chain, edge-condition separation, evidence boundary, diagnostics, and outcome semantics. `ACCEPT-QUANT-001` reuses those accepted result clauses as its only required-behavior anchors and adds no parser grammar. `VERIFY-UK-001` approves exactly construction A (`перевіряється`/`перевіряються` plus an instrumental method), construction B (an approved verification label, delimiter, and named method), and construction C (`визначено` plus an immediately following named test-method phrase). General condition attachment, broader/non-modal or inherited normative force, coordinated results, general negation, implicit subjects, non-numeric acceptance grammar, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open; no arbitrary verb rule is allowed and actor/action/object remain deferred. |
 | `RQD-007` | `APPROVED_FOR_MVP_V0.1 / CLOSED` | NFC plus Unicode `casefold()`, Unicode-aware token boundaries, Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING` are approved without changing the ten-entry seed. Broader vocabulary coverage is future work and does not keep this MVP decision open. |
 | `RQD-008` | `PARTIALLY_APPROVED / OPEN` | The `QUANT-001`/`QUANT-UK-001` partial observations and `ACCEPT-QUANT-001` clause-level containment composition are approved without arbitrary distance thresholds. Only resolved inclusive lower/upper comparator bounds and explicit value + unit targets are judgeable for this acceptance baseline; `до` remains non-judgeable `UPPER_BOUND / UNRESOLVED`. Written-out numbers and generic ranges are outside the baseline; complex metric/context grammar, count-noun roles, and nested representation remain open. |
 | `RQD-016` | `EXTRACTOR_SIDE_APPROVED_FOR_MVP_V0.1 / OPEN` | One accepted vague-term occurrence produces one Unambiguity `SIGNAL`; the other five families produce observations/evidence only. Any `QUALITY_PROBLEM` conversion and characteristic scoring remain open in the later calculation gate. |
@@ -2208,18 +2670,23 @@ unresolved; this approval adds no confidence, reliability, severity,
 probability, risk, priority, or corrective-action field.
 
 The later Section 7.15 approval resolves the backend and domain-representation
-parts of these open items. The `COND-UK-001`, `RESULT-UK-001`, and
-`ACCEPT-QUANT-001` allocations resolve only their first-production subsets;
-they do not close broader `RQD-006` grammar or `RQD-008` complex grammar.
+parts of these open items. The `COND-UK-001`, `RESULT-UK-001`,
+`ACCEPT-QUANT-001`, and `VERIFY-UK-001` allocations resolve only their
+first-production subsets; they do not close broader `RQD-006` grammar or
+`RQD-008` complex grammar.
 
 #### 7.14.13 Remaining researcher decisions
 
 1. Define parser/template operationalization beyond the `COND-UK-001`
-   condition subset, `RESULT-UK-001` normative-modal result subset, and
-   `ACCEPT-QUANT-001` quantitative composition: general condition attachment,
-   broader/non-modal or inherited expected-result force, coordinated results,
-   general negation, implicit subjects, non-numeric acceptance criteria, and
-   explicitly named verification procedures (`RQD-006`).
+   condition subset, `RESULT-UK-001` normative-modal result subset,
+   `ACCEPT-QUANT-001` quantitative composition, and `VERIFY-UK-001` three-role
+   verification subset: general condition attachment, broader/non-modal or
+   inherited expected-result force, coordinated results, general negation,
+   implicit subjects, non-numeric acceptance criteria, general declaration and
+   verification predicates/labels, arbitrary method noun phrases, broader
+   method coordination, artifact/reference interpretation, imperative or
+   implicit procedures, semantic reproducibility inference, and richer
+   procedure-content grammar (`RQD-006`).
 2. Define any approved complex metric/context grammar, count-noun roles, and
    nested load-context representation (`RQD-008`). Ambiguous linkage remains
    `UNRESOLVED`; no arbitrary distance threshold may be introduced.
@@ -2235,9 +2702,10 @@ they do not close broader `RQD-006` grammar or `RQD-008` complex grammar.
 
 This list records what Section 7.14 left open at that gate. Section 7.15 later
 resolves the backend and detector-side data-representation portions of items 1
-and 4. Issues #35, #39, and #43 later resolve only the `COND-UK-001`,
-`RESULT-UK-001`, and `ACCEPT-QUANT-001` first-production subsets of item 1,
-not its remaining general grammar or the other research decisions.
+and 4. Issues #35, #39, #43, and #47 later resolve only the `COND-UK-001`,
+`RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` first-production
+subsets of item 1, not its remaining general grammar or the other research
+decisions.
 
 #### 7.14.14 Downstream GitHub issue alignment
 
@@ -2250,7 +2718,7 @@ unblocked by detector approval alone.
 | Issue | Approved narrow alignment |
 | --- | --- |
 | #4 MVP-03 | Record approved `DetectionStatus` semantics and the replaceable parser-information boundary while deferring the concrete mixed-state domain representation; keep observations/evidence only and no findings |
-| #5 MVP-04 | Record approved condition/result/criterion/quantitative strategies, evidence boundaries, partial-observation behavior, and reference cases; `COND-UK-001`, `RESULT-UK-001`, and `ACCEPT-QUANT-001` supply only their first-production subsets, while general parser operationalization and actor/action/object remain deferred |
+| #5 MVP-04 | Record approved condition/result/criterion/quantitative/verification strategies, evidence boundaries, partial-observation behavior, and reference cases; `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` supply only their first-production subsets, while general parser operationalization and actor/action/object remain deferred |
 | #6 MVP-05 | Record approved Unicode, token/phrase boundary, overlap, ordering, comparator, numeric, unit, linkage, and verification-method mechanics allocated to textual extraction, including the clause-level `ACCEPT-QUANT-001` composition |
 | #7 MVP-06 | No detector-only edit is required unless its input list is clarified after approval; it remains blocked by the Completeness calculation gate |
 | #8 MVP-07 | No detector-only edit is required unless its approved input observations are enumerated; it remains blocked by the Verifiability calculation gate |
@@ -2281,7 +2749,9 @@ approve concrete executable parser/template detector grammar; the later Issue
 #35 approval in Section 7.14.3.1 and Issue #39 approval in Section 7.14.4.1
 allocate only the narrow `COND-UK-001` and `RESULT-UK-001` subsets. Issue #43
 in Section 7.14.5.1 allocates the compositional `ACCEPT-QUANT-001` subset
-without adding parser grammar. None of these approvals authorizes application
+without adding parser grammar. Issue #47 in Section 7.14.7.1 allocates the
+parser-required `VERIFY-UK-001` constructions without changing the neutral
+parser contract. None of these approvals authorizes application
 implementation in its contract-only research pass or changes the overall
 specification from `DRAFT`. They
 introduce no characteristic formula, score, weight, threshold, rounding rule,
@@ -2817,7 +3287,7 @@ overall RQD whose remaining research rules are still open:
 
 | RQD | Status after approval | Approved portion and remaining boundary |
 | --- | --- | --- |
-| `RQD-006` | `PARTIALLY APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Issue #35 allocates the deterministic `COND-UK-001` condition subset, Issue #39 allocates the deterministic `RESULT-UK-001` normative-modal expected-result subset, and Issue #43 composes accepted result clauses into `ACCEPT-QUANT-001` without new parser grammar. General condition attachment, broader/non-modal or inherited normative force, coordinated results, general negation, implicit subjects, non-numeric acceptance criteria, and verification-method grammatical role remain open. Selecting spaCy does not define those remaining scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
+| `RQD-006` | `PARTIALLY_APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Issue #35 allocates the deterministic `COND-UK-001` condition subset, Issue #39 allocates the deterministic `RESULT-UK-001` normative-modal expected-result subset, Issue #43 composes accepted result clauses into `ACCEPT-QUANT-001` without new parser grammar, and Issue #47 allocates exactly the three `VERIFY-UK-001` constructions: A (`перевіряється`/`перевіряються` plus instrumental method), B (approved verification label, delimiter, and named method), and C (`визначено` plus an immediately following named test-method phrase). General condition attachment, broader/non-modal or inherited normative force, coordinated results, general negation, implicit subjects, non-numeric acceptance criteria, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open. Selecting spaCy does not define those remaining scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
 | `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, Issue #32 matching-view and protected deferred-frequency exclusion, and Issue #43 result-span containment and judgeability for `ACCEPT-QUANT-001` are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
 | `RQD-012` | `OPEN`; detector-side representation `RESOLVED FOR MVP v0.1` | The four detection cases and mixed state have stable data representation. Calculator/aggregation propagation of `UNKNOWN`, `NOT_APPLICABLE`, incomplete processing, and insufficient evidence remains unresolved. |
 | `RQD-020` | `UNRESOLVED` | No confidence or evidence-reliability value or field is approved. |
@@ -2831,8 +3301,8 @@ Their implementation scope remains limited as follows:
 | --- | --- | --- |
 | #2 MVP-01 | the approved immutable domain/data-contract subset is safe to start after this PR is merged | implement six typed outcome wrappers, parser-neutral data/result structures, typed observations and invariants; retain calculation and propagation blockers |
 | #4 MVP-03 | record the selected default behind a parser-neutral, replaceable boundary | use `Requirement -> RequirementExtractionResult` with unchanged `result.features`; no spaCy object crosses the adapter; record result-preventing versus annotation-incomplete behavior; adapter implementation requires allocation by its issue |
-| #5 MVP-04 | structural extraction still has an open general grammar gate | Issues #35, #39, and #43 allocate only `COND-UK-001`, `RESULT-UK-001`, and compositional `ACCEPT-QUANT-001`; general condition/result and non-numeric criterion grammar plus complex `RQD-008` grammar remain open, while actor/action/object stay deferred |
-| #6 MVP-05 | textual extraction still has an open grammar gate | keep source-span quantitative baseline independent of parser token boundaries and vague-term matching unchanged; Issue #43 authorizes only the contract for future `ACCEPT-QUANT-001` composition, while broader grammar and new vocabulary remain unauthorized |
+| #5 MVP-04 | structural extraction still has an open general grammar gate | Issues #35, #39, #43, and #47 allocate only `COND-UK-001`, `RESULT-UK-001`, compositional `ACCEPT-QUANT-001`, and the three `VERIFY-UK-001` constructions; general condition/result/method and non-numeric criterion grammar plus complex `RQD-008` grammar remain open, while actor/action/object stay deferred |
+| #6 MVP-05 | textual extraction still has an open grammar gate | keep source-span quantitative baseline independent of parser token boundaries and vague-term matching unchanged; Issues #43 and #47 authorize only the contracts for future `ACCEPT-QUANT-001` composition and `VERIFY-UK-001` verification-role detection, while broader grammar and new vocabulary remain unauthorized |
 | #14 MVP-SPEC | remain open with overall `DRAFT` status | record this section's approval and only the affected RQD/traceability updates; characteristic formulas, propagation, and rounding remain unresolved |
 
 After this PR is merged, MVP-01 may implement only the approved immutable
@@ -2851,8 +3321,8 @@ the parser-neutral contract with the code-to-outcome correction in Section
 7.15.6, (c) the derived immutable detection-outcome wrapper and separate
 DiagnosticSpan, and (d) the minimal typed observation and quantitative shapes.
 `RQD-006` stays `PARTIALLY APPROVED / OPEN` for executable scientific grammar
-beyond the allocated `COND-UK-001`, `RESULT-UK-001`, and
-`ACCEPT-QUANT-001` subsets;
+beyond the allocated `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and
+`VERIFY-UK-001` subsets;
 the overall model specification stays `DRAFT`.
 
 Guardrails preserved:
@@ -3257,7 +3727,7 @@ approval.
 | `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `PARTIALLY_RESOLVED` | Sections 2.1 and 2.3 define reproducible verification and relevant evidence, and give set-level ratios. They do not define an `a_i,V` calculation for one line. | OPEN | MVP-04/05 as applicable, MVP-07 |
 | `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `PARTIALLY_RESOLVED` | Section 2.1 defines one justified interpretation and gives boundary meanings for `a_i,U`; Sections 2.1 and 2.3 treat linguistic matches as signals rather than proof. Detector, confirmation, applicability, and intermediate-value rules remain absent. | OPEN | MVP-05, MVP-08 |
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
-| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, and expected result. | `PARTIALLY_APPROVED` | Section 7.14 allocates `COND-UK-001` for the exact five-marker first-production condition/context subset, `RESULT-UK-001` for the exact five-surface parser-assisted normative-modal expected-result subset, and `ACCEPT-QUANT-001` for clause-level quantitative acceptance composition using only accepted result clauses. Section 7.15 approves the spaCy backend and neutral data/processing boundary. General expected-result grammar, non-modal/inherited normative force, coordinated results, general negation, implicit subjects, general condition attachment beyond `COND-UK-001`, non-numeric acceptance grammar, and verification-method grammatical role remain open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
+| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates `COND-UK-001` for the exact five-marker first-production condition/context subset, `RESULT-UK-001` for the exact five-surface parser-assisted normative-modal expected-result subset, `ACCEPT-QUANT-001` for clause-level quantitative acceptance composition using only accepted result clauses, and `VERIFY-UK-001` for exactly construction A (`перевіряється`/`перевіряються` plus instrumental method), construction B (approved verification label, delimiter, and named method), and construction C (`визначено` plus an immediately following named test-method phrase). Section 7.15 approves the spaCy backend and neutral data/processing boundary. General expected-result grammar, non-modal/inherited normative force, coordinated results, general negation, implicit subjects, general condition attachment beyond `COND-UK-001`, non-numeric acceptance grammar, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; Unambiguity calculation remains gated separately |
 | `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6, and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, typed partial data representation, and the `ACCEPT-QUANT-001` result-span containment, clause-level deduplication, and judgeability contract. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and protected deferred-frequency exclusion without accepting `не рідше`. `до` remains `UPPER_BOUND` with inclusivity `UNRESOLVED` and is not a judgeable acceptance bound. Complex metric/context grammar, count-noun and nested quantitative roles, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
@@ -3303,7 +3773,8 @@ The remaining decisions are grouped into four approval gates:
    7.14 records approved detector strategies and baselines. Section 7.15
    approves the backend and domain representation, while `RQD-006` remains
    open for parser/template grammar beyond the `COND-UK-001`,
-   `RESULT-UK-001`, and `ACCEPT-QUANT-001` first-production subsets and
+   `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001`
+   first-production subsets and
    `RQD-008` remains open for complex metric/context grammar and nested
    representation;
    `RQD-016` remains open only beyond its approved extractor-side contract.
@@ -3333,8 +3804,8 @@ values are included in MVP v0.1. It is not permission to invent such values.
    Any shared feature and non-duplication rule requires approval.
 
 The next recommended research work is parser/template detector grammar beyond
-the `COND-UK-001`, `RESULT-UK-001`, and `ACCEPT-QUANT-001` first-production
-subsets under `RQD-006`, complex metric/context grammar under `RQD-008`, and
+the `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001`
+first-production subsets under `RQD-006`, complex metric/context grammar under `RQD-008`, and
 then the characteristic-calculation gate. The Section 7.15
 domain/data-contract subset of MVP-01 may start only after PR #19 is merged.
 Until the other applicable gates are approved, unapproved detector rules,
