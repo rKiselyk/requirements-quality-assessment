@@ -4,7 +4,10 @@ import unicodedata
 
 import pytest
 
-from requirements_quality_assessment.detectors import ConditionContextBaselineDetector
+from requirements_quality_assessment.detectors import (
+    ConditionContextBaselineDetector,
+    QuantitativeBaselineDetector,
+)
 from requirements_quality_assessment.detectors.condition_context import (
     RULE_ID,
     UNRESOLVED_CANDIDATE_CODE,
@@ -131,6 +134,47 @@ def test_attachment_does_not_cross_hard_punctuation(boundary):
     assert outcome.observations == evidence == ()
     assert outcome.status is DetectionStatus.UNRESOLVED
     assert [item.candidate_span.text for item in outcome.diagnostics] == ["при збої"]
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        (
+            "Система повинна використовувати TLS 1.3 при навантаженні.",
+            "при навантаженні",
+        ),
+        (
+            "Система має використовувати OAuth 2.0 під час авторизації.",
+            "під час авторизації",
+        ),
+    ],
+)
+def test_approved_technical_version_dot_does_not_split_condition_segment(
+    text, expected,
+):
+    requirement = Requirement("R011", 7, text)
+    quantitative_detector = QuantitativeBaselineDetector()
+    quantitative_before = quantitative_detector.detect(requirement)
+
+    outcome, evidence = ConditionContextBaselineDetector(
+        quantitative_detector,
+    ).detect(requirement)
+
+    quantitative_after = quantitative_detector.detect(requirement)
+    quantitative_outcome, quantitative_evidence = quantitative_before
+    assert quantitative_before == quantitative_after
+    assert quantitative_outcome.observations == quantitative_evidence == ()
+    assert quantitative_outcome.diagnostics == ()
+    assert (
+        quantitative_outcome.processing_status
+        is DetectionProcessingStatus.COMPLETE
+    )
+    assert quantitative_outcome.status is DetectionStatus.NOT_DETECTED
+
+    assert outcome.status is DetectionStatus.DETECTED
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.diagnostics == ()
+    assert [item.text for item in evidence] == [expected]
 
 
 def test_semicolon_separated_segments_are_processed_independently():

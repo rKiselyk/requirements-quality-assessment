@@ -16,6 +16,7 @@ from .quantitative import (
     QUANT_RULE_ID,
     QUANT_UK_RULE_ID,
     QuantitativeBaselineDetector,
+    _unsupported_numeric_spans,
 )
 
 
@@ -111,9 +112,14 @@ def _literal_spans(
 
 
 def _hard_segments(text: str) -> tuple[tuple[int, int], ...]:
+    protected_numeric_spans = _unsupported_numeric_spans(text)
     segments: list[tuple[int, int]] = []
     start = 0
     for index, character in enumerate(text):
+        if (character == "."
+                and any(span_start < index < span_end
+                        for span_start, span_end in protected_numeric_spans)):
+            continue
         if character in _HARD_BOUNDARIES:
             segments.append((start, index))
             start = index + 1
