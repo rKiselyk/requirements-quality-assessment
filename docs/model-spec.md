@@ -827,10 +827,12 @@ Severity, probability, risk, numeric confidence, calibrated certainty, and
 evidence-reliability values are deliberately absent from both `Finding` and
 `CharacteristicAssessment`. Chapter 4 places some of these concepts in a
 broader defect/risk tuple, but they are outside the MVP v0.1 characteristic
-contract. `RQD-020` is therefore deferred from MVP v0.1 rather than left as a
-reason to enlarge this minimal contract. `RQD-016` remains open only for future
-`QUALITY_PROBLEM` conversion rules; the finding representation and vague-term
-signal conversion are approved.
+contract. `RQD-020` remains `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED`:
+the absence of these fields from the current contract does not resolve whether
+they belong in MVP. If their inclusion is later proposed, `RQD-020` becomes
+blocking and requires a separate scientific contract. `RQD-016` remains open
+only for future `QUALITY_PROBLEM` conversion rules; the finding representation
+and vague-term signal conversion are approved.
 
 ### 7.11 Actor, action, and object disposition
 
@@ -887,7 +889,9 @@ remains blocked by:
    baselines;
 6. the then-unresolved decision on whether any evidence reliability or
    detector-confidence representation belongs in MVP (`RQD-020`). Section 7.16
-   later defers both from the MVP v0.1 characteristic contract.
+   later excludes both from the current MVP v0.1 characteristic contract while
+   leaving the research decision open and non-blocking while they remain
+   excluded.
 
 No decision in this section defines a calculation for `C`, `V`, or `U`, a
 coefficient, a weight, a threshold, a score contribution, or a rounding rule.
@@ -2665,8 +2669,9 @@ operational rules.
 | `RQD-016` | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | One accepted vague-term occurrence produces one Unambiguity `SIGNAL`; Section 7.16 finalizes the minimal Finding representation and allocates `FIND-U-VAGUE-001`. The other five families produce observations/evidence only. Every `QUALITY_PROBLEM` conversion remains open. |
 
 `RQD-005`, `RQD-007`, and `RQD-009` are closed for MVP v0.1. Section 7.16
-later defers `RQD-020` from MVP v0.1; this approval adds no confidence,
-reliability, severity, probability, risk, priority, or corrective-action field.
+later keeps `RQD-020` open and non-blocking while confidence and evidence
+reliability remain excluded; this approval adds no confidence, reliability,
+severity, probability, risk, priority, or corrective-action field.
 
 The later Section 7.15 approval resolves the backend and domain-representation
 parts of these open items. The `COND-UK-001`, `RESULT-UK-001`,
@@ -2737,8 +2742,9 @@ unblocked by detector approval alone.
 - `RQD-005`, `RQD-007`, and `RQD-009` are closed for MVP v0.1; `RQD-006` and
   `RQD-008` remain partially approved/open; `RQD-016` is approved for its
   Finding and signal contract while every
-  `QUALITY_PROBLEM` conversion remains open; and Section 7.16 later defers
-  `RQD-020` from MVP v0.1.
+  `QUALITY_PROBLEM` conversion remains open; and Section 7.16 later leaves
+  `RQD-020` open and non-blocking while confidence and evidence reliability
+  remain excluded.
 
 ### 7.15 Parser & Domain Operationalization Contract — APPROVED FOR MVP v0.1
 
@@ -3292,7 +3298,7 @@ overall RQD whose remaining research rules are still open:
 | `RQD-006` | `PARTIALLY_APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Issue #35 allocates the deterministic `COND-UK-001` condition subset, Issue #39 allocates the deterministic `RESULT-UK-001` normative-modal expected-result subset, Issue #43 composes accepted result clauses into `ACCEPT-QUANT-001` without new parser grammar, and Issue #47 allocates exactly the three `VERIFY-UK-001` constructions: A (`перевіряється`/`перевіряються` plus instrumental method), B (approved verification label, delimiter, and named method), and C (`визначено` plus an immediately following named test-method phrase). General condition attachment, broader/non-modal or inherited normative force, coordinated results, general negation, implicit subjects, non-numeric acceptance criteria, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open. Selecting spaCy does not define those remaining scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
 | `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, Issue #32 matching-view and protected deferred-frequency exclusion, and Issue #43 result-span containment and judgeability for `ACCEPT-QUANT-001` are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
 | `RQD-012` | `PARTIALLY_APPROVED / OPEN`; detector-side representation and required-input characteristic propagation resolved | The four detection cases and mixed state have stable data representation. Section 7.16 later requires assessment `UNKNOWN` with no value when a required input is unresolved and preserves accepted data in mixed outcomes. General insufficient-evidence, characteristic applicability, and aggregation propagation remain open. |
-| `RQD-020` | `DEFERRED_FROM_MVP_V0.1` by Section 7.16 | No confidence or evidence-reliability value or field belongs to the MVP characteristic or Finding contract. |
+| `RQD-020` | `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED` | No confidence or evidence-reliability value or field is approved for the current MVP characteristic or Finding contract. Exclusion does not resolve whether such metadata belongs in MVP; proposing inclusion makes this decision blocking and requires a separate scientific contract. |
 
 #### 7.15.13 Downstream issue impact and approved narrow alignment
 
@@ -3483,6 +3489,13 @@ probability, risk, priority, corrective actions, evidence reliability, or a
 scalar aggregate. Criterion-result representation remains open until the
 criteria and their applicability rules are approved; it is not added merely
 for implementation convenience.
+
+No detector-confidence, numeric-confidence, or evidence-reliability field or
+value is approved for the current MVP v0.1 `CharacteristicAssessment` or
+`Finding` contract. This exclusion does not resolve `RQD-020`; it remains
+`OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED`. If inclusion of any such
+metadata is later proposed, `RQD-020` becomes blocking and requires a separate
+scientific contract.
 
 #### 7.16.3 Applicability contract
 
@@ -4069,9 +4082,10 @@ findings while withholding a value when the unresolved part is required.
 
 Console wording, general insufficient-evidence rules beyond this required-input
 case, and property-level aggregation behavior remain unresolved. Detector
-confidence and evidence reliability are excluded from the MVP v0.1
-characteristic contract under the deferred RQD-020 decision. See RQD-012,
-RQD-015, and RQD-022.
+confidence and evidence reliability are excluded from the current MVP v0.1
+characteristic contract. `RQD-020` remains open and non-blocking while they
+remain excluded; proposing inclusion makes it blocking and requires a separate
+scientific contract. See RQD-012, RQD-015, and RQD-022.
 
 ## 15. Explainability requirements
 
@@ -4232,7 +4246,7 @@ approval.
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `BINDING NON_NUMERIC CASES PARTIALLY APPROVED` | Section 7.16.8 approves Cases A-E for state, signal, evidence-preservation, and withholding behavior. No source supports expected numeric `C_i`, `V_i`, or `U_i` values. | OPEN FOR NUMERIC REFERENCE CASES | MVP-06-09, MVP-12 |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
 | `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
-| `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `DEFERRED_FROM_MVP_V0.1` | Section 2.3 permits separately validated reliability metadata in a broader experimental system but defines no MVP values. Section 7.16 deliberately excludes confidence and evidence reliability from CharacteristicAssessment and Finding. | CLOSED FOR MVP v0.1 | None; future inclusion requires a separate contract |
+| `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `UNRESOLVED` | No confidence or evidence-reliability representation is approved in the current MVP v0.1 `CharacteristicAssessment` or `Finding` contracts. Whether such metadata belongs in MVP remains a researcher decision. | OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED | Not blocking while these values remain excluded; blocking if inclusion is proposed, which requires a separate scientific contract. |
 | `RQD-021` | Supply or supersede the Chapter 2/§2.3 definitions referenced by Chapter 4. | `RESOLVED_BY_CHAPTER_2` | Sections 2.1, 2.2, and especially 2.3 are now present and integrated into this specification. Their remaining operational gaps are tracked by the other RQDs. | CLOSED AS RESEARCH INPUT | None directly |
 | `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `MINIMUM_WITHHOLDING_RULE_APPROVED / GENERAL RULES OPEN` | Section 7.16 requires `UNKNOWN` with `value = None` when a required detector input is unresolved or when no approved calculation exists. Other sufficiency rules, console wording, and property-level aggregation remain open. | OPEN — PARTIALLY APPROVED | MVP-06-10, MVP-12 |
 | `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Section 7.16.3 makes the conservative rule executable: only an approved observable criterion rule can yield `APPLICABLE` or `NOT_APPLICABLE`; otherwise applicability is `UNKNOWN`. No current Completeness or Verifiability candidate has such a rule. | CLOSED FOR MVP v0.1 | None directly; criterion-specific rules remain under RQD-002/RQD-003 |
@@ -4241,9 +4255,6 @@ approval.
 
 - `RQD-001`, `RQD-005`, `RQD-007`, `RQD-009`, `RQD-018`, `RQD-019`, and
   `RQD-023` are closed by explicit researcher approval for MVP v0.1.
-- `RQD-020` is closed for MVP v0.1 by deferring confidence and evidence-
-  reliability values from the minimal characteristic and Finding contracts;
-  future inclusion requires a separate approved contract.
 - `RQD-021` remains closed because the requested Chapter 2 sources are present
   and traced.
 
@@ -4280,8 +4291,11 @@ The remaining decisions are grouped into four approval gates:
    propagation aspects of `RQD-012` and `RQD-022`, plus `RQD-015`.
 4. **Scientific acceptance gate:** `RQD-017`.
 
-`RQD-020` is not an MVP blocker because those values are explicitly deferred.
-This deferral is not permission to invent them later without a new contract.
+`RQD-020` remains `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED`. It is not
+part of the current implementation-blocking gates because confidence and
+evidence-reliability values remain outside the approved contracts. If inclusion
+is proposed, the decision becomes blocking and requires a separate scientific
+contract.
 
 ### 18.4 Remaining design tensions
 
