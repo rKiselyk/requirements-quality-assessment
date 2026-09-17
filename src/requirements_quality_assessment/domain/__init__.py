@@ -21,6 +21,9 @@ from .quantitative import (
     NumericValueComponent, QuantitativeComponentName,
     QuantitativeConstraintObservation, TextComponent, UnitComponent, UnitLabel,
 )
+from .specification_profile import (
+    SpecificationCharacteristicAggregate, SpecificationQualityProfile,
+)
 
 __all__ = [
     "BoundaryInclusivity", "CharacteristicAssessment", "CharacteristicAssessmentState",
@@ -32,6 +35,8 @@ __all__ = [
     "ParserDiagnosticCode", "ParserMetadata", "ParserOutcome",
     "QuantitativeComponentName", "QuantitativeConstraintObservation",
     "Requirement", "RequirementExtractionResult", "RequirementFeatures",
-    "RequirementQualityProfile", "SentenceAnnotation", "TextComponent",
-    "TokenAnnotation", "UnitComponent", "UnitLabel", "VagueTermOccurrence",
+    "RequirementQualityProfile", "SentenceAnnotation",
+    "SpecificationCharacteristicAggregate", "SpecificationQualityProfile",
+    "TextComponent", "TokenAnnotation", "UnitComponent", "UnitLabel",
+    "VagueTermOccurrence",
 ]
