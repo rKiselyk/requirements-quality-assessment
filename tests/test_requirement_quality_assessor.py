@@ -251,9 +251,9 @@ def test_findings_are_preserved_unchanged_in_their_owning_assessment():
         code="VAGUE_TERM_SIGNAL",
         rule_id="FIND-U-VAGUE-001",
         criterion_id=None,
-        evidence_refs=("R001:VAGUE_TERM_OCCURRENCE:E0",),
+        evidence_refs=("UK-VAGUE-001:E001",),
         explanation=(
-            "FIND-U-VAGUE-001 matched the approved seed literal 'appropriate' "
+            "FIND-U-VAGUE-001 matched the approved seed literal 'швидко' "
             "(uk_vague_terms_v1) as a potential ambiguity indicator; this is "
             "not a confirmed ambiguity or a confirmed quality defect."
         ),
