@@ -90,7 +90,7 @@ def test_unambiguity_signal_findings_remain_unchanged_in_component() -> None:
     completeness = _computed(CharacteristicId.COMPLETENESS, Fraction(1, 1), "CALC-C-MVP-001")
     verifiability = _computed(CharacteristicId.VERIFIABILITY, Fraction(1, 1), "CALC-V-MVP-001")
     unambiguity = _assessment(characteristic_id=CharacteristicId.UNAMBIGUITY,
-                              value=Fraction(1, 1), assessment_rule_id="CALC-U-MVP-001",
+                              value=Fraction(1, 2), assessment_rule_id="CALC-U-MVP-001",
                               findings=(signal,))
 
     profile = RequirementQualityProfile(completeness, verifiability, unambiguity)
