@@ -71,7 +71,31 @@ def test_finding_criterion_id_and_evidence_refs_invariants() -> None:
         _finding(evidence_refs=["E1"])
     with pytest.raises(TypeError):
         _finding(evidence_refs=(1,))
-    assert _finding(evidence_refs=()).evidence_refs == ()
+
+
+def test_signal_finding_requires_non_empty_evidence_refs() -> None:
+    with pytest.raises(ValueError):
+        _finding(kind=FindingKind.SIGNAL, evidence_refs=())
+    with pytest.raises(ValueError):
+        _finding(kind=FindingKind.SIGNAL, criterion_id="CRIT-1", evidence_refs=())
+
+
+def test_empty_evidence_refs_requires_quality_problem_with_criterion_id() -> None:
+    # A QUALITY_PROBLEM with no criterion_id still cannot omit evidence_refs.
+    with pytest.raises(ValueError):
+        _finding(kind=FindingKind.QUALITY_PROBLEM, code="SOME_PROBLEM",
+                 rule_id="RULE-X", criterion_id=None, evidence_refs=())
+
+
+def test_absence_shaped_quality_problem_is_structurally_representable() -> None:
+    # This only confirms the shape from Section 7.16.5 can be represented; it
+    # does not imply any absence-based QUALITY_PROBLEM rule is approved or
+    # that any calculator in this task creates one.
+    finding = _finding(kind=FindingKind.QUALITY_PROBLEM, code="SOME_PROBLEM",
+                       rule_id="RULE-X", criterion_id="CRIT-1", evidence_refs=())
+    assert finding.evidence_refs == ()
+    assert finding.kind is FindingKind.QUALITY_PROBLEM
+    assert finding.criterion_id == "CRIT-1"
 
 
 def test_computed_assessment_requires_fraction_in_bounds_and_rule_id() -> None:

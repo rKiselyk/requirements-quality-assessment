@@ -52,6 +52,14 @@ class Finding:
             not isinstance(ref, str) for ref in self.evidence_refs
         ):
             raise TypeError("evidence_refs must be a tuple of strings")
+        if not self.evidence_refs and (
+            self.kind is not FindingKind.QUALITY_PROBLEM or self.criterion_id is None
+        ):
+            raise ValueError(
+                "evidence_refs may be empty only for the absence-based provenance "
+                "shape: kind=QUALITY_PROBLEM with a non-null criterion_id "
+                "(Section 7.16.5); a SIGNAL always requires evidence_refs"
+            )
 
 
 @dataclass(frozen=True, slots=True)
