@@ -4,9 +4,10 @@
 executable per-requirement Completeness, Verifiability, and Unambiguity
 calculation rules (`CALC-C-MVP-001`, `CALC-V-MVP-001`, `CALC-U-MVP-001`) are
 now incorporated; the internal production numeric representation for
-per-requirement characteristic scores is now approved as Python
-standard-library `fractions.Fraction` (Section 13); specification-level
-aggregation, `QUALITY_PROBLEM` conversion, and downstream
+per-requirement and specification-level aggregate characteristic scores is
+now approved as Python standard-library `fractions.Fraction` (Section 13);
+specification-level aggregation semantics (`AGG-MVP-001`, Section 12) are now
+`APPROVED_FOR_MVP_V0.1`; `QUALITY_PROBLEM` conversion and downstream
 presentation/rounding semantics remain open**
 
 This document is the prospective authoritative implementation specification for
@@ -141,15 +142,15 @@ applicability set, or confirmation procedure are not operationally defined.
 | Versioned assessment state `P_j(stage, version)` | Process model | 4.1, state tuple | Yes at conceptual level | No | `OUT_OF_SCOPE_V0.1` |
 | Reassessment after changed evidence or specification | Process model | 4.1, update operator and feedback loop | Conceptual operator only | No | `OUT_OF_SCOPE_V0.1` |
 | Evidence coverage and reliability are distinct from score | Process and quality models | 4.1 Tables 4.2-4.4; 4.2 result tuple | Conceptually yes; numeric rules absent | Potentially | `PARTIALLY_DEFINED` |
-| Missing/not-applicable evidence is not zero | Requirement properties; metrics system; process and quality models; approved RQD-023 | 2.3, paragraphs 16 and 39-42; 4.1 invariants; 4.2 feature formation; Section 7.16 | Criterion applicability and characteristic assessment states are approved; required detector `UNRESOLVED` propagates to assessment `UNKNOWN` with no value; aggregation propagation remains incomplete | Yes | `PARTIALLY_APPROVED` |
+| Missing/not-applicable evidence is not zero | Requirement properties; metrics system; process and quality models; approved RQD-023 | 2.3, paragraphs 16 and 39-42; 4.1 invariants; 4.2 feature formation; Section 7.16 | Criterion applicability and characteristic assessment states are approved; required detector `UNRESOLVED` propagates to assessment `UNKNOWN` with no value; specification-level aggregation propagation is now approved under `AGG-MVP-001` (Section 12) | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Completeness of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraphs 11-12; Table 2.3; Section 7.16 | Semantic definition, evidence classes, and non-numeric result envelope available; `CALC-C-MVP-001` now supplies an executable three-criterion MVP formula (Section 8) | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Verifiability of an individual requirement | Requirement properties; metrics system | 2.1 Table 2.1 and paragraph 12; 2.3 paragraphs 17-21; Section 7.16 | Semantic definition, evidence classes, and non-numeric result envelope available; `CALC-V-MVP-001` now supplies an executable alternative-evidence-path MVP formula (Section 9) | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Unambiguity of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraph 10; Table 2.3; Section 7.16 | Semantic definition, source-derived signals, and signal finding rule available; `CALC-U-MVP-001` now supplies an executable signal-presence MVP formula (Section 10); confirmed-material-ambiguity (`0`) remains a future separate decision | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Consistency | Requirement properties; metrics system | 2.1 paragraphs 14-15; 2.3 paragraphs 28-30 | Defined primarily for a set of requirements | No, except as boundary context | `OUT_OF_SCOPE_V0.1` |
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; per-requirement property-specific derivation is now approved for MVP v0.1 by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). This is an MVP v0.1 operationalization, not a closure of broader future research into `a_ij` beyond the approved scope (e.g. confirmed-material-ambiguity `0`, specification-level aggregation) | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement scope) |
-| Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is not | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_CALCULATION_APPROVED` |
-| Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
+| Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is now likewise approved via `AGG-MVP-001` (Section 12) | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_AND_AGGREGATE_CALCULATION_APPROVED` |
+| Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation is now closed under `AGG-MVP-001` (Section 12): `UNKNOWN` values are excluded from the mean and tracked as `unknown_count`, never treated as zero | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, `VERIFY-UK-001`, and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
 | Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001` supplies a narrow condition/context baseline, `RESULT-UK-001` a narrow normative-modal expected-result baseline, `ACCEPT-QUANT-001` a clause-level quantitative acceptance baseline, and `VERIFY-UK-001` the three explicitly governed verification-method constructions, while general parser/template rules, non-numeric acceptance grammar, and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
@@ -157,7 +158,7 @@ applicability set, or confirmation procedure are not operationally defined.
 | Per-requirement Completeness score | Requirement properties supplies only the generic property range | 2.1 `a_ij ∈ [0,1]`; Section 7.16.7 | `CALC-C-MVP-001` approves `C_i = (c_condition + c_result + c_acceptance) / 3` over the three MVP-mandatory criteria, exact value set `{0, 1/3, 2/3, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Verifiability score | Requirement properties and metrics system supply evidence classes and set-level ratios only | 2.1 Table 2.3; 2.3 paragraphs 17-20; Section 7.16.7 | `CALC-V-MVP-001` approves an alternative-evidence-path mapping (acceptance criterion → `1`; quantitative or verification method only → `1/2`; none after complete processing → `0`), exact value set `{0, 1/2, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Unambiguity score | Requirement properties supplies boundary meanings and an unspecified intermediate state | 2.1 Table 2.3; Section 7.16.7 | `CALC-U-MVP-001` approves signal-presence mapping (no supported signal → `1`; one or more → `1/2`); `0` remains reserved for a future separately-approved confirmed-ambiguity rule | Yes | `APPROVED_FOR_MVP_V0.1` (automated scale only; `0` still `OPEN`) |
-| Characteristic score range for MVP | Requirement properties | 2.1 `a_ij ∈ [0,1]` and Table 2.3 | `[0,1]` compliance orientation supported; each characteristic's exact permitted value set is now closed for MVP v0.1 (Completeness `{0,1/3,2/3,1}`; Verifiability `{0,1/2,1}`; Unambiguity `{1/2,1}` automated, `0` reserved); specification-level scale/aggregation behavior remains open | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement); aggregation scale `OPEN` |
+| Characteristic score range for MVP | Requirement properties | 2.1 `a_ij ∈ [0,1]` and Table 2.3 | `[0,1]` compliance orientation supported; each characteristic's exact permitted value set is closed for MVP v0.1 (Completeness `{0,1/3,2/3,1}`; Verifiability `{0,1/2,1}`; Unambiguity `{1/2,1}` automated, `0` reserved). Specification-level range is now likewise closed as a direct mathematical consequence of `AGG-MVP-001` (Section 12): whenever a numeric aggregate exists, `C_file, V_file ∈ [0,1]` and `U_file ∈ [1/2,1]` under the current automated MVP rules, same upward compliance orientation | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement and specification-level aggregate range) |
 | Requirements metric families and working dictionary | Metrics system | 2.3 Tables 2.7-2.8 | Aggregate formulas explicit; detector operands and applicability incomplete | Partially | `PARTIALLY_DEFINED` |
 | Applicability set and empty-denominator `NA` | Metrics system | 2.3 paragraphs 13-16 and 39 | Principle explicit; per-requirement applicability rules absent | Yes | `PARTIALLY_DEFINED` |
 | Scalar Requirement Quality Score from the three MVP characteristics | None in supplied references; approved RQD-013 disposition | Not defined and intentionally deferred | No | No | `OUT_OF_SCOPE_V0.1` |
@@ -433,7 +434,7 @@ contains no quality calculation.
 | `Evidence` | An exact source-text span explaining why a detector produced an observation | Yes | None by itself | `APPROVED_FOR_MVP_V0.1` |
 | `FeatureObservation` | An explicit detected observation with linked evidence; optional detection processing state is separate from criterion applicability | Yes | It states detection only, not quality | Conceptual contract `APPROVED_FOR_MVP_V0.1`; detector algorithms open |
 | `Finding` | A downstream interpretation of observations under an approved model rule | No | Either a `SIGNAL` or an established `QUALITY_PROBLEM` | Minimal data contract and vague-term `SIGNAL` conversion `APPROVED_FOR_MVP_V0.1`; all `QUALITY_PROBLEM` conversions remain blocked |
-| `CharacteristicAssessment` | A stateful result envelope for Completeness, Verifiability, or Unambiguity | No | Preserves a computed value or explicitly withholds it without converting missing, unresolved, or non-applicable information to zero | Minimal envelope `APPROVED_FOR_MVP_V0.1` in Section 7.16; per-requirement numeric calculation is now `APPROVED_FOR_MVP_V0.1` via `CALC-C/V/U-MVP-001` (Sections 8-10); specification-level aggregation and `QUALITY_PROBLEM` conversion remain open |
+| `CharacteristicAssessment` | A stateful result envelope for Completeness, Verifiability, or Unambiguity | No | Preserves a computed value or explicitly withholds it without converting missing, unresolved, or non-applicable information to zero | Minimal envelope `APPROVED_FOR_MVP_V0.1` in Section 7.16; per-requirement numeric calculation is now `APPROVED_FOR_MVP_V0.1` via `CALC-C/V/U-MVP-001` (Sections 8-10); specification-level aggregation is now `APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12); `QUALITY_PROBLEM` conversion remains open |
 
 An observation such as “the text contains the exact phrase `швидко`” is not
 equivalent to “the requirement is ambiguous.” The first is reproducible lexical
@@ -877,9 +878,10 @@ v0.1 and approve the detector-to-signal portion of `RQD-016`; Section 7.16
 later finalizes the Finding representation and exact signal rule. Sections 8-10
 later close the per-requirement calculation portions of `RQD-002`-`RQD-004`,
 `RQD-010`-`RQD-012`, and `RQD-022` via `CALC-C-MVP-001`, `CALC-V-MVP-001`, and
-`CALC-U-MVP-001`. Broader detector/runtime coverage and specification
-aggregation remain blocked; the internal production numeric representation
-(item 7 below) is now resolved. Isolated implementation and testing of
+`CALC-U-MVP-001`. Broader detector/runtime coverage remains blocked; the
+internal production numeric representation (item 7 below) and
+specification-level aggregation (item 3 below) are now resolved. Isolated
+implementation and testing of
 `CompletenessCalculator`,
 `VerifiabilityCalculator`, and `UnambiguityCalculator` against manually
 constructed `RequirementExtractionResult` inputs is not blocked by items 1-2:
@@ -899,13 +901,18 @@ constructed `RequirementExtractionResult` inputs is not blocked by items 1-2:
    deliberately deferred numeric/range forms beyond the approved baseline
    (`RQD-008`). Same non-blocking relationship to isolated `CALC-V-MVP-001`
    implementation/testing as item 1;
-3. specification-level aggregation propagation for missing/`UNKNOWN`
-   per-requirement values, empty computed denominators, and final aggregation
-   semantics (the remaining, specification-level portions of `RQD-012` and
-   `RQD-022`); the per-requirement criterion-applicability, missing-feature,
-   and absence semantics used by each characteristic calculation are now
-   resolved by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`
-   (Sections 8-10);
+3. **RESOLVED.** specification-level aggregation propagation for
+   missing/`UNKNOWN` per-requirement values, empty computed denominators, and
+   final aggregation semantics (the remaining, specification-level portions
+   of `RQD-012` and `RQD-022`). Section 12's `AGG-MVP-001` now closes this:
+   the mean is computed from `COMPUTED` values only, `UNKNOWN` values are
+   excluded and tracked as `unknown_count` (never zero), and an empty
+   `COMPUTED` denominator yields aggregate state `UNKNOWN` (if the
+   applicability set is non-empty) or `NOT_APPLICABLE`/NA (if it is empty).
+   The per-requirement criterion-applicability, missing-feature, and absence
+   semantics used by each characteristic calculation were already resolved
+   by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections
+   8-10);
 4. exact observation-to-`QUALITY_PROBLEM` conversion rules and any handling of
    overlapping evidence in characteristic calculations (`RQD-016` only; the
    per-requirement characteristic-calculation gate itself is now closed for
@@ -3176,9 +3183,10 @@ certainty:
 - downstream calculators and aggregators must not convert parser diagnostics,
   `UNRESOLVED`, missing observations, or incomplete processing into zero or a
   `QUALITY_PROBLEM`. Section 7.16 later resolves the required-input
-  characteristic case as assessment `UNKNOWN` with no value; general
-  insufficient-evidence and aggregation propagation remain open under
-  `RQD-012` and `RQD-022`.
+  characteristic case as assessment `UNKNOWN` with no value; specification-
+  level aggregation propagation is now approved under `AGG-MVP-001`
+  (`RQD-012`, `RQD-022`, Section 12); general insufficient-evidence beyond
+  the approved per-characteristic and aggregation rules remains open.
 
 The minimum diagnostic explains the affected feature family, stable detector
 rule, machine-readable reason code, human-readable reason, and exact candidate
@@ -3332,7 +3340,7 @@ overall RQD whose remaining research rules are still open:
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY_APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. Issue #35 allocates the deterministic `COND-UK-001` condition subset, Issue #39 allocates the deterministic `RESULT-UK-001` normative-modal expected-result subset, Issue #43 composes accepted result clauses into `ACCEPT-QUANT-001` without new parser grammar, and Issue #47 allocates exactly the three `VERIFY-UK-001` constructions: A (`перевіряється`/`перевіряються` plus instrumental method), B (approved verification label, delimiter, and named method), and C (`визначено` plus an immediately following named test-method phrase). General condition attachment, broader/non-modal or inherited normative force, coordinated results, general negation, implicit subjects, non-numeric acceptance criteria, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open. Selecting spaCy does not define those remaining scientific detector rules; actor/action/object remain deferred and no “any verb” fallback is allowed. |
 | `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, Issue #32 matching-view and protected deferred-frequency exclusion, and Issue #43 result-span containment and judgeability for `ACCEPT-QUANT-001` are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
-| `RQD-012` | `PARTIALLY_APPROVED / OPEN`; detector-side representation and required-input characteristic propagation resolved | The four detection cases and mixed state have stable data representation. Section 7.16 later requires assessment `UNKNOWN` with no value when a required input is unresolved and preserves accepted data in mixed outcomes. General insufficient-evidence, characteristic applicability, and aggregation propagation remain open. |
+| `RQD-012` | `PARTIALLY_APPROVED` at the time of this decision; detector-side representation and required-input characteristic propagation resolved here, specification-level aggregation propagation later `APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12) | The four detection cases and mixed state have stable data representation. Section 7.16 later requires assessment `UNKNOWN` with no value when a required input is unresolved and preserves accepted data in mixed outcomes. General insufficient-evidence and characteristic applicability beyond the approved per-characteristic and aggregation rules remain open. |
 | `RQD-020` | `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED` | No confidence or evidence-reliability value or field is approved for the current MVP characteristic or Finding contract. Exclusion does not resolve whether such metadata belongs in MVP; proposing inclusion makes this decision blocking and requires a separate scientific contract. |
 
 #### 7.15.13 Downstream issue impact and approved narrow alignment
@@ -3434,7 +3442,7 @@ The decision status at this gate is:
 | Completeness numeric rule | `APPROVED_FOR_MVP_V0.1` | `CALC-C-MVP-001` produces `C_i` in `{0, 1/3, 2/3, 1}` (Section 8). |
 | Verifiability numeric rule | `APPROVED_FOR_MVP_V0.1` | `CALC-V-MVP-001` produces `V_i` in `{0, 1/2, 1}` (Section 9). |
 | Unambiguity confirmation and numeric rule | `PARTIALLY APPROVED_FOR_MVP_V0.1` | `CALC-U-MVP-001` produces the automated `U_i` in `{1/2, 1}` (Section 10). Confirmed material ambiguity and `U_i = 0` remain `BLOCKED — FUTURE RESEARCHER DECISION`. |
-| Specification aggregation with `UNKNOWN`/missing values | `OPEN / DOWNSTREAM` | This contract does not finalize file-level aggregation. |
+| Specification aggregation with `UNKNOWN`/missing values | `APPROVED_FOR_MVP_V0.1` (downstream of this contract) | This contract did not finalize file-level aggregation itself; `AGG-MVP-001` (Section 12) has since done so: `UNKNOWN` values are excluded from the mean and tracked separately, never treated as zero. |
 
 #### 7.16.1 Characteristic identifiers
 
@@ -3767,10 +3775,11 @@ level rounding is introduced (Section 13). This closes the exact
 calculation-semantics portion of `RQD-015`, and Section 13 additionally
 approves Python standard-library `fractions.Fraction` as the internal
 production representation for these values, so concrete MVP-06/07/08
-implementation is no longer gated on representation. Presentation precision
-and aggregate-rounding policy remain open under `RQD-015`; specification-level
-aggregation propagation and sufficiency semantics remain open separately
-under `RQD-012` and `RQD-022` (Sections 12-14).
+implementation is no longer gated on representation. Specification-level
+aggregation propagation and sufficiency semantics (`RQD-012`, `RQD-022`) are
+now likewise `APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Sections 12-14);
+only presentation precision and display-rounding policy remain open under
+`RQD-015`.
 
 #### 7.16.8 Binding characteristic-layer cases
 
@@ -3908,15 +3917,16 @@ decisions previously tracked here are now resolved by `CALC-C-MVP-001`,
 `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). The internal
 production numeric representation row is now also resolved: Section 13
 approves Python standard-library `fractions.Fraction` as the internal
-production representation for computed characteristic values. The remaining
-rows concern specification-level aggregation, downstream presentation, and
+production representation for computed characteristic values. Specification-
+level aggregation (the row below) is now likewise resolved by `AGG-MVP-001`
+(Section 12). The remaining row concerns only downstream presentation and
 the future confirmed-material-ambiguity rule.
 
 | Exact model-spec location | Research-source evidence | Scientifically plausible options | Implementation consequence | Smallest researcher decision required |
 | --- | --- | --- | --- | --- |
 | Section 10 and this Section 7.16.4 | Requirement properties, Table 2.3, reserves `0` for confirmed material ambiguity, distinct from the automated MVP signal-presence scale approved by `CALC-U-MVP-001` | manual/expert confirmation; deterministic context-exception rule; researcher-defined confirmation procedure | Determines whether a Unambiguity `QUALITY_PROBLEM` and `U_i = 0` can ever be produced | Approve a confirmation procedure and its mapping to `U_i = 0`, or explicitly leave `0` permanently unreachable for MVP |
-| Section 13 — **RESOLVED** | `CALC-C/V/U-MVP-001` approve exact mathematical semantics (`1/3`, `2/3`, `1/2`) and no calculator-level intermediate rounding; Section 13 now additionally approves `fractions.Fraction` as the internal production representation, leaving only presentation-precision/rounding open | internal representation: `fractions.Fraction` (approved); presentation: fixed precision; rule-specific precision; tie-breaking convention — all still open | The concrete numeric type for `CompletenessCalculator`/`VerifiabilityCalculator`/`UnambiguityCalculator` code (`Fraction`) is now recorded; console/reporting display precision remains a separate, still-open decision | Internal representation approved under `RQD-015` (this task); presentation/rounding and tie-breaking remain to be approved separately, only after aggregation semantics exist |
-| Sections 12 and 14 | Requirement properties supports property means; Metrics system requires `NA` for an empty applicability set and separates missing from non-applicable | exclude unknown values and report coverage; propagate unknown; withhold aggregate under a defined sufficiency rule | Determines `C_file`, `V_file`, and `U_file` behavior | Approve property-level aggregation propagation and empty/partially known denominator semantics, now that per-requirement rules exist |
+| Section 13 — **RESOLVED** | `CALC-C/V/U-MVP-001` approve exact mathematical semantics (`1/3`, `2/3`, `1/2`) and no calculator-level intermediate rounding; Section 13 now additionally approves `fractions.Fraction` as the internal production representation, for both per-requirement values and the `AGG-MVP-001` aggregate, leaving only presentation-precision/rounding open | internal representation: `fractions.Fraction` (approved, per-requirement and aggregate); presentation: fixed precision; rule-specific precision; tie-breaking convention — still open | The concrete numeric type for `CompletenessCalculator`/`VerifiabilityCalculator`/`UnambiguityCalculator`/aggregator code (`Fraction`) is now recorded; console/reporting display precision remains a separate, still-open decision | Internal representation approved under `RQD-015` (this task); presentation/rounding and tie-breaking remain to be approved separately by the reporter task |
+| Sections 12 and 14 — **RESOLVED** | Requirement properties supports property means; Metrics system requires `NA` for an empty applicability set and separates missing from non-applicable | `AGG-MVP-001` (Section 12) approved: exclude `UNKNOWN` values from the mean and report coverage as `unknown_count`; aggregate state `UNKNOWN` when the applicability set is non-empty but nothing is `COMPUTED`; aggregate state `NOT_APPLICABLE`/NA when the applicability set is empty | Determines `C_file`, `V_file`, and `U_file` behavior | None; property-level aggregation propagation and empty/partially-known denominator semantics are approved for MVP v0.1 |
 
 `CompletenessCalculator`, `VerifiabilityCalculator`, and
 `UnambiguityCalculator` are no longer blocked by open scientific formulas or
@@ -3985,9 +3995,10 @@ approved by this decision.
 Researcher decision RQD-002 is now `APPROVED_FOR_MVP_V0.1` (Section 18).
 RQD-010 is closed for the per-requirement Completeness formula by
 `CALC-C-MVP-001` itself (Section 18) and is not a remaining blocker here.
-RQD-006 (broader detector grammar) and the specification-level portion of
-RQD-012 (aggregation) remain separately open, but neither blocks
-per-requirement Completeness calculation.
+RQD-006 (broader detector grammar) remains separately open; the
+specification-level portion of RQD-012 (aggregation) is now
+`APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12). Neither blocks, nor
+blocked, per-requirement Completeness calculation.
 
 ### Formula and output range
 
@@ -4091,8 +4102,9 @@ evidence families no longer each need their own mandatory-criterion
 applicability decision, because none of them is individually mandatory.
 
 Researcher decision RQD-003 is now `APPROVED_FOR_MVP_V0.1` (Section 18).
-RQD-008 and RQD-012 remain relevant to broader quantitative-constraint grammar
-and specification-level aggregation, respectively, but no longer block
+`RQD-008` remains relevant to broader quantitative-constraint grammar,
+which remains open; `RQD-012`'s specification-level aggregation portion is
+now `APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12). Neither blocks
 per-requirement Verifiability calculation.
 
 ### Formula and output range
@@ -4216,11 +4228,11 @@ signal-presence scale (Section 18); the confirmed-ambiguity portion remains
 `OPEN`. `CALC-U-MVP-001` depends only on the approved vague-term seed matcher
 and `FIND-U-VAGUE-001`, not on quantitative-constraint or linkage grammar, so
 `RQD-008` is not a dependency of the Unambiguity calculator. The
-specification-level aggregation portion of `RQD-012` and the
-characteristic-calculation portion of `RQD-016` remain relevant to
-specification-level aggregation and future `QUALITY_PROBLEM`/confirmed-ambiguity
-conversions, respectively, but neither blocks the per-requirement automated
-Unambiguity calculation.
+specification-level aggregation portion of `RQD-012` is now
+`APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12); the
+characteristic-calculation portion of `RQD-016` remains relevant to future
+`QUALITY_PROBLEM`/confirmed-ambiguity conversions. Neither blocks the
+per-requirement automated Unambiguity calculation.
 `RQD-007` remains closed for the MVP v0.1 seed matcher.
 
 ### Formula and output range
@@ -4333,24 +4345,297 @@ SpecificationQualityProfile(C_file, V_file, U_file)
 
 Chapter 2 defines `x_k = (1/n) * sum_i(a_ik)` as the set-level indicator for one
 specific requirement property. MVP v0.1 therefore preserves three separate
-aggregates:
+aggregates, one per characteristic, with no scalar combination across them:
 
 ```text
-C_file = mean(C_i for applicable/computed C_i)
-V_file = mean(V_i for applicable/computed V_i)
-U_file = mean(U_i for applicable/computed U_i)
+C_file = mean(...)
+V_file = mean(...)
+U_file = mean(...)
 ```
 
 No scalar `FileQualityScore` combines these values. RQD-014's original scalar-
-score request is intentionally deferred from MVP v0.1. Per-requirement `C_i`,
-`V_i`, and `U_i` are now executable under Sections 8-10, so this gate is no
-longer blocked merely by the absence of a per-requirement numeric rule.
-Specification-level propagation is nonetheless still gated by separate,
-unresolved decisions concerning: `UNKNOWN` values entering the mean; partially
-known sets; empty computed denominators; final aggregation semantics; and
-presentation precision (RQD-012, RQD-015, and RQD-022). This contract does not
-invent those rules and does not authorize calculation of `C_file`, `V_file`,
-or `U_file` until they are separately approved.
+score request is intentionally deferred from MVP v0.1 (Section 18.2). Per-
+requirement `C_i`, `V_i`, and `U_i` are now executable under Sections 8-10, so
+this gate is no longer blocked merely by the absence of a per-requirement
+numeric rule. This section's aggregation rule — `AGG-MVP-001` — is now
+researcher-approved for MVP v0.1 (Section 18): it fixes *which*
+per-requirement values populate each `mean(...)` above, and what aggregate
+outcome results when the computed subset is empty or partial. `AGG-MVP-001`
+is one shared, characteristic-agnostic rule applied identically to compute
+`C_file`, `V_file`, and `U_file`. This section now authorizes calculation of
+`C_file`, `V_file`, and `U_file` under that rule; only the eventual
+`SpecificationQualityAggregator`/`SpecificationQualityProfile`
+implementation, and presentation/display rounding, remain outstanding.
+
+### Explicitly defined by the dissertation
+
+- `2.3_Система_метрик.docx` (¶43-44) states the aggregation-denominator
+  convention directly: "if the applicability set forming the denominator is
+  empty, the result is recorded as NA (not applicable) and is not equated to
+  zero," and that this convention "extends to verifiability, traceability,
+  coverage and other normalized-fraction metrics" — i.e. it is general, not
+  characteristic-specific. Applied here: if every requirement is
+  `NOT_APPLICABLE` for a given property, or the requirement collection itself
+  is empty, the aggregate's semantic result is NA / not applicable, and the
+  numeric value is absent (never zero).
+- `2.1_Властивості_вимог.docx` (¶92) states the aggregation *formula* itself:
+  `x_k = (1/n) * sum_i(a_ik)`, a plain, unweighted arithmetic mean over a
+  property (already transcribed at Section 4.2, line 197). This fixes the
+  shape of the calculation once its inputs are fixed; it does not say which
+  `a_ik` values belong in that sum when some are `UNKNOWN` rather than
+  `NOT_APPLICABLE` or computed.
+- `2.3_Система_метрик.docx` (¶132) restates the three-state distinctness
+  principle this contract must respect: "at least three states [must] be
+  distinguished: the indicator is computed; the indicator is applicable but
+  the necessary data is missing; the indicator does not apply... Substituting
+  zero for the second or third case mixes different semantic situations." No
+  reference document extends this sentence to state, verbatim, what an
+  aggregate built from a *mix* of these states should look like, or what
+  state the aggregate itself should carry when nothing was computed. The
+  "Operationalization requiring researcher approval" subsection below
+  records the researcher-approved MVP v0.1 resolution of that gap; it is a
+  documented operationalization of this principle, not a claim that the
+  dissertation states the aggregate-level rule verbatim.
+- Chapter 4 (§4.1, §4.2) reaffirms "absent/inapplicable evidence is not
+  equated to a zero value" and that no default scalar integral index exists
+  (`Q_int` is a separate, optional, explicitly demonstrational construct,
+  already excluded from MVP v0.1 by RQD-013/RQD-014, Section 18.2).
+
+### Derivable without a new scientific assumption
+
+- *Given* a fixed set of `Fraction` values to average, the mean must be
+  computed with exact `fractions.Fraction` arithmetic — sum of `Fraction`s
+  divided by an integer count, with no intermediate rounding. This is a
+  mechanical consequence of two already-approved facts: the mean formula
+  itself (`2.1`, ¶92, above) and Section 13's exact-arithmetic principle for
+  `CharacteristicAssessment.value`. It introduces no new scientific claim and
+  is independent of which items are selected into that set. `AGG-MVP-001`
+  below now fixes that selection, so this consequence applies unconditionally
+  to `C_file`, `V_file`, and `U_file`; it still approves no display or
+  percentage rounding (Section 13).
+- `NOT_APPLICABLE` requirements are outside a property's applicability set by
+  definition — that is what `NOT_APPLICABLE` means (Section 7.16.3) — so a
+  `NOT_APPLICABLE` item never contributes to, and is never "excluded from," a
+  mean's numerator or denominator in the sense of a policy choice about
+  missing data; it was never in scope for that mean. This is definitional,
+  not an aggregation-policy decision.
+- **Specification-level numeric range.** Given `AGG-MVP-001`'s approved
+  inclusion rule (mean over `COMPUTED` values only, below), the
+  specification-level numeric range follows mechanically from the
+  already-approved per-requirement ranges: the mean of values drawn from a
+  bounded interval is itself within that interval. Under the current MVP
+  v0.1 automated per-requirement value sets — Completeness `{0,1/3,2/3,1} ⊂
+  [0,1]`, Verifiability `{0,1/2,1} ⊂ [0,1]`, Unambiguity automated
+  `{1/2,1} ⊂ [1/2,1]` (Sections 8-10) — whenever a numeric aggregate exists
+  (`state == COMPUTED`):
+
+  ```text
+  C_file ∈ [0, 1]
+  V_file ∈ [0, 1]
+  U_file ∈ [1/2, 1]
+  ```
+
+  Compliance orientation is preserved: higher value = greater conformance to
+  the corresponding property, matching the per-requirement orientation
+  (Chapter 2; Section 7.16). `U_file = 0` remains impossible under the
+  current automated MVP because the per-requirement `U_i = 0`
+  confirmed-material-ambiguity rule is still deferred (Section 7.16.4,
+  RQD-004); if that per-requirement rule is later approved, `U_file`'s lower
+  bound would need to be re-derived, not assumed to remain `1/2`. `UNKNOWN`
+  and `NOT_APPLICABLE` aggregates carry `value = None` and are therefore not
+  numeric points on these scales — they are excluded from these range
+  statements entirely, consistent with Section 14's "missing/inapplicable is
+  not zero" principle. This introduces no new scientific claim: it is a
+  direct mathematical consequence of already-approved facts (RQD-011).
+
+### Operationalization requiring researcher approval
+
+Two questions are not settled verbatim by the sources above and could not be
+answered by assumption. Both concern only requirements whose per-requirement
+characteristic state is `UNKNOWN` (applicable, but the calculator withheld a
+value) — not `NOT_APPLICABLE`, which is already resolved above. The
+researcher has now approved a candidate for each, recorded here as
+`AGG-MVP-001` and `APPROVED_FOR_MVP_V0.1` (Section 18, RQD-012/RQD-022).
+
+**Q1 — a property's requirement set contains both `COMPUTED` and `UNKNOWN`
+items.** Considered candidates were:
+
+- **A.** any `UNKNOWN` item withholds the *entire* aggregate: the aggregate's
+  semantic outcome becomes "unresolved," regardless of how many `COMPUTED`
+  items exist alongside it.
+- **B.** the mean is computed from the `COMPUTED` items only; the count of
+  `UNKNOWN` items is preserved and reported alongside the aggregate rather
+  than folded into it.
+- **C.** any other source-supported rule — none was found in the reference
+  material.
+
+**Approved: candidate B.** The aggregate mean is computed from `COMPUTED`
+values only; `UNKNOWN` values enter neither the numerator nor the
+denominator and must never become numeric zero; the count of `UNKNOWN`
+items is preserved separately as `unknown_count` (see the representation
+contract below). The aggregate numeric result therefore exists even when
+observability is partial, as long as at least one `COMPUTED` value is
+present. This operationalizes `2.3_Система_метрик.docx` ¶132's "observability
+mask" recommendation: missingness/observability is tracked separately
+(`unknown_count`) rather than converted into the numeric metric itself. This
+is a researcher-approved MVP v0.1 operationalization of that principle, not
+a claim that the dissertation states this exact rule.
+
+**Q2 — a property's requirement set contains one or more `UNKNOWN` items and
+zero `COMPUTED` items** (the applicability set — `COMPUTED` ∪ `UNKNOWN` — is
+non-empty, but nothing was resolved). No new state is invented (Section 4.1
+fixes the status vocabulary; `CharacteristicAssessmentState` is likewise
+closed to `COMPUTED`/`NOT_APPLICABLE`/`UNKNOWN`, Section 7.16.2); the only two
+candidates were the existing per-requirement states:
+
+- **A.** aggregate state = `UNKNOWN`, value = `None` — preserves the
+  distinction between "applicable but unresolved" and "not applicable."
+- **B.** aggregate state = `NOT_APPLICABLE`, value = `None` — collapses that
+  distinction.
+
+**Approved: candidate A.** When there are zero `COMPUTED` values but one or
+more `UNKNOWN` values, the aggregate state is `UNKNOWN` and its value is
+`None`; this case must not be mapped to `NOT_APPLICABLE`. Collapsing to
+`NOT_APPLICABLE` (candidate B) would conflate exactly the two states that
+§2.3 ¶132 says must not be conflated. This applies only when the
+applicability set is genuinely non-empty (at least one `UNKNOWN`); if the
+applicability set is genuinely empty — every value is `NOT_APPLICABLE`, or
+the requirement collection is empty — the semantic result remains
+`NOT_APPLICABLE` / NA with value `None`, per "Explicitly defined by the
+dissertation" above.
+
+`RQD-012` and `RQD-022`'s specification-aggregation portions are closed for
+MVP v0.1 by these two approvals (Section 18). Only presentation/display
+rounding (Section 13) and the actual `SpecificationQualityAggregator`/
+`SpecificationQualityProfile` implementation remain outstanding.
+
+### Decision matrix
+
+`AGG-MVP-001` (`APPROVED_FOR_MVP_V0.1`) resolves all eight required cases.
+The matrix still separates the **semantic outcome** from the **representation
+state**, since the two are conceptually distinct (Section 7.16.2 draws the
+same distinction for per-requirement assessments), but both columns are now
+approved, not proposed. One shared matrix covers Completeness, Verifiability,
+and Unambiguity: the rule is characteristic-agnostic and does not differ
+between them.
+
+| Case | Status | Semantic outcome | Numeric value | Representation state |
+| --- | --- | --- | --- | --- |
+| All `COMPUTED` | Approved | A numeric aggregate is available | Exact arithmetic mean of all included values | `COMPUTED` |
+| `COMPUTED` + `UNKNOWN` | Approved (Q1 = B) | The mean is computed from the `COMPUTED` items; `UNKNOWN` items are excluded from numerator/denominator and tracked separately, never treated as zero | Exact mean of the `COMPUTED` items only; `unknown_count` records the excluded items | `COMPUTED` |
+| `COMPUTED` + `NOT_APPLICABLE` | Approved | A numeric aggregate is available over the applicable subset; `NOT_APPLICABLE` items are outside the applicability set by definition | Exact arithmetic mean of the `COMPUTED` (applicable) values | `COMPUTED` |
+| `COMPUTED` + `UNKNOWN` + `NOT_APPLICABLE` | Approved (Q1 = B) | Same as `COMPUTED` + `UNKNOWN`; `NOT_APPLICABLE` items are additionally outside the applicability set | Exact mean of the `COMPUTED` items only; `unknown_count` and `not_applicable_count` both recorded | `COMPUTED` |
+| All `UNKNOWN` | Approved (Q2 = A) | The applicability set is non-empty but nothing is resolved; this must not be conflated with "not applicable" | Absent | `UNKNOWN` |
+| All `NOT_APPLICABLE` | Approved | The applicability set is empty; semantic result = NA / not applicable | Absent | `NOT_APPLICABLE` |
+| `UNKNOWN` + `NOT_APPLICABLE`, no `COMPUTED` | Approved (Q2 = A) | Same as "all `UNKNOWN`": the applicability set is non-empty because the `UNKNOWN` items are in it | Absent | `UNKNOWN` |
+| Empty requirement collection | Approved | The applicability set is vacuously empty; semantic result = NA / not applicable | Absent | `NOT_APPLICABLE` |
+
+### Reference examples
+
+All examples use only the already-approved per-requirement value sets
+(Completeness `{0,1/3,2/3,1}`, Verifiability `{0,1/2,1}`, Unambiguity
+`{1/2,1}`) plus the two non-numeric per-requirement states `UNKNOWN` and
+`NOT_APPLICABLE`. No new per-requirement value is introduced.
+
+**Example 1 — partially known set (Verifiability-shaped values).** Five
+requirements' `V_i`: `1`, `1/2`, `UNKNOWN`, `0`, `NOT_APPLICABLE`.
+
+- Semantic outcome: a numeric aggregate is available from the three
+  `COMPUTED` items; the `UNKNOWN` and `NOT_APPLICABLE` requirements sit
+  outside the numerator/denominator for different reasons — one because the
+  source data withholds computation (`AGG-MVP-001`, Q1 = B); one because the
+  property never applied to it.
+- Approved result: `(1 + 1/2 + 0) / 3 = (3/2) / 3 = 1/2` exactly, computed as
+  `Fraction`, no rounding; `computed_count = 3`, `unknown_count = 1`,
+  `not_applicable_count = 1`, `total_count = 5`; representation state
+  `COMPUTED`.
+- For contrast only (not the approved rule): candidate A for Q1 — any
+  `UNKNOWN` withholds the whole aggregate — would have withheld this result
+  even though three of five requirements were computed. This was considered
+  and rejected in favor of B.
+
+**Example 2 — no `COMPUTED` denominator, applicability set non-empty
+(Completeness-shaped values).** Three requirements' `C_i`: `UNKNOWN`,
+`UNKNOWN`, `NOT_APPLICABLE`.
+
+- The applicability set (`COMPUTED` ∪ `UNKNOWN`) has two members; it is not
+  empty, so the empty-applicability-set NA rule does not apply here.
+- Approved result (`AGG-MVP-001`, Q2 = A): aggregate state `UNKNOWN`, value
+  `None`; `computed_count = 0`, `unknown_count = 2`,
+  `not_applicable_count = 1`, `total_count = 3`.
+- For contrast only (not the approved rule): candidate B for Q2 — collapsing
+  to `NOT_APPLICABLE` — was considered and rejected because it would conflate
+  "applicable but unresolved" with "not applicable."
+
+**Example 3 — empty applicability set (Unambiguity-shaped values).** Three
+requirements' `U_i`: `NOT_APPLICABLE`, `NOT_APPLICABLE`, `NOT_APPLICABLE`.
+
+- The applicability set is empty. Approved result: semantic outcome NA / not
+  applicable, aggregate state `NOT_APPLICABLE`, value `None`;
+  `computed_count = 0`, `unknown_count = 0`, `not_applicable_count = 3`,
+  `total_count = 3`. This is the directly evidence-supported case (§2.3
+  ¶43-44).
+
+**Example 4 — exact arithmetic, no rounding.** A characteristic-agnostic
+illustration of the arithmetic itself, decoupled from any one characteristic's
+approved discrete scale: given three `COMPUTED` values `1`, `1/2`, and `1/3`:
+
+```text
+mean(1, 1/2, 1/3)
+  = (Fraction(1,1) + Fraction(1,2) + Fraction(1,3)) / 3
+  = Fraction(11,6) / 3
+  = Fraction(11,18)
+```
+
+`11/18` is exact and is not rounded to `0.61`, `0.611`, or any other decimal
+form; any such rounding is a presentation-layer decision and remains outside
+this contract's scope (Section 13).
+
+### `SpecificationQualityProfile` representation contract — `APPROVED_FOR_MVP_V0.1`
+
+A bare `Fraction | None` per property cannot represent this section's
+decision matrix: it cannot distinguish an aggregate reading as `UNKNOWN` from
+one reading as `NOT_APPLICABLE` (both would be `None`), which is the same
+problem `CharacteristicAssessment.state` already solves once at the
+per-requirement level (Section 7.16.2). Given the approved `AGG-MVP-001`
+outcomes above, each of `C_file`, `V_file`, and `U_file` therefore needs a
+stateful aggregate result — not a bare `Fraction`, not a scalar, and not a
+reuse of `CharacteristicAssessment` itself (that type's per-item
+`findings`/`explanation` fields describe a single rule-based evidence
+assessment over one requirement, not a computed-over-many aggregate).
+
+The researcher-approved minimum shape, not yet implemented by this
+documentation-only decision:
+
+```text
+characteristic_id: CharacteristicId  (COMPLETENESS, VERIFIABILITY, or
+       UNAMBIGUITY — identifies which property this aggregate is for)
+state: one of COMPUTED, NOT_APPLICABLE, UNKNOWN  (reuses the existing
+       CharacteristicAssessmentState vocabulary)
+value: Fraction | None  (present iff state == COMPUTED, mirroring the same
+       invariant as CharacteristicAssessment)
+computed_count: int
+unknown_count: int
+not_applicable_count: int
+total_count: int  (== computed_count + unknown_count + not_applicable_count)
+aggregation_rule_id: str  ("AGG-MVP-001" for MVP v0.1 — stable provenance,
+       mirroring CharacteristicAssessment.assessment_rule_id, so every
+       specification-level numeric result remains traceable to its approved
+       rule, Section 15)
+```
+
+No aggregate `findings` field is approved: `AGG-MVP-001` is a uniform
+arithmetic rule applied to already-computed per-requirement values, not a
+new evidence-gathering rule, so it produces no findings of its own.
+`SpecificationQualityProfile(C_file, V_file, U_file)` holds exactly three
+such aggregates, one per characteristic — mirroring
+`RequirementQualityProfile`'s three-field, no-scalar shape one level up. This
+preserves the already-approved invariant that there is no `FileQualityScore`,
+no `RequirementQualityScore` reuse, no weights, and no combined/weighted
+C/V/U scoring in MVP v0.1 (RQD-013, RQD-014, Section 18.2). This section
+approves the contract but does not implement it: `SpecificationQualityAggregator`
+and `SpecificationQualityProfile` remain unimplemented Python; a future
+implementation task builds them exactly to this shape.
 
 ## 13. Numeric precision and rounding
 
@@ -4360,10 +4645,14 @@ establish a full MVP precision or rounding contract. `CALC-C-MVP-001`,
 `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) approve the
 calculation-semantics portion of this contract. This section additionally
 approves the internal production numeric representation for computed
-characteristic values; presentation and specification-level aggregate
-rounding remain open. `RQD-015`'s status is therefore
-`INTERNAL_EXACT_REPRESENTATION_APPROVED / PRESENTATION_AND_AGGREGATE_ROUNDING_OPEN`,
-not fully closed:
+characteristic values, and now also the specification-level aggregate
+computation itself; only presentation/display rounding remains open.
+`RQD-015`'s status is therefore
+`INTERNAL_EXACT_REPRESENTATION_APPROVED (PER-REQUIREMENT AND AGGREGATE) / PRESENTATION_ROUNDING_OPEN`,
+not fully closed. Section 12's `AGG-MVP-001` fixes the specification-level
+inclusion set (Q1/Q2, `RQD-012`/`RQD-022`), so the aggregate-arithmetic
+exactness recorded below is no longer conditional on an open question — only
+presentation/display rounding is:
 
 **Approved now — exact calculation semantics:**
 
@@ -4426,24 +4715,39 @@ coupled:**
 representation for MVP v0.1. No calculator or domain model may convert an
 exact characteristic score to `float` as part of calculation or propagation.
 
-**Still open — presentation and specification-level aggregate rounding
-(`RQD-015`):**
+**Approved now — specification-level aggregate arithmetic exactness:**
+
+- under `AGG-MVP-001` (Section 12), the specification-level mean for
+  `C_file`, `V_file`, and `U_file` must use the same exact
+  `fractions.Fraction` arithmetic already approved above for per-requirement
+  values: sum of `Fraction`s divided by an integer count, with no
+  intermediate rounding. This is a mechanical consequence of the
+  already-approved exactness principle and the already-sourced mean formula
+  (Section 12, "Derivable without a new scientific assumption"); it
+  introduces no new scientific claim;
+- this closes the aggregate-computation-exactness portion of `RQD-015`. It
+  does not approve any display, percentage, or decimal-place rounding for
+  presentation, which remains open below.
+
+**Still open — presentation rounding (`RQD-015`):**
 
 - console/reporting output precision, including whether a computed `Fraction`
-  such as `1/3` is displayed as `1/3`, `0.33`, `0.333`, a percentage, or
-  otherwise — a future presentation/reporter-layer decision, not made here;
-- intermediate-versus-final rounding for any future specification-level
-  aggregate;
+  such as `1/3` (per-requirement) or `11/18` (aggregate) is displayed as a
+  fraction, `0.33`/`0.61`, `0.333`/`0.611`, a percentage, or otherwise — a
+  future presentation/reporter-layer decision, not made here;
+- intermediate-versus-final rounding for display purposes only (the
+  underlying calculation is already exact and unrounded, per above);
 - tie-breaking rule for display;
-- representation of unavailable scores in presentation;
-- specification aggregation rounding and output representation (Section 12).
+- representation of unavailable (`UNKNOWN`/`NOT_APPLICABLE`) scores in
+  presentation;
+- specification aggregate output/display representation (Section 12).
 
 No implementation may infer presentation rules from the number of decimal
 places in the demonstration document. Specification-level aggregate
-presentation precision remains open pending Sections 12 and 14. Approving
-`fractions.Fraction` as the exact internal representation is compatible with
-future exact-arithmetic aggregation, but this section does not thereby
-approve any aggregation algorithm.
+presentation precision remains open pending the reporter task. Approving
+`fractions.Fraction` as the exact internal representation, for both
+per-requirement values and the `AGG-MVP-001` aggregate, is the closed
+calculation/representation layer; only its display remains open.
 
 ## 14. Missing-data policy
 
@@ -4491,12 +4795,16 @@ which must not be conflated with one another:
   absence of any accepted signal combined with a materially unresolved
   candidate withholds the result.
 
-Console wording, general insufficient-evidence rules beyond these
-property-specific cases, and property-level aggregation behavior remain
-unresolved. Detector confidence and evidence reliability are excluded from
-the current MVP v0.1 characteristic contract. `RQD-020` remains open and
-non-blocking while they remain excluded; proposing inclusion makes it
-blocking and requires a separate scientific contract.
+Console wording and general insufficient-evidence rules beyond these
+property-specific cases remain unresolved. Property-level aggregation
+behavior is resolved: Section 12's `AGG-MVP-001` (`APPROVED_FOR_MVP_V0.1`)
+answers the two questions this section previously left open — Q1 (mixed
+`COMPUTED`+`UNKNOWN`: excluded-and-tracked, candidate B) and Q2 (zero
+`COMPUTED` with `UNKNOWN` present: aggregate state `UNKNOWN`, candidate A).
+Detector confidence and evidence reliability are excluded from the current
+MVP v0.1 characteristic contract. `RQD-020` remains open and non-blocking
+while they remain excluded; proposing inclusion makes it blocking and
+requires a separate scientific contract.
 
 This decision approves: the calculator-level propagation portion of
 `RQD-012` (the three property-specific rules above); the per-characteristic
@@ -4505,9 +4813,13 @@ calculation semantics, the absence of calculator-level intermediate
 rounding, and the internal production numeric representation
 (`fractions.Fraction`), all recorded in Section 13. The `Fraction | None`
 propagation described above is unaffected by this section's `UNKNOWN`/value
-rules. The specification-level aggregation portions of
-`RQD-012` and `RQD-022`, and the presentation/aggregate-rounding portion of
-`RQD-015`, remain open (Sections 12-13).
+rules. The specification-level aggregation portions of `RQD-012` and
+`RQD-022` are now closed for MVP v0.1: the empty-applicability-set NA rule
+and `AGG-MVP-001`'s Q1/Q2 resolution (Section 12, "Operationalization
+requiring researcher approval") are both `APPROVED_FOR_MVP_V0.1`. Only the
+presentation/display-rounding portion of `RQD-015` remains open, unchanged
+(Section 13); the aggregate-computation-exactness portion of `RQD-015` is
+likewise now closed (Section 13).
 
 ## 15. Explainability requirements
 
@@ -4691,18 +5003,18 @@ approval.
 | `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6, and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, typed partial data representation, and the `ACCEPT-QUANT-001` result-span containment, clause-level deduplication, and judgeability contract. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and protected deferred-frequency exclusion without accepting `не рідше`. `до` remains `UPPER_BOUND` with inclusivity `UNRESOLVED` and is not a judgeable acceptance bound. Complex metric/context grammar, count-noun and nested quantitative roles, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05 detector coverage beyond the approved baseline. This does not block `VerifiabilityCalculator` (MVP-07) implementation or testing: `CALC-V-MVP-001` consumes whatever quantitative-constraint observations the extraction result already carries, and the calculator can be exercised against manually constructed inputs independently of remaining detector grammar. |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PER-REQUIREMENT_MVP_FORMULAS_APPROVED / FUTURE_REFINEMENT_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) approve the per-requirement MVP v0.1 formulas, contributions, and unresolved-propagation rules for all three characteristics. This approval is scoped to MVP v0.1: it does not permanently close all future characteristic-formula research, including a future confirmed-material-ambiguity `0` rule or later Completeness/Verifiability refinements. | CLOSED FOR MVP v0.1 PER-REQUIREMENT FORMULAS | None for the approved MVP formulas; future refinements require separate researcher approval |
-| `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PER-REQUIREMENT_SCALE_CLOSED_FOR_MVP_V0.1 / SPECIFICATION_SCALE_OPEN` | Chapter 2 and Section 7.16 support `[0,1]` and upward compliance orientation. For MVP v0.1, the per-requirement scale/range is now closed with the property-specific permitted value sets defined by each calculation rule: Completeness `{0,1/3,2/3,1}`, Verifiability `{0,1/2,1}`, Unambiguity `{1/2,1}` automated with `0` reserved. Specification-level scale behavior remains open pending downstream aggregation (Sections 12-14). | CLOSED FOR MVP v0.1 PER-REQUIREMENT SCALE; SPECIFICATION-LEVEL SCALE OPEN | Specification-level aggregation (MVP-09/10) |
-| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `CALCULATOR-LEVEL_PROPAGATION_APPROVED / AGGREGATION_PROPAGATION_OPEN` | Sections 7.15-7.16 and 8-10 approve immutable detector outcomes, separate applicability, characteristic states, and the three property-specific calculator-level propagation rules (Completeness all-three-required, Verifiability material-dependency, Unambiguity signal-presence capping). Specification-level aggregation propagation (how `UNKNOWN`/missing values enter `C_file`/`V_file`/`U_file`) remains open and is **not** closed by this decision. | CALCULATOR-LEVEL PORTION CLOSED FOR MVP v0.1; SPECIFICATION AGGREGATION PORTION REMAINS OPEN | Specification-level aggregation (MVP-09/10) |
+| `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PER-REQUIREMENT_SCALE_CLOSED_FOR_MVP_V0.1 / SPECIFICATION_SCALE_CLOSED_FOR_MVP_V0.1` | Chapter 2 and Section 7.16 support `[0,1]` and upward compliance orientation. For MVP v0.1, the per-requirement scale/range is closed with the property-specific permitted value sets defined by each calculation rule: Completeness `{0,1/3,2/3,1}`, Verifiability `{0,1/2,1}`, Unambiguity `{1/2,1}` automated with `0` reserved. Section 12 ("Derivable without a new scientific assumption") now additionally closes the specification-level scale as a direct mathematical consequence of `AGG-MVP-001`: whenever a numeric aggregate exists, `C_file ∈ [0,1]`, `V_file ∈ [0,1]`, `U_file ∈ [1/2,1]` (the automated-MVP lower bound; `U_file = 0` remains impossible while the per-requirement `U_i = 0` rule is deferred under RQD-004), with the same upward compliance orientation as the per-requirement scales. `UNKNOWN`/`NOT_APPLICABLE` aggregates have `value = None` and are not numeric points on these scales. | CLOSED FOR MVP v0.1 — PER-REQUIREMENT AND SPECIFICATION-LEVEL SCALE BOTH CLOSED | None; specification-level aggregation (MVP-09/10) is no longer blocked by an open scale question |
+| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `CALCULATOR-LEVEL_PROPAGATION_APPROVED / AGGREGATION_PROPAGATION_APPROVED_FOR_MVP_V0.1` | Sections 7.15-7.16 and 8-10 approve immutable detector outcomes, separate applicability, characteristic states, and the three property-specific calculator-level propagation rules (Completeness all-three-required, Verifiability material-dependency, Unambiguity signal-presence capping). Section 12's `AGG-MVP-001` now additionally approves the empty-applicability-set NA rule (direct match to `2.3_Система_метрик.docx` ¶43-44) and the researcher-approved resolution of the two remaining aggregation questions: Q1 (mixed `COMPUTED`+`UNKNOWN` — candidate B: mean of `COMPUTED` only, `UNKNOWN` excluded and tracked as `unknown_count`, never zero) and Q2 (zero `COMPUTED` with `UNKNOWN` present — candidate A: aggregate state `UNKNOWN`, value `None`, not `NOT_APPLICABLE`). | CALCULATOR-LEVEL PORTION AND SPECIFICATION-LEVEL AGGREGATION PROPAGATION (Q1/Q2, `AGG-MVP-001`, SECTION 12) BOTH CLOSED FOR MVP v0.1 | None for the aggregation rule itself; the `SpecificationQualityAggregator`/`SpecificationQualityProfile` implementation remains a separate, not-yet-started task |
 | `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
-| `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation remains under RQD-012/RQD-022. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
-| `RQD-015` | Approve numeric precision and rounding. | `INTERNAL_EXACT_REPRESENTATION_APPROVED / PRESENTATION_AND_AGGREGATE_ROUNDING_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Section 13) approve exact mathematical calculator formula semantics (`1/3`, `2/3`, `1/2`) with no calculator-level intermediate rounding. Section 13 now additionally approves Python standard-library `fractions.Fraction` as the internal production representation for per-requirement `CharacteristicAssessment.value` (`value: Fraction | None`, Section 7.16.2), distinct from the unchanged `Decimal` representation used for extracted quantitative measurement values. No reporter/aggregate presentation-precision or rounding policy is selected; that remains open. | CALCULATION-SEMANTICS AND INTERNAL-REPRESENTATION PORTIONS CLOSED FOR MVP v0.1; PRESENTATION/AGGREGATE-ROUNDING PORTION REMAINS OPEN | MVP-06/07/08 are no longer blocked by numeric representation; MVP-11/12 reporter presentation remains blocked by the presentation/rounding portion of `RQD-015`; MVP-09/10 specification aggregation remains separately blocked by `RQD-012`/`RQD-022` aggregation semantics, with aggregate presentation/rounding also still open under `RQD-015` |
+| `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation is now approved under `AGG-MVP-001` (RQD-012/RQD-022, Section 12); this row remains closed on the separate scalar-exclusion question, unaffected by that approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
+| `RQD-015` | Approve numeric precision and rounding. | `INTERNAL_EXACT_REPRESENTATION_APPROVED (PER-REQUIREMENT AND AGGREGATE) / PRESENTATION_ROUNDING_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Section 13) approve exact mathematical calculator formula semantics (`1/3`, `2/3`, `1/2`) with no calculator-level intermediate rounding. Section 13 now additionally approves Python standard-library `fractions.Fraction` as the internal production representation for per-requirement `CharacteristicAssessment.value` (`value: Fraction | None`, Section 7.16.2), distinct from the unchanged `Decimal` representation used for extracted quantitative measurement values, **and** for the `AGG-MVP-001` specification-level aggregate (Section 12): the aggregate mean over `COMPUTED` values is computed with the same exact, unrounded `Fraction` arithmetic, now that `AGG-MVP-001` fixes which values are included. No reporter/display presentation-precision or rounding policy is selected; that remains open. | CALCULATION-SEMANTICS, INTERNAL-REPRESENTATION, AND AGGREGATE-COMPUTATION-EXACTNESS PORTIONS ALL CLOSED FOR MVP v0.1; PRESENTATION/DISPLAY-ROUNDING PORTION REMAINS OPEN | MVP-06/07/08 are no longer blocked by numeric representation; MVP-09/10 specification aggregation is no longer blocked by numeric representation or inclusion-set semantics; MVP-11/12 reporter presentation remains blocked by the presentation/rounding portion of `RQD-015` only |
 | `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | Section 7.16.5 finalizes the minimal Finding representation, absence provenance, and `FIND-U-VAGUE-001`. The other five feature families produce no finding, and no `QUALITY_PROBLEM` rule is approved. Severity, probability, risk, confidence, priority, and corrective action are excluded. **This task approves no new `QUALITY_PROBLEM` rule**; this row remains open specifically, and only, for future `QUALITY_PROBLEM` conversion rules. | OPEN ONLY FOR `QUALITY_PROBLEM` RULES | MVP-06-08, MVP-10 |
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `BINDING_NUMERIC_CASES_APPROVED_FOR_MVP_V0.1` | Section 7.16.8 approves Cases A-E as binding numeric reference cases: A=(C=1,V=1,U=1), B=(C=1/3,V=0,U=1/2), C=(C=0,V=1/2,U=1), D=(C=0,V=UNKNOWN,U=1), E=(C=0,V=0,U=1), each with `assessment_rule_id` traceability. Downstream specification-level aggregation acceptance is not solved by this approval. | CLOSED FOR MVP v0.1 PER-REQUIREMENT NUMERIC REFERENCE CASES; AGGREGATION-LEVEL REFERENCE CASES REMAIN OPEN | Specification-level aggregation (MVP-09/10, MVP-12) |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
 | `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
 | `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `UNRESOLVED` | No confidence or evidence-reliability representation is approved in the current MVP v0.1 `CharacteristicAssessment` or `Finding` contracts. Whether such metadata belongs in MVP remains a researcher decision. | OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED | Not blocking while these values remain excluded; blocking if inclusion is proposed, which requires a separate scientific contract. |
 | `RQD-021` | Supply or supersede the Chapter 2/§2.3 definitions referenced by Chapter 4. | `RESOLVED_BY_CHAPTER_2` | Sections 2.1, 2.2, and especially 2.3 are now present and integrated into this specification. Their remaining operational gaps are tracked by the other RQDs. | CLOSED AS RESEARCH INPUT | None directly |
-| `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `PER-CHARACTERISTIC_WITHHOLDING_APPROVED / AGGREGATION_SUFFICIENCY_OPEN` | Section 7.16 and the three CALC rules (Sections 8-10) approve the exact per-characteristic withholding behavior needed by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`: `UNKNOWN` with `value = None` when a required detector input is unresolved (Completeness), when a material-dependency candidate could still change the numeric class (Verifiability), or when no signal exists and unresolved processing could still surface one (Unambiguity). Downstream aggregation/reporting sufficiency semantics (how withheld per-requirement values affect `C_file`/`V_file`/`U_file` and console wording) remain open. | PER-CHARACTERISTIC PORTION CLOSED FOR MVP v0.1; DOWNSTREAM AGGREGATION/REPORTING SUFFICIENCY REMAINS OPEN | Specification-level aggregation (MVP-09/10, MVP-12) |
+| `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `PER-CHARACTERISTIC_WITHHOLDING_APPROVED / AGGREGATION_SUFFICIENCY_APPROVED_FOR_MVP_V0.1` | Section 7.16 and the three CALC rules (Sections 8-10) approve the exact per-characteristic withholding behavior needed by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`: `UNKNOWN` with `value = None` when a required detector input is unresolved (Completeness), when a material-dependency candidate could still change the numeric class (Verifiability), or when no signal exists and unresolved processing could still surface one (Unambiguity). Section 12's `AGG-MVP-001` additionally approves the empty-applicability-set NA rule and the Q1/Q2 resolution (mixed `COMPUTED`+`UNKNOWN` → excluded-and-tracked; zero `COMPUTED` with `UNKNOWN` present → aggregate `UNKNOWN`). Downstream aggregation sufficiency semantics (how withheld per-requirement values affect `C_file`/`V_file`/`U_file`) are now defined; console wording for presentation remains a separate, open reporter decision (Section 13). | PER-CHARACTERISTIC PORTION AND DOWNSTREAM AGGREGATION SUFFICIENCY (Q1/Q2, `AGG-MVP-001`, SECTION 12) BOTH CLOSED FOR MVP v0.1 | None for the aggregation-sufficiency rule itself; the `SpecificationQualityAggregator`/`SpecificationQualityProfile` implementation remains a separate, not-yet-started task |
 | `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Section 7.16.3 makes the conservative rule executable: only an approved observable criterion rule can yield `APPLICABLE` or `NOT_APPLICABLE`; otherwise applicability is `UNKNOWN`. `CALC-C-MVP-001` now supplies such a rule for the three Completeness candidates, as an explicit MVP simplification rather than automatic type inference; `CALC-V-MVP-001` makes Verifiability itself applicable to every supported requirement without needing a per-family mandatory-applicability rule for its three alternative evidence paths. | CLOSED FOR MVP v0.1 | None directly; per-requirement calculation rules are recorded under RQD-002/RQD-003 |
 
 ### 18.1 RQDs approved or closed for MVP v0.1
@@ -4719,7 +5031,11 @@ approval.
   `RequirementQualityScore`.
 - `RQD-014` is closed for MVP v0.1 by retaining property-level means in
   `SpecificationQualityProfile(C_file, V_file, U_file)` instead of inventing a
-  scalar `FileQualityScore`.
+  scalar `FileQualityScore`. Section 12's approved `SpecificationQualityProfile`
+  representation contract (`characteristic_id`, `state`, `value`,
+  `computed_count`, `unknown_count`, `not_applicable_count`, `total_count`,
+  `aggregation_rule_id`) carries no aggregate `findings`, weights, or
+  combined C/V/U scoring, consistent with this deferral.
 
 Any future scalar index requires a separate researcher-approved scientific
 decision.
@@ -4750,18 +5066,29 @@ The remaining decisions are grouped into four approval gates:
    no separate implementer choice remains. Only the confirmed-material-
    ambiguity `U_i = 0` rule and any `QUALITY_PROBLEM` conversion (RQD-016)
    remain scientifically open within this gate.
-3. **Property aggregation and numeric-contract gate — still open:** the
-   specification-level propagation aspects of `RQD-012` and `RQD-022` (how
-   `UNKNOWN`/missing per-requirement values enter `C_file`/`V_file`/`U_file`),
-   plus the presentation/aggregate-rounding portion of `RQD-015`.
-   Per-requirement calculation *semantics* and the internal production
-   numeric representation are both approved (exact mathematical values, no
-   intermediate rounding, `fractions.Fraction`; Section 13; tracked under
-   gate 2 above). This gate concerns specification-level aggregation and
-   presentation/reporting only.
+3. **Property aggregation and numeric-contract gate — CLOSED FOR MVP v0.1
+   AGGREGATION SEMANTICS; PRESENTATION PORTION STILL OPEN:** the
+   empty-applicability-set NA sub-case, and the two previously-named open
+   questions, of `RQD-012` and `RQD-022` are now closed by `AGG-MVP-001`
+   (Section 12, `APPROVED_FOR_MVP_V0.1`): Q1 (mixed `COMPUTED`+`UNKNOWN` →
+   mean of `COMPUTED` only, `UNKNOWN` excluded and tracked, never zero) and
+   Q2 (zero `COMPUTED` with `UNKNOWN` present → aggregate state `UNKNOWN`,
+   not `NOT_APPLICABLE`). Per-requirement calculation *semantics*, the
+   internal production numeric representation, and now the specification-
+   level aggregate arithmetic itself are all approved (exact mathematical
+   values, no intermediate rounding, `fractions.Fraction`; Sections 12-13).
+   Only the presentation/display-rounding portion of `RQD-015` remains open
+   within this gate — it concerns reporter/console output only, not the
+   aggregation algorithm, which is no longer blocking. `SpecificationQualityAggregator`
+   and `SpecificationQualityProfile` may now be implemented against the
+   approved `AGG-MVP-001` rule and representation contract (Section 12); this
+   documentation-only decision does not itself implement them.
 4. **Scientific acceptance gate:** the per-requirement portion of `RQD-017`
-   is now approved (Cases A-E are binding numeric reference cases);
-   specification-level numeric reference cases remain open pending gate 3.
+   is approved (Cases A-E are binding numeric reference cases).
+   Specification-level numeric reference cases are illustrated in Section 12's
+   worked examples but are not yet separately declared binding under
+   `RQD-017`; that remains a distinct, not-yet-addressed decision, independent
+   of gate 3 above (which is now closed).
 
 `RQD-020` remains `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED`. It is not
 part of the current implementation-blocking gates because confidence and
@@ -4807,9 +5134,11 @@ Section 13), the recommended sequence is:
    `fractions.Fraction` for `CharacteristicAssessment.value` as approved in
    Section 13 — this is no longer blocked by an unselected numeric
    representation;
-2. separately resolve the specification-level aggregation propagation
-   (`RQD-012`, `RQD-022`) and the presentation/aggregate-rounding portion of
-   `RQD-015` (gate 3 above);
+2. implement `SpecificationQualityAggregator` and `SpecificationQualityProfile`
+   against the now-approved `AGG-MVP-001` rule and representation contract
+   (Section 12, RQD-012/RQD-022 closed); only the presentation/display-
+   rounding portion of `RQD-015` (gate 3 above) remains for the later
+   reporter task and does not block this implementation;
 3. broader detector grammar — parser/template operationalization beyond the
    `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001`
    first-production subsets under `RQD-006`, and complex metric/context
@@ -4848,6 +5177,10 @@ specification-level aggregation (`SpecificationQualityAggregator`,
 
 No issue may infer a `QUALITY_PROBLEM` or characteristic score beyond the
 approved `CALC-C/V/U-MVP-001` formulas from detector or parser rules.
-Specification aggregation remains downstream and blocked until the
-specification-level missing/`UNKNOWN` propagation and presentation-precision
-decisions in Sections 12-14 are separately approved.
+Specification aggregation is no longer scientifically blocked: the
+specification-level missing/`UNKNOWN` propagation (Sections 12-14,
+`AGG-MVP-001`) is now `APPROVED_FOR_MVP_V0.1`. A future implementation issue
+may implement `SpecificationQualityAggregator` and `SpecificationQualityProfile`
+exactly to the Section 12 representation contract; it must still not select
+or invent a presentation/display-rounding policy, which remains open and is
+reserved for the reporter task.
