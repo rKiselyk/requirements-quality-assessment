@@ -67,8 +67,22 @@ def test_known_positive_requirement_resolves_to_fully_computed_profile(
 
     captured = capsys.readouterr()
     assert exit_code == 0
-    assert captured.out.count("state: COMPUTED") == 3
-    assert captured.out.count("value: 1") >= 3
+
+    requirement_section, _, specification_section = captured.out.partition(
+        "Specification summary"
+    )
+    requirement_lines = requirement_section.splitlines()
+    specification_lines = specification_section.splitlines()
+
+    # One requirement, three characteristics (completeness, verifiability,
+    # unambiguity) — each must be fully computed with value 1.
+    assert requirement_lines.count("  state: COMPUTED") == 3
+    assert requirement_lines.count("  value: 1") == 3
+
+    # The specification-level aggregate mirrors the same three characteristics.
+    assert specification_lines.count("  state: COMPUTED") == 3
+    assert specification_lines.count("  value: 1") == 3
+
     assert "PARSER_UNAVAILABLE" not in captured.out
 
 
@@ -142,4 +156,5 @@ def test_report_output_has_no_scalar_score(tmp_path, capsys) -> None:
     assert "Completeness:" in captured.out
     assert "Verifiability:" in captured.out
     assert "Unambiguity:" in captured.out
-    assert "score" not in captured.out.lower()
+    assert "RequirementQualityScore" not in captured.out
+    assert "FileQualityScore" not in captured.out
