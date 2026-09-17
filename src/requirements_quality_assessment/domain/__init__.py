@@ -15,6 +15,7 @@ from .parser import (
     MorphFeature, ParsedRequirement, ParserDiagnostic, ParserDiagnosticCode,
     ParserMetadata, ParserOutcome, SentenceAnnotation, TokenAnnotation,
 )
+from .profile import RequirementQualityProfile
 from .quantitative import (
     BoundaryInclusivity, ComparatorComponent, ComparatorLabel,
     NumericValueComponent, QuantitativeComponentName,
@@ -31,6 +32,6 @@ __all__ = [
     "ParserDiagnosticCode", "ParserMetadata", "ParserOutcome",
     "QuantitativeComponentName", "QuantitativeConstraintObservation",
     "Requirement", "RequirementExtractionResult", "RequirementFeatures",
-    "SentenceAnnotation", "TextComponent",
+    "RequirementQualityProfile", "SentenceAnnotation", "TextComponent",
     "TokenAnnotation", "UnitComponent", "UnitLabel", "VagueTermOccurrence",
 ]
