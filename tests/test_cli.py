@@ -1,0 +1,160 @@
+"""Integration tests for the MVP-11 CLI orchestration entry point.
+
+These tests exercise the real production pipeline (reader, extractor,
+assessor, aggregator, reporter) end-to-end through ``main`` — no mocking of
+domain components. The CLI itself must remain orchestration-only; these
+tests guard against it accidentally acquiring scoring/formatting logic of
+its own.
+"""
+
+from __future__ import annotations
+
+import importlib.metadata
+from pathlib import Path
+
+import pytest
+
+from requirements_quality_assessment.cli import main
+
+POSITIVE_REQUIREMENT = (
+    "Якщо сервіс недоступний, система повинна відповісти не більше ніж за 2 с."
+)
+VAGUE_REQUIREMENT = "Система повинна швидко оновити статус."
+
+
+def _write(tmp_path: Path, text: str) -> Path:
+    path = tmp_path / "requirements.txt"
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def _parser_dependencies_available() -> bool:
+    try:
+        if (
+            importlib.metadata.version("spacy") != "3.8.16"
+            or importlib.metadata.version("uk-core-news-sm") != "3.8.0"
+        ):
+            return False
+    except importlib.metadata.PackageNotFoundError:
+        return False
+    return True
+
+
+def test_end_to_end_pipeline_renders_console_report(tmp_path, capsys) -> None:
+    path = _write(tmp_path, f"{VAGUE_REQUIREMENT}\n")
+
+    exit_code = main([str(path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert captured.err == ""
+    assert "Requirement R001" in captured.out
+    assert "Specification summary" in captured.out
+    assert "Analyzed requirements: 1" in captured.out
+    assert "Traceback" not in captured.out
+
+
+def test_known_positive_requirement_resolves_to_fully_computed_profile(
+    tmp_path, capsys
+) -> None:
+    pytest.importorskip("spacy")
+    if not _parser_dependencies_available():
+        pytest.skip("Selected spaCy 3.8.16 / uk_core_news_sm 3.8.0 parser is not installed")
+
+    path = _write(tmp_path, f"{POSITIVE_REQUIREMENT}\n")
+
+    exit_code = main([str(path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+
+    requirement_section, _, specification_section = captured.out.partition(
+        "Specification summary"
+    )
+    requirement_lines = requirement_section.splitlines()
+    specification_lines = specification_section.splitlines()
+
+    # One requirement, three characteristics (completeness, verifiability,
+    # unambiguity) — each must be fully computed with value 1.
+    assert requirement_lines.count("  state: COMPUTED") == 3
+    assert requirement_lines.count("  value: 1") == 3
+
+    # The specification-level aggregate mirrors the same three characteristics.
+    assert specification_lines.count("  state: COMPUTED") == 3
+    assert specification_lines.count("  value: 1") == 3
+
+    assert "PARSER_UNAVAILABLE" not in captured.out
+
+
+def test_multiple_requirements_preserve_source_order(tmp_path, capsys) -> None:
+    path = _write(tmp_path, f"{VAGUE_REQUIREMENT}\n{POSITIVE_REQUIREMENT}\n")
+
+    main([str(path)])
+
+    captured = capsys.readouterr()
+    first = captured.out.index("Requirement R001")
+    second = captured.out.index("Requirement R002")
+    assert first < second
+    assert VAGUE_REQUIREMENT in captured.out[first:second]
+    assert POSITIVE_REQUIREMENT in captured.out[second:]
+
+
+def test_blank_lines_are_ignored_and_ids_stay_contiguous(tmp_path, capsys) -> None:
+    path = _write(tmp_path, f"{VAGUE_REQUIREMENT}\n\n{POSITIVE_REQUIREMENT}\n")
+
+    main([str(path)])
+
+    captured = capsys.readouterr()
+    assert "Requirement R001" in captured.out
+    assert "Requirement R002" in captured.out
+    assert "Requirement R003" not in captured.out
+
+
+def test_vague_term_signal_is_not_converted_into_a_confirmed_defect(
+    tmp_path, capsys
+) -> None:
+    path = _write(tmp_path, f"{VAGUE_REQUIREMENT}\n")
+
+    main([str(path)])
+
+    captured = capsys.readouterr()
+    assert "kind: SIGNAL" in captured.out
+    assert "QUALITY_PROBLEM" not in captured.out
+
+
+def test_missing_input_file_reports_error_and_nonzero_exit(tmp_path, capsys) -> None:
+    missing = tmp_path / "does-not-exist.txt"
+
+    exit_code = main([str(missing)])
+
+    captured = capsys.readouterr()
+    assert exit_code != 0
+    assert captured.out == ""
+    assert str(missing) in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_invalid_utf8_input_reports_error_and_nonzero_exit(tmp_path, capsys) -> None:
+    path = tmp_path / "invalid.txt"
+    path.write_bytes(b"\xff\xfe not valid utf-8")
+
+    exit_code = main([str(path)])
+
+    captured = capsys.readouterr()
+    assert exit_code != 0
+    assert captured.out == ""
+    assert captured.err.strip() != ""
+    assert "Traceback" not in captured.err
+
+
+def test_report_output_has_no_scalar_score(tmp_path, capsys) -> None:
+    path = _write(tmp_path, f"{VAGUE_REQUIREMENT}\n")
+
+    main([str(path)])
+
+    captured = capsys.readouterr()
+    assert "Completeness:" in captured.out
+    assert "Verifiability:" in captured.out
+    assert "Unambiguity:" in captured.out
+    assert "RequirementQualityScore" not in captured.out
+    assert "FileQualityScore" not in captured.out
