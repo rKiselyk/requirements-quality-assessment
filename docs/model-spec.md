@@ -1,7 +1,10 @@
 # Requirements Quality Assessment Model Specification
 
 **Status: DRAFT — characteristic result and finding contracts incorporated;
-numeric characteristic rules remain blocked**
+executable per-requirement Completeness, Verifiability, and Unambiguity
+calculation rules (`CALC-C-MVP-001`, `CALC-V-MVP-001`, `CALC-U-MVP-001`) are
+now incorporated; specification-level aggregation, `QUALITY_PROBLEM`
+conversion, and downstream presentation/rounding semantics remain open**
 
 This document is the prospective authoritative implementation specification for
 MVP v0.1. It formalizes only what can be traced to the supplied research
@@ -136,22 +139,22 @@ applicability set, or confirmation procedure are not operationally defined.
 | Reassessment after changed evidence or specification | Process model | 4.1, update operator and feedback loop | Conceptual operator only | No | `OUT_OF_SCOPE_V0.1` |
 | Evidence coverage and reliability are distinct from score | Process and quality models | 4.1 Tables 4.2-4.4; 4.2 result tuple | Conceptually yes; numeric rules absent | Potentially | `PARTIALLY_DEFINED` |
 | Missing/not-applicable evidence is not zero | Requirement properties; metrics system; process and quality models; approved RQD-023 | 2.3, paragraphs 16 and 39-42; 4.1 invariants; 4.2 feature formation; Section 7.16 | Criterion applicability and characteristic assessment states are approved; required detector `UNRESOLVED` propagates to assessment `UNKNOWN` with no value; aggregation propagation remains incomplete | Yes | `PARTIALLY_APPROVED` |
-| Completeness of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraphs 11-12; Table 2.3; Section 7.16 | Semantic definition, evidence classes, and non-numeric result envelope available; criterion applicability and executable score absent | Yes | `PARTIALLY_APPROVED / CALCULATION_BLOCKED` |
-| Verifiability of an individual requirement | Requirement properties; metrics system | 2.1 Table 2.1 and paragraph 12; 2.3 paragraphs 17-21; Section 7.16 | Semantic definition, evidence classes, and non-numeric result envelope available; sufficiency/applicability and executable score absent | Yes | `PARTIALLY_APPROVED / CALCULATION_BLOCKED` |
-| Unambiguity of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraph 10; Table 2.3; Section 7.16 | Semantic definition, source-derived signals, and signal finding rule available; confirmation and executable score absent | Yes | `PARTIALLY_APPROVED / CALCULATION_BLOCKED` |
+| Completeness of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraphs 11-12; Table 2.3; Section 7.16 | Semantic definition, evidence classes, and non-numeric result envelope available; `CALC-C-MVP-001` now supplies an executable three-criterion MVP formula (Section 8) | Yes | `APPROVED_FOR_MVP_V0.1` |
+| Verifiability of an individual requirement | Requirement properties; metrics system | 2.1 Table 2.1 and paragraph 12; 2.3 paragraphs 17-21; Section 7.16 | Semantic definition, evidence classes, and non-numeric result envelope available; `CALC-V-MVP-001` now supplies an executable alternative-evidence-path MVP formula (Section 9) | Yes | `APPROVED_FOR_MVP_V0.1` |
+| Unambiguity of an individual requirement | Requirement properties | 2.1 Table 2.1 and paragraph 10; Table 2.3; Section 7.16 | Semantic definition, source-derived signals, and signal finding rule available; `CALC-U-MVP-001` now supplies an executable signal-presence MVP formula (Section 10); confirmed-material-ambiguity (`0`) remains a future separate decision | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Consistency | Requirement properties; metrics system | 2.1 paragraphs 14-15; 2.3 paragraphs 28-30 | Defined primarily for a set of requirements | No, except as boundary context | `OUT_OF_SCOPE_V0.1` |
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
-| Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; property-specific rule incomplete | Yes | `PARTIALLY_DEFINED` |
-| Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; numeric derivation is not | Yes | `APPROVED_DATA_CONTRACT / CALCULATION_BLOCKED` |
+| Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; per-requirement property-specific derivation is now approved for MVP v0.1 by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). This is an MVP v0.1 operationalization, not a closure of broader future research into `a_ij` beyond the approved scope (e.g. confirmed-material-ambiguity `0`, specification-level aggregation) | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement scope) |
+| Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is not | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_CALCULATION_APPROVED` |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation remains incomplete | Yes | `PARTIALLY_DEFINED` |
 | Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, `VERIFY-UK-001`, and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
 | Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001` supplies a narrow condition/context baseline, `RESULT-UK-001` a narrow normative-modal expected-result baseline, `ACCEPT-QUANT-001` a clause-level quantitative acceptance baseline, and `VERIFY-UK-001` the three explicitly governed verification-method constructions, while general parser/template rules, non-numeric acceptance grammar, and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
 | Vague-term and linguistic-smell evidence | Requirement properties; metrics system; dynamic methods; application example; researcher-approved Sections 7.8 and 7.14 | 2.1 paragraph 10; 2.3 paragraphs 12-16; 3.2 paragraph 10; application Sections 2-3, 7-8, and 13 | `uk_vague_terms_v1` and exact MVP seed-matching mechanics approved; richer linguistic coverage deferred without keeping `RQD-007` open | Yes | `APPROVED_FOR_MVP_V0.1` |
-| Per-requirement Completeness score | Requirement properties supplies only the generic property range | 2.1 `a_ij ∈ [0,1]`; Section 7.16.7 | No executable mapping | Yes | `BLOCKED — RESEARCHER DECISION REQUIRED` |
-| Per-requirement Verifiability score | Requirement properties and metrics system supply evidence classes and set-level ratios only | 2.1 Table 2.3; 2.3 paragraphs 17-20; Section 7.16.7 | No executable mapping | Yes | `BLOCKED — RESEARCHER DECISION REQUIRED` |
-| Per-requirement Unambiguity score | Requirement properties supplies boundary meanings and an unspecified intermediate state | 2.1 Table 2.3; Section 7.16.7 | No confirmation or executable intermediate mapping | Yes | `BLOCKED — RESEARCHER DECISION REQUIRED` |
-| Characteristic score range for MVP | Requirement properties | 2.1 `a_ij ∈ [0,1]` and Table 2.3 | `[0,1]` compliance orientation supported; exact scale rule per property absent | Yes | `PARTIALLY_DEFINED` |
+| Per-requirement Completeness score | Requirement properties supplies only the generic property range | 2.1 `a_ij ∈ [0,1]`; Section 7.16.7 | `CALC-C-MVP-001` approves `C_i = (c_condition + c_result + c_acceptance) / 3` over the three MVP-mandatory criteria, exact value set `{0, 1/3, 2/3, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
+| Per-requirement Verifiability score | Requirement properties and metrics system supply evidence classes and set-level ratios only | 2.1 Table 2.3; 2.3 paragraphs 17-20; Section 7.16.7 | `CALC-V-MVP-001` approves an alternative-evidence-path mapping (acceptance criterion → `1`; quantitative or verification method only → `1/2`; none after complete processing → `0`), exact value set `{0, 1/2, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
+| Per-requirement Unambiguity score | Requirement properties supplies boundary meanings and an unspecified intermediate state | 2.1 Table 2.3; Section 7.16.7 | `CALC-U-MVP-001` approves signal-presence mapping (no supported signal → `1`; one or more → `1/2`); `0` remains reserved for a future separately-approved confirmed-ambiguity rule | Yes | `APPROVED_FOR_MVP_V0.1` (automated scale only; `0` still `OPEN`) |
+| Characteristic score range for MVP | Requirement properties | 2.1 `a_ij ∈ [0,1]` and Table 2.3 | `[0,1]` compliance orientation supported; each characteristic's exact permitted value set is now closed for MVP v0.1 (Completeness `{0,1/3,2/3,1}`; Verifiability `{0,1/2,1}`; Unambiguity `{1/2,1}` automated, `0` reserved); specification-level scale/aggregation behavior remains open | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement); aggregation scale `OPEN` |
 | Requirements metric families and working dictionary | Metrics system | 2.3 Tables 2.7-2.8 | Aggregate formulas explicit; detector operands and applicability incomplete | Partially | `PARTIALLY_DEFINED` |
 | Applicability set and empty-denominator `NA` | Metrics system | 2.3 paragraphs 13-16 and 39 | Principle explicit; per-requirement applicability rules absent | Yes | `PARTIALLY_DEFINED` |
 | Scalar Requirement Quality Score from the three MVP characteristics | None in supplied references; approved RQD-013 disposition | Not defined and intentionally deferred | No | No | `OUT_OF_SCOPE_V0.1` |
@@ -427,7 +430,7 @@ contains no quality calculation.
 | `Evidence` | An exact source-text span explaining why a detector produced an observation | Yes | None by itself | `APPROVED_FOR_MVP_V0.1` |
 | `FeatureObservation` | An explicit detected observation with linked evidence; optional detection processing state is separate from criterion applicability | Yes | It states detection only, not quality | Conceptual contract `APPROVED_FOR_MVP_V0.1`; detector algorithms open |
 | `Finding` | A downstream interpretation of observations under an approved model rule | No | Either a `SIGNAL` or an established `QUALITY_PROBLEM` | Minimal data contract and vague-term `SIGNAL` conversion `APPROVED_FOR_MVP_V0.1`; all `QUALITY_PROBLEM` conversions remain blocked |
-| `CharacteristicAssessment` | A stateful result envelope for Completeness, Verifiability, or Unambiguity | No | Preserves a computed value or explicitly withholds it without converting missing, unresolved, or non-applicable information to zero | Minimal envelope `APPROVED_FOR_MVP_V0.1` in Section 7.16; all three numeric calculations remain blocked |
+| `CharacteristicAssessment` | A stateful result envelope for Completeness, Verifiability, or Unambiguity | No | Preserves a computed value or explicitly withholds it without converting missing, unresolved, or non-applicable information to zero | Minimal envelope `APPROVED_FOR_MVP_V0.1` in Section 7.16; per-requirement numeric calculation is now `APPROVED_FOR_MVP_V0.1` via `CALC-C/V/U-MVP-001` (Sections 8-10); specification-level aggregation and `QUALITY_PROBLEM` conversion remain open |
 
 An observation such as “the text contains the exact phrase `швидко`” is not
 equivalent to “the requirement is ambiguous.” The first is reproducible lexical
@@ -534,8 +537,11 @@ NOT_DETECTED != QUALITY_PROBLEM
 ```
 
 A downstream characteristic rule must explicitly combine detection evidence,
-criterion applicability, and any required absence semantics. Those rules remain
-unapproved under the characteristic-calculation gate.
+criterion applicability, and any required absence semantics. `CALC-C-MVP-001`,
+`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) are now the approved
+rules that do so for per-requirement Completeness, Verifiability, and the
+automated Unambiguity scale; converting an observation into a
+`QUALITY_PROBLEM` finding remains unapproved (RQD-016).
 
 ### 7.5 Approved evidence contract
 
@@ -865,24 +871,41 @@ MVP v0.1.
 
 The approved portions above close `RQD-005`, `RQD-007`, and `RQD-009` for MVP
 v0.1 and approve the detector-to-signal portion of `RQD-016`; Section 7.16
-later finalizes the Finding representation and exact signal rule. Implementation
-remains blocked by:
+later finalizes the Finding representation and exact signal rule. Sections 8-10
+later close the per-requirement calculation portions of `RQD-002`-`RQD-004`,
+`RQD-010`-`RQD-012`, and `RQD-022` via `CALC-C-MVP-001`, `CALC-V-MVP-001`, and
+`CALC-U-MVP-001`. Broader detector/runtime coverage, specification aggregation,
+and the remaining production-representation decision below remain blocked;
+isolated implementation and testing of `CompletenessCalculator`,
+`VerifiabilityCalculator`, and `UnambiguityCalculator` against manually
+constructed `RequirementExtractionResult` inputs is not blocked by items 1-2:
 
-1. parser/template operationalization beyond the approved `COND-UK-001`
-   condition subset, `RESULT-UK-001` expected-result subset, and quantitative
-   `ACCEPT-QUANT-001` composition and beyond the three `VERIFY-UK-001`
-   verification-role constructions, including general condition attachment,
-   broader expected-result grammar, non-numeric `acceptance_criterion`, and
-   broader `verification_method` strategies (`RQD-006`);
-2. complex quantitative grammar, ambiguous metric/context attachment, nested
-   constraint representation, and deliberately deferred numeric/range forms
-   beyond the approved baseline (`RQD-008`);
-3. criterion-applicability, missing-feature, and absence semantics used by each
-   characteristic calculation (`RQD-002`-`RQD-004`, `RQD-010`-`RQD-012`, and
-   `RQD-022`);
+1. richer detector coverage — parser/template operationalization beyond the
+   approved `COND-UK-001` condition subset, `RESULT-UK-001` expected-result
+   subset, and quantitative `ACCEPT-QUANT-001` composition and beyond the
+   three `VERIFY-UK-001` verification-role constructions, including general
+   condition attachment, broader expected-result grammar, non-numeric
+   `acceptance_criterion`, and broader `verification_method` strategies
+   (`RQD-006`). This is future detector-expansion work; it does not block
+   isolated `CALC-C/V/U-MVP-001` implementation or testing, which consumes
+   whatever `RequirementExtractionResult` a test or the current extractor
+   already supplies;
+2. richer detector coverage — complex quantitative grammar, ambiguous
+   metric/context attachment, nested constraint representation, and
+   deliberately deferred numeric/range forms beyond the approved baseline
+   (`RQD-008`). Same non-blocking relationship to isolated `CALC-V-MVP-001`
+   implementation/testing as item 1;
+3. specification-level aggregation propagation for missing/`UNKNOWN`
+   per-requirement values, empty computed denominators, and final aggregation
+   semantics (the remaining, specification-level portions of `RQD-012` and
+   `RQD-022`); the per-requirement criterion-applicability, missing-feature,
+   and absence semantics used by each characteristic calculation are now
+   resolved by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`
+   (Sections 8-10);
 4. exact observation-to-`QUALITY_PROBLEM` conversion rules and any handling of
-   overlapping evidence in characteristic calculations (`RQD-016` and the
-   characteristic-calculation gate);
+   overlapping evidence in characteristic calculations (`RQD-016` only; the
+   per-requirement characteristic-calculation gate itself is now closed for
+   MVP v0.1);
 5. production rule-ID allocations and detector descriptions for rules other
    than the allocated `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`,
    `VERIFY-UK-001`, `QUANT-001`, `QUANT-UK-001`, and `UK-VAGUE-001`
@@ -891,7 +914,14 @@ remains blocked by:
    detector-confidence representation belongs in MVP (`RQD-020`). Section 7.16
    later excludes both from the current MVP v0.1 characteristic contract while
    leaving the research decision open and non-blocking while they remain
-   excluded.
+   excluded;
+7. the internal production numeric representation for `CALC-C-MVP-001`,
+   `CALC-V-MVP-001`, and `CALC-U-MVP-001` output values (the remaining
+   implementation portion of `RQD-015`, Section 13). Exact mathematical
+   calculation semantics are approved; a concrete numeric type for production
+   values such as `1/3` and `2/3` is not, and gates concrete production
+   implementation of MVP-06/07/08 even though the calculation logic itself is
+   authorized.
 
 No decision in this section defines a calculation for `C`, `V`, or `U`, a
 coefficient, a weight, a threshold, a score contribution, or a rounding rule.
@@ -3395,10 +3425,10 @@ The decision status at this gate is:
 | Minimal `Finding` contract and `SIGNAL`/`QUALITY_PROBLEM` distinction | `APPROVED` | Findings remain downstream interpretations and retain requirement/rule/evidence provenance. |
 | One vague-term occurrence to one Unambiguity signal | `APPROVED` | `FIND-U-VAGUE-001` may execute without asserting ambiguity or a score. |
 | Absence-finding provenance and required-input `UNRESOLVED` propagation | `APPROVED` | No fake Evidence span and no numeric substitution are permitted. |
-| Per-criterion applicability allocations for the current Completeness and Verifiability candidates | `OPEN` | Current extracted data cannot decide which elements are mandatory for an unclassified requirement. |
-| Completeness numeric rule | `BLOCKED — RESEARCHER DECISION REQUIRED` | No binary, graded, criterion-ratio, or other `C_i` value may be produced. |
-| Verifiability numeric rule | `BLOCKED — RESEARCHER DECISION REQUIRED` | No binary, graded, criterion-ratio, or other `V_i` value may be produced. |
-| Unambiguity confirmation and numeric rule | `BLOCKED — RESEARCHER DECISION REQUIRED` | Signals are executable; confirmed ambiguity and `U_i` are not. |
+| Per-criterion applicability allocations for the current Completeness and Verifiability candidates | `RESOLVED FOR CALCULATION PURPOSES` | For Completeness, `CALC-C-MVP-001` approves an explicit MVP simplification: condition/context, expected result, and acceptance criterion are each `APPLICABLE` for every supported input requirement. For Verifiability, its three evidence families are approved as alternative, non-mandatory evidence paths rather than individually mandatory criteria, so no per-family mandatory-applicability rule was needed; the Verifiability characteristic itself is applicable to every supported requirement. |
+| Completeness numeric rule | `APPROVED_FOR_MVP_V0.1` | `CALC-C-MVP-001` produces `C_i` in `{0, 1/3, 2/3, 1}` (Section 8). |
+| Verifiability numeric rule | `APPROVED_FOR_MVP_V0.1` | `CALC-V-MVP-001` produces `V_i` in `{0, 1/2, 1}` (Section 9). |
+| Unambiguity confirmation and numeric rule | `PARTIALLY APPROVED_FOR_MVP_V0.1` | `CALC-U-MVP-001` produces the automated `U_i` in `{1/2, 1}` (Section 10). Confirmed material ambiguity and `U_i = 0` remain `BLOCKED — FUTURE RESEARCHER DECISION`. |
 | Specification aggregation with `UNKNOWN`/missing values | `OPEN / DOWNSTREAM` | This contract does not finalize file-level aggregation. |
 
 #### 7.16.1 Characteristic identifiers
@@ -3476,11 +3506,15 @@ The first withholds a characteristic result, the second says criterion
 applicability cannot be established, and the third says detector processing
 could not decide an observation candidate.
 
-No current rule can produce `COMPUTED` for any of the three characteristics.
-No current rule establishes characteristic-level `NOT_APPLICABLE` for any of
-them. Until the blocked rules are approved, the strongest honest assessment
-state for all three is therefore `UNKNOWN`, possibly with findings and positive
-observations preserved separately.
+`CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) now
+allow each characteristic to reach `COMPUTED` under the stated conditions of
+its own rule. No current rule establishes characteristic-level
+`NOT_APPLICABLE` for any of the three. `UNKNOWN` remains the correct result
+precisely when the governing rule's own required-input or material-dependency
+propagation says so — a required input still `UNRESOLVED`, or, for
+Verifiability, an unresolved candidate that could still change the numeric
+class — not as a universal default. Findings and positive observations remain
+preserved separately regardless of the resulting state.
 
 `findings` may be non-empty while `state = UNKNOWN`. In particular, a vague-
 term `SIGNAL` is a traceable warning and does not make Unambiguity computed.
@@ -3525,43 +3559,56 @@ Applied to the current candidate elements, this yields:
 
 | Characteristic | Candidate element or criterion | Current applicability conclusion | Reason |
 | --- | --- | --- | --- |
-| Completeness | condition/context | `UNKNOWN` | Section 2.1 ties mandatory content to requirement type/template; no type/template metadata or approved observable applicability rule is available. |
-| Completeness | expected reaction/result | `UNKNOWN` | The feature may be detected as positive content, but the sources do not establish this detector's coverage as a universal mandatory-element test for every line. |
-| Completeness | fulfilment/acceptance criterion | `UNKNOWN` | The applicability set is explicit in Section 2.3, but no per-line rule selects it from the current text-only data. |
-| Verifiability | acceptance criterion | `UNKNOWN` | An accepted observation is positive evidence; its absence is not a failure until a criterion rule establishes that it is required. |
-| Verifiability | quantitative constraint | `UNKNOWN` | Quantification depends on requirement/characteristic type; Section 2.3 explicitly says not every quality requirement must be numeric. |
-| Verifiability | explicit verification method | `UNKNOWN` | A requirement can be verifiable without literally naming a method, and the sources do not require an explicit method in every line. |
+| Completeness | condition/context | `APPLICABLE` (MVP simplification) | `CALC-C-MVP-001` approves an explicit MVP v0.1 simplification: this criterion is mandatory and `APPLICABLE` for every supported input requirement. This is an MVP operationalization, not a universal claim that every requirement in every context must contain a condition/context element. |
+| Completeness | expected reaction/result | `APPLICABLE` (MVP simplification) | Same `CALC-C-MVP-001` MVP simplification as above. |
+| Completeness | fulfilment/acceptance criterion | `APPLICABLE` (MVP simplification) | Same `CALC-C-MVP-001` MVP simplification as above. |
+| Verifiability | acceptance criterion, quantitative constraint, explicit verification method | Not individually mandatory criteria | `CALC-V-MVP-001` treats these three evidence families as alternative, non-mandatory evidence paths, not as three independently mandatory scoring criteria. None requires its own per-family `CriterionApplicability` allocation; a detected observation from any path is positive evidence for the corresponding tier, and a completed absence of all three contributes to a `0` result only through the calculation rule itself, never through a per-family `NOT_APPLICABLE`/`UNKNOWN` applicability judgment. |
+| Verifiability | Verifiability (characteristic-level) | `APPLICABLE` | `CALC-V-MVP-001` establishes that Verifiability itself is applicable to every supported MVP requirement; sufficiency is then determined by which alternative evidence path, if any, is satisfied. |
 | Unambiguity | vague-term occurrence | Not an applicability criterion | `UK-VAGUE-001` is a total signal detector for supported input when processing succeeds; a match or non-match does not establish property applicability or quality. |
-| Unambiguity | confirmed ambiguity | `UNKNOWN` | The confirmation procedure and context exceptions are not defined. |
+| Unambiguity | confirmed ambiguity | `UNKNOWN` | The confirmation procedure and context exceptions are not defined; this criterion remains reserved for a future `U_i = 0` rule and is untouched by `CALC-U-MVP-001`. |
 
-Consequently, none of the current Completeness or Verifiability candidate
-elements may be declared always mandatory for every individual requirement,
-and no candidate currently has an approved `NOT_APPLICABLE` rule. A detected
-element remains valid positive evidence; it is not erased because another
-element's applicability is unknown.
+Consequently, the three current Completeness candidate elements are now
+mandatory and `APPLICABLE` under the `CALC-C-MVP-001` MVP simplification, and
+the Verifiability characteristic is applicable to every supported requirement
+under `CALC-V-MVP-001`, even though none of its three evidence families is
+individually mandatory. No candidate currently has an approved
+`NOT_APPLICABLE` rule. A detected element remains valid positive evidence in
+all cases; it is not erased because a sibling element or evidence family
+contributed differently to the calculation.
 
 #### 7.16.4 Characteristic-specific executable status
 
-**Completeness — `BLOCKED` for calculation.** The available condition/context,
-expected-result, and acceptance-criterion outcomes are valid structured
-observations. They can be displayed as positive evidence. They cannot be
-converted into pass/fail criteria, a criterion ratio, or `C_i`, because the
-mandatory subset and its applicability are unknown. `NOT_DETECTED` is not a
-Completeness problem. No Completeness `QUALITY_PROBLEM` rule is approved.
+**Completeness — `APPROVED_FOR_MVP_V0.1` for calculation.** `CALC-C-MVP-001`
+converts the condition/context, expected-result, and acceptance-criterion
+outcomes into a criterion ratio `C_i = (c_condition + c_result +
+c_acceptance) / 3`, where each criterion contributes `1` for `DETECTED` and
+`0` for `NOT_DETECTED` under the explicit MVP simplification that all three
+are mandatory and `APPLICABLE`. Any of the three required inputs being
+`UNRESOLVED` withholds the result (`state = UNKNOWN`, `value = None`);
+`NOT_DETECTED` alone is not a Completeness problem and does not create a
+`QUALITY_PROBLEM`. No Completeness `QUALITY_PROBLEM` rule is approved.
 
-**Verifiability — `BLOCKED` for calculation.** Acceptance criteria, linked
-quantitative constraints, and explicit verification methods are distinct
-positive evidence classes. None is individually necessary in every case, and
-the sources do not define a sufficient Boolean combination or numeric mapping.
-An absent explicit method or numeric constraint does not establish
-unverifiability. No Verifiability `QUALITY_PROBLEM` rule is approved.
+**Verifiability — `APPROVED_FOR_MVP_V0.1` for calculation.** `CALC-V-MVP-001`
+treats acceptance criteria, linked quantitative constraints, and explicit
+verification methods as alternative (not additive or equally weighted)
+evidence paths: an accepted acceptance criterion alone yields `V_i = 1`; absent
+that, an accepted quantitative constraint or explicit verification method
+yields `V_i = 1/2`; absent all three after complete relevant detector
+processing, `V_i = 0`. An unresolved candidate withholds the result only when
+resolving it could still change the numeric class (Section 9's worked
+examples). No Verifiability `QUALITY_PROBLEM` rule is approved.
 
-**Unambiguity — `PARTIALLY EXECUTABLE`, calculation `BLOCKED`.** Accepted
-`vague_term_occurrence` observations may be converted one-for-one to
-Unambiguity `SIGNAL` findings under `FIND-U-VAGUE-001`. No supplied rule
-confirms ambiguity from the occurrence alone, and a complete scan with no
-occurrence does not prove one justified interpretation. No Unambiguity
-`QUALITY_PROBLEM` or numeric `U_i` rule is approved.
+**Unambiguity — `APPROVED_FOR_MVP_V0.1` for the automated MVP scale;
+confirmed-ambiguity calculation remains `BLOCKED`.** `CALC-U-MVP-001` converts
+accepted `vague_term_occurrence` observations, via the existing one-for-one
+`FIND-U-VAGUE-001` `SIGNAL` conversion, into `U_i = 1` when complete scanning
+finds no accepted supported signal and `U_i = 1/2` when at least one exists;
+additional signals do not further reduce the value. `U_i = 0` is reserved for
+a future, separately approved confirmed-material-ambiguity rule and is never
+produced by `CALC-U-MVP-001`. No supplied rule confirms ambiguity from an
+occurrence alone, and `U_i = 1` represents absence of the supported signal
+class, not universal semantic proof of a unique interpretation. No Unambiguity
+`QUALITY_PROBLEM` rule is approved.
 
 #### 7.16.5 Finalized minimal Finding contract
 
@@ -3676,38 +3723,51 @@ The following mixed-state consequences are binding:
 - `expected_result = DETECTED`, `acceptance_criterion = DETECTED`, and
   `condition_context = UNRESOLVED` preserve the first two accepted observation
   families and their Evidence. The condition is neither absent nor failed.
-  Completeness remains `UNKNOWN` with no value.
+  Under `CALC-C-MVP-001`, `condition_context` is one of the three required
+  inputs, so its `UNRESOLVED` state withholds the result: Completeness remains
+  `UNKNOWN` with no value.
 - `acceptance_criterion = DETECTED`, a quantitative family with accepted
   observation(s) plus incomplete processing, and
   `verification_method = NOT_DETECTED` preserve the acceptance and accepted
-  quantitative evidence. The unresolved quantitative candidate is not erased,
-  and the absent explicit method is not negative evidence. Verifiability
-  remains `UNKNOWN` unless a future approved rule both establishes
-  applicability and proves that its conclusion is independent of the
-  unresolved quantitative candidate.
+  quantitative evidence. Under `CALC-V-MVP-001`, an accepted acceptance
+  criterion alone is already sufficient for full Verifiability: `V_i = 1` is
+  computed, and neither the unresolved quantitative candidate nor the
+  `NOT_DETECTED` method can change that conclusion, because lower-tier
+  evidence paths cannot improve a result beyond `1` (Section 9, Example V1).
 
 #### 7.16.7 Numeric decisions
 
 The source range `a_ik ∈ [0,1]` is an invariant for a future computed
-individual property value; it is not itself a formula. The executable decisions
-are therefore:
+individual property value; it is not itself a formula. This gate is now
+resolved for per-requirement MVP v0.1 calculation:
 
-| Characteristic | Binary `0/1` | Graded value | Criterion ratio | Current numeric status |
+| Characteristic | Approved rule | Formula | Exact value set | Current numeric status |
 | --- | --- | --- | --- | --- |
-| Completeness | Not approved | Not approved | Not approved | `NO EXECUTABLE SCORE YET` |
-| Verifiability | Not approved | Not approved | Not approved | `NO EXECUTABLE SCORE YET` |
-| Unambiguity | Boundary examples exist, but no automatic binary rule is approved | Intermediate meaning is described but not mapped | Not approved | `NO EXECUTABLE SCORE YET` |
+| Completeness | `CALC-C-MVP-001` | `C_i = (c_condition + c_result + c_acceptance) / 3`, each criterion `1` if `DETECTED` else `0` under the MVP three-mandatory-criteria simplification | `{0, 1/3, 2/3, 1}` | `APPROVED_FOR_MVP_V0.1` |
+| Verifiability | `CALC-V-MVP-001` | Alternative evidence paths: accepted acceptance criterion → `1`; else accepted quantitative constraint or verification method → `1/2`; else, after complete relevant processing, `0` | `{0, 1/2, 1}` | `APPROVED_FOR_MVP_V0.1` |
+| Unambiguity | `CALC-U-MVP-001` | No accepted supported vague-term signal after complete scanning → `1`; one or more accepted signals → `1/2`; `0` reserved for a future confirmed-material-ambiguity rule | `{1/2, 1}` automated; `0` reserved | `APPROVED_FOR_MVP_V0.1` (automated scale); `0` `OPEN` |
 
-No equal weighting, `1/3` contribution, half penalty, threshold, rounding rule,
-or demonstration value is adopted. A future computed value must be in `[0,1]`,
-but its exact representation and rounding remain open under `RQD-015`.
+`CALC-C-MVP-001` uses an unweighted criterion ratio; `CALC-V-MVP-001`
+explicitly rejects equal weighting or an additive `(A + Q + M) / 3` formula in
+favor of alternative sufficient-evidence tiers; `CALC-U-MVP-001` treats signal
+count as explainability information only, not a cumulative penalty. All three
+formulas use exact mathematical values (`1/3`, `2/3`, `1/2`); no calculator-
+level rounding is introduced (Section 13). This closes only the exact
+calculation-semantics portion of `RQD-015`. The internal production numeric
+representation for these values (gating concrete MVP-06/07/08 implementation),
+presentation precision and rounding, and specification-level aggregation all
+remain open under `RQD-015` and Sections 12-14.
 
 #### 7.16.8 Binding characteristic-layer cases
 
 These cases bind the strongest current conclusion against executable extractor
-output. `UNKNOWN` below is a characteristic assessment state, not detector
-`UNRESOLVED` and not `CriterionApplicability.UNKNOWN`, even when either may be
-the reason for withholding.
+output, now including the approved `CALC-C-MVP-001`, `CALC-V-MVP-001`, and
+`CALC-U-MVP-001` numeric results. `UNKNOWN` below is a characteristic
+assessment state, not detector `UNRESOLVED` and not
+`CriterionApplicability.UNKNOWN`, even when either may be the reason for
+withholding. The underlying detector facts established by each case are
+unchanged from the prior draft; only the resulting characteristic
+state/value has been updated to reflect the newly approved calculation rules.
 
 **Case A**
 
@@ -3715,18 +3775,22 @@ the reason for withholding.
 У разі перевищення навантаження, система повинна відповісти не більше ніж за 2 с.
 ```
 
-- Completeness preserves detected condition/context, expected result, and
-  acceptance-criterion evidence, but `state = UNKNOWN`, `value = None`: the
-  applicable required-element set and calculation are not approved. It emits
-  no Completeness `QUALITY_PROBLEM`.
-- Verifiability preserves acceptance-criterion and quantitative-constraint
-  evidence. `verification_method = NOT_DETECTED` is not a failure. The
-  sufficient-evidence combination and calculation are unapproved, so
-  `state = UNKNOWN`, `value = None`, with no Verifiability
+- Completeness has accepted condition/context, expected-result, and
+  acceptance-criterion observations (`DETECTED`, `DETECTED`, `DETECTED`). Under
+  `CALC-C-MVP-001`, `c_condition = c_result = c_acceptance = 1`, so
+  `state = COMPUTED`, `value = 1`, `assessment_rule_id = CALC-C-MVP-001`. It
+  emits no Completeness `QUALITY_PROBLEM`.
+- Verifiability has an accepted acceptance-criterion observation. Under
+  `CALC-V-MVP-001`, an accepted acceptance criterion alone is sufficient for
+  full Verifiability regardless of the accepted quantitative-constraint
+  evidence or the `NOT_DETECTED` verification method: `state = COMPUTED`,
+  `value = 1`, `assessment_rule_id = CALC-V-MVP-001`, with no Verifiability
   `QUALITY_PROBLEM`.
-- Unambiguity has no vague-term signal under the seed matcher, but absence of a
-  seed match does not prove one interpretation. Its result is
-  `state = UNKNOWN`, `value = None`, with no finding.
+- Unambiguity has no vague-term signal under the seed matcher, and scanning is
+  complete. Under `CALC-U-MVP-001`, this yields `state = COMPUTED`,
+  `value = 1`, `assessment_rule_id = CALC-U-MVP-001`, with no finding. This
+  represents absence of the supported signal class, not universal semantic
+  proof of a unique interpretation.
 
 **Case B**
 
@@ -3734,14 +3798,21 @@ the reason for withholding.
 Система повинна швидко оновити статус.
 ```
 
-- The accepted expected result is positive Completeness evidence, not proof of
-  completeness; Completeness is `UNKNOWN` with no numeric value.
-- Neither absence of a quantitative constraint nor absence of an explicit
-  method establishes unverifiability; Verifiability is `UNKNOWN` with no
-  numeric value.
-- The accepted `швидко` occurrence creates exactly one
-  `VAGUE_TERM_SIGNAL` under `FIND-U-VAGUE-001`. It is not a confirmed ambiguity
-  or `QUALITY_PROBLEM`; Unambiguity remains `UNKNOWN` with no numeric value.
+- The accepted expected result is the only accepted Completeness observation
+  (`c_result = 1`); condition/context and acceptance criterion are
+  `NOT_DETECTED` (`c_condition = c_acceptance = 0`), with complete processing
+  for all three. Under `CALC-C-MVP-001`: `state = COMPUTED`, `value = 1/3`,
+  `assessment_rule_id = CALC-C-MVP-001`.
+- No acceptance criterion, quantitative constraint, or explicit verification
+  method is accepted, and all relevant detector processing is complete. Under
+  `CALC-V-MVP-001`: `state = COMPUTED`, `value = 0`,
+  `assessment_rule_id = CALC-V-MVP-001`. Absence alone does not create a
+  Verifiability `QUALITY_PROBLEM`.
+- The accepted `швидко` occurrence creates exactly one `VAGUE_TERM_SIGNAL`
+  under `FIND-U-VAGUE-001`. It is not a confirmed ambiguity or
+  `QUALITY_PROBLEM`; under `CALC-U-MVP-001` one accepted supported signal
+  yields `state = COMPUTED`, `value = 1/2`,
+  `assessment_rule_id = CALC-U-MVP-001`, with the finding preserved.
 
 **Case C**
 
@@ -3752,9 +3823,20 @@ the reason for withholding.
 `VERIFY-UK-001` establishes explicit verification-method Evidence for the
 named method phrase. It does not establish that the method is sufficient,
 complete, linked to an acceptance criterion, or reproducible in all necessary
-details. It does not compute Verifiability or create a quality problem.
-Verifiability is `UNKNOWN`, `value = None`; Completeness and Unambiguity also
-remain `UNKNOWN` absent separately approved rules.
+details, and it does not create a quality problem.
+- No acceptance criterion is accepted; the accepted verification-method
+  observation is the named lower-tier evidence path, with no material
+  unresolved candidate that could raise it. Under `CALC-V-MVP-001`:
+  `state = COMPUTED`, `value = 1/2`, `assessment_rule_id = CALC-V-MVP-001`.
+  This named method is partial Verifiability evidence; it does not establish
+  full Verifiability.
+- Completeness has no accepted condition/context, expected-result, or
+  acceptance-criterion observation, with complete processing for all three.
+  Under `CALC-C-MVP-001`: `state = COMPUTED`, `value = 0`,
+  `assessment_rule_id = CALC-C-MVP-001`.
+- Unambiguity has no vague-term signal under the seed matcher, with complete
+  scanning. Under `CALC-U-MVP-001`: `state = COMPUTED`, `value = 1`,
+  `assessment_rule_id = CALC-U-MVP-001`.
 
 **Case D**
 
@@ -3764,38 +3846,79 @@ remain `UNKNOWN` absent separately approved rules.
 
 The verification-method family contains `VERIFY_UNRESOLVED_CANDIDATE`, no
 accepted method observation, and incomplete processing. The diagnostic is not
-Evidence, a signal, or a quality problem. Any Verifiability rule that requires
-this input must yield `UNKNOWN`, `value = None`; it may not treat the candidate
-as either a present or absent method. Accepted observations from other feature
-families, if any, remain intact.
+Evidence, a signal, or a quality problem.
+- No acceptance criterion and no quantitative constraint are accepted, and the
+  verification-method candidate remains materially unresolved: resolving it
+  could still turn the tier-two path from absent to present, which would
+  change the numeric class from `0` to `1/2`. Under `CALC-V-MVP-001`'s
+  material-dependency rule, this withholds the result: `state = UNKNOWN`,
+  `value = None`. The candidate is treated as neither a present nor an absent
+  method.
+- Completeness has no accepted condition/context, expected-result, or
+  acceptance-criterion observation, with complete processing for all three
+  required inputs. Under `CALC-C-MVP-001`: `state = COMPUTED`, `value = 0`,
+  `assessment_rule_id = CALC-C-MVP-001`.
+- Unambiguity has no vague-term signal under the seed matcher, with complete
+  scanning. Under `CALC-U-MVP-001`: `state = COMPUTED`, `value = 1`,
+  `assessment_rule_id = CALC-U-MVP-001`.
+
+Accepted observations from other feature families, if any, remain intact.
 
 **Case E**
 
-For a requirement with no accepted observation for a candidate criterion,
-`NOT_DETECTED` says only that the approved detector completed without finding
-that observation. Because current criterion applicability and absence semantics
-are not approved, it produces neither numeric zero nor a `QUALITY_PROBLEM`.
-The affected characteristic remains `UNKNOWN` with no value unless a future
-approved rule establishes applicability and the meaning of absence.
+For a requirement where every relevant approved detector for Completeness and
+Verifiability has completed, and all candidate observations are `NOT_DETECTED`
+with no unresolved candidate:
+
+- Completeness: `c_condition = c_result = c_acceptance = 0`. Under
+  `CALC-C-MVP-001`: `state = COMPUTED`, `value = 0`,
+  `assessment_rule_id = CALC-C-MVP-001`.
+- Verifiability: no accepted acceptance criterion, quantitative constraint, or
+  verification method, with complete processing. Under `CALC-V-MVP-001`:
+  `state = COMPUTED`, `value = 0`, `assessment_rule_id = CALC-V-MVP-001`.
+- Unambiguity: no vague-term signal under the seed matcher, with complete
+  scanning. Under `CALC-U-MVP-001`: `state = COMPUTED`, `value = 1`,
+  `assessment_rule_id = CALC-U-MVP-001`.
+
+This conclusion is no longer inferred from `NOT_DETECTED` alone: it follows
+because the researcher-approved `CALC-C-MVP-001` and `CALC-V-MVP-001` rules
+explicitly define how a completed, fully-`NOT_DETECTED` outcome enters the
+calculators. `NOT_DETECTED` remains a detector result, not automatically a
+quality violation, and neither result above creates a `QUALITY_PROBLEM`
+finding.
 
 #### 7.16.9 Researcher decisions still required
 
-When a row below is resolved, the decision must be recorded at the named
-location before calculator implementation.
+The per-requirement Completeness, Verifiability, and Unambiguity formula
+decisions previously tracked here are now resolved by `CALC-C-MVP-001`,
+`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). The remaining rows
+concern the still-open internal production numeric representation,
+specification-level aggregation, downstream presentation, and the future
+confirmed-material-ambiguity rule. When a row below is resolved, the decision
+must be recorded at the named location before that further implementation
+proceeds; in particular, the internal-representation row must be
+researcher/spec-approved and recorded in Section 13 before any concrete
+production `CompletenessCalculator`, `VerifiabilityCalculator`, or
+`UnambiguityCalculator` numeric representation is implemented.
 
 | Exact model-spec location | Research-source evidence | Scientifically plausible options | Implementation consequence | Smallest researcher decision required |
 | --- | --- | --- | --- | --- |
-| Section 8 and this Section 7.16.3 | Requirement properties, Section 2.1, Table 2.1 and Table 2.3: condition, reaction, and fulfilment criterion are relevant, but mandatory elements depend on type/template | universal subset; explicit template metadata; per-element observable applicability rules; or manual applicability input | Determines which absences may become Completeness problems and which inputs enter `C_i` | Approve the criterion IDs, an applicability rule for each, and the required-element set without automatic type inference |
-| Section 8 and this Section 7.16.7 | Requirement properties permits binary or intermediate property values and warns that exact rules depend on the property | binary pass/fail; unweighted criterion ratio; researcher-defined graded rule; or no numeric MVP value | Determines whether and how `C_i` can be computed | Choose one formula and its treatment of overlap/multiple observations, or explicitly defer numeric Completeness |
-| Section 9 and this Section 7.16.3 | Requirement properties and Metrics system distinguish acceptance criterion, threshold, reproducible procedure, and quantitative operationalization; not every requirement must be numeric | alternative sufficient evidence paths; mandatory conjunction for selected types; external/manual verification declaration; or no numeric MVP value | Determines whether detected evidence is sufficient and which absences are violations | Approve criterion applicability plus the exact sufficient/necessary Boolean or graded rule for `V_i` |
-| Section 10 and this Section 7.16.4 | Requirement properties and Metrics system say linguistic smells are signals; Table 2.3 reserves `0` for confirmed material ambiguity and an intermediate value for risk signals | manual/expert confirmation; deterministic context-exception rule; signals-only non-numeric MVP; or researcher-defined intermediate mapping | Determines whether any `QUALITY_PROBLEM` and `U_i` can be produced | Approve a confirmation procedure and numeric mapping, or explicitly approve signals-only Unambiguity for MVP v0.1 |
-| Section 13 | Sources define `[0,1]` but no precision/rounding contract | exact rational/decimal; fixed presentation precision; rule-specific precision | Determines concrete numeric domain and reporting | Approve internal representation and presentation/rounding only after at least one formula exists |
-| Sections 12 and 14 | Requirement properties supports property means; Metrics system requires `NA` for an empty applicability set and separates missing from non-applicable | exclude unknown values and report coverage; propagate unknown; withhold aggregate under a defined sufficiency rule | Determines `C_file`, `V_file`, and `U_file` behavior | Approve property-level aggregation propagation and empty/partially known denominator semantics after per-requirement rules exist |
+| Section 10 and this Section 7.16.4 | Requirement properties, Table 2.3, reserves `0` for confirmed material ambiguity, distinct from the automated MVP signal-presence scale approved by `CALC-U-MVP-001` | manual/expert confirmation; deterministic context-exception rule; researcher-defined confirmation procedure | Determines whether a Unambiguity `QUALITY_PROBLEM` and `U_i = 0` can ever be produced | Approve a confirmation procedure and its mapping to `U_i = 0`, or explicitly leave `0` permanently unreachable for MVP |
+| Section 13 | `CALC-C/V/U-MVP-001` approve exact mathematical semantics (`1/3`, `2/3`, `1/2`) and no calculator-level intermediate rounding, but no internal production numeric type or presentation-precision/rounding contract | internal representation: one exact-arithmetic type among several candidates, to be selected by researcher/spec approval, not by this document; presentation: fixed precision; rule-specific precision; tie-breaking convention | Determines the concrete numeric type production `CompletenessCalculator`/`VerifiabilityCalculator`/`UnambiguityCalculator` code must use, and separately determines console/reporting display; this is a spec-level decision to record here, not an implementer's free choice | Approve the internal production numeric representation under `RQD-015` before any concrete calculator implementation; approve presentation/rounding and tie-breaking separately, only after aggregation semantics exist |
+| Sections 12 and 14 | Requirement properties supports property means; Metrics system requires `NA` for an empty applicability set and separates missing from non-applicable | exclude unknown values and report coverage; propagate unknown; withhold aggregate under a defined sufficiency rule | Determines `C_file`, `V_file`, and `U_file` behavior | Approve property-level aggregation propagation and empty/partially known denominator semantics, now that per-requirement rules exist |
 
-Until these decisions are made, production `CompletenessCalculator`,
-`VerifiabilityCalculator`, `UnambiguityCalculator`, numeric
-`RequirementQualityProfile`, and `SpecificationQualityAggregator`
-implementation remain blocked.
+Until these decisions are made, `CompletenessCalculator`,
+`VerifiabilityCalculator`, and `UnambiguityCalculator` are no longer blocked by
+open scientific formulas: `CALC-C-MVP-001`, `CALC-V-MVP-001`, and
+`CALC-U-MVP-001` authorize their calculation logic in principle, and MVP-06,
+MVP-07, and MVP-08 are no longer blocked on that ground. Before a concrete
+production representation of `1/3` and `2/3` is chosen (for example, as
+`float`, `Decimal`, or `Fraction`), the internal production numeric
+representation must be explicitly selected under the remaining implementation
+portion of `RQD-015` rather than inferred by the implementer; this document
+does not select one. Numeric `SpecificationQualityAggregator` implementation,
+presentation/aggregate rounding, and any confirmed-ambiguity
+`QUALITY_PROBLEM` rule remain separately blocked.
 
 ## 8. Completeness
 
@@ -3826,41 +3949,91 @@ interface, constraint, or significant scenario.
 
 The required elements by requirement type, the applicability rule, the mapping
 from detected elements to `a_i,C`, binary versus graded behavior, and treatment
-of overlap with Verifiability are unresolved. Actor/action/object fields are not
-defined by Chapter 2 and are `DEFERRED_FROM_MVP_V0.1` as possible optional
-future structural observations; they cannot affect Completeness in v0.1.
+of overlap with Verifiability were previously unresolved. Actor/action/object
+fields are not defined by Chapter 2 and are `DEFERRED_FROM_MVP_V0.1` as
+possible optional future structural observations; they cannot affect
+Completeness in v0.1.
 
-Section 7.16.3 applies the conservative executable rule: applicability of each
-current candidate element is `UNKNOWN` unless a later approved criterion rule
-establishes otherwise. Detected condition/context, expected-result, and
-acceptance-criterion observations remain positive evidence; their absence does
-not establish a failure. No Completeness `QUALITY_PROBLEM` rule is approved.
+`CALC-C-MVP-001` (researcher decision 1) resolves this for MVP v0.1 with an
+explicit, narrow operationalization: local per-requirement Completeness is
+measured using exactly three criteria — condition/context, expected
+result/reaction, and acceptance/fulfilment criterion — and, for this specific
+MVP scope, **all three are mandatory and `APPLICABLE` for every supported input
+requirement**. This is an explicit MVP simplification. It is not a universal
+theoretical claim that every software requirement in every context must always
+contain these exact three elements, and it does not introduce automatic
+requirement-type inference: MVP v0.1 still performs no requirement-type
+classification. Section 7.16.3 records this simplification as an
+applicability allocation, replacing the previous conservative `UNKNOWN`
+default for these three candidate elements specifically. Detected
+condition/context, expected-result, and acceptance-criterion observations
+remain positive evidence exactly as before; only their entry into the
+calculation formula is new. No Completeness `QUALITY_PROBLEM` rule is
+approved by this decision.
 
-Researcher decisions RQD-002, RQD-006, RQD-010, and RQD-012 are
-required.
+Researcher decision RQD-002 is now `APPROVED_FOR_MVP_V0.1` (Section 18).
+RQD-010 is closed for the per-requirement Completeness formula by
+`CALC-C-MVP-001` itself (Section 18) and is not a remaining blocker here.
+RQD-006 (broader detector grammar) and the specification-level portion of
+RQD-012 (aggregation) remain separately open, but neither blocks
+per-requirement Completeness calculation.
 
 ### Formula and output range
 
 Chapter 2 places individual property results `a_ij` in `[0,1]` and orients them
-toward degree of property compliance. It does not provide the exact rule for
-`a_i,C`. Therefore the range/direction is `PARTIALLY_DEFINED`, while every
-binary, graded, criterion-ratio, penalty/reward, and rounding rule remains
-`MISSING`. The executable status is `NO EXECUTABLE SCORE YET`; a current
-Completeness assessment has `state = UNKNOWN` and `value = None`.
+toward degree of property compliance; it does not itself supply the exact rule
+for `a_i,C`. `CALC-C-MVP-001` supplies that rule for MVP v0.1:
+
+```text
+c_condition, c_result, c_acceptance ∈ {0, 1}
+
+DETECTED     -> 1
+NOT_DETECTED -> 0
+
+C_i = (c_condition + c_result + c_acceptance) / 3
+```
+
+Multiple accepted observations within the same criterion family still
+contribute at most `1`; repeated observations do not increase the score. The
+exact allowed numeric values are `0`, `1/3`, `2/3`, and `1`, computed with
+exact mathematical values (Section 13) rather than decimal rounding.
+
+All three inputs are required by `CALC-C-MVP-001`. If any of the three
+required detector inputs is `UNRESOLVED`, the other criteria cannot compensate
+for it:
+
+```text
+state = UNKNOWN
+value = None
+```
+
+Already-accepted observations and their Evidence are preserved unchanged in
+this case. When the formula computes, the result carries
+`assessment_rule_id = CALC-C-MVP-001`. This task does not approve any
+Completeness `QUALITY_PROBLEM` finding; a low numeric Completeness value is
+not automatically equivalent to a Finding. The executable status is now
+`APPROVED_FOR_MVP_V0.1`; the current Completeness assessment reaches
+`state = COMPUTED` whenever all three required inputs have completed
+processing, and `state = UNKNOWN` with `value = None` only when a required
+input remains `UNRESOLVED`.
 
 ### Explanation and evidence requirements
 
 The assessment preserves every contributing approved observation and its
-Evidence. A later absence-based finding must follow Section 7.16.5 and use
-requirement/rule/criterion provenance without a fabricated span. Until an
-applicability and absence rule exists, missing or `NOT_DETECTED` content is not
-a Completeness finding or numeric zero.
+Evidence, and it now also cites `assessment_rule_id = CALC-C-MVP-001` when
+`state = COMPUTED`. A later absence-based `QUALITY_PROBLEM` finding would still
+have to follow Section 7.16.5 and use requirement/rule/criterion provenance
+without a fabricated span, but no such finding is approved by this decision.
+A criterion contributing `0` to `C_i` because its observation was
+`NOT_DETECTED` does not itself require or fabricate Evidence for the absence.
 
 ### Reference examples
 
 The initial GPS-provider statement in the application example explicitly says
 that failure behavior is not defined; its revised form adds a condition and
-observable outcomes. This supports a qualitative test case, not a numeric score.
+observable outcomes. This remains a qualitative traceability example; its
+exact `C_i` value is not re-derived outside the binding Section 7.16.8 cases
+(see Section 16).
 
 ## 9. Verifiability
 
@@ -3891,41 +4064,103 @@ not per-line calculator formulas.
 ### Operationalization requiring researcher approval
 
 The rule for determining applicability, requirement type, procedure presence,
-criterion presence, and linkage among quantity/unit/condition/bound is not
-defined. The mapping of those observations to `a_i,V` is also not defined.
+criterion presence, and linkage among quantity/unit/condition/bound was
+previously undefined, as was the mapping of those observations to `a_i,V`.
 
-Section 7.16.3 therefore assigns `UNKNOWN` applicability to the current
-candidate acceptance-criterion, quantitative-constraint, and explicit-method
-criteria. A detected observation is positive evidence. An absent explicit
-method or quantitative constraint is not a failure, because neither is
-universally necessary and a requirement may be verifiable through another
-reproducible path. No Verifiability `QUALITY_PROBLEM` rule is approved.
+`CALC-V-MVP-001` (researcher decision 2) resolves this for MVP v0.1. It uses
+the already-approved evidence families — acceptance criterion, quantitative
+constraint, and explicit verification method — but treats them as **alternative
+evidence paths, not three mandatory criteria**. The formula is deliberately
+not an equally weighted `(A + Q + M) / 3`: an accepted acceptance-criterion
+observation under the current approved extraction contract is, by itself,
+sufficient for the MVP full-verifiability class, because the approved detector
+contract establishes a judgeable acceptance composition. Verifiability itself
+is applicable to every supported MVP requirement (Section 7.16.3); its three
+evidence families no longer each need their own mandatory-criterion
+applicability decision, because none of them is individually mandatory.
 
-Researcher decisions RQD-003, RQD-008, RQD-010, and RQD-012 are
-required.
+Researcher decision RQD-003 is now `APPROVED_FOR_MVP_V0.1` (Section 18).
+RQD-008 and RQD-012 remain relevant to broader quantitative-constraint grammar
+and specification-level aggregation, respectively, but no longer block
+per-requirement Verifiability calculation.
 
 ### Formula and output range
 
 Chapter 2 supports `[0,1]` compliance-oriented individual property results and
-explicit set-level ratios, but not an exact per-requirement Verifiability score.
-Every binary, graded, criterion-ratio, penalty/reward, and rounding rule remains
-`MISSING`. The executable status is `NO EXECUTABLE SCORE YET`; a current
-Verifiability assessment has `state = UNKNOWN` and `value = None`.
+explicit set-level ratios; `CALC-V-MVP-001` now supplies the exact
+per-requirement mapping for MVP v0.1:
+
+**Full Verifiability.** If there is an accepted `acceptance_criterion`
+observation:
+
+```text
+V_i = 1
+```
+
+**Partial Verifiability.** If there is no accepted acceptance criterion, but at
+least one accepted quantitative constraint or accepted explicit verification
+method exists:
+
+```text
+V_i = 1/2
+```
+
+Repeated observations do not increase this value.
+
+**No detected operationalization evidence.** If all detector processing that
+remains relevant to `CALC-V-MVP-001` has completed and no accepted acceptance
+criterion, quantitative constraint, or verification method exists:
+
+```text
+V_i = 0
+```
+
+**Material-dependency unresolved propagation.** `CALC-V-MVP-001` does not use
+blanket unresolved propagation. An unresolved input withholds the result
+(`state = UNKNOWN`, `value = None`) only when resolving it could still change
+the numeric class:
+
+- an accepted acceptance criterion already exists, with lower-tier candidates
+  unresolved → `V_i = 1` still computes, because lower-tier inputs cannot
+  improve beyond `1` (Example V1);
+- no accepted acceptance criterion, no accepted lower-tier evidence, and a
+  quantitative or verification-method candidate is unresolved → `state =
+  UNKNOWN`, because resolving it could change `0` to `1/2` (Example V2);
+- no accepted acceptance criterion, an accepted quantitative constraint
+  exists, and the verification method is unresolved → `V_i = 1/2` still
+  computes, because the unresolved verification-method candidate cannot
+  change the numeric class (Example V3);
+- an accepted lower-tier path gives a provisional `1/2`, but the
+  acceptance-criterion family contains a material unresolved candidate that
+  could still become an accepted acceptance criterion → `state = UNKNOWN`,
+  because the unresolved acceptance candidate could change `1/2` to `1`
+  (Example V4).
+
+The exact allowed numeric values are `0`, `1/2`, and `1`, using exact
+mathematical values rather than decimal rounding (Section 13). When the
+formula computes, the result carries `assessment_rule_id = CALC-V-MVP-001`.
+This task does not approve any Verifiability `QUALITY_PROBLEM` finding. The
+executable status is now `APPROVED_FOR_MVP_V0.1`.
 
 ### Explanation and evidence requirements
 
 The assessment preserves observable criterion, metric, threshold, unit,
-expected-result, and method evidence that is present. It may identify an absent
-element as a quality problem only after an approved applicability and absence
-rule, using the span-free provenance contract in Section 7.16.5. It must not
-claim a stronger conclusion than the detector supports.
+expected-result, and method evidence that is present, and now also cites
+`assessment_rule_id = CALC-V-MVP-001` when `state = COMPUTED`. A `V_i = 0`
+result contributed by completed absence does not itself require or fabricate
+Evidence, and it is not automatically a `QUALITY_PROBLEM`; any future
+absence-based finding would still require a separately approved rule under
+Section 7.16.5. It must not claim a stronger conclusion than the detector
+supports.
 
 ### Reference examples
 
 The application example contrasts “quickly recalculate” with a revised
-requirement specifying four seconds under 300 concurrent requests. This supports
-qualitative feature/evidence examples only. The example's numeric quality values
-are demonstrational and are not expected MVP outputs.
+requirement specifying four seconds under 300 concurrent requests. This remains
+a qualitative feature/evidence example; its exact `V_i` value is not
+re-derived outside the binding Section 7.16.8 cases (see Section 16). The
+example's numeric quality values are demonstrational and are not expected MVP
+outputs.
 
 ## 10. Unambiguity
 
@@ -3951,42 +4186,103 @@ requirements without confirmed ambiguity indicators.
 ### Operationalization requiring researcher approval
 
 The source-derived seed lexicon and exact deterministic matching mechanics are
-approved for MVP v0.1. Richer linguistic coverage, context exceptions,
-confirmation procedure, applicability rule, and mapping of multiple signals to
-the intermediate `a_i,U` value are not defined. The text also does not resolve
-whether MVP uses review-confirmed ambiguities or deterministic detector signals
-only.
+approved for MVP v0.1. Richer linguistic coverage, context exceptions, and a
+confirmed-material-ambiguity procedure remain undefined and are explicitly
+deferred to future research. `CALC-U-MVP-001` (researcher decision 3) now
+resolves the mapping of the automated MVP signal to a numeric `a_i,U` for MVP
+v0.1, using the currently approved vague-term detector and `FIND-U-VAGUE-001`.
+The Finding remains `kind = SIGNAL`; it must never become `QUALITY_PROBLEM`
+merely from a match.
 
 The one-occurrence-to-one-signal rule `FIND-U-VAGUE-001` is executable and
 produces only `VAGUE_TERM_SIGNAL`. No occurrence is a confirmed ambiguity, and
-no complete scan without an occurrence proves Unambiguity. No Unambiguity
-`QUALITY_PROBLEM` rule is approved.
+`CALC-U-MVP-001` never produces `U_i = 0`; that value is reserved for a future,
+separately approved confirmed-material-ambiguity rule. No Unambiguity
+`QUALITY_PROBLEM` rule is approved by this decision.
 
-Researcher decisions RQD-004, RQD-008, RQD-010, RQD-012, and the
-characteristic-calculation portion of RQD-016 are required. `RQD-007` is closed
-for the MVP v0.1 seed matcher.
+Researcher decision RQD-004 is now `APPROVED_FOR_MVP_V0.1` for the automated
+signal-presence scale (Section 18); the confirmed-ambiguity portion remains
+`OPEN`. `CALC-U-MVP-001` depends only on the approved vague-term seed matcher
+and `FIND-U-VAGUE-001`, not on quantitative-constraint or linkage grammar, so
+`RQD-008` is not a dependency of the Unambiguity calculator. The
+specification-level aggregation portion of `RQD-012` and the
+characteristic-calculation portion of `RQD-016` remain relevant to
+specification-level aggregation and future `QUALITY_PROBLEM`/confirmed-ambiguity
+conversions, respectively, but neither blocks the per-requirement automated
+Unambiguity calculation.
+`RQD-007` remains closed for the MVP v0.1 seed matcher.
 
 ### Formula and output range
 
-Chapter 2 provides direction and boundary examples for `a_i,U` and an aggregate
-metric form, but no exact per-line mapping for intermediate values. The score is
-therefore `PARTIALLY_DEFINED`; its executable binary/graded formula and
-rounding remain `MISSING`. The executable status is `NO EXECUTABLE SCORE YET`;
-a current Unambiguity assessment has `state = UNKNOWN` and `value = None`, even
-when it contains one or more signals.
+Chapter 2 provides direction and boundary examples for `a_i,U`: `1` when no
+confirmed ambiguity exists, an intermediate value for risk signals, and `0`
+when a material ambiguity is confirmed. `CALC-U-MVP-001` supplies the
+executable MVP v0.1 mapping between the approved automated signal and the
+first two of those:
+
+**No supported vague-term signal.** If vague-term processing completes
+successfully and no accepted supported vague-term occurrence exists:
+
+```text
+U_i = 1
+```
+
+This means no ambiguity-risk signal from the approved MVP vague-term detector
+was found. It must not be described as universal proof that the requirement
+has exactly one semantically valid interpretation in every possible context.
+
+**One or more supported signals.** If at least one accepted supported
+vague-term occurrence exists:
+
+```text
+U_i = 1/2
+```
+
+Signal count is explainability information, not a cumulative numeric penalty:
+one signal, two signals, or `n` signals all yield `1/2`. Each individual
+Finding and its Evidence are preserved regardless of count.
+
+**Confirmed material ambiguity.** `U_i = 0` is reserved for a future,
+separately approved confirmed-material-ambiguity rule. The current automated
+MVP rule, `CALC-U-MVP-001`, must never produce `0`.
+
+**Unresolved behavior.** If no accepted vague-term signal exists and
+unresolved processing could still contain a supported vague-term signal:
+
+```text
+state = UNKNOWN
+value = None
+```
+
+If at least one valid vague-term signal already exists, `U_i = 1/2` computes
+even if additional candidates are unresolved, because additional signals do
+not further reduce the score and the current automated rule cannot produce
+`0`.
+
+The exact allowed numeric values from `CALC-U-MVP-001` are `1/2` and `1`,
+using exact mathematical values rather than decimal rounding (Section 13).
+When the formula computes, the result carries
+`assessment_rule_id = CALC-U-MVP-001`. The executable status for the
+automated scale is now `APPROVED_FOR_MVP_V0.1`; confirmed-ambiguity
+calculation remains `NO EXECUTABLE SCORE — FUTURE RESEARCH DECISION`.
 
 ### Explanation and evidence requirements
 
 Each signal identifies the exact matched Evidence, vocabulary entry, and
-`FIND-U-VAGUE-001` interpretation rule. A count without the matched Evidence is
-insufficient. A future confirmed ambiguity must use a separately approved
-`QUALITY_PROBLEM` rule.
+`FIND-U-VAGUE-001` interpretation rule, and the resulting `state = COMPUTED`
+assessment now also cites `assessment_rule_id = CALC-U-MVP-001`. A count
+without the matched Evidence is insufficient. A `U_i = 1` result from a
+complete scan with no signal requires no fabricated Evidence for the absence.
+A future confirmed ambiguity must use a separately approved `QUALITY_PROBLEM`
+rule and is not created by this decision.
 
 ### Reference examples
 
 The application example supplies useful positive findings for vague phrases and
 revised bounded forms. It does not establish that every occurrence is always
-ambiguous or provide a complete vocabulary.
+ambiguous or provide a complete vocabulary. Its exact `U_i` values for these
+illustrative fragments are not re-derived outside the binding Section 7.16.8
+cases (see Section 16).
 
 ## 11. Requirement Quality Profile
 
@@ -4002,13 +4298,15 @@ Chapter 2 defines individual property results `a_i,C`, `a_i,V`, and `a_i,U`, but
 it deliberately preserves a multidimensional property profile. Therefore the
 primary result is `A_i = (C_i, V_i, U_i)`, where each component is the
 corresponding Section 7.16 `CharacteristicAssessment`, not an assumed number.
-At the current gate all three components have `state = UNKNOWN` and
-`value = None`; executable vague-term signals may still occur inside the
-Unambiguity component. No function combines these components, and no scalar
-`RequirementQualityScore` is required in MVP v0.1. Chapter 4's `Q_int` formula
-combines context-selected ISO product-quality characteristics, not the three
-MVP properties of one requirement, and must not be reused here. RQD-013's
-original scalar-score request is intentionally deferred from MVP v0.1.
+Each component may now reach `state = COMPUTED` with a value in `[0,1]` under
+its approved rule (`CALC-C-MVP-001`, `CALC-V-MVP-001`, or `CALC-U-MVP-001`,
+Sections 8-10), or remain `state = UNKNOWN` with `value = None` exactly when
+that rule's own required-input or material-dependency propagation says so.
+No function combines these components, and no scalar `RequirementQualityScore`
+is required in MVP v0.1. Chapter 4's `Q_int` formula combines context-selected
+ISO product-quality characteristics, not the three MVP properties of one
+requirement, and must not be reused here. RQD-013's original scalar-score
+request remains intentionally deferred from MVP v0.1.
 
 ## 12. Specification Quality Profile
 
@@ -4033,26 +4331,55 @@ U_file = mean(U_i for applicable/computed U_i)
 ```
 
 No scalar `FileQualityScore` combines these values. RQD-014's original scalar-
-score request is intentionally deferred from MVP v0.1. Exact missing/`UNKNOWN`
-propagation, empty-set behavior beyond the approved `NA` principle, numeric
-precision, and rounding remain unresolved under RQD-012, RQD-015, and RQD-022.
-Because no per-requirement characteristic currently has an executable numeric
-value, this contract does not authorize calculation of any of these means.
+score request is intentionally deferred from MVP v0.1. Per-requirement `C_i`,
+`V_i`, and `U_i` are now executable under Sections 8-10, so this gate is no
+longer blocked merely by the absence of a per-requirement numeric rule.
+Specification-level propagation is nonetheless still gated by separate,
+unresolved decisions concerning: `UNKNOWN` values entering the mean; partially
+known sets; empty computed denominators; final aggregation semantics; and
+presentation precision (RQD-012, RQD-015, and RQD-022). This contract does not
+invent those rules and does not authorize calculation of `C_file`, `V_file`,
+or `U_file` until they are separately approved.
 
 ## 13. Numeric precision and rounding
 
 Chapter 2 establishes `[0,1]` and increasing polarity for several property
 metrics and preserves contextual polarity for process measures. It does not
-establish an MVP precision or rounding contract. The following are unresolved:
+establish a full MVP precision or rounding contract. `CALC-C-MVP-001`,
+`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) now approve the
+calculation-semantics portion of this contract, while the internal
+production numeric representation and all presentation/aggregate rounding
+remain open. `RQD-015`'s status is therefore
+`EXACT_CALCULATION_SEMANTICS_APPROVED / INTERNAL_REPRESENTATION_AND_PRESENTATION_OPEN`,
+not fully closed:
 
-- internal numeric representation;
-- output precision;
-- intermediate versus final rounding;
-- tie-breaking rule;
-- representation of unavailable scores.
+**Approved now — exact calculation semantics:**
 
-No implementation may infer these rules from the number of decimal places in
-the demonstration document. See RQD-015.
+- calculator formulas use exact mathematical values (`1/3`, `2/3`, `1/2`, not
+  `0.33`/`0.67` or any other decimal approximation);
+- no intermediate rounding is part of any characteristic formula;
+- the only exact per-characteristic value sets are `{0, 1/3, 2/3, 1}` for
+  Completeness, `{0, 1/2, 1}` for Verifiability, and `{1/2, 1}` (`0` reserved)
+  for Unambiguity.
+
+**Still open — internal representation (gates concrete MVP-06/07/08
+production implementation) and presentation (RQD-015):**
+
+- the internal production numeric type is an explicit open implementation
+  decision; this specification does not select `float`, `Decimal`, `Fraction`,
+  or any other concrete type, and a concrete production
+  `CompletenessCalculator`, `VerifiabilityCalculator`, or
+  `UnambiguityCalculator` must not be implemented with a chosen type until
+  this decision is separately researcher/spec-approved and recorded in this
+  section;
+- console/reporting output precision;
+- intermediate-versus-final rounding for any future aggregate;
+- tie-breaking rule for display;
+- representation of unavailable scores in presentation.
+
+No implementation may infer presentation rules from the number of decimal
+places in the demonstration document. Specification-level aggregate
+presentation precision also remains open pending Sections 12 and 14.
 
 ## 14. Missing-data policy
 
@@ -4075,28 +4402,58 @@ computed-versus-missing assessment state is a separate concern.
 Section 7.16 now defines the minimal characteristic state representation:
 `COMPUTED`, `NOT_APPLICABLE`, or `UNKNOWN`. `NOT_APPLICABLE` and `UNKNOWN`
 require `value = None`; `COMPUTED` requires an approved rule and a value in
-`[0,1]`. A required detector input that is `UNRESOLVED` propagates to
-characteristic `UNKNOWN`, never to zero, pass, failure, or non-applicability.
-Mixed accepted-plus-incomplete outcomes retain accepted observations and
-findings while withholding a value when the unresolved part is required.
+`[0,1]`. Mixed accepted-plus-incomplete outcomes retain accepted observations
+and findings while withholding a value when the unresolved part is required.
 
-Console wording, general insufficient-evidence rules beyond this required-input
-case, and property-level aggregation behavior remain unresolved. Detector
-confidence and evidence reliability are excluded from the current MVP v0.1
-characteristic contract. `RQD-020` remains open and non-blocking while they
-remain excluded; proposing inclusion makes it blocking and requires a separate
-scientific contract. See RQD-012, RQD-015, and RQD-022.
+`CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) now
+approve the following property-specific calculator-level propagation rules,
+which must not be conflated with one another:
+
+- **Completeness** uses all-three-required propagation: condition/context,
+  expected result, and acceptance criterion are each mandatory under the MVP
+  simplification, so any one of them being `UNRESOLVED` propagates the whole
+  assessment to `UNKNOWN`, never to zero, pass, failure, or non-applicability.
+  The other two criteria cannot compensate for the missing one.
+- **Verifiability** uses material-dependency propagation: an unresolved
+  candidate withholds the result only when resolving it could still change
+  the numeric class (Section 9's worked examples V1-V4). An unresolved
+  lower-tier candidate below an already-accepted acceptance criterion, or an
+  unresolved lower-tier candidate below an already-accepted lower-tier path,
+  does not withhold the result.
+- **Unambiguity** uses signal-presence capping: once at least one accepted
+  supported vague-term signal exists, the result computes to `1/2` regardless
+  of any other unresolved candidate, because additional signals cannot lower
+  the score and the current automated rule can never produce `0`. Only the
+  absence of any accepted signal combined with a materially unresolved
+  candidate withholds the result.
+
+Console wording, general insufficient-evidence rules beyond these
+property-specific cases, and property-level aggregation behavior remain
+unresolved. Detector confidence and evidence reliability are excluded from
+the current MVP v0.1 characteristic contract. `RQD-020` remains open and
+non-blocking while they remain excluded; proposing inclusion makes it
+blocking and requires a separate scientific contract.
+
+This decision approves: the calculator-level propagation portion of
+`RQD-012` (the three property-specific rules above); the per-characteristic
+withholding portion of `RQD-022`; and, for `RQD-015`, only the exact
+mathematical calculation semantics and the absence of calculator-level
+intermediate rounding (Section 13). `RQD-015`'s internal production numeric
+representation is a separate, still-open decision that this section does not
+resolve — see Section 13. The specification-level aggregation portions of
+`RQD-012` and `RQD-022`, and the presentation/aggregate-rounding portion of
+`RQD-015`, remain open (Sections 12-13).
 
 ## 15. Explainability requirements
 
 Every numeric assessment must ultimately be traceable through:
 
 ```text
-reported value
-→ approved model rule
-→ contributing feature values
-→ evidence or explicit absence condition
-→ source requirement ID, line, and text
+reported characteristic value
+→ CALC-C/V/U-MVP-001 rule
+→ contributing detector outcomes / observations
+→ Evidence where applicable
+→ requirement ID / source text
 ```
 
 Every detected problem must carry enough evidence for a human-readable reason.
@@ -4104,10 +4461,17 @@ Section 7 approves separate evidence and observation contracts and the minimal
 finding contract with stable requirement, rule, criterion, and Evidence
 provenance. Evidence-based findings reference accepted Evidence without
 changing it. Absence-based findings use requirement/rule/criterion provenance
-and an empty evidence-reference tuple; they never fabricate a source span.
-`FIND-U-VAGUE-001` is the only allocated finding rule and produces a `SIGNAL`.
-All observation-to-`QUALITY_PROBLEM` conversions remain unapproved under
-RQD-016 and the characteristic-calculation gate.
+and an empty evidence-reference tuple; they never fabricate a source span. A
+criterion or evidence path that contributes a `0` to `C_i` or `V_i` because its
+observation was `NOT_DETECTED`, or a complete scan that yields `U_i = 1`
+because no signal was found, is an absence-based numeric contribution: it
+requires no fabricated Evidence, and it must not itself be reported as a
+`QUALITY_PROBLEM` finding merely because it contributed zero (or the maximum
+Unambiguity value) to the calculation. Numeric score and Finding remain
+separate model constructs. `FIND-U-VAGUE-001` is the only allocated finding
+rule and produces a `SIGNAL`. All observation-to-`QUALITY_PROBLEM` conversions
+remain unapproved under RQD-016; that gate is unrelated to, and unaffected by,
+the newly approved numeric `CALC-C/V/U-MVP-001` calculation rules.
 
 Chapter 2 requires the implementation to preserve the distinction among a
 primary feature, a measure, and an interpreted indicator. It also requires an
@@ -4119,9 +4483,17 @@ The reporter receives completed structured results and performs no calculation.
 
 ## 16. Reference examples
 
-These examples are traceability candidates. They do not contain approved MVP
-scores. Section 7.16.8 contains the binding characteristic-layer cases for the
-current contract.
+These examples are traceability candidates, drawn from truncated or
+demonstrational source fragments. They do not contain approved MVP scores.
+Section 7.16.8 contains the binding, numerically resolved characteristic-layer
+cases for the current contract (Cases A-E); the values below are not
+re-derived to that same binding standard, because these fragments' full
+detector outcomes for every candidate feature were never established as
+binding facts the way Cases A-E were. Per-requirement C/V/U are executable
+under Sections 8-10; where a value below is not stated, it is because
+re-deriving it here would require inventing detector outcomes beyond what
+this specification has established, not because the calculation itself
+remains blocked.
 
 ### Example A: vague wording
 
@@ -4136,11 +4508,17 @@ Candidate evidence:
 vague_terms includes the exact span “швидко”.
 
 Characteristic assessment:
-Unambiguity `UNKNOWN`, value absent, with one `VAGUE_TERM_SIGNAL` for the
-accepted occurrence; no confirmed ambiguity or `QUALITY_PROBLEM`.
+Unambiguity: one accepted occurrence of “швидко” under `FIND-U-VAGUE-001` is
+sufficient, by itself, for `CALC-U-MVP-001` to compute `U_i = 1/2`
+(`assessment_rule_id = CALC-U-MVP-001`), regardless of how the elided
+remainder of the sentence reads; no confirmed ambiguity or `QUALITY_PROBLEM`.
+Completeness and Verifiability are not re-derived here: this fragment is
+truncated (“...”) and its condition/result/acceptance/verification-method
+detector outcomes are not established facts in this specification, unlike the
+complete sentences in Section 7.16.8.
 
 Requirement Quality Profile:
-(C, V, U) assessment values withheld
+(C, V) not re-derived for this fragment; U = 1/2 per CALC-U-MVP-001
 ```
 
 ### Example B: measurable revised wording
@@ -4158,11 +4536,15 @@ Candidate extracted features:
 subject to approved definitions in Section 7.
 
 Characteristic assessments:
-positive extracted evidence is preserved; C, V, and U remain `UNKNOWN` with
-values absent until their applicability and calculation rules are approved
+C, V, and U are now executable in principle under Sections 8-10 once their
+detector outcomes are known. This fragment is truncated (“...”) and is not one
+of the binding Section 7.16.8 cases, so its exact detector outcomes for every
+Completeness/Verifiability/Unambiguity input are not re-verified here; no
+value is invented for it. See Section 7.16.8 for the binding numeric
+reference cases.
 
 Requirement Quality Profile:
-(C, V, U) assessment values withheld
+(C, V, U) not re-derived for this fragment
 ```
 
 ### Example C: missing failure behavior
@@ -4180,17 +4562,24 @@ missing expected behavior for the stated failure condition.
 
 Characteristic assessments:
 the source example is qualitative evidence that an applicable missing-result
-rule may be useful, but the current detector/applicability contract cannot
-create an absence-based quality problem; C, V, and U remain `UNKNOWN`
+rule may be useful. Per-requirement C, V, and U are executable under Sections
+8-10, but this requirement's exact detector outcomes (which of
+condition/context, expected result, acceptance criterion, quantitative
+constraint, verification method, and vague-term signal are DETECTED versus
+NOT_DETECTED here) were never established as a binding fact in this
+specification, unlike Cases A-E in Section 7.16.8. No value is invented for
+it here; the current detector/applicability contract still cannot create an
+absence-based `QUALITY_PROBLEM` regardless of the numeric outcome.
 
 Requirement Quality Profile:
-(C, V, U) assessment values withheld
+(C, V, U) not re-derived for this fragment
 ```
 
 Researcher-approved examples must eventually include expected features,
 characteristic assessments, requirement-quality profiles, explanations, and
-boundary behavior. Demonstration coefficients and scores in the source example
-must not be reused as expected values.
+boundary behavior, verified against the actual detector implementation.
+Demonstration coefficients and scores in the source example must not be reused
+as expected values.
 
 ## 17. Future extensions
 
@@ -4228,28 +4617,28 @@ approval.
 | ID | Research decision | Assessment or approved decision | Binding evidence or remaining gap | Current status | Blocked MVP component(s) |
 | --- | --- | --- | --- | --- | --- |
 | `RQD-001` | Confirm that MVP assesses artifact quality of each individual requirement, not Predicted Product Quality, and define its relation to specification-level quality. | `APPROVED_FOR_MVP_V0.1` | One non-empty input line is one `r_i`; Requirement Quality is artifact quality, its primary result is `A_i = (C_i, V_i, U_i)`, and it is strictly separate from Predicted Product Quality. | CLOSED FOR MVP v0.1 | None |
-| `RQD-002` | Approve an operational definition of per-requirement Completeness. | `RESULT_ENVELOPE_AND_WITHHOLDING_APPROVED / CALCULATION_OPEN` | Section 7.16 approves the characteristic identifier/state envelope and preserves detected completeness evidence, but condition/result/criterion applicability, required-element set, absence findings, and every numeric mapping remain unapproved. | OPEN — CALCULATOR BLOCKED | MVP-06 |
-| `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `RESULT_ENVELOPE_AND_WITHHOLDING_APPROVED / CALCULATION_OPEN` | Section 7.16 preserves acceptance, quantitative, and explicit-method evidence and forbids absence-only failures, but applicability, sufficient evidence combinations, absence findings, and every numeric mapping remain unapproved. | OPEN — CALCULATOR BLOCKED | MVP-07 |
-| `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `SIGNAL_OUTPUT_APPROVED / CONFIRMATION_AND_CALCULATION_OPEN` | `FIND-U-VAGUE-001` produces traceable signals. No context/confirmation rule, `QUALITY_PROBLEM` conversion, pass rule from no matches, or numeric mapping is approved. | OPEN — CALCULATOR BLOCKED | MVP-08 |
-| `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule. | CLOSED FOR MVP v0.1 | None directly; detector and calculation rules remain gated separately |
-| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates `COND-UK-001` for the exact five-marker first-production condition/context subset, `RESULT-UK-001` for the exact five-surface parser-assisted normative-modal expected-result subset, `ACCEPT-QUANT-001` for clause-level quantitative acceptance composition using only accepted result clauses, and `VERIFY-UK-001` for exactly construction A (`перевіряється`/`перевіряються` plus instrumental method), construction B (approved verification label, delimiter, and named method), and construction C (`визначено` plus an immediately following named test-method phrase). Section 7.15 approves the spaCy backend and neutral data/processing boundary. General expected-result grammar, non-modal/inherited normative force, coordinated results, general negation, implicit subjects, general condition attachment beyond `COND-UK-001`, non-numeric acceptance grammar, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 and consuming calculators |
-| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; Unambiguity calculation remains gated separately |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6, and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, typed partial data representation, and the `ACCEPT-QUANT-001` result-span containment, clause-level deduplication, and judgeability contract. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and protected deferred-frequency exclusion without accepting `не рідше`. `до` remains `UPPER_BOUND` with inclusivity `UNRESOLVED` and is not a judgeable acceptance bound. Complex metric/context grammar, count-noun and nested quantitative roles, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05, MVP-07 |
+| `RQD-002` | Approve an operational definition of per-requirement Completeness. | `APPROVED_FOR_MVP_V0.1` | `CALC-C-MVP-001` (Section 8) approves the three-mandatory-criterion MVP simplification, the `(c_condition + c_result + c_acceptance) / 3` formula, and all-three-required unresolved propagation. Absence-based `QUALITY_PROBLEM` conversion remains separately gated under RQD-016. | CLOSED FOR MVP v0.1 — MVP-06 NO LONGER SCIENTIFICALLY BLOCKED BY THE COMPLETENESS FORMULA | None for the formula itself; `QUALITY_PROBLEM` conversion remains under RQD-016 |
+| `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `APPROVED_FOR_MVP_V0.1` | `CALC-V-MVP-001` (Section 9) approves the alternative-evidence-path formula (acceptance criterion → `1`; quantitative/method only → `1/2`; none after complete processing → `0`) and its material-dependency unresolved propagation. Absence-based `QUALITY_PROBLEM` conversion remains separately gated under RQD-016. | CLOSED FOR MVP v0.1 — MVP-07 NO LONGER SCIENTIFICALLY BLOCKED BY THE VERIFIABILITY FORMULA | None for the formula itself; `QUALITY_PROBLEM` conversion remains under RQD-016 |
+| `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `AUTOMATED_SCALE_APPROVED_FOR_MVP_V0.1 / CONFIRMED_AMBIGUITY_OPEN` | `CALC-U-MVP-001` (Section 10) approves the executable automated MVP scale: no accepted supported signal after complete scanning → `1`; one or more → `1/2`. `0` remains reserved for a future, separately approved confirmed-material-ambiguity rule and is never produced by `CALC-U-MVP-001`. `FIND-U-VAGUE-001` remains a signal-only rule. | CLOSED FOR MVP v0.1 AUTOMATED SCALE — MVP-08 NO LONGER SCIENTIFICALLY BLOCKED BY THE UNAMBIGUITY NUMERIC RULE; confirmed-ambiguity `0` rule remains OPEN | Confirmed-ambiguity rule and any `QUALITY_PROBLEM` conversion remain under RQD-016 and future research |
+| `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule by itself; score contribution for the mapped features is separately authorized by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). | CLOSED FOR MVP v0.1 | None directly; broader detector grammar remains gated under RQD-006/RQD-008 |
+| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates `COND-UK-001` for the exact five-marker first-production condition/context subset, `RESULT-UK-001` for the exact five-surface parser-assisted normative-modal expected-result subset, `ACCEPT-QUANT-001` for clause-level quantitative acceptance composition using only accepted result clauses, and `VERIFY-UK-001` for exactly construction A (`перевіряється`/`перевіряються` plus instrumental method), construction B (approved verification label, delimiter, and named method), and construction C (`визначено` plus an immediately following named test-method phrase). Section 7.15 approves the spaCy backend and neutral data/processing boundary. General expected-result grammar, non-modal/inherited normative force, coordinated results, general negation, implicit subjects, general condition attachment beyond `COND-UK-001`, non-numeric acceptance grammar, general declaration/verification predicates and labels, arbitrary method noun phrases, broader method coordination, artifact/reference interpretation, imperative or implicit procedures, semantic reproducibility inference, and richer procedure-content grammar remain open. Actor/action/object remain `DEFERRED_FROM_MVP_V0.1`. | PARTIALLY APPROVED / OPEN | MVP-04/05 detector coverage beyond the allocated first-production subsets. This does not block `CompletenessCalculator`, `VerifiabilityCalculator`, or `UnambiguityCalculator`: they consume `RequirementExtractionResult` domain data under `CALC-C/V/U-MVP-001` and can be implemented and tested against manually constructed extraction results independently of remaining detector grammar. |
+| `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; the automated Unambiguity calculation itself is approved by `CALC-U-MVP-001` (Section 10) |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6, and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, typed partial data representation, and the `ACCEPT-QUANT-001` result-span containment, clause-level deduplication, and judgeability contract. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and protected deferred-frequency exclusion without accepting `не рідше`. `до` remains `UPPER_BOUND` with inclusivity `UNRESOLVED` and is not a judgeable acceptance bound. Complex metric/context grammar, count-noun and nested quantitative roles, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05 detector coverage beyond the approved baseline. This does not block `VerifiabilityCalculator` (MVP-07) implementation or testing: `CALC-V-MVP-001` consumes whatever quantitative-constraint observations the extraction result already carries, and the calculator can be exercised against manually constructed inputs independently of remaining detector grammar. |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
-| `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `RANGE_ONLY / NO EXECUTABLE SCORE` | Section 7.16.7 confirms `[0,1]` only as a future computed-value invariant and explicitly rejects binary, graded, criterion-ratio, weight, penalty, and threshold inference for all three characteristics. | OPEN — RESEARCHER DECISION REQUIRED | MVP-06-08 |
-| `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `RANGE_AND_DIRECTION_APPROVED / SCALE_RULE_OPEN` | Chapter 2 and Section 7.16 support `[0,1]` and upward compliance orientation for a future computed property value; binary versus graded behavior and property-specific mapping remain unapproved. | OPEN — PARTIALLY APPROVED | MVP-06-10 |
-| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `DETECTOR_AND_MINIMUM_CHARACTERISTIC_PROPAGATION_APPROVED / AGGREGATION_OPEN` | Sections 7.15-7.16 approve immutable detector outcomes, separate applicability, characteristic states, `UNKNOWN` with no value for a required unresolved input, no violation from `NOT_DETECTED` alone, and preservation of accepted data in mixed outcomes. General applicability, other insufficient-evidence cases, console wording, and aggregation propagation remain open. | OPEN — PARTIALLY APPROVED | MVP-06-10 |
+| `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PER-REQUIREMENT_MVP_FORMULAS_APPROVED / FUTURE_REFINEMENT_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) approve the per-requirement MVP v0.1 formulas, contributions, and unresolved-propagation rules for all three characteristics. This approval is scoped to MVP v0.1: it does not permanently close all future characteristic-formula research, including a future confirmed-material-ambiguity `0` rule or later Completeness/Verifiability refinements. | CLOSED FOR MVP v0.1 PER-REQUIREMENT FORMULAS | None for the approved MVP formulas; future refinements require separate researcher approval |
+| `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PER-REQUIREMENT_SCALE_CLOSED_FOR_MVP_V0.1 / SPECIFICATION_SCALE_OPEN` | Chapter 2 and Section 7.16 support `[0,1]` and upward compliance orientation. For MVP v0.1, the per-requirement scale/range is now closed with the property-specific permitted value sets defined by each calculation rule: Completeness `{0,1/3,2/3,1}`, Verifiability `{0,1/2,1}`, Unambiguity `{1/2,1}` automated with `0` reserved. Specification-level scale behavior remains open pending downstream aggregation (Sections 12-14). | CLOSED FOR MVP v0.1 PER-REQUIREMENT SCALE; SPECIFICATION-LEVEL SCALE OPEN | Specification-level aggregation (MVP-09/10) |
+| `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `CALCULATOR-LEVEL_PROPAGATION_APPROVED / AGGREGATION_PROPAGATION_OPEN` | Sections 7.15-7.16 and 8-10 approve immutable detector outcomes, separate applicability, characteristic states, and the three property-specific calculator-level propagation rules (Completeness all-three-required, Verifiability material-dependency, Unambiguity signal-presence capping). Specification-level aggregation propagation (how `UNKNOWN`/missing values enter `C_file`/`V_file`/`U_file`) remains open and is **not** closed by this decision. | CALCULATOR-LEVEL PORTION CLOSED FOR MVP v0.1; SPECIFICATION AGGREGATION PORTION REMAINS OPEN | Specification-level aggregation (MVP-09/10) |
 | `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation remains under RQD-012/RQD-022. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
-| `RQD-015` | Approve numeric precision and rounding. | `UNRESOLVED` | Chapter 2 gives no calculation, aggregation, or presentation rounding policy. | OPEN | MVP-06-12 |
-| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | Section 7.16.5 finalizes the minimal Finding representation, absence provenance, and `FIND-U-VAGUE-001`. The other five feature families produce no finding, and no `QUALITY_PROBLEM` rule is approved. Severity, probability, risk, confidence, priority, and corrective action are excluded. | OPEN ONLY FOR `QUALITY_PROBLEM` RULES | MVP-06-08, MVP-10 |
-| `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `BINDING NON_NUMERIC CASES PARTIALLY APPROVED` | Section 7.16.8 approves Cases A-E for state, signal, evidence-preservation, and withholding behavior. No source supports expected numeric `C_i`, `V_i`, or `U_i` values. | OPEN FOR NUMERIC REFERENCE CASES | MVP-06-09, MVP-12 |
+| `RQD-015` | Approve numeric precision and rounding. | `EXACT_CALCULATION_SEMANTICS_APPROVED / INTERNAL_REPRESENTATION_AND_PRESENTATION_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Section 13) approve exact mathematical calculator formula semantics (`1/3`, `2/3`, `1/2`) with no calculator-level intermediate rounding. Neither the internal production numeric type (`float`, `Decimal`, `Fraction`, or otherwise) nor any reporter/aggregate presentation-precision or rounding policy is selected; both remain open. | CALCULATION-SEMANTICS PORTION CLOSED FOR MVP v0.1; INTERNAL-REPRESENTATION AND PRESENTATION/AGGREGATE-ROUNDING PORTIONS REMAIN OPEN | Concrete production implementation of MVP-06/07/08 (blocked on internal representation until separately approved); console/reporter presentation and specification aggregation (MVP-09-12, blocked on presentation/rounding) |
+| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | Section 7.16.5 finalizes the minimal Finding representation, absence provenance, and `FIND-U-VAGUE-001`. The other five feature families produce no finding, and no `QUALITY_PROBLEM` rule is approved. Severity, probability, risk, confidence, priority, and corrective action are excluded. **This task approves no new `QUALITY_PROBLEM` rule**; this row remains open specifically, and only, for future `QUALITY_PROBLEM` conversion rules. | OPEN ONLY FOR `QUALITY_PROBLEM` RULES | MVP-06-08, MVP-10 |
+| `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `BINDING_NUMERIC_CASES_APPROVED_FOR_MVP_V0.1` | Section 7.16.8 approves Cases A-E as binding numeric reference cases: A=(C=1,V=1,U=1), B=(C=1/3,V=0,U=1/2), C=(C=0,V=1/2,U=1), D=(C=0,V=UNKNOWN,U=1), E=(C=0,V=0,U=1), each with `assessment_rule_id` traceability. Downstream specification-level aggregation acceptance is not solved by this approval. | CLOSED FOR MVP v0.1 PER-REQUIREMENT NUMERIC REFERENCE CASES; AGGREGATION-LEVEL REFERENCE CASES REMAIN OPEN | Specification-level aggregation (MVP-09/10, MVP-12) |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
 | `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
 | `RQD-020` | Decide whether evidence coverage/reliability and detector confidence are represented in MVP. | `UNRESOLVED` | No confidence or evidence-reliability representation is approved in the current MVP v0.1 `CharacteristicAssessment` or `Finding` contracts. Whether such metadata belongs in MVP remains a researcher decision. | OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED | Not blocking while these values remain excluded; blocking if inclusion is proposed, which requires a separate scientific contract. |
 | `RQD-021` | Supply or supersede the Chapter 2/§2.3 definitions referenced by Chapter 4. | `RESOLVED_BY_CHAPTER_2` | Sections 2.1, 2.2, and especially 2.3 are now present and integrated into this specification. Their remaining operational gaps are tracked by the other RQDs. | CLOSED AS RESEARCH INPUT | None directly |
-| `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `MINIMUM_WITHHOLDING_RULE_APPROVED / GENERAL RULES OPEN` | Section 7.16 requires `UNKNOWN` with `value = None` when a required detector input is unresolved or when no approved calculation exists. Other sufficiency rules, console wording, and property-level aggregation remain open. | OPEN — PARTIALLY APPROVED | MVP-06-10, MVP-12 |
-| `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Section 7.16.3 makes the conservative rule executable: only an approved observable criterion rule can yield `APPLICABLE` or `NOT_APPLICABLE`; otherwise applicability is `UNKNOWN`. No current Completeness or Verifiability candidate has such a rule. | CLOSED FOR MVP v0.1 | None directly; criterion-specific rules remain under RQD-002/RQD-003 |
+| `RQD-022` | Approve whether and how a score may be withheld when evidence is insufficient. | `PER-CHARACTERISTIC_WITHHOLDING_APPROVED / AGGREGATION_SUFFICIENCY_OPEN` | Section 7.16 and the three CALC rules (Sections 8-10) approve the exact per-characteristic withholding behavior needed by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`: `UNKNOWN` with `value = None` when a required detector input is unresolved (Completeness), when a material-dependency candidate could still change the numeric class (Verifiability), or when no signal exists and unresolved processing could still surface one (Unambiguity). Downstream aggregation/reporting sufficiency semantics (how withheld per-requirement values affect `C_file`/`V_file`/`U_file` and console wording) remain open. | PER-CHARACTERISTIC PORTION CLOSED FOR MVP v0.1; DOWNSTREAM AGGREGATION/REPORTING SUFFICIENCY REMAINS OPEN | Specification-level aggregation (MVP-09/10, MVP-12) |
+| `RQD-023` | Define requirement types and the applicability sets/rules used by each candidate feature and characteristic in a text-only per-line MVP. | `APPROVED_MVP_SIMPLIFICATION` | MVP v0.1 performs no automatic requirement-type classification. Section 7.16.3 makes the conservative rule executable: only an approved observable criterion rule can yield `APPLICABLE` or `NOT_APPLICABLE`; otherwise applicability is `UNKNOWN`. `CALC-C-MVP-001` now supplies such a rule for the three Completeness candidates, as an explicit MVP simplification rather than automatic type inference; `CALC-V-MVP-001` makes Verifiability itself applicable to every supported requirement without needing a per-family mandatory-applicability rule for its three alternative evidence paths. | CLOSED FOR MVP v0.1 | None directly; per-requirement calculation rules are recorded under RQD-002/RQD-003 |
 
 ### 18.1 RQDs approved or closed for MVP v0.1
 
@@ -4284,12 +4673,32 @@ The remaining decisions are grouped into four approval gates:
    representation. Section 7.16 finalizes the Finding contract and
    `FIND-U-VAGUE-001`; `RQD-016` remains open only for `QUALITY_PROBLEM`
    conversions. `RQD-007` is closed for the MVP seed matcher.
-2. **Characteristic-calculation gate:** `RQD-002`-`RQD-004`, `RQD-010`-
-   `RQD-012`, and `RQD-022`. The result envelope and minimum withholding rules
-   are approved, but no `C_i`, `V_i`, or `U_i` value is executable.
-3. **Property aggregation and numeric-contract gate:** the still-open
-   propagation aspects of `RQD-012` and `RQD-022`, plus `RQD-015`.
-4. **Scientific acceptance gate:** `RQD-017`.
+2. **Characteristic-calculation gate — CLOSED FOR MVP v0.1 PER-REQUIREMENT
+   SCOPE:** `RQD-002`-`RQD-004` and the per-requirement portions of
+   `RQD-010`-`RQD-012` and `RQD-022` are now approved. `CALC-C-MVP-001`,
+   `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) authorize the
+   calculation logic for `C_i`, `V_i`, and the automated `U_i` in principle, so
+   MVP-06, MVP-07, and MVP-08 are no longer blocked by open scientific
+   formulas. This closes the *scientific* gate, not the full implementation
+   gate: before concrete production values for `1/3` and `2/3` are
+   represented, the internal production numeric representation must still be
+   explicitly selected under the remaining implementation portion of
+   `RQD-015` (Section 13) rather than inferred by the implementer. Only the
+   confirmed-material-ambiguity `U_i = 0` rule and any `QUALITY_PROBLEM`
+   conversion (RQD-016) remain scientifically open within this gate.
+3. **Property aggregation and numeric-contract gate — still open:** the
+   specification-level propagation aspects of `RQD-012` and `RQD-022` (how
+   `UNKNOWN`/missing per-requirement values enter `C_file`/`V_file`/`U_file`),
+   plus the presentation/aggregate-rounding portion of `RQD-015`.
+   Per-requirement calculation *semantics* are approved (exact mathematical
+   values, no intermediate rounding; Section 13); the internal production
+   numeric representation is a separate open `RQD-015` decision tracked under
+   gate 2 above, because it gates concrete MVP-06/07/08 implementation rather
+   than aggregation. This gate concerns specification-level aggregation and
+   presentation/reporting only.
+4. **Scientific acceptance gate:** the per-requirement portion of `RQD-017`
+   is now approved (Cases A-E are binding numeric reference cases);
+   specification-level numeric reference cases remain open pending gate 3.
 
 `RQD-020` remains `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED`. It is not
 part of the current implementation-blocking gates because confidence and
@@ -4304,32 +4713,77 @@ contract.
    confirmed ambiguity at its boundary values. Treating every match as a defect
    would contradict that distinction.
 2. **Applicability without type classification.** Requirement type remains
-   unspecified. Feature and criterion contracts must preserve `UNKNOWN` rather
-   than infer a type or violation. Section 7.16 defines the conservative
-   default, but calculators still need criterion-specific applicability rules.
-3. **Local Completeness versus Verifiability overlap.** A fulfilment criterion
-   contributes to local Completeness and also provides Verifiability evidence.
-   Any shared feature and non-duplication rule requires approval.
+   unspecified, and MVP v0.1 still performs no automatic requirement-type
+   inference. Feature and criterion contracts preserve `UNKNOWN` by default.
+   `CALC-C-MVP-001` resolves this for Completeness by an explicit, narrow MVP
+   simplification (all three criteria mandatory and `APPLICABLE`, not a
+   universal claim), and `CALC-V-MVP-001` resolves it for Verifiability by
+   making the characteristic itself applicable to every supported requirement
+   while treating its three evidence families as non-mandatory alternatives
+   rather than criteria each needing their own applicability rule.
+3. **Local Completeness versus Verifiability overlap — resolved for the
+   approved MVP formulas.** An accepted `acceptance_criterion` observation may
+   be consumed once by `CALC-C-MVP-001` within Completeness and, independently,
+   once by `CALC-V-MVP-001` as a Verifiability evidence path. `C_i` and `V_i`
+   are independent components of the profile `A_i = (C_i, V_i, U_i)`; MVP v0.1
+   has no scalar C/V aggregation, so consuming the same accepted observation
+   in both characteristics is not cross-characteristic numeric double-counting.
+   Within a single characteristic, repeated observations of the same criterion
+   family still contribute at most once (Sections 8-9): `CALC-C-MVP-001`'s
+   `c_acceptance` and `CALC-V-MVP-001`'s acceptance-criterion tier do not
+   increase from multiple accepted observations in the same family.
 
-The next recommended research work is parser/template detector grammar beyond
-the `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001`
-first-production subsets under `RQD-006`, complex metric/context grammar under `RQD-008`, and
-then the characteristic-calculation gate. The Section 7.15
-domain/data-contract subset of MVP-01 may start only after PR #19 is merged.
-Until the other applicable gates are approved, unapproved detector rules,
-characteristic calculators, and specification aggregation remain blocked;
-the overall document stays `DRAFT`.
+Now that the per-requirement characteristic-calculation gate is closed, the
+recommended sequence is:
+
+1. choose and researcher/spec-approve the internal production numeric
+   representation under `RQD-015` (Section 13) — this is the immediate next
+   decision gating concrete production implementation of MVP-06/07/08, and it
+   is not selected by this document;
+2. implement and test `CompletenessCalculator`, `VerifiabilityCalculator`, and
+   `UnambiguityCalculator` against manually constructed and currently
+   extracted `RequirementExtractionResult` inputs, per `CALC-C-MVP-001`,
+   `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10);
+3. separately resolve the specification-level aggregation propagation
+   (`RQD-012`, `RQD-022`) and the presentation/aggregate-rounding portion of
+   `RQD-015` (gate 3 above);
+4. broader detector grammar — parser/template operationalization beyond the
+   `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001`
+   first-production subsets under `RQD-006`, and complex metric/context
+   grammar under `RQD-008` — can evolve independently of steps 1-3, as future
+   detector-coverage work, unless a later feature specifically requires it.
+   It is not a prerequisite for calculator implementation.
+
+The Section 7.15 domain/data-contract subset of MVP-01 may start only after
+PR #19 is merged. Until the other applicable gates are approved, unapproved
+detector rules and specification aggregation remain blocked; the overall
+document stays `DRAFT` pending the remaining gates.
 
 ### 18.5 Downstream GitHub issue impact after characteristic-contract approval
 
 The prior detector issues remain governed by Sections 7.14-7.15. The
 characteristic implementation issues for Completeness, Verifiability, and
-Unambiguity remain blocked from numeric calculator work by RQD-002-RQD-004 and
-RQD-010-RQD-012. A domain-contract issue may implement only the Section 7.16
-identifiers, assessment envelope, Finding representation, and
-`FIND-U-VAGUE-001` conversion when explicitly allocated. It may not implement
-a `QUALITY_PROBLEM` conversion or a numeric characteristic value.
+Unambiguity (MVP-06, MVP-07, MVP-08) are no longer blocked by open scientific
+formulas: RQD-002-RQD-004 and the per-requirement portions of RQD-010-RQD-012
+are approved via `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`
+(Sections 8-10), so implementation of their calculation logic is authorized in
+principle. A future implementation issue may implement the Section 7.16
+identifiers, assessment envelope, Finding representation, `FIND-U-VAGUE-001`
+conversion, and the three numeric `CompletenessCalculator`,
+`VerifiabilityCalculator`, and `UnambiguityCalculator` rules exactly as
+specified in Sections 8-10 and 7.16.7-7.16.8, **provided** a
+researcher-approved `RQD-015` decision has already selected and recorded the
+internal production numeric representation in Section 13. The implementation
+issue does not select that representation itself — it must follow the
+recorded decision rather than inferring or choosing a type (`float`,
+`Decimal`, `Fraction`, or otherwise) on its own; this document does not select
+one either. It may still **not** implement a `QUALITY_PROBLEM` conversion
+(RQD-016 remains open for that only), a confirmed-material-ambiguity `U_i = 0` rule, or
+specification-level aggregation (`SpecificationQualityAggregator`,
+`C_file`/`V_file`/`U_file`).
 
-No issue may infer a `QUALITY_PROBLEM` or characteristic score from detector or
-parser rules. Specification aggregation remains downstream and blocked until
-numeric per-requirement rules and missing/`UNKNOWN` propagation are approved.
+No issue may infer a `QUALITY_PROBLEM` or characteristic score beyond the
+approved `CALC-C/V/U-MVP-001` formulas from detector or parser rules.
+Specification aggregation remains downstream and blocked until the
+specification-level missing/`UNKNOWN` propagation and presentation-precision
+decisions in Sections 12-14 are separately approved.
