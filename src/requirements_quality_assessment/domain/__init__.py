@@ -1,5 +1,9 @@
 """Approved immutable domain data contracts for MVP v0.1."""
 
+from .assessment import (
+    CharacteristicAssessment, CharacteristicAssessmentState, CharacteristicId,
+    Finding, FindingKind,
+)
 from .core import CriterionApplicability, Evidence, FeatureId, Requirement
 from .detection import (
     DetectionDiagnostic, DetectionProcessingStatus, DetectionStatus,
@@ -18,12 +22,14 @@ from .quantitative import (
 )
 
 __all__ = [
-    "BoundaryInclusivity", "ComparatorComponent", "ComparatorLabel",
+    "BoundaryInclusivity", "CharacteristicAssessment", "CharacteristicAssessmentState",
+    "CharacteristicId", "ComparatorComponent", "ComparatorLabel",
     "CriterionApplicability", "DetectionDiagnostic", "DetectionProcessingStatus",
     "DetectionStatus", "DiagnosticSpan", "Evidence", "FeatureDetectionOutcome",
-    "FeatureId", "FeatureObservation", "MorphFeature", "NumericValueComponent",
-    "ParsedRequirement", "ParserDiagnostic", "ParserDiagnosticCode", "ParserMetadata",
-    "ParserOutcome", "QuantitativeComponentName", "QuantitativeConstraintObservation",
+    "FeatureId", "FeatureObservation", "Finding", "FindingKind", "MorphFeature",
+    "NumericValueComponent", "ParsedRequirement", "ParserDiagnostic",
+    "ParserDiagnosticCode", "ParserMetadata", "ParserOutcome",
+    "QuantitativeComponentName", "QuantitativeConstraintObservation",
     "Requirement", "RequirementExtractionResult", "RequirementFeatures",
     "SentenceAnnotation", "TextComponent",
     "TokenAnnotation", "UnitComponent", "UnitLabel", "VagueTermOccurrence",
