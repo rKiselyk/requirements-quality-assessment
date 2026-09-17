@@ -3,8 +3,11 @@
 **Status: DRAFT — characteristic result and finding contracts incorporated;
 executable per-requirement Completeness, Verifiability, and Unambiguity
 calculation rules (`CALC-C-MVP-001`, `CALC-V-MVP-001`, `CALC-U-MVP-001`) are
-now incorporated; specification-level aggregation, `QUALITY_PROBLEM`
-conversion, and downstream presentation/rounding semantics remain open**
+now incorporated; the internal production numeric representation for
+per-requirement characteristic scores is now approved as Python
+standard-library `fractions.Fraction` (Section 13); specification-level
+aggregation, `QUALITY_PROBLEM` conversion, and downstream
+presentation/rounding semantics remain open**
 
 This document is the prospective authoritative implementation specification for
 MVP v0.1. It formalizes only what can be traced to the supplied research
@@ -874,9 +877,10 @@ v0.1 and approve the detector-to-signal portion of `RQD-016`; Section 7.16
 later finalizes the Finding representation and exact signal rule. Sections 8-10
 later close the per-requirement calculation portions of `RQD-002`-`RQD-004`,
 `RQD-010`-`RQD-012`, and `RQD-022` via `CALC-C-MVP-001`, `CALC-V-MVP-001`, and
-`CALC-U-MVP-001`. Broader detector/runtime coverage, specification aggregation,
-and the remaining production-representation decision below remain blocked;
-isolated implementation and testing of `CompletenessCalculator`,
+`CALC-U-MVP-001`. Broader detector/runtime coverage and specification
+aggregation remain blocked; the internal production numeric representation
+(item 7 below) is now resolved. Isolated implementation and testing of
+`CompletenessCalculator`,
 `VerifiabilityCalculator`, and `UnambiguityCalculator` against manually
 constructed `RequirementExtractionResult` inputs is not blocked by items 1-2:
 
@@ -915,13 +919,14 @@ constructed `RequirementExtractionResult` inputs is not blocked by items 1-2:
    later excludes both from the current MVP v0.1 characteristic contract while
    leaving the research decision open and non-blocking while they remain
    excluded;
-7. the internal production numeric representation for `CALC-C-MVP-001`,
-   `CALC-V-MVP-001`, and `CALC-U-MVP-001` output values (the remaining
-   implementation portion of `RQD-015`, Section 13). Exact mathematical
-   calculation semantics are approved; a concrete numeric type for production
-   values such as `1/3` and `2/3` is not, and gates concrete production
-   implementation of MVP-06/07/08 even though the calculation logic itself is
-   authorized.
+7. **RESOLVED.** the internal production numeric representation for
+   `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` output values (the
+   remaining implementation portion of `RQD-015`, Section 13). Exact
+   mathematical calculation semantics were already approved; Section 13 now
+   additionally approves Python standard-library `fractions.Fraction` as the
+   concrete representation for production values such as `1/3` and `2/3`, so
+   this item no longer gates concrete production implementation of
+   MVP-06/07/08.
 
 No decision in this section defines a calculation for `C`, `V`, or `U`, a
 coefficient, a weight, a threshold, a score contribution, or a rounding rule.
@@ -3460,17 +3465,23 @@ CharacteristicAssessmentState:
 CharacteristicAssessment:
     characteristic_id: CharacteristicId
     state: CharacteristicAssessmentState
-    value: number in [0,1] | None
+    value: Fraction | None
     assessment_rule_id: str | None
     findings: tuple[Finding, ...]
     explanation: str
 ```
 
+`value: Fraction | None` is the approved MVP v0.1 implementation-facing
+representation of the abstract `a_ij ∈ [0,1]` range from Section 2.1, using
+Python standard-library `fractions.Fraction` (Section 13). This is the only
+representation decision this contract makes; it introduces no new wrapper
+type, alias, or serialization contract.
+
 | Field | Scientific meaning | Allowed values | Required? | Derivation source |
 | --- | --- | --- | --- | --- |
 | `characteristic_id` | Identifies which independent requirement property is being assessed | Exactly the three values in Section 7.16.1 | Yes | Requirement properties, Section 2.1; approved MVP profile `A_i = (C_i, V_i, U_i)` |
 | `state` | Distinguishes an actually calculated value from non-applicability and scientifically unavailable assessment | `COMPUTED`, `NOT_APPLICABLE`, `UNKNOWN` | Yes | Metrics system, Section 2.3, paragraphs 16 and 39-42; the prohibition on zero substitution; approved applicability/missing distinction |
-| `value` | The individual property assessment when, and only when, an approved property rule computed it | Abstract number in `[0,1]` or `None` | Yes as a field; nullable by state | Requirement properties, Section 2.1, `a_ij ∈ [0,1]`; no concrete numeric type, scale, or formula is selected here |
+| `value` | The individual property assessment when, and only when, an approved property rule computed it | `Fraction` in `[0,1]` or `None` | Yes as a field; nullable by state | Requirement properties, Section 2.1, `a_ij ∈ [0,1]`; Section 13 now approves `fractions.Fraction` as the concrete MVP v0.1 numeric type for this per-requirement value |
 | `assessment_rule_id` | Identifies the approved characteristic rule that derived a computed value or established characteristic-level non-applicability | Stable approved rule ID or `None` | Yes as a field; nullable by state | Explainability and reproducibility requirements in Sections 2.3, 3.1, and 3.3; Section 7.7 stable rule policy |
 | `findings` | Preserves downstream rule interpretations that are relevant to this characteristic without conflating them with its numeric value | Immutable ordered tuple of valid `Finding` values for the same requirement and characteristic | Yes; may be empty | Signal/confirmed-defect distinction in Sections 2.1 and 2.3; structured finding requirement in Section 3.1 |
 | `explanation` | States why the state/value is justified or withheld, without presenting a detector state as a quality conclusion | Non-empty human-readable text traceable to the governing rule or unresolved decision/input | Yes | Research explainability and provenance requirements in Sections 3.1 and 3.3 |
@@ -3480,7 +3491,7 @@ The state/value invariants are:
 ```text
 state == COMPUTED
     => value is present
-    => 0 <= value <= 1
+    => Fraction(0, 1) <= value <= Fraction(1, 1)
     => assessment_rule_id is present and approved
 
 state == NOT_APPLICABLE
@@ -3752,11 +3763,14 @@ explicitly rejects equal weighting or an additive `(A + Q + M) / 3` formula in
 favor of alternative sufficient-evidence tiers; `CALC-U-MVP-001` treats signal
 count as explainability information only, not a cumulative penalty. All three
 formulas use exact mathematical values (`1/3`, `2/3`, `1/2`); no calculator-
-level rounding is introduced (Section 13). This closes only the exact
-calculation-semantics portion of `RQD-015`. The internal production numeric
-representation for these values (gating concrete MVP-06/07/08 implementation),
-presentation precision and rounding, and specification-level aggregation all
-remain open under `RQD-015` and Sections 12-14.
+level rounding is introduced (Section 13). This closes the exact
+calculation-semantics portion of `RQD-015`, and Section 13 additionally
+approves Python standard-library `fractions.Fraction` as the internal
+production representation for these values, so concrete MVP-06/07/08
+implementation is no longer gated on representation. Presentation precision
+and aggregate-rounding policy remain open under `RQD-015`; specification-level
+aggregation propagation and sufficiency semantics remain open separately
+under `RQD-012` and `RQD-022` (Sections 12-14).
 
 #### 7.16.8 Binding characteristic-layer cases
 
@@ -3891,33 +3905,30 @@ finding.
 
 The per-requirement Completeness, Verifiability, and Unambiguity formula
 decisions previously tracked here are now resolved by `CALC-C-MVP-001`,
-`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). The remaining rows
-concern the still-open internal production numeric representation,
-specification-level aggregation, downstream presentation, and the future
-confirmed-material-ambiguity rule. When a row below is resolved, the decision
-must be recorded at the named location before that further implementation
-proceeds; in particular, the internal-representation row must be
-researcher/spec-approved and recorded in Section 13 before any concrete
-production `CompletenessCalculator`, `VerifiabilityCalculator`, or
-`UnambiguityCalculator` numeric representation is implemented.
+`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). The internal
+production numeric representation row is now also resolved: Section 13
+approves Python standard-library `fractions.Fraction` as the internal
+production representation for computed characteristic values. The remaining
+rows concern specification-level aggregation, downstream presentation, and
+the future confirmed-material-ambiguity rule.
 
 | Exact model-spec location | Research-source evidence | Scientifically plausible options | Implementation consequence | Smallest researcher decision required |
 | --- | --- | --- | --- | --- |
 | Section 10 and this Section 7.16.4 | Requirement properties, Table 2.3, reserves `0` for confirmed material ambiguity, distinct from the automated MVP signal-presence scale approved by `CALC-U-MVP-001` | manual/expert confirmation; deterministic context-exception rule; researcher-defined confirmation procedure | Determines whether a Unambiguity `QUALITY_PROBLEM` and `U_i = 0` can ever be produced | Approve a confirmation procedure and its mapping to `U_i = 0`, or explicitly leave `0` permanently unreachable for MVP |
-| Section 13 | `CALC-C/V/U-MVP-001` approve exact mathematical semantics (`1/3`, `2/3`, `1/2`) and no calculator-level intermediate rounding, but no internal production numeric type or presentation-precision/rounding contract | internal representation: one exact-arithmetic type among several candidates, to be selected by researcher/spec approval, not by this document; presentation: fixed precision; rule-specific precision; tie-breaking convention | Determines the concrete numeric type production `CompletenessCalculator`/`VerifiabilityCalculator`/`UnambiguityCalculator` code must use, and separately determines console/reporting display; this is a spec-level decision to record here, not an implementer's free choice | Approve the internal production numeric representation under `RQD-015` before any concrete calculator implementation; approve presentation/rounding and tie-breaking separately, only after aggregation semantics exist |
+| Section 13 — **RESOLVED** | `CALC-C/V/U-MVP-001` approve exact mathematical semantics (`1/3`, `2/3`, `1/2`) and no calculator-level intermediate rounding; Section 13 now additionally approves `fractions.Fraction` as the internal production representation, leaving only presentation-precision/rounding open | internal representation: `fractions.Fraction` (approved); presentation: fixed precision; rule-specific precision; tie-breaking convention — all still open | The concrete numeric type for `CompletenessCalculator`/`VerifiabilityCalculator`/`UnambiguityCalculator` code (`Fraction`) is now recorded; console/reporting display precision remains a separate, still-open decision | Internal representation approved under `RQD-015` (this task); presentation/rounding and tie-breaking remain to be approved separately, only after aggregation semantics exist |
 | Sections 12 and 14 | Requirement properties supports property means; Metrics system requires `NA` for an empty applicability set and separates missing from non-applicable | exclude unknown values and report coverage; propagate unknown; withhold aggregate under a defined sufficiency rule | Determines `C_file`, `V_file`, and `U_file` behavior | Approve property-level aggregation propagation and empty/partially known denominator semantics, now that per-requirement rules exist |
 
-Until these decisions are made, `CompletenessCalculator`,
-`VerifiabilityCalculator`, and `UnambiguityCalculator` are no longer blocked by
-open scientific formulas: `CALC-C-MVP-001`, `CALC-V-MVP-001`, and
-`CALC-U-MVP-001` authorize their calculation logic in principle, and MVP-06,
-MVP-07, and MVP-08 are no longer blocked on that ground. Before a concrete
-production representation of `1/3` and `2/3` is chosen (for example, as
-`float`, `Decimal`, or `Fraction`), the internal production numeric
-representation must be explicitly selected under the remaining implementation
-portion of `RQD-015` rather than inferred by the implementer; this document
-does not select one. Numeric `SpecificationQualityAggregator` implementation,
-presentation/aggregate rounding, and any confirmed-ambiguity
+`CompletenessCalculator`, `VerifiabilityCalculator`, and
+`UnambiguityCalculator` are no longer blocked by open scientific formulas or
+by an unselected internal representation: `CALC-C-MVP-001`, `CALC-V-MVP-001`,
+and `CALC-U-MVP-001` authorize their calculation logic in principle, and
+Section 13 now records `fractions.Fraction` as the concrete production
+representation of `1/3` and `2/3`, so MVP-06, MVP-07, and MVP-08 are no
+longer blocked on either ground. A concrete implementation must construct and
+propagate `Fraction` values exactly (for example `Fraction(1, 3)`,
+`Fraction(2, 3)`, `Fraction(1, 2)`), never via an intermediate `float` or
+approximate `Decimal` conversion. Numeric `SpecificationQualityAggregator`
+implementation, presentation/aggregate rounding, and any confirmed-ambiguity
 `QUALITY_PROBLEM` rule remain separately blocked.
 
 ## 8. Completeness
@@ -4346,11 +4357,12 @@ or `U_file` until they are separately approved.
 Chapter 2 establishes `[0,1]` and increasing polarity for several property
 metrics and preserves contextual polarity for process measures. It does not
 establish a full MVP precision or rounding contract. `CALC-C-MVP-001`,
-`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) now approve the
-calculation-semantics portion of this contract, while the internal
-production numeric representation and all presentation/aggregate rounding
-remain open. `RQD-015`'s status is therefore
-`EXACT_CALCULATION_SEMANTICS_APPROVED / INTERNAL_REPRESENTATION_AND_PRESENTATION_OPEN`,
+`CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) approve the
+calculation-semantics portion of this contract. This section additionally
+approves the internal production numeric representation for computed
+characteristic values; presentation and specification-level aggregate
+rounding remain open. `RQD-015`'s status is therefore
+`INTERNAL_EXACT_REPRESENTATION_APPROVED / PRESENTATION_AND_AGGREGATE_ROUNDING_OPEN`,
 not fully closed:
 
 **Approved now — exact calculation semantics:**
@@ -4362,24 +4374,76 @@ not fully closed:
   Completeness, `{0, 1/2, 1}` for Verifiability, and `{1/2, 1}` (`0` reserved)
   for Unambiguity.
 
-**Still open — internal representation (gates concrete MVP-06/07/08
-production implementation) and presentation (RQD-015):**
+**Approved now — internal production numeric representation:**
 
-- the internal production numeric type is an explicit open implementation
-  decision; this specification does not select `float`, `Decimal`, `Fraction`,
-  or any other concrete type, and a concrete production
-  `CompletenessCalculator`, `VerifiabilityCalculator`, or
-  `UnambiguityCalculator` must not be implemented with a chosen type until
-  this decision is separately researcher/spec-approved and recorded in this
-  section;
-- console/reporting output precision;
-- intermediate-versus-final rounding for any future aggregate;
+- Python standard-library `fractions.Fraction` is the approved internal
+  production representation for computed `CharacteristicAssessment.value`
+  (Completeness, Verifiability, and Unambiguity per-requirement scores) for
+  MVP v0.1 (Section 7.16.2: `value: Fraction | None`). No third-party
+  dependency is required;
+- scores must be constructed from exact integer numerator/denominator pairs,
+  for example `Fraction(1, 3)`, `Fraction(2, 3)`, and `Fraction(1, 2)`; for
+  Completeness, an implementation may equivalently construct
+  `Fraction(detected_criterion_count, 3)`, where `detected_criterion_count`
+  is the approved integer count from `CALC-C-MVP-001`;
+- a score must never be constructed by first producing a floating-point
+  approximation (for example `Fraction(0.3333333333333333)` is not an
+  approved construction) or by encoding an approximate decimal string (for
+  example `Decimal("0.33")` or `Decimal("0.333333")` is not an approved
+  characteristic-score value);
+- calculator and domain-layer arithmetic must preserve `Fraction` throughout,
+  with no intermediate rounding and no implicit conversion to `float`,
+  approximate `Decimal`, or a formatted decimal string as part of
+  calculation; comparison against the score interval is exact rational
+  comparison against `Fraction(0, 1)` and `Fraction(1, 1)` (Section 7.16.2).
+
+**Rationale for `fractions.Fraction`:** the already-approved formulas require
+exact rational values including `1/3`, `2/3`, and `1/2`. Binary floating-point
+cannot guarantee an exact representation of a value such as `1/3`. A finite
+base-10 decimal representation likewise cannot represent `1/3` exactly, so
+using `Decimal` for these scores would require a precision/rounding decision
+that is intentionally excluded from calculator semantics (no calculator-level
+intermediate rounding is permitted). Python's standard-library
+`fractions.Fraction` represents the required rational values exactly and
+deterministically without introducing a new dependency. This is a
+researcher-approved MVP v0.1 implementation operationalization of the
+already-approved mathematical semantics, not a new scientific theorem.
+
+**Domain separation — `Decimal` and `Fraction` are distinct and must not be
+coupled:**
+
+- `Decimal` remains the approved representation for extracted quantitative
+  *measurement* values parsed from requirement text
+  (`NumericValueComponent.decimal_value`, Section 7.15.10). This contract is
+  unchanged by this decision;
+- `Fraction` is approved only for exact, dimensionless
+  quality-*characteristic* values (`CharacteristicAssessment.value`);
+- a characteristic score must not be represented as `Decimal`, and an
+  extracted measurement value must not be represented as `Fraction`; the two
+  numeric domains have different semantic roles and must remain distinct.
+
+**Float policy:** `float` is not an approved internal characteristic-score
+representation for MVP v0.1. No calculator or domain model may convert an
+exact characteristic score to `float` as part of calculation or propagation.
+
+**Still open — presentation and specification-level aggregate rounding
+(`RQD-015`):**
+
+- console/reporting output precision, including whether a computed `Fraction`
+  such as `1/3` is displayed as `1/3`, `0.33`, `0.333`, a percentage, or
+  otherwise — a future presentation/reporter-layer decision, not made here;
+- intermediate-versus-final rounding for any future specification-level
+  aggregate;
 - tie-breaking rule for display;
-- representation of unavailable scores in presentation.
+- representation of unavailable scores in presentation;
+- specification aggregation rounding and output representation (Section 12).
 
 No implementation may infer presentation rules from the number of decimal
 places in the demonstration document. Specification-level aggregate
-presentation precision also remains open pending Sections 12 and 14.
+presentation precision remains open pending Sections 12 and 14. Approving
+`fractions.Fraction` as the exact internal representation is compatible with
+future exact-arithmetic aggregation, but this section does not thereby
+approve any aggregation algorithm.
 
 ## 14. Missing-data policy
 
@@ -4436,11 +4500,12 @@ blocking and requires a separate scientific contract.
 
 This decision approves: the calculator-level propagation portion of
 `RQD-012` (the three property-specific rules above); the per-characteristic
-withholding portion of `RQD-022`; and, for `RQD-015`, only the exact
-mathematical calculation semantics and the absence of calculator-level
-intermediate rounding (Section 13). `RQD-015`'s internal production numeric
-representation is a separate, still-open decision that this section does not
-resolve — see Section 13. The specification-level aggregation portions of
+withholding portion of `RQD-022`; and, for `RQD-015`, the exact mathematical
+calculation semantics, the absence of calculator-level intermediate
+rounding, and the internal production numeric representation
+(`fractions.Fraction`), all recorded in Section 13. The `Fraction | None`
+propagation described above is unaffected by this section's `UNKNOWN`/value
+rules. The specification-level aggregation portions of
 `RQD-012` and `RQD-022`, and the presentation/aggregate-rounding portion of
 `RQD-015`, remain open (Sections 12-13).
 
@@ -4630,7 +4695,7 @@ approval.
 | `RQD-012` | Define missing, unknown, not-applicable, insufficient-evidence, and optional-feature behavior. | `CALCULATOR-LEVEL_PROPAGATION_APPROVED / AGGREGATION_PROPAGATION_OPEN` | Sections 7.15-7.16 and 8-10 approve immutable detector outcomes, separate applicability, characteristic states, and the three property-specific calculator-level propagation rules (Completeness all-three-required, Verifiability material-dependency, Unambiguity signal-presence capping). Specification-level aggregation propagation (how `UNKNOWN`/missing values enter `C_file`/`V_file`/`U_file`) remains open and is **not** closed by this decision. | CALCULATOR-LEVEL PORTION CLOSED FOR MVP v0.1; SPECIFICATION AGGREGATION PORTION REMAINS OPEN | Specification-level aggregation (MVP-09/10) |
 | `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation remains under RQD-012/RQD-022. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
-| `RQD-015` | Approve numeric precision and rounding. | `EXACT_CALCULATION_SEMANTICS_APPROVED / INTERNAL_REPRESENTATION_AND_PRESENTATION_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Section 13) approve exact mathematical calculator formula semantics (`1/3`, `2/3`, `1/2`) with no calculator-level intermediate rounding. Neither the internal production numeric type (`float`, `Decimal`, `Fraction`, or otherwise) nor any reporter/aggregate presentation-precision or rounding policy is selected; both remain open. | CALCULATION-SEMANTICS PORTION CLOSED FOR MVP v0.1; INTERNAL-REPRESENTATION AND PRESENTATION/AGGREGATE-ROUNDING PORTIONS REMAIN OPEN | Concrete production implementation of MVP-06/07/08 (blocked on internal representation until separately approved); console/reporter presentation and specification aggregation (MVP-09-12, blocked on presentation/rounding) |
+| `RQD-015` | Approve numeric precision and rounding. | `INTERNAL_EXACT_REPRESENTATION_APPROVED / PRESENTATION_AND_AGGREGATE_ROUNDING_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Section 13) approve exact mathematical calculator formula semantics (`1/3`, `2/3`, `1/2`) with no calculator-level intermediate rounding. Section 13 now additionally approves Python standard-library `fractions.Fraction` as the internal production representation for per-requirement `CharacteristicAssessment.value` (`value: Fraction | None`, Section 7.16.2), distinct from the unchanged `Decimal` representation used for extracted quantitative measurement values. No reporter/aggregate presentation-precision or rounding policy is selected; that remains open. | CALCULATION-SEMANTICS AND INTERNAL-REPRESENTATION PORTIONS CLOSED FOR MVP v0.1; PRESENTATION/AGGREGATE-ROUNDING PORTION REMAINS OPEN | MVP-06/07/08 are no longer blocked by numeric representation; MVP-11/12 reporter presentation remains blocked by the presentation/rounding portion of `RQD-015`; MVP-09/10 specification aggregation remains separately blocked by `RQD-012`/`RQD-022` aggregation semantics, with aggregate presentation/rounding also still open under `RQD-015` |
 | `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | Section 7.16.5 finalizes the minimal Finding representation, absence provenance, and `FIND-U-VAGUE-001`. The other five feature families produce no finding, and no `QUALITY_PROBLEM` rule is approved. Severity, probability, risk, confidence, priority, and corrective action are excluded. **This task approves no new `QUALITY_PROBLEM` rule**; this row remains open specifically, and only, for future `QUALITY_PROBLEM` conversion rules. | OPEN ONLY FOR `QUALITY_PROBLEM` RULES | MVP-06-08, MVP-10 |
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `BINDING_NUMERIC_CASES_APPROVED_FOR_MVP_V0.1` | Section 7.16.8 approves Cases A-E as binding numeric reference cases: A=(C=1,V=1,U=1), B=(C=1/3,V=0,U=1/2), C=(C=0,V=1/2,U=1), D=(C=0,V=UNKNOWN,U=1), E=(C=0,V=0,U=1), each with `assessment_rule_id` traceability. Downstream specification-level aggregation acceptance is not solved by this approval. | CLOSED FOR MVP v0.1 PER-REQUIREMENT NUMERIC REFERENCE CASES; AGGREGATION-LEVEL REFERENCE CASES REMAIN OPEN | Specification-level aggregation (MVP-09/10, MVP-12) |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
@@ -4679,22 +4744,20 @@ The remaining decisions are grouped into four approval gates:
    `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) authorize the
    calculation logic for `C_i`, `V_i`, and the automated `U_i` in principle, so
    MVP-06, MVP-07, and MVP-08 are no longer blocked by open scientific
-   formulas. This closes the *scientific* gate, not the full implementation
-   gate: before concrete production values for `1/3` and `2/3` are
-   represented, the internal production numeric representation must still be
-   explicitly selected under the remaining implementation portion of
-   `RQD-015` (Section 13) rather than inferred by the implementer. Only the
-   confirmed-material-ambiguity `U_i = 0` rule and any `QUALITY_PROBLEM`
-   conversion (RQD-016) remain scientifically open within this gate.
+   formulas. This gate is now closed for both the calculation semantics and
+   the internal production numeric representation: Section 13 approves
+   `fractions.Fraction` as the concrete representation for `1/3` and `2/3`, so
+   no separate implementer choice remains. Only the confirmed-material-
+   ambiguity `U_i = 0` rule and any `QUALITY_PROBLEM` conversion (RQD-016)
+   remain scientifically open within this gate.
 3. **Property aggregation and numeric-contract gate — still open:** the
    specification-level propagation aspects of `RQD-012` and `RQD-022` (how
    `UNKNOWN`/missing per-requirement values enter `C_file`/`V_file`/`U_file`),
    plus the presentation/aggregate-rounding portion of `RQD-015`.
-   Per-requirement calculation *semantics* are approved (exact mathematical
-   values, no intermediate rounding; Section 13); the internal production
-   numeric representation is a separate open `RQD-015` decision tracked under
-   gate 2 above, because it gates concrete MVP-06/07/08 implementation rather
-   than aggregation. This gate concerns specification-level aggregation and
+   Per-requirement calculation *semantics* and the internal production
+   numeric representation are both approved (exact mathematical values, no
+   intermediate rounding, `fractions.Fraction`; Section 13; tracked under
+   gate 2 above). This gate concerns specification-level aggregation and
    presentation/reporting only.
 4. **Scientific acceptance gate:** the per-requirement portion of `RQD-017`
    is now approved (Cases A-E are binding numeric reference cases);
@@ -4733,24 +4796,24 @@ contract.
    `c_acceptance` and `CALC-V-MVP-001`'s acceptance-criterion tier do not
    increase from multiple accepted observations in the same family.
 
-Now that the per-requirement characteristic-calculation gate is closed, the
-recommended sequence is:
+Now that the per-requirement characteristic-calculation gate is closed,
+including the internal production numeric representation (`fractions.Fraction`,
+Section 13), the recommended sequence is:
 
-1. choose and researcher/spec-approve the internal production numeric
-   representation under `RQD-015` (Section 13) — this is the immediate next
-   decision gating concrete production implementation of MVP-06/07/08, and it
-   is not selected by this document;
-2. implement and test `CompletenessCalculator`, `VerifiabilityCalculator`, and
+1. implement and test `CompletenessCalculator`, `VerifiabilityCalculator`, and
    `UnambiguityCalculator` against manually constructed and currently
    extracted `RequirementExtractionResult` inputs, per `CALC-C-MVP-001`,
-   `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10);
-3. separately resolve the specification-level aggregation propagation
+   `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10), using
+   `fractions.Fraction` for `CharacteristicAssessment.value` as approved in
+   Section 13 — this is no longer blocked by an unselected numeric
+   representation;
+2. separately resolve the specification-level aggregation propagation
    (`RQD-012`, `RQD-022`) and the presentation/aggregate-rounding portion of
    `RQD-015` (gate 3 above);
-4. broader detector grammar — parser/template operationalization beyond the
+3. broader detector grammar — parser/template operationalization beyond the
    `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001`
    first-production subsets under `RQD-006`, and complex metric/context
-   grammar under `RQD-008` — can evolve independently of steps 1-3, as future
+   grammar under `RQD-008` — can evolve independently of steps 1-2, as future
    detector-coverage work, unless a later feature specifically requires it.
    It is not a prerequisite for calculator implementation.
 
@@ -4771,14 +4834,15 @@ principle. A future implementation issue may implement the Section 7.16
 identifiers, assessment envelope, Finding representation, `FIND-U-VAGUE-001`
 conversion, and the three numeric `CompletenessCalculator`,
 `VerifiabilityCalculator`, and `UnambiguityCalculator` rules exactly as
-specified in Sections 8-10 and 7.16.7-7.16.8, **provided** a
-researcher-approved `RQD-015` decision has already selected and recorded the
-internal production numeric representation in Section 13. The implementation
-issue does not select that representation itself — it must follow the
-recorded decision rather than inferring or choosing a type (`float`,
-`Decimal`, `Fraction`, or otherwise) on its own; this document does not select
-one either. It may still **not** implement a `QUALITY_PROBLEM` conversion
-(RQD-016 remains open for that only), a confirmed-material-ambiguity `U_i = 0` rule, or
+specified in Sections 8-10 and 7.16.7-7.16.8. `RQD-015` has now selected and
+recorded the internal production numeric representation in Section 13:
+Python standard-library `fractions.Fraction`, used exactly as
+`CharacteristicAssessment.value: Fraction | None` (Section 7.16.2). The
+implementation issue does not select or re-derive that representation itself
+— it must follow the recorded decision (`Fraction`) rather than inferring or
+choosing a different type (`float`, `Decimal`, or otherwise) on its own. It
+may still **not** implement a `QUALITY_PROBLEM` conversion (RQD-016 remains
+open for that only), a confirmed-material-ambiguity `U_i = 0` rule, or
 specification-level aggregation (`SpecificationQualityAggregator`,
 `C_file`/`V_file`/`U_file`).
 
