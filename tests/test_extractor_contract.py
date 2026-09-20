@@ -1,8 +1,8 @@
 """Contract tests without a production feature detector."""
 
 from dataclasses import fields
-import importlib
 import inspect
+import subprocess
 import sys
 from typing import get_type_hints
 
@@ -103,6 +103,13 @@ def test_public_signature_has_only_domain_input_and_output() -> None:
 
 
 def test_importing_boundary_requires_no_nlp_runtime() -> None:
-    assert importlib.import_module("requirements_quality_assessment.extractor").FeatureExtractor is FeatureExtractor
-    assert "spacy" not in sys.modules
-    assert "stanza" not in sys.modules
+    subprocess.run(
+        [sys.executable, "-c", (
+            "from requirements_quality_assessment.extractor import FeatureExtractor; "
+            "import sys; assert 'spacy' not in sys.modules; "
+            "assert 'stanza' not in sys.modules"
+        )],
+        check=True,
+        capture_output=True,
+        text=True,
+    )

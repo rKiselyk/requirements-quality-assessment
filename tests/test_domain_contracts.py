@@ -2,7 +2,7 @@
 
 from dataclasses import FrozenInstanceError, fields
 from decimal import Decimal
-import importlib
+import subprocess
 import sys
 
 import pytest
@@ -259,9 +259,15 @@ def test_six_typed_feature_families_and_wrong_wrapper_assignment() -> None:
 
 
 def test_domain_import_has_no_nlp_runtime_requirement() -> None:
-    importlib.import_module("requirements_quality_assessment.domain")
-    assert "spacy" not in sys.modules
-    assert "stanza" not in sys.modules
+    subprocess.run(
+        [sys.executable, "-c", (
+            "import requirements_quality_assessment.domain; import sys; "
+            "assert 'spacy' not in sys.modules; assert 'stanza' not in sys.modules"
+        )],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
 
 def test_vague_literal_is_canonical_not_unapproved_variant() -> None:

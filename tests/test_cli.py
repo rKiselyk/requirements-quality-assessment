@@ -10,7 +10,10 @@ its own.
 from __future__ import annotations
 
 import importlib.metadata
+import os
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -158,3 +161,21 @@ def test_report_output_has_no_scalar_score(tmp_path, capsys) -> None:
     assert "Unambiguity:" in captured.out
     assert "RequirementQualityScore" not in captured.out
     assert "FileQualityScore" not in captured.out
+
+
+def test_module_entry_point_preserves_ukrainian_output_with_legacy_encoding(tmp_path) -> None:
+    path = _write(tmp_path, f"{VAGUE_REQUIREMENT}\n")
+    environment = os.environ.copy()
+    environment["PYTHONIOENCODING"] = "cp1252"
+
+    completed = subprocess.run(
+        [sys.executable, "-m", "requirements_quality_assessment", str(path)],
+        capture_output=True,
+        encoding="utf-8",
+        env=environment,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert VAGUE_REQUIREMENT in completed.stdout
+    assert "kind: SIGNAL" in completed.stdout
