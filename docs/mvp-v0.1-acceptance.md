@@ -11,14 +11,16 @@
 | Operating system | Windows `10.0.26200` (`Windows-10-10.0.26200-SP0`) |
 | Python | 3.11.9; project requirement `>=3.11` |
 | Fresh isolated virtual environment | Created at a temporary path; `python -m pip install -e ".[dev,parser]"` completed successfully against the working tree. The first network-restricted attempt could not reach the package index; rerunning with network access succeeded. |
+| Clean committed checkout | Local clone of branch commit `3c551837da21910bd22c3cd405cf170f03c744ca` had a clean status. A second fresh virtual environment installed that checkout with `python -m pip install -e ".[dev,parser]"`. |
 | Parser packages | spaCy 3.8.16; `uk_core_news_sm` 3.8.0 |
 | Model load | `spacy.load("uk_core_news_sm", disable=["ner"])` succeeded; Ukrainian pipeline contained `tok2vec`, `morphologizer`, `parser`, `attribute_ruler`, `lemmatizer`. |
 | Compatibility | `python -m pip check` reported `No broken requirements found.` in the existing and fresh virtual environments. |
 | Fresh-environment test suite after the CLI fix | `554 passed in 24.39s`, no skipped tests. |
 | Existing-environment test suite after the CLI fix | `554 passed in 24.23s`, no skipped tests. |
+| Clean-checkout test suite | `554 passed in 25.58s`, no skipped tests; pinned model loaded; `pip check` found no broken requirements. |
 | Focused real-parser and acceptance selection | `10 passed, 543 deselected in 12.12s`, no skipped tests. |
 
-The fresh-environment installation above used the current working tree. A separate installation from a committed clean checkout and final merged-main verification remain to be recorded before freeze.
+Final merged-main verification remains to be recorded before freeze. The clean-checkout result verifies the committed implementation and tests; the later documentation-only evidence commit is not the accepted final-main SHA.
 
 ## Implementation and architecture audit
 
@@ -52,11 +54,11 @@ GitHub issue bodies, their current states, the merged PR history visible in Git,
 | [#10](https://github.com/rKiselyk/requirements-quality-assessment/issues/10) MVP-09 | Open; profile/assessor/aggregation PRs #59, #60, #62, #63 | Separate requirement and specification profiles, `AGG-MVP-001`, exact means, observability counts, and tests are present. Eligible to close for MVP v0.1. |
 | [#11](https://github.com/rKiselyk/requirements-quality-assessment/issues/11) MVP-10 | Open; presentation and reporter PRs #65, #66 | Reporter implements the approved Section 19 surface, including `SIGNAL`, rule IDs, evidence references, and explanations. Old wording about confirmed problems or rendering full evidence text exceeds that contract. Eligible to close for the approved MVP scope with this distinction. |
 | [#12](https://github.com/rKiselyk/requirements-quality-assessment/issues/12) MVP-11 | Open; CLI PR #67 | Full profile-based CLI pipeline, input errors, and integration tests are present. Eligible to close for MVP v0.1. |
-| [#13](https://github.com/rKiselyk/requirements-quality-assessment/issues/13) MVP-12 | Open; this SRM-01 branch supplies missing acceptance and README work | Keep open until this PR is reviewed and merged and clean-checkout verification is repeated. Align its acceptance text with the approved `Finding`/`SIGNAL` contract: a supported signal with evidence references is required; automatic `QUALITY_PROBLEM` generation is not. |
+| [#13](https://github.com/rKiselyk/requirements-quality-assessment/issues/13) MVP-12 | Open; this SRM-01 branch supplies missing acceptance and README work | Keep open until this PR is reviewed and merged and final main verification is repeated. Align its acceptance text with the approved `Finding`/`SIGNAL` contract: a supported signal with evidence references is required; automatic `QUALITY_PROBLEM` generation is not. |
 | [#14](https://github.com/rKiselyk/requirements-quality-assessment/issues/14) MVP-SPEC | Open; scientific-contract PRs #16–#19, #30, #33, #36, #41, #44, #48, #53–#55, #62, #65 | Its status text predates approved C/V/U, `AGG-MVP-001`, exact `Fraction`, and presentation rules. Update that text to acknowledge the executable subset while keeping the broader specification draft and `RQD-006`, `RQD-008`, `RQD-016`, `RQD-020` decisions open. Do not close as fully scientifically approved. |
 
 The current [Full Single Requirement Model v1.0 milestone](https://github.com/rKiselyk/requirements-quality-assessment/milestone/1) is open with 14 open issues, including SRM-00, SRM-01, and SRM-02–SRM-13. It is not the MVP v0.1 freeze record. The repository currently shows no open pull requests. SRM-00 and SRM-02–SRM-13 must remain open during SRM-01.
 
 ## Remaining limitations and acceptance work
 
-Scientific limits are recorded in [`mvp-v0.1-baseline.md`](mvp-v0.1-baseline.md). Technical limits include dependence on the selected parser/model for complete detection and console-only output of evidence references rather than a structured export. GitHub issue updates and closures, SRM-01 update, PR creation and review, merge, clean-checkout and merged-main verification, accepted SHA recording, annotated tag creation, and tag push remain outstanding. No baseline freeze may be claimed until those steps are completed.
+Scientific limits are recorded in [`mvp-v0.1-baseline.md`](mvp-v0.1-baseline.md). Technical limits include dependence on the selected parser/model for complete detection and console-only output of evidence references rather than a structured export. GitHub issue updates and closures, SRM-01 update, PR creation and review, merge, merged-main verification, accepted SHA recording, annotated tag creation, and tag push remain outstanding. No baseline freeze may be claimed until those steps are completed.
