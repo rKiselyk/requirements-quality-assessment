@@ -1,8 +1,10 @@
 # MVP v0.1 acceptance evidence — SRM-01
 
-## Freeze status
+## Release identity
 
-**Status: ready for final review; not accepted or frozen.** [SRM-01 PR #82](https://github.com/rKiselyk/requirements-quality-assessment/pull/82) is open and has not been reviewed or merged. Consequently there is no accepted final-main commit SHA and no `mvp-v0.1-baseline` tag. These fields must be filled only after review, merge, and verification of the merged main commit. The pre-audit local and remote main HEAD were both independently verified as `f36abc8e68cbc98974e3ca925f2c71ad82554c5c` on 2026-09-20. That SHA is the starting point, **not** the accepted baseline.
+[SRM-01 PR #82](https://github.com/rKiselyk/requirements-quality-assessment/pull/82) was reviewed and merged. The executable MVP v0.1 subset was verified on the merged `main` branch. The immutable annotated tag [`mvp-v0.1-baseline`](https://github.com/rKiselyk/requirements-quality-assessment/tree/mvp-v0.1-baseline), once published, identifies the accepted final commit. The tag annotation and [SRM-01 Issue #69](https://github.com/rKiselyk/requirements-quality-assessment/issues/69) record its full SHA and final verification. This document deliberately does not embed its own commit SHA, because editing that value would change it.
+
+The pre-audit local and remote `main` HEAD were both independently verified as `f36abc8e68cbc98974e3ca925f2c71ad82554c5c` on 2026-09-20. PR #82 was squash-merged as `3a9dfa8323665149a25726c47d4b0d9c9ed21dc3`; final documentation and tag publication follow that merge. Neither the starting SHA nor the PR branch SHA is the accepted baseline identity.
 
 ## Verified environment and installation
 
@@ -18,9 +20,12 @@
 | Fresh-environment test suite after the CLI fix | `554 passed in 24.39s`, no skipped tests. |
 | Existing-environment test suite after the CLI fix | `554 passed in 24.23s`, no skipped tests. |
 | Clean-checkout test suite | `554 passed in 25.58s`, no skipped tests; pinned model loaded; `pip check` found no broken requirements. |
-| Focused real-parser and acceptance selection | `10 passed, 543 deselected in 12.12s`, no skipped tests. |
+| Pre-merge focused real-parser and acceptance selection | `10 passed, 543 deselected in 12.12s`, no skipped tests. |
+| Merged-main full suite before documentation update | `554 passed in 25.26s`, no skipped tests, on merge commit `3a9dfa8323665149a25726c47d4b0d9c9ed21dc3`. |
+| Merged-main focused parser/acceptance selection | `10 passed, 544 deselected in 12.14s`, no skipped tests. |
+| Merged-main model and CLI | Pinned Ukrainian model loaded; `pip check` found no broken requirements. Two production CLI runs exited 0 and produced byte-identical UTF-8 output for two Ukrainian requirements, including a `SIGNAL` and specification summary. |
 
-Final merged-main verification remains to be recorded before freeze. The clean-checkout result verifies the committed implementation and tests; the later documentation-only evidence commit is not the accepted final-main SHA.
+The clean-checkout installation verified the committed implementation and tests. Verification after the final documentation commit is required before the baseline tag is created; the tag annotation and Issue #69 provide that final result.
 
 ## Implementation and architecture audit
 
@@ -38,7 +43,7 @@ A direct Windows module invocation initially failed with `UnicodeEncodeError` wh
 
 ## GitHub issue reconciliation audit
 
-GitHub issue bodies, their states after reconciliation, the merged PR history visible in Git, and the current model specification were reviewed. A merged sub-issue PR establishes the approved narrow implementation, not completion of an open research gate. Completion summaries were posted before closing #7–#12; #5 and #6 received scope comments and remain open. Issue #69 received the audit summary and remains open pending freeze.
+GitHub issue bodies, their states at the pre-freeze audit, the merged PR history visible in Git, and the current model specification were reviewed. A merged sub-issue PR establishes the approved narrow implementation, not completion of an open research gate. Completion summaries were posted before closing #7–#12; #5 and #6 received scope comments and remain open. Issue #69 tracks the final freeze. The table records pre-freeze dispositions; later closure of #13 and #69 is recorded in GitHub.
 
 | Issue | Observed state and merged PR evidence | Disposition and justification |
 | --- | --- | --- |
@@ -54,11 +59,11 @@ GitHub issue bodies, their states after reconciliation, the merged PR history vi
 | [#10](https://github.com/rKiselyk/requirements-quality-assessment/issues/10) MVP-09 | Closed; profile/assessor/aggregation PRs #59, #60, #62, #63 | Separate profiles, `AGG-MVP-001`, exact means, observability counts, and tests satisfy the MVP scope. |
 | [#11](https://github.com/rKiselyk/requirements-quality-assessment/issues/11) MVP-10 | Closed; presentation and reporter PRs #65, #66 | Reporter implements the approved Section 19 surface, including `SIGNAL`, rule IDs, evidence references, and explanations. The completion summary distinguishes that surface from unsupported confirmed problems or full evidence-text rendering. |
 | [#12](https://github.com/rKiselyk/requirements-quality-assessment/issues/12) MVP-11 | Closed; CLI PR #67 | Full profile-based CLI pipeline, input errors, and integration tests satisfy the MVP scope. |
-| [#13](https://github.com/rKiselyk/requirements-quality-assessment/issues/13) MVP-12 | Open; SRM-01 PR #82 supplies acceptance and README work | Its acceptance text now requires supported `Finding`/`SIGNAL` evidence references without requiring automatic `QUALITY_PROBLEM` generation. Keep open until PR review/merge and final-main verification. |
+| [#13](https://github.com/rKiselyk/requirements-quality-assessment/issues/13) MVP-12 | Open at pre-freeze audit; SRM-01 PR #82 supplies acceptance and README work | Its acceptance text now requires supported `Finding`/`SIGNAL` evidence references without requiring automatic `QUALITY_PROBLEM` generation. Close only after final-main verification and baseline tagging. |
 | [#14](https://github.com/rKiselyk/requirements-quality-assessment/issues/14) MVP-SPEC | Open; scientific-contract PRs #16–#19, #30, #33, #36, #41, #44, #48, #53–#55, #62, #65 | Its body now acknowledges approved C/V/U, `AGG-MVP-001`, exact `Fraction`, and presentation rules, while preserving the broader draft and `RQD-006`, `RQD-008`, `RQD-016`, `RQD-020` decisions as open. |
 
-The current [Full Single Requirement Model v1.0 milestone](https://github.com/rKiselyk/requirements-quality-assessment/milestone/1) is open with 14 open issues, including SRM-00, SRM-01, and SRM-02–SRM-13. It is not the MVP v0.1 freeze record. SRM-01 PR #82 is open for review. SRM-00 and SRM-02–SRM-13 remain open during SRM-01.
+At the pre-freeze audit, the [Full Single Requirement Model v1.0 milestone](https://github.com/rKiselyk/requirements-quality-assessment/milestone/1) was open with 14 open issues, including SRM-00, SRM-01, and SRM-02–SRM-13. It is not the MVP v0.1 freeze record. SRM-00 and SRM-02–SRM-13 are outside SRM-01 closure scope.
 
 ## Remaining limitations and acceptance work
 
-Scientific limits are recorded in [`mvp-v0.1-baseline.md`](mvp-v0.1-baseline.md). Technical limits include dependence on the selected parser/model for complete detection and console-only output of evidence references rather than a structured export. PR review and merge, merged-main verification, accepted SHA recording, annotated tag creation, and tag push remain outstanding. Issue #13 also remains open pending final acceptance; #5, #6, and #14 remain open for broader research. Issue #69 remains open until the freeze steps are complete. No baseline freeze may be claimed until those steps are completed.
+Scientific limits are recorded in [`mvp-v0.1-baseline.md`](mvp-v0.1-baseline.md). Technical limits include dependence on the selected parser/model for complete detection and console-only output of evidence references rather than a structured export. The broader research issues #5, #6, and #14 stay open after the executable MVP freeze. The final tag and Issue #69, rather than this document's mutable text, establish whether all freeze steps completed.
