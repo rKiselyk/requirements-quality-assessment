@@ -423,13 +423,21 @@ def pinned_extractor(pinned_p01):
 
 
 @pytest.mark.parametrize("text", [P01, P16, P01.replace("не відповідає", "недоступний")])
-def test_production_adds_only_condition_rule_and_preserves_result_contract(pinned_extractor, text):
+def test_production_preserves_condition_rule_and_result_contract(pinned_extractor, text):
     from requirements_quality_assessment.detectors import ExpectedResultBaselineDetector
 
     requirement = Requirement("R072", 12, text)
     result = pinned_extractor.extract(requirement)
     expected, expected_evidence = ExpectedResultBaselineDetector().detect(requirement)
-    assert result.features.expected_results == expected
+    if text == P16:
+        # SRM-04B now owns this apparent coordinated segment. The condition
+        # outcome and absence of accepted result Evidence remain unchanged.
+        assert result.features.expected_results.observations == expected.observations == ()
+        assert result.features.expected_results.processing_status == expected.processing_status
+        assert [d.code for d in result.features.expected_results.diagnostics] == [
+            "RESULT_COORD_UNRESOLVED_CANDIDATE"]
+    else:
+        assert result.features.expected_results == expected
     assert tuple(e for e in result.evidence if e.feature_id is FeatureId.EXPECTED_RESULT) == expected_evidence
     assert not any(e.rule_id in {"RESULT-UK-002", "ACCEPT-UK-001"} for e in result.evidence)
     condition = result.features.condition_contexts

@@ -305,6 +305,8 @@ class ExpectedResultBaselineDetector:
     def detect(
         self,
         requirement: Requirement,
+        *,
+        owned_segments: frozenset[tuple[int, int]] = frozenset(),
     ) -> tuple[
         FeatureDetectionOutcome[FeatureObservation],
         tuple[Evidence, ...],
@@ -354,6 +356,8 @@ class ExpectedResultBaselineDetector:
         diagnostics: list[DetectionDiagnostic] = []
         for sentence in parsed.sentences:
             for segment in _sentence_segments(requirement.text, sentence):
+                if (segment.start, segment.end) in owned_segments:
+                    continue
                 start, end = _remove_edge_conditions(
                     requirement.text, segment, accepted_conditions
                 )

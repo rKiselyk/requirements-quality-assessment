@@ -7,6 +7,7 @@ from .detectors import (
     ConditionContextBaselineDetector,
     ConditionContextDetector,
     ExpectedResultBaselineDetector,
+    ExpectedResultDetector,
     QuantitativeBaselineDetector,
     UkVagueTermDetector,
     VerificationMethodBaselineDetector,
@@ -76,10 +77,16 @@ class BaselineFeatureExtractor:
             if condition_context_detector is not None
             else ConditionContextDetector(parser=parser, quantitative_detector=quantitative)
         )
+        baseline_expected = ExpectedResultBaselineDetector(
+            parser=parser,
+            condition_detector=(condition_context_detector
+                                if condition_context_detector is not None
+                                else ConditionContextBaselineDetector(quantitative)),
+        )
         expected = (
             expected_result_detector
             if expected_result_detector is not None
-            else ExpectedResultBaselineDetector(
+            else ExpectedResultDetector(
                 parser=parser,
                 # COND-UK-002 authorizes condition observations only. Preserve
                 # RESULT-UK-001's frozen separation and unresolved-candidate gate.
@@ -97,7 +104,11 @@ class BaselineFeatureExtractor:
             acceptance_criterion_detector
             if acceptance_criterion_detector is not None
             else AcceptanceCriterionBaselineDetector(
-                expected_result_detector=expected,
+                # ACCEPT-QUANT-001 retains its approved RESULT-UK-001
+                # dependency, including unresolved quantitative linkage.
+                expected_result_detector=(expected_result_detector
+                                          if expected_result_detector is not None
+                                          else baseline_expected),
                 quantitative_detector=quantitative,
             )
         )
