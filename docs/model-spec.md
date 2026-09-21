@@ -12,7 +12,9 @@ specification-level aggregation semantics (`AGG-MVP-001`, Section 12) are now
 `APPROVED_FOR_MVP_V0.1`; `QUALITY_PROBLEM` conversion (`RQD-016`) remains
 open; the bounded SRM-03 structural rules `COND-UK-002`, `RESULT-UK-002`, and
 `ACCEPT-UK-001` are `APPROVED_FOR_SRM04_FIRST_SLICE` (Section 7.14.16), while
-broader `RQD-006` grammar remains open**
+broader `RQD-006` grammar remains open; the bounded SRM-05C metric-link rule
+`QUANT-METRIC-001` is `RESEARCHER_APPROVED` but `NOT_IMPLEMENTED` (Section
+7.14.6.7), while broader `RQD-008` metric/context grammar remains open**
 
 This document is the prospective authoritative implementation specification for
 MVP v0.1. It formalizes only what can be traced to the supplied research
@@ -155,9 +157,9 @@ applicability set, or confirmation procedure are not operationally defined.
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; per-requirement property-specific derivation is now approved for MVP v0.1 by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). This is an MVP v0.1 operationalization, not a closure of broader future research into `a_ij` beyond the approved scope (e.g. confirmed-material-ambiguity `0`, specification-level aggregation) | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement scope) |
 | Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is now likewise approved via `AGG-MVP-001` (Section 12) | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_AND_AGGREGATE_CALCULATION_APPROVED` |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation is now closed under `AGG-MVP-001` (Section 12): `UNKNOWN` values are excluded from the mean and tracked as `unknown_count`, never treated as zero | Yes | `APPROVED_FOR_MVP_V0.1` |
-| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001/002`, `RESULT-UK-001/002`, `ACCEPT-QUANT-001`, `ACCEPT-UK-001`, `VERIFY-UK-001`, and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
+| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; `COND-UK-001/002`, `RESULT-UK-001/002`, `ACCEPT-QUANT-001`, `ACCEPT-UK-001`, `VERIFY-UK-001`, `QUANT-METRIC-001`, and the quantitative/vague lexical baselines are allocated, while remaining parser/template grammar stays open | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
-| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001/002` supply the two bounded condition/context subsets, `RESULT-UK-001/002` the simple and binary coordinated normative-result subsets, `ACCEPT-QUANT-001` the quantitative criterion subset, `ACCEPT-UK-001` the conditioned exact-message subset, and `VERIFY-UK-001` the three explicitly governed verification-method constructions. All broader grammar and complex metric/context grammar remain open | Yes | `PARTIALLY_APPROVED` |
+| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; `COND-UK-001/002` supply the two bounded condition/context subsets, `RESULT-UK-001/002` the simple and binary coordinated normative-result subsets, `ACCEPT-QUANT-001` the quantitative criterion subset, `ACCEPT-UK-001` the conditioned exact-message subset, `QUANT-METRIC-001` the one exact response-time metric link, and `VERIFY-UK-001` the three explicitly governed verification-method constructions. All broader grammar and metric/context grammar beyond that exact link remain open | Yes | `PARTIALLY_APPROVED` |
 | Vague-term and linguistic-smell evidence | Requirement properties; metrics system; dynamic methods; application example; researcher-approved Sections 7.8 and 7.14 | 2.1 paragraph 10; 2.3 paragraphs 12-16; 3.2 paragraph 10; application Sections 2-3, 7-8, and 13 | `uk_vague_terms_v1` and exact MVP seed-matching mechanics approved; richer linguistic coverage deferred without keeping `RQD-007` open | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Completeness score | Requirement properties supplies only the generic property range | 2.1 `a_ij ∈ [0,1]`; Section 7.16.7 | `CALC-C-MVP-001` approves `C_i = (c_condition + c_result + c_acceptance) / 3` over the three MVP-mandatory criteria, exact value set `{0, 1/3, 2/3, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Verifiability score | Requirement properties and metrics system supply evidence classes and set-level ratios only | 2.1 Table 2.3; 2.3 paragraphs 17-20; Section 7.16.7 | `CALC-V-MVP-001` approves an alternative-evidence-path mapping (acceptance criterion → `1`; quantitative or verification method only → `1/2`; none after complete processing → `0`), exact value set `{0, 1/2, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
@@ -677,9 +679,10 @@ specified in Section 7.15.10.
 
 For the source example “Час відгуку ≤ 2 с при 500 одночасних користувачах”,
 the response-time metric, `≤` comparator, value `2`, unit `с`, and load context
-must remain associated if a separately approved metric/context grammar later
-extracts those roles. The first-production baseline accepts only the explicit
-`≤ 2 с` anchor. Likewise, the worked revision linking a four-second
+must remain associated when their roles are separately approved. Section
+7.14.6.7 now approves only the exact response-time metric link to the explicit
+`≤ 2 с` anchor; it does not approve the trailing load context. Likewise, the
+worked revision linking a four-second
 route-generation bound to 95 percent of requests under up to 300 concurrent
 requests must not become unrelated true/false flags. This approval does not decide
 whether a percentile qualifier or load limit is a nested constraint, context,
@@ -714,7 +717,10 @@ Section 7.14.8 `uk_vague_terms_v1` matcher. This allocation changes none of
 its matching semantics and implies no finding, confirmed ambiguity, score, or
 penalty. `QUANT-001` and `QUANT-UK-001` are allocated only for the narrow
 first-production quantitative lexical baseline in Section 7.14.6.6, by
-researcher-approved Issue #29. `COND-UK-001` is allocated only for the narrow
+researcher-approved Issue #29. `QUANT-METRIC-001` is allocated only for the
+bounded exact response-time metric recognition and linkage contract in Section
+7.14.6.7, by the SRM-05C researcher decision; it does not own or alter the
+existing scalar anchor. `COND-UK-001` is allocated only for the narrow
 first-production condition/context baseline in Section 7.14.3, by
 researcher-approved Issue #35. `RESULT-UK-001` is allocated only for the
 narrow parser-assisted normative-modal expected-result subset in Section
@@ -1711,9 +1717,10 @@ Finding, characteristic calculation, applicability rule, score, or full
 
 `RQD-006` remains `PARTIALLY APPROVED / OPEN` for general expected-result and
 condition attachment, non-numeric acceptance grammar, and verification-method
-grammar beyond `VERIFY-UK-001`. `RQD-008` remains `PARTIALLY APPROVED / OPEN` for complex
-metric/context grammar, count-noun and nested quantitative roles, written-out
-numbers, generic ranges, and other deferred quantitative forms.
+grammar beyond `VERIFY-UK-001`. `RQD-008` remains `PARTIALLY APPROVED / OPEN`
+for metric/context grammar beyond exact `QUANT-METRIC-001`, count-noun and
+nested quantitative roles, written-out numbers, generic ranges, ambiguity
+diagnostics, and other deferred quantitative forms.
 
 The preceding `RQD-006` sentence records the original quantitative allocation
 gate. Section 7.14.16 supersedes it only for the bounded `ACCEPT-UK-001`
@@ -1825,11 +1832,12 @@ metric vocabulary.
 
 The first-production lexical baseline in Section 7.14.6.6 does not infer or
 attach a metric: `metric = None` without an `unresolved_components` entry when
-no metric candidate is expressed as part of the accepted anchor. A separately
-approved grammar may later attach an explicit nominal metric phrase
-unambiguously to the bound. Parser assistance may then extract the governing
-noun phrase and essential complements. It must not infer a metric such as
-latency merely because a duration occurs.
+no metric candidate is expressed as part of the accepted anchor. Section
+7.14.6.7 separately approves one exact nominal metric phrase and linkage
+template. Any broader grammar remains unapproved. Parser assistance must not
+extract other governing noun phrases or essential complements without a
+separate approval, and no rule may infer a metric such as latency merely
+because a duration occurs.
 
 Source-attested quantitative contexts include `при 500 одночасних
 користувачах` in Section 2.2 Table 2.5 and `при навантаженні до 300 одночасних
@@ -1897,8 +1905,10 @@ The following conservative linkage algorithm is approved for the baseline:
 | Punctuation/decimal | SOURCE-ATTESTED — Application example, Section 8, Table 7, R4′: `Місячна доступність сервісу — не нижче 99,9 %; ...` | `DETECTED`; comma belongs to decimal and semicolon ends the constraint | metric `[0,27)`; bound `[30,45)` with comparator `GREATER_THAN_OR_EQUAL`, raw value `99,9`, unit `PERCENT` | `QUANT` |
 | Nested interaction | SOURCE-ATTESTED — Application example, Section 8, Table 7, R2′ | `DETECTED`; primary four-second route bound with linked load context; separate nested load observation remains unresolved | primary bound `[96,116)`; context `[117,159)`; nested candidate `[134,159)` with comparator `UPPER_BOUND` and inclusivity `UNRESOLVED` | `QUANT`, `COND-UK` |
 
-The metric/context and nested-role entries in this research traceability table
-do not allocate production grammar. In particular, the frequency candidate
+Except for the exact response-time metric link separately allocated in Section
+7.14.6.7, the metric/context and nested-role entries in this research
+traceability table do not allocate production grammar. In particular, the
+context `[18,49)` in the first row remains unallocated, and the frequency candidate
 `не рідше одного разу на 5 с` is not an accepted `QUANT-UK-001` anchor:
 its written-out count is outside the first-production numeric baseline.
 
@@ -2018,10 +2028,193 @@ The approved outcome semantics apply to this family without a stored
 | none | present | `INCOMPLETE`, diagnostics present | `UNRESOLVED` |
 | present | present | `INCOMPLETE`, diagnostics present | `DETECTED` |
 
-This allocation does not close `RQD-008`: complex metric/context grammar,
-count-noun roles, nested constraint/context representation, written-out
-numbers, generic ranges, and future `не рідше` production grammar remain
+This allocation does not close `RQD-008`. Section 7.14.6.7 subsequently closes
+only exact `QUANT-METRIC-001`; metric/context grammar beyond it, count-noun
+roles, nested constraint/context representation, written-out numbers, generic
+ranges, and future `не рідше` production grammar remain
 `PARTIALLY APPROVED / OPEN`.
+
+##### 7.14.6.7 SRM-05C bounded explicit metric linkage (`QUANT-METRIC-001`)
+
+**Scientific contract status: `RESEARCHER_APPROVED`. Production implementation
+status: `NOT_IMPLEMENTED`.** This subsection records the researcher's explicit
+SRM-05C decision. It authorizes only the bounded scientific contract below; no
+production code or test implements it yet, and no implementation acceptance
+report, baseline, tag, or release is established by this approval.
+
+The source-attested seed is:
+
+```text
+Час відгуку ≤ 2 с при 500 одночасних користувачах
+```
+
+Only the prefix `Час відгуку ≤ 2 с` is handled by this rule. The dissertation
+attests that seed construction. The researcher's approval additionally
+generalizes the value and duration unit only over forms already approved for
+`QUANT-001`; it does not claim that every generalized reference case occurs
+verbatim in the dissertation.
+
+The exact approved grammar is:
+
+```text
+<requirement-start>Час<U+0020>відгуку<U+0020><one already-accepted
+QUANT-001 symbolic ≤ anchor containing an approved numeric value and an
+explicit approved duration unit>
+```
+
+The line wrapping in this notation is editorial only; it represents one
+contiguous source prefix and adds no newline or other whitespace character.
+
+All of the following conditions are mandatory:
+
+1. The metric text is exactly `Час відгуку`, with exact casing, exactly one
+   U+0020 SPACE between the words, and metric start offset `0`.
+2. Exactly one U+0020 SPACE separates that metric from the scalar anchor. The
+   metric is the unique explicit left operand of the symbolic relation, and the
+   metric and anchor occupy the same hard-bounded clause.
+3. The scalar anchor has already been accepted by `QUANT-001` through its
+   symbolic `≤` construction. `QUANT-METRIC-001` does not reparse or change the
+   anchor's number, unit, comparator, source boundary, Evidence, or identity.
+4. The anchor contains either an ASCII integer or the existing single-decimal-
+   comma numeric form and explicitly contains exactly one of the duration-unit
+   surfaces `с`, `секунд`, `хв`, or `хвилин`. The rule is not restricted to
+   value `2`. A `%` unit and an anchor without a duration unit are ineligible.
+5. Exactly one eligible metric surface and one eligible scalar anchor take part
+   in the candidate construction. A second metric competing for the anchor or
+   a second independent scalar bound competing for the metric makes this rule
+   inapplicable. The rule does not distribute a metric over several anchors,
+   merge quantitative observations, or choose an attachment by noun-phrase,
+   token, character, parser-dependency, or cross-clause proximity.
+6. Text after the accepted scalar anchor does not help establish the link. An
+   unrelated trailing numeric-context candidate neither becomes another metric
+   nor automatically invalidates an otherwise accepted prefix. Existing
+   independent baseline observations or diagnostics for that trailing text are
+   preserved unchanged.
+
+No lexical comparator, new morphology, generated metric vocabulary, arbitrary
+Ukrainian noun phrase, general Unicode-whitespace tolerance for the metric
+template, or new numeric/unit form is allocated. `QUANT-UK-001` anchors are not
+eligible. Full stop, semicolon, question mark, and exclamation mark remain hard
+boundaries; a comma does not itself authorize linkage.
+
+`QUANT-METRIC-001` owns recognition of the exact bounded metric, its linkage to
+the existing anchor, and the new metric Evidence item. It does not own scalar
+Evidence. Stable metric Evidence IDs use rule-local source-order ordinals:
+
+```text
+QUANT-METRIC-001:E001, QUANT-METRIC-001:E002, ...
+```
+
+For the source example, the binding Evidence contract is:
+
+| Role | Exact text | Unicode code-point span `[start,end)` | `rule_id` |
+| --- | --- | --- | --- |
+| Metric | `Час відгуку` | `[0,11)` | `QUANT-METRIC-001` |
+| Existing scalar anchor | `≤ 2 с` | `[12,17)` | `QUANT-001` |
+
+The metric item is `QUANT-METRIC-001:E001` when it is the first item produced
+by that rule. The original scalar Evidence ID, such as `QUANT-001:E001`, remains
+unchanged. Both Evidence items have `feature_id = QUANTITATIVE_CONSTRAINT`, and
+each must satisfy the existing exact-source invariant:
+
+```text
+requirement.text[start_offset:end_offset] == evidence.text
+```
+
+Offsets address original Unicode code points in the trimmed requirement; no
+normalized, substituted, or inferred text may be stored as Evidence.
+
+The rule enriches the one existing `QuantitativeConstraintObservation`; it does
+not create a second scalar observation. Its linked-observation operation is:
+
+```text
+metric = TextComponent(
+    evidence_refs=(metric_evidence_id,)
+)
+
+preserve unchanged:
+    comparator
+    value
+    unit
+    context
+    unresolved_components
+    every scalar component Evidence reference
+
+evidence_refs = stable de-duplicated source-ordered union of:
+    metric Evidence
+    all existing accepted component Evidence
+```
+
+For the source prefix, the top-level order is metric Evidence followed by the
+unchanged scalar-anchor Evidence. Co-residence in this one observation is the
+approved one-to-one link; the existing domain representation is sufficient, so
+no domain migration, attachment class, or reusable attachment engine is
+authorized.
+
+The following positive cases are binding for this narrow contract. The first is
+the source-attested seed prefix; the others are researcher-approved bounded
+generalizations over already approved scalar forms:
+
+| Input | Required `QUANT-METRIC-001` result |
+| --- | --- |
+| `Час відгуку ≤ 2 с` | Attach metric `[0,11)` to the existing `QUANT-001` anchor `≤ 2 с`. |
+| `Час відгуку ≤ 3 с` | Attach the same exact metric to the existing integer/second anchor. |
+| `Час відгуку ≤ 2,5 с` | Attach the same exact metric to the existing decimal-comma/second anchor. |
+| `Час відгуку ≤ 2 хв` | Attach the same exact metric to the existing integer/minute anchor. |
+| `Час відгуку ≤ 2 с при 500 одночасних користувачах` | Attach only the prefix metric and scalar anchor; do not interpret or attach the trailing phrase, and preserve its independent baseline treatment. |
+
+The following negative boundaries are also binding. In every row,
+`QUANT-METRIC-001` creates no metric Evidence and makes no metric attachment;
+any existing `QUANT-001` or `QUANT-UK-001` result remains intact. These cases
+do not modify baseline scalar detection to force a negative scalar outcome:
+
+| Ineligible case | Required boundary |
+| --- | --- |
+| `Час відгуку ≤ 95 %` | Percent is not an approved duration unit for this rule. |
+| `Час відгуку ≤ 2` | The anchor contains no explicit approved duration unit. |
+| An accepted duration anchor without the exact leading `Час відгуку` phrase | Do not infer a metric from the duration unit or neighboring text. |
+| `Час відгуку` followed by a lexical `QUANT-UK-001` anchor | Lexical comparators are outside this rule. |
+| Two metric phrases competing for one bound | Do not select a phrase by proximity, coordination order, or parser relation. |
+| One metric phrase with two independent competing scalar bounds in the candidate construction | Do not choose a bound, duplicate the metric, distribute it, or merge observations. |
+| Metric and bound separated by `.`, `;`, `?`, or `!` | Do not link across the hard clause/sentence boundary. |
+| A metric-like noun in another syntactic role | Do not attach it by proximity. |
+| A metric suggested only by a unit or surrounding semantics | Do not invent metric text or Evidence. |
+
+These deterministic exclusions do not themselves create an unresolved metric
+state or change family processing. Outside the exact approved template, the
+rule does not guess, creates no metric Evidence, invents no `METRIC` diagnostic,
+and preserves the baseline distinction:
+
+```text
+metric = None
+
+versus
+
+metric = None
+METRIC in unresolved_components
+```
+
+The second state requires a separately approved explicit metric-candidate
+recognition rule and ambiguity diagnostic. No general metric-ambiguity detector,
+diagnostic code, competing-candidate span rule, or mixed-processing trigger is
+approved here. Broader ambiguity grammar, context/load/count/population
+grammar, cross-clause attachment, metric vocabulary, morphology, parser-driven
+noun-phrase extraction, shared metrics, multiple bounds, nested structures, and
+reusable attachment identity are deferred.
+
+`ACCEPT-QUANT-001` is unchanged. Adding this metric neither creates an
+acceptance criterion nor changes judgeability, result containment, or
+acceptance-observation deduplication. This contract changes no C/V/U formula,
+Finding, `QUALITY_PROBLEM` inference, applicability, confidence, severity,
+risk, or reporter behavior.
+
+`RQD-008` therefore remains `PARTIALLY_APPROVED / OPEN`: this subsection closes
+only the one exact `QUANT-METRIC-001` metric-linkage slice. Complex metric and
+context grammar, ambiguity diagnostics, count-noun roles, nested representation,
+written-out numbers, generic ranges, and future `не рідше` production grammar
+remain open or deferred. A later implementation may implement only this exact
+approved contract and must produce a separate implementation acceptance report;
+as of this approval, production implementation remains `NOT_IMPLEMENTED`.
 
 #### 7.14.7 `verification_method`
 
@@ -2677,13 +2870,16 @@ ACCEPT-UK-NNN
 ACCEPT-QUANT-NNN
 QUANT-NNN
 QUANT-UK-NNN
+QUANT-METRIC-NNN
 VERIFY-UK-NNN
 UK-VAGUE-NNN
 FIND-U-VAGUE-NNN
 ```
 
 `UK` denotes the Ukrainian language profile. Language-independent symbolic or
-unit rules use `QUANT-NNN`; Ukrainian lexical comparators use `QUANT-UK-NNN`.
+unit rules use `QUANT-NNN`; Ukrainian lexical comparators use `QUANT-UK-NNN`;
+bounded metric-recognition and metric-to-anchor linkage rules use
+`QUANT-METRIC-NNN`.
 `ACCEPT-QUANT-NNN` denotes an acceptance rule whose distinguishing contract is
 composition with approved quantitative observations; it does not create a new
 quantitative language profile.
@@ -2695,10 +2891,12 @@ feature ID, language/profile, evidence boundary, source/approval reference,
 status, and superseding rule if any. Evidence uses the detector rule ID; a
 finding uses the interpretation/conversion rule ID that created the finding.
 `UK-VAGUE-001` remains the production allocation for the already-approved exact
-Section 7.14.8 matcher. `QUANT-001` and `QUANT-UK-001` are the only quantitative
-production allocations, with the immutable first-production meanings,
-source-aligned evidence boundaries, profiles, and Issue #29 approval recorded
-in Section 7.14.6.6. `COND-UK-001` and `COND-UK-002` are the allocated
+Section 7.14.8 matcher. `QUANT-001` and `QUANT-UK-001` retain the immutable
+first-production scalar meanings, source-aligned evidence boundaries, profiles,
+and Issue #29 approval recorded in Section 7.14.6.6. `QUANT-METRIC-001` is the
+only metric-link production allocation and is limited to Section 7.14.6.7's
+exact response-time template; its production implementation is not yet present.
+`COND-UK-001` and `COND-UK-002` are the allocated
 condition/context rules, with the latter limited to Section 7.14.16.2's bounded
 finite-verbal postposed `, якщо` contract. `RESULT-UK-001` and
 `RESULT-UK-002` are the allocated expected-result rules, with the latter
@@ -2725,7 +2923,7 @@ operational rules.
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY_APPROVED / OPEN` | In addition to the original `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` subsets, Section 7.14.16 approves only bounded postposed finite-verbal `COND-UK-002`, binary coordinated active-infinitive `RESULT-UK-002`, and conditioned exact-message `ACCEPT-UK-001`. General attachment, zero-copula/multiple/nested/coordinated conditions, broader/nonmodal normative force, passive/finite or greater-than-binary coordination, general negation, implicit subjects, broader nonnumeric criteria, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, arbitrary method grammar, actor/action/object, and singularity remain open, blocked, or deferred. |
 | `RQD-007` | `APPROVED_FOR_MVP_V0.1 / CLOSED` | NFC plus Unicode `casefold()`, Unicode-aware token boundaries, Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING` are approved without changing the ten-entry seed. Broader vocabulary coverage is future work and does not keep this MVP decision open. |
-| `RQD-008` | `PARTIALLY_APPROVED / OPEN` | The `QUANT-001`/`QUANT-UK-001` partial observations and `ACCEPT-QUANT-001` clause-level containment composition are approved without arbitrary distance thresholds. Only resolved inclusive lower/upper comparator bounds and explicit value + unit targets are judgeable for this acceptance baseline; `до` remains non-judgeable `UPPER_BOUND / UNRESOLVED`. Written-out numbers and generic ranges are outside the baseline; complex metric/context grammar, count-noun roles, and nested representation remain open. |
+| `RQD-008` | `PARTIALLY_APPROVED / OPEN` | The `QUANT-001`/`QUANT-UK-001` partial observations, exact `QUANT-METRIC-001` response-time linkage, and `ACCEPT-QUANT-001` clause-level containment composition are approved without arbitrary distance thresholds. Only resolved inclusive lower/upper comparator bounds and explicit value + unit targets are judgeable for the unchanged acceptance baseline; adding the metric changes no judgeability, and `до` remains non-judgeable `UPPER_BOUND / UNRESOLVED`. Written-out numbers, generic ranges, metric ambiguity diagnostics, and complex metric/context, count-noun, and nested grammar remain open. |
 | `RQD-016` | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | One accepted vague-term occurrence produces one Unambiguity `SIGNAL`; Section 7.16 finalizes the minimal Finding representation and allocates `FIND-U-VAGUE-001`. The other five families produce observations/evidence only. Every `QUALITY_PROBLEM` conversion remains open. |
 
 `RQD-005`, `RQD-007`, and `RQD-009` are closed for MVP v0.1. Section 7.16
@@ -2735,9 +2933,10 @@ severity, probability, risk, priority, or corrective-action field.
 
 The later Section 7.15 approval resolves the backend and domain-representation
 parts of these open items. Section 7.14.16 subsequently adds only
-`COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001`. Together with the earlier
-allocations, these remain bounded subsets; they do not close broader `RQD-006`
-grammar or `RQD-008` complex grammar.
+`COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001`; Section 7.14.6.7 adds only
+bounded `QUANT-METRIC-001`. Together with the earlier allocations, these remain
+bounded subsets; they do not close broader `RQD-006` grammar or `RQD-008`
+complex grammar.
 
 #### 7.14.13 Remaining researcher decisions
 
@@ -2752,9 +2951,10 @@ grammar or `RQD-008` complex grammar.
    method coordination, artifact/reference interpretation, imperative or
    implicit procedures, semantic reproducibility inference, and richer
    procedure-content grammar (`RQD-006`).
-2. Define any approved complex metric/context grammar, count-noun roles, and
-   nested load-context representation (`RQD-008`). Ambiguous linkage remains
-   `UNRESOLVED`; no arbitrary distance threshold may be introduced.
+2. Define metric/context grammar beyond exact `QUANT-METRIC-001`, including
+   explicit metric-candidate ambiguity diagnostics, count-noun roles, and
+   nested load-context representation (`RQD-008`). No arbitrary distance
+   threshold may be introduced.
 3. Decide any future expansion for written-out numbers or generic range syntax.
    Both are outside the MVP v0.1 baseline unless a separately approved,
    source-attested construction is added.
@@ -3516,13 +3716,15 @@ Component rules are:
    first-production baseline in Section 7.14.6.6 does not infer `metric` or
    `context`: each is `None` and is not automatically listed in
    `unresolved_components` merely because it was not part of the accepted
-   comparator/value/unit anchor. One contiguous anchor Evidence may support
-   every populated baseline component it explicitly contains, without
-   component-specific duplicate Evidence.
-7. Written-out numbers, generic ranges, complex count-noun role inference,
-   inferred metrics, and nested load-context structures remain outside this
-   representation gate. They remain open/deferred under `RQD-008` rather than
-   being guessed.
+   comparator/value/unit anchor. Section 7.14.6.7 may populate only its exact
+   approved metric on that same observation while preserving all scalar fields,
+   component refs, `context`, and `unresolved_components`. One contiguous
+   anchor Evidence may support every populated baseline component it explicitly
+   contains, without component-specific duplicate Evidence.
+7. Written-out numbers, generic ranges, metric recognition beyond exact
+   `QUANT-METRIC-001`, complex count-noun role inference, inferred metrics, and
+   nested load-context structures remain outside this representation gate. They
+   remain open/deferred under `RQD-008` rather than being guessed.
 
 #### 7.15.11 Reproducibility, licensing, and distribution policy
 
@@ -3561,7 +3763,7 @@ overall RQD whose remaining research rules are still open:
 | RQD | Status after approval | Approved portion and remaining boundary |
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY_APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. The original allocation covers `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and the three `VERIFY-UK-001` constructions. Section 7.14.16 later adds only bounded `COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001`, without changing the parser-neutral/domain contract. General attachment, broader/nonmodal force and coordination, broader nonnumeric criteria, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, actor/action/object, and singularity remain open, blocked, or deferred; no “any verb” fallback is allowed. |
-| `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, Issue #32 matching-view and protected deferred-frequency exclusion, and Issue #43 result-span containment and judgeability for `ACCEPT-QUANT-001` are approved. Complex metric/context grammar, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
+| `RQD-008` | `PARTIALLY APPROVED / OPEN` | Quantitative data representation, conservative baseline, Issue #29 first-production provenance/precedence/diagnostic contract, Issue #32 matching-view and protected deferred-frequency exclusion, Issue #43 result-span containment and judgeability for `ACCEPT-QUANT-001`, and Section 7.14.6.7's exact `QUANT-METRIC-001` response-time linkage are approved. Metric/context grammar beyond that literal template, metric ambiguity diagnostics, count-noun roles, nested-context representation, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. |
 | `RQD-012` | `PARTIALLY_APPROVED` at the time of this decision; detector-side representation and required-input characteristic propagation resolved here, specification-level aggregation propagation later `APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12) | The four detection cases and mixed state have stable data representation. Section 7.16 later requires assessment `UNKNOWN` with no value when a required input is unresolved and preserves accepted data in mixed outcomes. General insufficient-evidence and characteristic applicability beyond the approved per-characteristic and aggregation rules remain open. |
 | `RQD-020` | `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED` | No confidence or evidence-reliability value or field is approved for the current MVP characteristic or Finding contract. Exclusion does not resolve whether such metadata belongs in MVP; proposing inclusion makes this decision blocking and requires a separate scientific contract. |
 
@@ -5246,7 +5448,7 @@ approval.
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule by itself; score contribution for the mapped features is separately authorized by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). | CLOSED FOR MVP v0.1 | None directly; broader detector grammar remains gated under RQD-006/RQD-008 |
 | `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates the original `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` subsets and, through the SRM-03 approval in Section 7.14.16, exactly three additional bounded rules: finite-verbal postposed `COND-UK-002`, binary coordinated active-infinitive `RESULT-UK-002`, and conditioned exact-message `ACCEPT-UK-001`. Section 7.15 supplies the unchanged spaCy/parser-neutral boundary. General condition/subordinate attachment, zero-copula/multiple/nested/coordinated conditions, nonmodal force (`RESULT-UK-003`), coordination beyond the binary rule, general negation/implicit subjects, broader nonnumeric acceptance, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, arbitrary method grammar, actor/action/object, and singularity remain open, blocked, or deferred. | PARTIALLY APPROVED / OPEN | SRM-04 may implement only the Section 7.14.16 first slice after adding its mandatory pinned-backend fixtures. Broader detector coverage remains open. This does not block calculators, which consume `RequirementExtractionResult` independently of remaining detector grammar. |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; the automated Unambiguity calculation itself is approved by `CALC-U-MVP-001` (Section 10) |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6, and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` first-production allocation, candidate precedence, diagnostic code, typed partial data representation, and the `ACCEPT-QUANT-001` result-span containment, clause-level deduplication, and judgeability contract. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and protected deferred-frequency exclusion without accepting `не рідше`. `до` remains `UPPER_BOUND` with inclusivity `UNRESOLVED` and is not a judgeable acceptance bound. Complex metric/context grammar, count-noun and nested quantitative roles, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | MVP-04/05 detector coverage beyond the approved baseline. This does not block `VerifiabilityCalculator` (MVP-07) implementation or testing: `CALC-V-MVP-001` consumes whatever quantitative-constraint observations the extraction result already carries, and the calculator can be exercised against manually constructed inputs independently of remaining detector grammar. |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6-7, and 7.15 approve the narrow conservative quantitative baseline, its `QUANT-001`/`QUANT-UK-001` scalar allocation, the exact `QUANT-METRIC-001` response-time metric link, candidate precedence, scalar diagnostic code, typed partial data representation, and the unchanged `ACCEPT-QUANT-001` result-span containment, clause-level deduplication, and judgeability contract. Issue #32 additionally approves the offset-preserving NFC/casefold comparator view and protected deferred-frequency exclusion without accepting `не рідше`. `QUANT-METRIC-001` is `RESEARCHER_APPROVED` but `NOT_IMPLEMENTED`; it adds no ambiguity diagnostic and does not interpret trailing context. `до` remains `UPPER_BOUND` with inclusivity `UNRESOLVED` and is not a judgeable acceptance bound. Metric/context grammar beyond the exact approved template, metric ambiguity diagnostics, count-noun and nested quantitative roles, written-out numbers, generic ranges, and future accepted `не рідше` production grammar remain open/deferred. | PARTIALLY APPROVED / OPEN | Implementing and validating exact `QUANT-METRIC-001`, plus MVP-04/05 detector coverage beyond the approved baseline. This does not block `VerifiabilityCalculator` (MVP-07) implementation or testing: `CALC-V-MVP-001` consumes whatever quantitative-constraint observations the extraction result already carries, and the calculator can be exercised against manually constructed inputs independently of remaining detector grammar. |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PER-REQUIREMENT_MVP_FORMULAS_APPROVED / FUTURE_REFINEMENT_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) approve the per-requirement MVP v0.1 formulas, contributions, and unresolved-propagation rules for all three characteristics. This approval is scoped to MVP v0.1: it does not permanently close all future characteristic-formula research, including a future confirmed-material-ambiguity `0` rule or later Completeness/Verifiability refinements. | CLOSED FOR MVP v0.1 PER-REQUIREMENT FORMULAS | None for the approved MVP formulas; future refinements require separate researcher approval |
 | `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PER-REQUIREMENT_SCALE_CLOSED_FOR_MVP_V0.1 / SPECIFICATION_SCALE_CLOSED_FOR_MVP_V0.1` | Chapter 2 and Section 7.16 support `[0,1]` and upward compliance orientation. For MVP v0.1, the per-requirement scale/range is closed with the property-specific permitted value sets defined by each calculation rule: Completeness `{0,1/3,2/3,1}`, Verifiability `{0,1/2,1}`, Unambiguity `{1/2,1}` automated with `0` reserved. Section 12 ("Derivable without a new scientific assumption") now additionally closes the specification-level scale as a direct mathematical consequence of `AGG-MVP-001`: whenever a numeric aggregate exists, `C_file ∈ [0,1]`, `V_file ∈ [0,1]`, `U_file ∈ [1/2,1]` (the automated-MVP lower bound; `U_file = 0` remains impossible while the per-requirement `U_i = 0` rule is deferred under RQD-004), with the same upward compliance orientation as the per-requirement scales. `UNKNOWN`/`NOT_APPLICABLE` aggregates have `value = None` and are not numeric points on these scales. | CLOSED FOR MVP v0.1 — PER-REQUIREMENT AND SPECIFICATION-LEVEL SCALE BOTH CLOSED | None; specification-level aggregation (MVP-09/10) is no longer blocked by an open scale question |
@@ -5297,7 +5499,9 @@ The remaining decisions are grouped into four approval gates:
    `RESULT-UK-001/002`, `ACCEPT-QUANT-001`, `ACCEPT-UK-001`, and
    `VERIFY-UK-001` bounded subsets. Section 7.14.16 authorizes SRM-04 only for
    the three new bounded rules and their mandatory pinned-backend fixtures;
-   `RQD-008` remains open for complex metric/context grammar and nested
+   Section 7.14.6.7 approves exact `QUANT-METRIC-001` scientifically but its
+   production implementation remains absent; `RQD-008` remains open for metric
+   and context grammar beyond that template, ambiguity diagnostics, and nested
    representation. Section 7.16 finalizes the Finding contract and
    `FIND-U-VAGUE-001`; `RQD-016` remains open only for `QUALITY_PROBLEM`
    conversions. `RQD-007` is closed for the MVP seed matcher.
@@ -5390,10 +5594,10 @@ Section 13), the recommended sequence is:
 3. broader detector grammar — parser/template operationalization beyond the
    `COND-UK-001/002`, `RESULT-UK-001/002`, `ACCEPT-QUANT-001`,
    `ACCEPT-UK-001`, and `VERIFY-UK-001` bounded subsets under `RQD-006`, and
-   complex metric/context
-   grammar under `RQD-008` — can evolve independently of steps 1-2, as future
-   detector-coverage work, unless a later feature specifically requires it.
-   It is not a prerequisite for calculator implementation.
+   metric/context grammar beyond exact, not-yet-implemented
+   `QUANT-METRIC-001` under `RQD-008` — can evolve independently of steps 1-2,
+   as future detector-coverage work, unless a later feature specifically
+   requires it. It is not a prerequisite for calculator implementation.
 
 The Section 7.15 domain/data-contract subset of MVP-01 may start only after
 PR #19 is merged. The three Section 7.14.16 rules are scientifically authorized
