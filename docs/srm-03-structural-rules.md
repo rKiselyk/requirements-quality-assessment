@@ -95,7 +95,7 @@ does not authorize implementation by itself.
 | `COND-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | The bounded comma-delimited postposed `якщо` template in §4.1 now requires an explicit finite verbal condition, one MVP-compatible governing result, and a complete neutral relation, suffix-projection, Evidence and diagnostic contract. It needs no general attachment engine. |
 | `RESULT-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | The binary active-infinitive `і`/`та` construction in §4.2 has a closed syntax and selects multiple exact Evidence references for inherited normative scope. |
 | `RESULT-UK-003` | `RESEARCH_BLOCKED` | The sources show nonmodal examples but provide no textual fact that distinguishes normative present tense from description. Parser syntax, source position and neighboring clauses cannot supply that force. |
-| `ACCEPT-UK-001` | `READY_FOR_RESEARCHER_APPROVAL` | The exact-output subset in §4.4 uses a non-empty Ukrainian guillemet literal as a source-explicit oracle inside an accepted `RESULT-UK-001` result; it does not generalize all observable results into criteria. |
+| `ACCEPT-UK-001` | `READY_FOR_RESEARCHER_APPROVAL` | The exact-output subset in §4.4 requires a non-empty Ukrainian guillemet literal inside an accepted `RESULT-UK-001` result **and** an accepted leading `COND-UK-001` condition that governs that result through the exact approved source partition. This follows model-spec §7.14.5 and does not generalize unconditional observable results into criteria. |
 | `VERIFY-UK-002` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | No additional source-attested verification-role construction is sufficiently specified beyond `VERIFY-UK-001`; the concept remains valid, but the synthetic `підтверджується` construction has no dissertation authority. |
 | `ATTACH-UK-001` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | The ready rules establish bounded local relations internally. A reusable cross-observation relationship has no approved consumer or domain representation yet and is unnecessary for the first slice. |
 
@@ -116,7 +116,7 @@ Three layers are kept distinct throughout this registry:
    UD-compatible values needed to evaluate that rule; and
 3. the **selected-backend check** records what the pinned spaCy 3.8.16 /
    `uk_core_news_sm` 3.8.0 pipeline actually emitted in a temporary read-only
-   probe of P01, P03 and P07 during this correction.
+   probe of P01, P03, P07 and P21 during these corrections.
 
 That probe is implementation evidence, not scientific authority or a parser
 accuracy claim. SRM-04 must turn each observed graph into a direct pinned-backend
@@ -196,23 +196,23 @@ is missing or changes. No detector may manufacture or repair an arc.
 
 | Required item | Proposal / limit |
 | --- | --- |
-| 1. Scientific purpose | Preserve an explicit nonnumeric oracle against which fulfilment of a specified result can be judged. |
-| 2. Exact source | §2.1 Table 2.1, Completeness and Verifiability rows; §2.3 ¶17–21; §3.2 Table 3.4 (expected behavior or condition); model-spec §7.14.5 family-level discussion. |
-| 3. MVP limitation | `ACCEPT-QUANT-001` needs a contained, judgeable numeric anchor and cannot recognize a nonnumeric oracle. |
+| 1. Scientific purpose | Preserve an explicit nonnumeric oracle against which fulfilment of a specified result can be judged under an explicit source condition. |
+| 2. Exact source | §2.1 Table 2.1 requires enough information for condition, expected reaction and fulfilment criterion and identifies a test oracle as Verifiability evidence; §2.3 ¶17–21 distinguishes objective operationalization from general verifiability; §3.2 Table 3.4 permits expected behavior or a condition as criterion content but requires contextual correctness; model-spec §7.14.5 narrows nonnumeric recognition to complete observable behavior under an explicit condition and requires result-clause Evidence plus a reference to the separately captured governing condition. |
+| 3. MVP limitation | `ACCEPT-QUANT-001` needs a contained, judgeable numeric anchor and cannot recognize a nonnumeric oracle. Conversely, an exact output without an explicit governing condition is observable but is outside the currently approved nonnumeric scientific boundary. |
 | 4. Feature / Feature ID | Existing `acceptance_criteria[]` / `acceptance_criterion`. |
 | 5. Proposed Rule ID | `ACCEPT-UK-001` (provisional; `ACCEPT-QUANT-001` unchanged). |
-| 6. Ukrainian construction | Narrow exact-output template inside one accepted `RESULT-UK-001` result: lexical predicate lemma and complete source token `показати`; its direct object has lemma and complete source token `повідомлення`; immediately after that object, ignoring only Unicode whitespace, is one non-empty, non-nested Ukrainian guillemet literal `«…»`. A leading condition may already have been separated by `COND-UK-001`. No other output verb, object noun or quote style is included. |
-| 7. Parser annotations | The already accepted `RESULT-UK-001` observation/Evidence; source-aligned predicate and object tokens; the `повідомлення` token must have `dependency_relation=obj` and `head_token_id` equal to the `показати` token. Token offsets and sentence boundary are required. Quote boundaries are recognized directly in the original result Evidence, not inferred from parser punctuation. For P07 the selected backend emitted `система → повинна` (`nsubj`), `показати → повинна` (`xcomp`, `VerbForm=Inf`) and `повідомлення → показати` (`obj`); the detector still obtains `«`/`»` from original text. |
-| 8. Deterministic recognition procedure | (1) Reuse accepted `RESULT-UK-001` results only. (2) Within one result Evidence span, require the exact predicate/object relation in items 6–7. (3) Require exactly one `«` and its following `»`, non-empty interior, no nested `«`/`»`, and no non-whitespace source characters between `повідомлення` and `«`. (4) Require the closing `»` to be the last non-whitespace character of result Evidence. The literal is an exact expected output and therefore a source-explicit test oracle for that behavior. (5) Emit one clause-level criterion. No general semantic judgeability algorithm is invoked. |
-| 9. Evidence / offsets | Independent `acceptance_criterion` Evidence is exactly the complete accepted `RESULT-UK-001` result clause and uses `rule_id=ACCEPT-UK-001`; it does not reuse the result Evidence ID. In the binding example the criterion is `[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; the exact oracle is contained at `[63,83)` with content `[64,82)`. |
-| 10. Attachment semantics | Complete source-span equality with the accepted result establishes a local criterion → result composition. The criterion judges only the exact displayed-message behavior in that result. No reusable relationship object or `ATTACH-UK-001` link is required. |
-| 11. Positive example | `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` has existing condition `[0,23)`, accepted result `[25,83)`, and one proposed acceptance observation with its own `[25,83)` Evidence. |
-| 12. Negative example | `Система повинна показати зрозуміле повідомлення.` has no specified observable content or separately approved sufficiency rule. |
-| 13. False-positive boundary | A result without the exact predicate/object pair, unquoted or empty output, another quote style, nested/multiple literals, text after the closing guillemet, a method name, a subjective adjective or a test link is not accepted. No automatic equivalence of result and criterion is introduced. |
-| 14. UNRESOLVED behavior | If the accepted result contains the exact `показати повідомлення` pair but guillemet pairing, nesting, object attachment or result boundary cannot be determined, emit `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` for the result span, no criterion, and `INCOMPLETE`. If the required result dependency is parser-blocked, emit `ACCEPT_LITERAL_DEPENDENCY_BLOCKED`, no Evidence and `INCOMPLETE`. If the exact pair is absent, or a determinate empty/unquoted output is present, the rule contributes nothing and completes. |
+| 6. Ukrainian construction | Narrow leading-condition exact-output template: one accepted leading `COND-UK-001` condition, followed by its delimiter comma and one accepted `RESULT-UK-001` result. Inside that result, the lexical predicate lemma and complete source token are `показати`; its direct object has lemma and complete source token `повідомлення`; immediately after that object, ignoring only Unicode whitespace, is one non-empty, non-nested Ukrainian guillemet literal `«…»`. No postposed condition, other output verb, object noun or quote style is included. |
+| 7. Parser annotations | Accepted `COND-UK-001` and `RESULT-UK-001` observations/Evidence are required. For the result, source-aligned predicate and object tokens are required; the `повідомлення` token must have `dependency_relation=obj` and `head_token_id` equal to the `показати` token. Token offsets and sentence boundary are required. Quote boundaries and the condition/result source partition are recognized in original text, not inferred from parser punctuation. For P07 the selected backend emitted `система → повинна` (`nsubj`), `показати → повинна` (`xcomp`, `VerbForm=Inf`) and `повідомлення → показати` (`obj`); the condition itself is accepted by the existing lexical `COND-UK-001` leading template. |
+| 8. Deterministic recognition procedure | (1) Reuse exactly one accepted leading `COND-UK-001` condition and exactly one accepted `RESULT-UK-001` output; duplicate neither grammar. (2) Establish the local governing relation only when the accepted condition starts the same hard segment, its Evidence is followed by the approved delimiter comma and only whitespace before the result Evidence, and the result occupies the rest of that hard segment excluding terminal punctuation. (3) Within the result Evidence span, require the exact predicate/object relation in items 6–7. (4) Require exactly one `«` and its following `»`, non-empty interior, no nested `«`/`»`, and no non-whitespace source characters between `повідомлення` and `«`. (5) Require the closing `»` to be the last non-whitespace character of result Evidence. (6) Emit one clause-level criterion. No general attachment or semantic judgeability algorithm is invoked. |
+| 9. Evidence / offsets | One accepted literal criterion uses two independent same-family Evidence fragments with `feature_id=ACCEPTANCE_CRITERION` and `rule_id=ACCEPT-UK-001`: the exact accepted governing-condition span and the complete accepted result-clause span. They do not reuse upstream Evidence IDs. The condition fragment mirrors the accepted `COND-UK-001` source interval because cross-family IDs cannot be referenced by an acceptance observation; exact `(requirement_id,start_offset,end_offset)` equality preserves the dependency without a new field. In P07, `E001=[0,23)` `Якщо сервіс недоступний` and `E002=[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; the observation references `(E001,E002)`. The exact oracle remains `[63,83)` with content `[64,82)`. |
+| 10. Attachment semantics | The accepted `COND-UK-001` leading template and exact source partition in item 8 establish one local condition → result relation; equality with the accepted result span establishes criterion → result composition. The criterion judges only the exact displayed-message behavior under that condition. No reusable relationship object or `ATTACH-UK-001` link is required. |
+| 11. Positive example | `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` has accepted condition `[0,23)`, accepted result `[25,83)`, and one proposed acceptance observation referencing its own condition-support and result Evidence `[0,23)` and `[25,83)`. |
+| 12. Negative example | `Якщо сервіс не відповідає, система повинна показати зрозуміле повідомлення.` has an accepted condition and result but no specified literal content. An otherwise matching unconditional exact output is separately excluded by P22. |
+| 13. False-positive boundary | No accepted leading governing condition, a nonmatching condition/result source partition, a result without the exact predicate/object pair, unquoted or empty output, another quote style, nested/multiple literals, text after the closing guillemet, a method name, a subjective adjective or a test link is not accepted. No automatic equivalence of observable result and criterion is introduced. |
+| 14. UNRESOLVED behavior | If accepted condition/result dependencies exist but their local source partition cannot be established, or the accepted result contains the exact `показати повідомлення` pair but guillemet pairing, nesting, object attachment or result boundary cannot be determined, emit `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` for the result span, no criterion, and `INCOMPLETE`. If required condition or result analysis is blocked or incomplete, emit `ACCEPT_LITERAL_DEPENDENCY_BLOCKED`, no Evidence and `INCOMPLETE`. With no accepted explicit condition, the narrow rule completes with no contribution even when an exact output result is observable. A determinate empty/unquoted output likewise contributes nothing and completes. |
 | 15. Applicability | A nonnumeric criterion can be relevant without making every requirement's criterion universally mandatory; SRM-09 governs type-specific applicability. |
-| 16. Known limitations | The rule proves only that the exact message output is judgeable; it does not prove complete requirement fulfilment, usability, domain correctness, procedure quality or test execution. Other nonnumeric states remain outside coverage. |
-| 17. Dependencies and interaction | Depends only on accepted `RESULT-UK-001` and runs independently of `ACCEPT-QUANT-001`; neither rule supplies the other's scientific justification. Same-rule duplicate spans collapse. If both rules accept the same complete result-clause `[start,end)` span, retain each rule's independent `ACCEPTANCE_CRITERION` Evidence and rule provenance but merge them into **one clause-level `FeatureObservation`** whose `evidence_refs` list both IDs. Order equal-span refs by existing-rule precedence (`ACCEPT-QUANT-001` before `ACCEPT-UK-001`), then `evidence_id`; source-distinct clause spans remain distinct observations. Thus a second detector pass over the same clause does not inflate the observation count. Diagnostics from either rule remain; one or more accepted criteria plus any unresolved candidate yields family `INCOMPLETE / DETECTED`, while unresolved-only yields `INCOMPLETE / UNRESOLVED`. IDs are `ACCEPT-UK-001:E001…` in source order. No domain change, `RESULT-UK-002/003`, `ATTACH-UK-001`, formula or applicability change is required. |
+| 16. Known limitations | The rule covers only exact displayed output under one accepted leading `COND-UK-001` condition. It proves judgeability for that conditioned output only; it does not prove complete requirement fulfilment, usability, domain correctness, procedure quality or test execution. Unconditional exact outputs, postposed conditions and other nonnumeric states remain outside coverage. |
+| 17. Dependencies and interaction | Depends on accepted leading `COND-UK-001` and accepted `RESULT-UK-001`, and runs independently of `ACCEPT-QUANT-001`; neither rule supplies the other's scientific justification. Same-rule duplicate spans collapse. Merge identity is the shared complete result-clause span. If both acceptance rules accept that result, retain the literal rule's condition-support/result Evidence and the quantitative rule's result Evidence but emit **one clause-level `FeatureObservation`**. Order refs by `(start_offset,end_offset,rule precedence,evidence_id)`, with existing `ACCEPT-QUANT-001` before `ACCEPT-UK-001` only for equal spans. P21 therefore orders `(ACCEPT-UK-001:E001, ACCEPT-QUANT-001:E001, ACCEPT-UK-001:E002)`. Source-distinct result spans remain distinct observations. Diagnostics from either rule remain; accepted plus unresolved yields `INCOMPLETE / DETECTED`, while unresolved-only yields `INCOMPLETE / UNRESOLVED`. No domain change, `RESULT-UK-002/003`, `ATTACH-UK-001`, formula or applicability change is required. |
 | 18. Scientific approval | `READY_FOR_RESEARCHER_APPROVAL` / `PROPOSED_FOR_APPROVAL`. Approval would authorize only this exact-message subset after recording it in `model-spec.md`. |
 
 ### 4.5 `VERIFY-UK-002` — further explicit method-role constructions
@@ -270,7 +270,7 @@ incorrectly grouped under `ATTACH-UK-001`:
 
 | Concept | First-slice contract |
 | --- | --- |
-| Local relation established by one bounded detector | The relation exists only as a recognition condition inside that rule. `COND-UK-002` uses one exact `advcl` edge to one result; `RESULT-UK-002` uses a closed `conj`/`cc` graph for inherited normative scope; `ACCEPT-UK-001` uses equality with one accepted result Evidence span; `ACCEPT-QUANT-001` keeps its approved containment rule. These relationships require no new domain object. |
+| Local relation established by one bounded detector | The relation exists only as a recognition condition inside that rule. `COND-UK-002` uses one exact `advcl` edge to one result; `RESULT-UK-002` uses a closed `conj`/`cc` graph for inherited normative scope; `ACCEPT-UK-001` reuses one accepted leading `COND-UK-001` condition and one accepted `RESULT-UK-001` result whose exact intervals partition the same hard segment around the approved comma, then uses equality with the result span for criterion composition; `ACCEPT-QUANT-001` keeps its approved containment rule. These relationships require no new domain object. |
 | Reusable typed relationship between independently accepted observations | Deferred with `ATTACH-UK-001`. The current first slice has no consumer requiring stored cross-observation links. `evidence_refs` must not be overloaded to simulate endpoints. |
 | Unresolved semantic relationship | Independently supported endpoint observations remain available. The affected bounded detector emits its own diagnostic when the ambiguity prevents its observation; otherwise no relationship is stored. Uncertainty is never replaced by a chosen nearest target. |
 
@@ -286,8 +286,10 @@ The required uncertainty distinctions remain:
 
 No nearest-token, nearest-clause, shortest-distance, first/last-result or
 punctuation-only semantic fallback is permitted. Punctuation can define a
-source interval only where a complete rule such as `COND-UK-002` also requires
-the specified parser relation. The approved `ACCEPT-QUANT-001` containment
+source interval only within a complete rule. For `ACCEPT-UK-001`, the comma is
+usable only because accepted `COND-UK-001` and `RESULT-UK-001` outputs already
+establish the two exact parts of the approved leading template; comma adjacency
+alone proves nothing. The approved `ACCEPT-QUANT-001` containment
 semantics remain unchanged. Broader one-to-many and cross-family relationships
 remain deferred, not silently implemented.
 
@@ -316,10 +318,17 @@ identity that distinguishes the two observations. No consumer may reconstruct a
 new source quotation by concatenating fragments; explanations cite the exact
 fragments separately. These references are provenance, not endpoints of a
 reusable relation.
-`COND-UK-002` and a standalone `ACCEPT-UK-001` acceptance each contribute one
-Evidence item. An equal-span acceptance merged with `ACCEPT-QUANT-001` has both
-same-family Evidence refs in its one clause-level observation, as §4.4 defines.
-No ready proposal adds a domain field or changes `RequirementExtractionResult`.
+`COND-UK-002` contributes one Evidence item. A standalone `ACCEPT-UK-001`
+acceptance contributes two `ACCEPTANCE_CRITERION` Evidence items: an exact copy
+of the accepted governing-condition span and the complete accepted result span.
+The original `COND-UK-001` Evidence remains separately present under
+`CONDITION_CONTEXT`; its ID is not placed in the acceptance observation because
+model-spec §7.5.1 requires accepted refs to match the observation's feature
+family. Exact requirement ID and span equality connect the condition-support
+copy to that accepted condition without a cross-family reference or new field.
+When `ACCEPT-QUANT-001` accepts the same result span, the one merged observation
+has all three same-family refs ordered as §4.4 defines. No ready proposal changes
+`RequirementExtractionResult`.
 Parser edges remain internal recognition inputs and are never accepted Evidence.
 Actor/action/object fields remain deferred under model-spec §7.11.
 
@@ -331,11 +340,14 @@ Rule interaction is deterministic:
   before `RESULT-UK-001`; quoted/noun coordination falls through to the MVP
   rule, while a structurally apparent but unresolved result candidate remains
   incomplete and is not reduced to a single result.
-- `ACCEPT-UK-001` consumes accepted `RESULT-UK-001` output and runs independently
-  of `ACCEPT-QUANT-001`. Independent semantic justifications retain separate
-  Evidence and rule provenance. Equal complete clause spans merge into one
-  clause-level acceptance observation with both Evidence refs; source-distinct
-  clauses remain distinct observations.
+- `ACCEPT-UK-001` consumes an accepted leading `COND-UK-001` condition plus the
+  accepted `RESULT-UK-001` result that completes the same hard segment. With no
+  accepted condition, even an exact output is only an observable result for this
+  proposal and the rule contributes no acceptance observation. It runs
+  independently of `ACCEPT-QUANT-001`; independent justifications retain their
+  Evidence and rule provenance. A shared complete result span merges into one
+  clause-level acceptance observation with the condition-support and both
+  result-provenance refs; source-distinct results remain distinct observations.
 - Across rules, Evidence IDs include the rule ID and cannot collide. Within a
   rule, accepted observations and diagnostics use source ordering and exact
   tie rules from §4. Same-rule identical spans are collapsed; distinct source
@@ -358,7 +370,7 @@ changed by this document.
 
 ## 7. Ukrainian positive, negative and unresolved reference cases
 
-Rows P01–P04, P07–P08 and P14–P20 are the **proposed approval fixtures** for the
+Rows P01–P04, P07–P08 and P14–P22 are the **proposed approval fixtures** for the
 three ready rules. Their statuses below describe the proposed rule contribution;
 family merging then follows §6. P05–P06 and P09–P13 are explicitly
 `ILLUSTRATIVE_ONLY` because their rules are blocked or deferred. No illustrative
@@ -373,8 +385,8 @@ start-inclusive/end-exclusive positions in the exact trimmed input.
 | P04 `Система повинна показати напис «зберегти і повідомити».` | `RESULT-UK-002`: no new observation/Evidence; quoted text `[32,53)` has no two-verb `conj`/`cc` graph | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; segment falls through unchanged to `RESULT-UK-001` | Quoted coordinator cannot create another result. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
 | P05 `Якщо сервіс недоступний, події зберігаються у черзі.` | `RESULT-UK-003` candidate result `[25,51)`; no accepted Evidence | No proposed processing/detection contract | Present tense does not establish normative force. `RESEARCH_BLOCKED / ILLUSTRATIVE_ONLY`. |
 | P06 `У журналі зазначено, що події зберігаються у черзі.` | `RESULT-UK-003` descriptive clause `[24,50)`; no accepted Evidence | No proposed processing/detection contract | Demonstrates why syntax alone cannot distinguish force. `RESEARCH_BLOCKED / ILLUSTRATIVE_ONLY`. |
-| P07 `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` | `ACCEPT-UK-001`: one `acceptance_criterion`; `ACCEPT-UK-001:E001=[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; contained oracle `[63,83)`, content `[64,82)` | `COMPLETE / DETECTED`; no diagnostic | Accepted `RESULT-UK-001` result contains the exact predicate/object and non-empty guillemet oracle; the pinned backend produced `obj(повідомлення → показати)`. Its leading zero-copula condition is handled only by existing `COND-UK-001`, not treated as a finite `COND-UK-002` predicate. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P08 `Система повинна показати зрозуміле повідомлення.` | `ACCEPT-UK-001`: no observation/Evidence; result candidate `[0,47)` has no literal oracle | `COMPLETE / NOT_DETECTED`; no diagnostic | A subjective adjective is not an exact output oracle. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P07 `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` | Accepted `COND-UK-001` condition `[0,23)` and `RESULT-UK-001` result `[25,83)`. `ACCEPT-UK-001`: one `acceptance_criterion`; `E001=[0,23)` `Якщо сервіс недоступний`, `E002=[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; refs `(E001,E002)`; oracle `[63,83)`, content `[64,82)` | `COMPLETE / DETECTED`; no diagnostic | The accepted leading condition and result exactly partition one hard segment. The selected backend produced `obj(повідомлення → показати)`. The zero-copula condition is accepted only by existing `COND-UK-001`, not treated as a finite `COND-UK-002` predicate. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P08 `Якщо сервіс не відповідає, система повинна показати зрозуміле повідомлення.` | Accepted condition `[0,25)` and result `[27,74)`; `ACCEPT-UK-001`: no observation/Evidence because the result has no literal oracle | `COMPLETE / NOT_DETECTED`; no diagnostic | The governing condition is explicit, but a subjective adjective is not exact output content. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
 | P09 `Виконання підтверджується інспекцією журналу.` | `VERIFY-UK-002` candidate method `[26,44)`; no proposed Evidence | No proposed processing/detection contract | `підтверджується` is synthetic and not source-authorized. `DEFERRED / ILLUSTRATIVE_ONLY`. |
 | P10 `Система створює тестовий випадок.` | Artifact phrase `[16,32)`; no `VERIFY-UK-002` Evidence | No proposed processing/detection contract; existing `VERIFY-UK-001` remains authoritative | Names an artifact/system behavior, not a new verification-role construction. `DEFERRED / ILLUSTRATIVE_ONLY`. |
 | P11 `Якщо сервіс недоступний, система повинна зберегти запит і повідомити оператора.` | Condition `[0,23)` and result candidates `[25,55)`, `[58,78)`; no relationship Evidence | No `ATTACH-UK-001` result | Leading-condition plus coordinated-result scope is outside the ready binary result subset. `DEFERRED / ILLUSTRATIVE_ONLY`. |
@@ -385,8 +397,10 @@ start-inclusive/end-exclusive positions in the exact trimmed input.
 | P16 `Система повинна зберегти запит і повідомити оператора, якщо сервіс не відповідає.` | `COND-UK-002`: no observation/Evidence; condition candidate `[55,80)` | `INCOMPLETE / UNRESOLVED`; `COND_POSTPOSED_YAKSHCHO_UNRESOLVED` with `DiagnosticSpan=[55,80)` | The explicit finite condition is present, but the prefix has more than one result predicate, so this rule cannot select a unique governing predicate-chain head. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
 | P17 `Система повинна зберегти запит і не повідомляти оператора.` | `RESULT-UK-002`: no observation/Evidence; segment candidate `[0,57)` | `INCOMPLETE / UNRESOLVED`; `RESULT_COORD_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[0,57)` | Parser-visible negation is excluded; the detector does not invert or discard it. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
 | P18 `Система повинна зберегти запит або повідомити оператора.` | `RESULT-UK-002`: no observation/Evidence; alternative coordinator `[31,34)` | Extension contribution `COMPLETE / NOT_DETECTED`; no extension diagnostic; segment falls through to existing `RESULT-UK-001` behavior | `або` is not an approved shared-obligation coordinator for this rule. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P19 `Система повинна показати повідомлення «».` | `ACCEPT-UK-001`: no observation/Evidence; accepted result candidate `[0,40)` contains empty literal `[38,40)` | `COMPLETE / NOT_DETECTED`; no diagnostic | Empty output is deterministically insufficient, not an ambiguous oracle. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P20 `Система повинна показати повідомлення «Помилка «E1»».` | `ACCEPT-UK-001`: no observation/Evidence; affected result `[0,52)`, nested literal `[38,52)` | `INCOMPLETE / UNRESOLVED`; `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[0,52)` | The bounded rule does not choose inner/outer quote semantics. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P19 `Якщо сервіс не відповідає, система повинна показати повідомлення «».` | Accepted condition `[0,25)` and result `[27,67)`; `ACCEPT-UK-001`: no observation/Evidence; empty literal `[65,67)` `«»` | `COMPLETE / NOT_DETECTED`; no diagnostic | The condition dependency is satisfied; empty output is deterministically insufficient, not an ambiguous oracle. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P20 `Якщо сервіс не відповідає, система повинна показати повідомлення «Помилка «E1»».` | Accepted condition `[0,25)`; `ACCEPT-UK-001`: no observation/Evidence; affected result `[27,79)`, nested literal `[65,79)` `«Помилка «E1»»` | `INCOMPLETE / UNRESOLVED`; `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[27,79)` | The condition dependency is satisfied, but the bounded rule does not choose inner/outer quote semantics. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P21 `Якщо сервіс не відповідає, система повинна не більше ніж за 2 с показати повідомлення «Сервіс недоступний».` | Upstream: `COND-UK-001:E001=[0,25)` `Якщо сервіс не відповідає`; `RESULT-UK-001:E001=[27,106)` `система повинна не більше ніж за 2 с показати повідомлення «Сервіс недоступний»`; judgeable `QUANT-UK-001:E001=[43,63)` `не більше ніж за 2 с`. Acceptance Evidence: `ACCEPT-UK-001:E001` copies `[0,25)`; `ACCEPT-UK-001:E002` and `ACCEPT-QUANT-001:E001` each copy `[27,106)`. One merged `acceptance_criterion` refs `(ACCEPT-UK-001:E001, ACCEPT-QUANT-001:E001, ACCEPT-UK-001:E002)`; oracle `[86,106)` `«Сервіс недоступний»`, content `[87,105)` `Сервіс недоступний` | Both rules `COMPLETE`; merged family `COMPLETE / DETECTED`; no diagnostic | Existing detectors actually accept the condition, result, inclusive `LESS_THAN_OR_EQUAL` quantitative bound and quantitative criterion. The selected backend produced local `nsubj`, `xcomp` with `VerbForm=Inf`, and `obj(повідомлення → показати)`; original text supplies the final guillemet boundary. Both rule justifications and rule IDs remain independent. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P22 `Система повинна показати повідомлення «Сервіс недоступний».` | Accepted `RESULT-UK-001` result `[0,58)` with oracle `[38,58)` and content `[39,57)`; no accepted `COND-UK-001` condition; `ACCEPT-UK-001`: no observation/Evidence | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; the expected result remains accepted | Exact output is observable, but without an explicit accepted governing condition it is outside the proposed nonnumeric criterion subset. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
 
 MVP regression anchors below are **existing approved behavior**, not new SRM-03
 reference cases; their exact results remain governed by model-spec §§7.14.3–7.14.7:
@@ -399,20 +413,25 @@ reference cases; their exact results remain governed by model-spec §§7.14.3–
 | `Система контролює обробку запитів.` | Apparent candidate `[0,33)`; no accepted Evidence | `RESULT-UK-001`; `UNRESOLVED` | model-spec §7.14.4.1; **EXISTING_APPROVED_MVP** |
 
 **Offset validation record.** A temporary Unicode code-point validation script
-enumerated every documented span occurrence in P01–P20 and the four MVP anchors,
+enumerated every documented span occurrence in P01–P22 and the four MVP anchors,
 sliced the literal input, and compared it with an explicit expected-text list.
-All 39 span occurrences across 24 exact inputs satisfied
-`source[start_offset:end_offset] == expected_text`, including corrected P01,
-P15 and P16 and repeated diagnostic-span occurrences. The script was not added
-to the repository and the application test suite was not run.
+All 55 span occurrences across 26 exact inputs satisfied
+`source[start_offset:end_offset] == expected_text`, including modified P07,
+P08, P19 and P20, new P21 and P22, and repeated Evidence/diagnostic occurrences.
+The script was not added to the repository and the application test suite was
+not run.
 
 **Selected-backend validation record.** A separate temporary read-only probe
 used the repository adapter with spaCy 3.8.16 and `uk_core_news_sm` 3.8.0. It
-returned source-aligned parses without parser diagnostics for the exact P01,
-P03 and P07 sentences and emitted the head/relation/morphology facts recorded in
-§§4.1, 4.2 and 4.4. This validates present implementation feasibility only.
-The probe was not added as a fixture, did not modify the adapter, and was not a
-test-suite run; the pinned SRM-04 fixtures in §9 remain mandatory.
+returned source-aligned parses without parser diagnostics for exact P01, P03,
+P07, P08 and P19–P22 and emitted the head/relation/morphology facts recorded in
+§§4.1, 4.2, 4.4 and P21. A separate read-only call through the current baseline
+extractor confirmed that P21 already yields accepted `COND-UK-001`,
+`RESULT-UK-001`, `QUANT-UK-001` and `ACCEPT-QUANT-001` outputs at the documented
+offsets. `ACCEPT-UK-001` remains proposed and was not presented as executed.
+These probes validate present implementation feasibility only. They were not
+added as fixtures, did not modify the adapter, and were not a test-suite run;
+the pinned SRM-04 fixtures in §9 remain mandatory.
 
 ## 8. Compatibility with MVP v0.1
 
@@ -439,7 +458,7 @@ is recorded in `model-spec.md`.
 | `COND-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | One comma-delimited postposed `якщо` clause with one explicit finite `VERB` condition head, complete condition-subtree projection over the suffix, and attachment to exactly one simple MVP normative predicate-chain head | D01 and D08 | Existing condition observation and one exact suffix Evidence; no domain change or exported relation | P01, P02, P15, P16, plus parser-blocked fixture | Lock P01's observed `nsubj`/`xcomp` plus `mark(якщо → відповідає)` and `advcl(відповідає → повинна)` head identities and delimiter-comma attachment against the pinned backend; missing/changing required annotations must take the parser-blocked or unresolved path, never a fallback | Add exact candidate ownership, checks, Evidence and the two diagnostics; merge with `COND-UK-001` without duplicate Evidence/diagnostics and preserve all unrelated MVP markers | Zero-copula/adjectival conditions; other markers; no comma; multiple/nested/coordinated conditions; several results; nonmodal result; general attachment |
 | `RESULT-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | Exactly two active infinitive predicates coordinated by source `і`/`та` under one explicit MVP normative subject/anchor | D02 and D08 | Three exact same-family Evidence items; two observations; refs `(E002)` and `(E001,E003)`; no reconstruction or domain change | P03, P04, P14, P17, P18, plus explicit more-than-two exclusion | Lock P03's observed `nsubj`/`xcomp`/`conj`/`cc`, `VerbForm=Inf` and head identities; exercise incomplete annotations as `RESULT_COORD_PARSER_BLOCKED` | Add binary dispatch, Evidence construction, deterministic ref/observation ordering and diagnostics; retain source-distinct accepted MVP results and mixed accepted/unresolved output | Passive/finite coordination; more than two results; `або`/`чи`; negation; conditions; ellipsis; separate subjects; singularity judgment |
 | `RESULT-UK-003` | `RESEARCH_BLOCKED` | None | A future decision supplying independently observable normative force | Undetermined | P05–P06 remain illustrative | None authorized | No SRM-04 work | All present-tense/nonmodal result inference, including worked R5′ |
-| `ACCEPT-UK-001` | `READY_FOR_RESEARCHER_APPROVAL` | Accepted `RESULT-UK-001` clause with exact `показати` predicate, its `повідомлення` direct object and one final non-empty `«…»` literal | D04 and D08 | Independent full-clause acceptance Evidence; equal-span output from `ACCEPT-QUANT-001` merges into one observation with both refs; no domain change | P07, P08, P19, P20, plus dependency-blocked fixture | Lock P07's accepted result chain and observed `obj(повідомлення → показати)` head identity; scan guillemets only in original result text; missing required dependency annotation is blocked | Compose accepted result output, exact quote scan, Evidence and diagnostics; preserve both rule provenances, clause-level deduplication and mixed accepted/unresolved status | Other verbs/nouns/quote styles; unquoted, empty, nested or vague outputs; general states; result from `RESULT-UK-002/003`; domain or procedure adequacy |
+| `ACCEPT-UK-001` | `READY_FOR_RESEARCHER_APPROVAL` | Accepted leading `COND-UK-001` condition plus its accepted `RESULT-UK-001` remainder containing exact `показати` predicate, its `повідомлення` object and one final non-empty `«…»` literal | D04, D06, D07 and D08 | Two literal-rule Evidence fragments: condition-support copy and full result; P21 merge adds `ACCEPT-QUANT-001` result Evidence to one observation; no domain change | P07, P08, P19–P22, plus condition/result dependency-blocked fixture | Lock P07/P21 source partition, accepted upstream dependencies, result chain and `obj(повідомлення → показати)`; scan guillemets only in original result text; missing/incomplete dependency is blocked | Compose existing condition/result outputs, exact quote scan, two-piece Evidence and diagnostics; implement P21's three-ref merge while preserving rule provenance and mixed status | No accepted leading condition; postposed conditions; other verbs/nouns/quote styles; unquoted, empty, nested or vague outputs; general states; results from `RESULT-UK-002/003`; domain or procedure adequacy |
 | `VERIFY-UK-002` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | None beyond existing `VERIFY-UK-001` | Future source-backed construction decision | None yet | P09–P10 illustrative only | None authorized | No SRM-04 work | Synthetic governing verbs, vocabulary-only detection and reproducibility claims |
 | `ATTACH-UK-001` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | No reusable relationship; bounded local relations remain inside their detector rules | Future consumer plus complete typed-relation decision | Future stable observation identity and relation structure, only if approved | P11–P13 illustrative only | Parser arcs remain local detector inputs, never exported relations | No SRM-04 work | Universal pairing, distance fallbacks, exported parser edges and inferred one-to-many links |
 
@@ -508,15 +527,15 @@ not enter the first SRM-04 slice.
 | Approval-package item | Disposition |
 | --- | --- |
 | 1. Decision ID / status | `D04` — `PROPOSED_FOR_APPROVAL`. |
-| 2. Scientific source and baseline | §2.1 Table 2.1 permits criterion/test oracle; §3.2 Table 3.4 permits expected behavior; `ACCEPT-QUANT-001` covers only numeric judgeability. |
-| 3. Exact proposed choice | Approve `ACCEPT-UK-001` only for an accepted `RESULT-UK-001` containing exact `показати` → `повідомлення` object and one final non-empty `«…»` literal. Treat the literal as an oracle for that displayed output only. |
-| 4. Material alternatives | Every observable result, adjective-based message quality, general state semantics or other output verbs. Rejected because judgeability would depend on unapproved domain interpretation. |
-| 5. Scientific defence | An exact literal yields a reproducible equality observation for the stated behavior; the rule makes no claim about complete requirement fulfilment. |
-| 6. Domain/Evidence consequence | Existing acceptance family; one independent Evidence equal to the accepted result span; no relationship/domain field. If quantitative and exact-literal rules accept that same clause span, retain both Evidence/rule provenances in one clause-level observation rather than counting the clause twice. |
-| 7. Supporting cases | P07 positive, P08 unquoted negative, P19 empty-literal negative and P20 nested-literal unresolved. |
-| 8. Known limitations | Only exact displayed messages; no general nonnumeric state, usability or domain-correctness judgment. |
-| 9. Remaining blocker | Researcher approval and `model-spec.md` recording. SRM-04 must lock the observed P07 result/object graph and dependency-blocked case; no general judgeability algorithm is needed for this subset. |
-| 10. SRM-04 authorization | Implement §4.4 composition, exact quote scan, Evidence/diagnostics and approved fixtures. |
+| 2. Scientific source and baseline | Model-spec §7.14.5 expressly requires complete observable nonnumeric behavior under an explicit condition and Evidence for the behavior plus the separately captured condition. §2.1 Table 2.1 links local completeness to condition, reaction and fulfilment criterion and permits a test oracle; §2.3 ¶17–21 requires objective operationalization; §3.2 Table 3.4 permits expected behavior or a condition but requires contextual correctness. `ACCEPT-QUANT-001` remains the only approved production acceptance rule. |
+| 3. Exact proposed choice | Approve `ACCEPT-UK-001` only for an accepted leading `COND-UK-001` condition whose comma-delimited remainder is one accepted `RESULT-UK-001` containing exact `показати` → `повідомлення` object and one final non-empty `«…»` literal. Treat the literal as an oracle for that displayed output under that condition only. |
+| 4. Material alternatives | Permit unconditional exact output; accept every observable result; add a general condition/result relation; accept adjective-based message quality, general state semantics or other output verbs. The unconditional form would be a broader new scientific proposal than model-spec §7.14.5; the others require unapproved interpretation or attachment machinery. |
+| 5. Scientific defence | The explicit condition supplies the approved context boundary and the exact literal supplies a reproducible equality oracle. Reusing the already accepted leading condition/result source partition avoids proximity inference and makes no claim about complete requirement fulfilment. |
+| 6. Domain/Evidence consequence | Existing acceptance family and no domain change. The literal observation references two new `ACCEPT-UK-001` Evidence items: the exact accepted-condition span and complete result span. The condition-support span duplicates source coordinates, not the cross-family `COND-UK-001` Evidence ID. In P21, `ACCEPT-QUANT-001` adds its independent result-span Evidence and the three refs merge into one clause-level observation. |
+| 7. Supporting cases | P07 conditioned positive; P08 conditioned unquoted negative; P19 conditioned empty-literal negative; P20 conditioned nested-literal unresolved; P21 conditioned quantitative/literal merge positive; P22 unconditional exact-output boundary. |
+| 8. Known limitations | Leading approved conditions and exact displayed messages only; no unconditional or postposed-condition coverage, general nonnumeric state, usability or domain-correctness judgment. |
+| 9. Remaining blocker | Researcher approval and `model-spec.md` recording. SRM-04 must lock P07/P21 source partitions, result/object graphs, P21 quantitative composition and condition/result dependency-blocked cases; no general judgeability or attachment choice remains open. |
+| 10. SRM-04 authorization | Implement §4.4's accepted condition/result composition, exact quote scan, two-piece Evidence, P21 merge, diagnostics and approved fixtures only. |
 
 ### D05 — further verification constructions
 
@@ -539,11 +558,11 @@ not enter the first SRM-04 slice.
 | --- | --- |
 | 1. Decision ID / status | `D06` — `PROPOSED_FOR_APPROVAL` for first-slice architecture. |
 | 2. Scientific source and baseline | §2.1 condition/result and criterion meanings; §3.2 criterion chain; approved `ACCEPT-QUANT-001` already demonstrates bounded local containment without a universal engine. |
-| 3. Exact proposed choice | Keep every first-slice relation inside its complete detector rule. Defer reusable `ATTACH-UK-001`; never make it a dependency of `COND-UK-002`, `RESULT-UK-002` or `ACCEPT-UK-001`. |
+| 3. Exact proposed choice | Keep every first-slice relation inside its complete detector rule. `ACCEPT-UK-001` may reuse only the exact accepted leading `COND-UK-001`/`RESULT-UK-001` source partition; this is local composition, not a reusable relation. Defer `ATTACH-UK-001` and never make it a dependency of the ready rules. |
 | 4. Material alternatives | Universal attachment engine or stored parser dependency edges. Rejected because no current consumer/semantics justify them. |
 | 5. Scientific defence | A local rule can prove only the relation it needs; this prevents accidental generalization from punctuation or proximity. |
-| 6. Domain/Evidence consequence | No relationship object. Endpoint Evidence remains within observations; parser edges stay internal and non-evidentiary. |
-| 7. Supporting cases | Corrected P01, P03 and P07 show complete local relations in neutral annotations and selected-backend probes; P11–P13 show why a broader engine is deferred. |
+| 6. Domain/Evidence consequence | No relationship object. `ACCEPT-UK-001` records same-family copies of the exact condition and result spans as provenance; upstream cross-family IDs are not used as endpoints. Parser edges stay internal and non-evidentiary. |
+| 7. Supporting cases | Corrected P01, P03, P07 and P21 show complete local relations; P22 prevents unconditional widening; P11–P13 show why a broader engine is deferred. |
 | 8. Known limitations | Cross-observation relationship queries are unavailable. |
 | 9. Remaining blocker | None for ready rules; future `ATTACH-UK-001` needs the D07 contract and an actual consumer. |
 | 10. SRM-04 authorization | Implement local checks only; do not add attachment infrastructure. |
@@ -554,11 +573,11 @@ not enter the first SRM-04 slice.
 | --- | --- |
 | 1. Decision ID / status | `D07` — `PROPOSED_FOR_APPROVAL` as **no domain change for first slice**; reusable relation representation `DEFERRED`. |
 | 2. Scientific source and baseline | Existing `FeatureObservation.evidence_refs` supports several Evidence items; `RequirementExtractionResult` contains the six outcomes and accepted Evidence only. |
-| 3. Exact proposed choice | Use multiple Evidence refs to justify one observation for `RESULT-UK-002` and for equal-span clause-level deduplication across the two acceptance rules. Add no target IDs or relation collection. |
+| 3. Exact proposed choice | Use multiple same-family Evidence refs to justify one observation for `RESULT-UK-002`, to preserve `ACCEPT-UK-001` condition plus result provenance, and to merge both acceptance rules on the P21 result span. Add no cross-family ref, target ID or relation collection. |
 | 4. Material alternatives | Add provenance/anchor fields or a relation object now. Rejected as unnecessary for the bounded rules. |
-| 5. Scientific defence | The approved Evidence contract already represents all exact source facts needed by the first slice without leaking parser objects. |
-| 6. Domain/Evidence consequence | Domain structures remain unchanged. A future relation contract, if justified, must define stable endpoint identity, type, direction, cardinality, provenance, ordering, uncertainty, missing endpoints, parser failure and extraction-result location. |
-| 7. Supporting cases | P03 demonstrates sufficient fragmented multi-Evidence representation; §4.4's equal-span acceptance merge demonstrates same-family multi-provenance without another observation; P12–P13 demonstrate future relationship needs. |
+| 5. Scientific defence | The approved Evidence contract permits multiple exact fragments and one source span supporting different justified features. Matching the acceptance condition-support fragment to accepted `COND-UK-001` by requirement ID and exact offsets preserves the source fact without violating §7.5.1's same-family ref invariant or leaking parser objects. |
+| 6. Domain/Evidence consequence | Domain structures remain unchanged. P07 uses two acceptance refs; P21 uses three acceptance refs ordered deterministically. A future relation contract, if justified, must define stable endpoint identity, type, direction, cardinality, provenance, ordering, uncertainty, missing endpoints, parser failure and extraction-result location. |
+| 7. Supporting cases | P03 demonstrates fragmented RESULT provenance; P07 demonstrates condition/result acceptance provenance; P21 demonstrates quantitative/literal same-result merging; P12–P13 demonstrate future relationship needs. |
 | 8. Known limitations | No stored condition/result or method/criterion graph. |
 | 9. Remaining blocker | For a future relation: approved consumer semantics and all fields listed above. None blocks first slice. |
 | 10. SRM-04 authorization | Reuse current domain contracts only. |
@@ -569,11 +588,11 @@ not enter the first SRM-04 slice.
 | --- | --- |
 | 1. Decision ID / status | `D08` — `PROPOSED_FOR_APPROVAL`. |
 | 2. Scientific source and baseline | Model-spec §§7.5, 7.7, 7.14.2 and 7.15.7–7.15.8 define exact Evidence, stable rule IDs, ordering and mixed outcomes. |
-| 3. Exact proposed choice | Approve the corrected finite-condition grammar, parser-neutral head identities, precedence, ownership, clause-level acceptance deduplication, Evidence IDs, source/tie ordering and diagnostics in §§4 and 6 together with proposed fixtures P01–P04, P07–P08 and P14–P20. |
+| 3. Exact proposed choice | Approve the corrected finite-condition grammar, parser-neutral head identities, explicit-condition boundary for literal acceptance, precedence, ownership, clause-level acceptance deduplication, Evidence IDs, source/tie ordering and diagnostics in §§4 and 6 together with proposed fixtures P01–P04, P07–P08 and P14–P22. |
 | 4. Material alternatives | Let old and new rules emit duplicate diagnostics or silently prefer accepted output. Rejected because mixed uncertainty and rule provenance would be lost. |
 | 5. Scientific defence | Candidate ownership preserves one deterministic interpretation while leaving unrelated MVP segments unchanged. |
-| 6. Domain/Evidence consequence | No domain change; only new rule IDs, Evidence IDs and diagnostic codes after approval. Existing multi-ref observations represent RESULT fragments and equal-span acceptance provenance without parser data or fabricated text. |
-| 7. Supporting cases | P01–P04, P07–P08, P14–P20 and the four existing MVP regression anchors. |
+| 6. Domain/Evidence consequence | No domain change; only new rule IDs, Evidence IDs and diagnostic codes after approval. Existing multi-ref observations represent RESULT fragments, conditioned literal provenance and P21's three-ref acceptance merge without parser data, cross-family refs or fabricated text. |
+| 7. Supporting cases | P01–P04, P07–P08, P14–P22 and the four existing MVP regression anchors. |
 | 8. Known limitations | P05–P06 and P09–P13 are illustrative and cannot be promoted by D08. |
 | 9. Remaining blocker | Researcher approval of the corrected contracts and fixture set, followed by recording them in `model-spec.md`. Pinned-backend graph and degraded-annotation tests are mandatory SRM-04 validation; no unspecified scientific case semantics remain in the first slice. |
 | 10. SRM-04 authorization | Implement only the approved corrected case matrix, exact neutral-annotation checks and interaction semantics; do not infer missing arcs or complete rules by engineering judgment. |
