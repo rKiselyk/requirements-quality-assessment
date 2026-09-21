@@ -1,10 +1,13 @@
 # SRM-03 — Extended structural feature detection rules
 
-**Status: PROPOSED_PENDING_RESEARCHER_APPROVAL.** This is a scientific and
-operational proposal for SRM-04, not an amendment to the approved MVP v0.1
-contract. No rule or new example in this document is an executable or binding
-test case until the researcher resolves the listed decisions and records the
-approved rule in [model-spec.md](model-spec.md).
+**Status: PARTIALLY_APPROVED_FOR_SRM04_FIRST_SLICE.** The researcher has
+approved decisions D01, D02, D04, D06, D07, and D08 as one bounded package,
+allocating exactly `COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001` for
+SRM-04. The authoritative approval and complete executable contract are
+recorded in [model-spec.md §7.14.16](model-spec.md#71416-srm-03-bounded-structural-rule-approval).
+`RESULT-UK-003` remains `RESEARCH_BLOCKED`; `VERIFY-UK-002`,
+`ATTACH-UK-001`, and singularity assessment remain `DEFERRED`. This approval
+does not implement or otherwise change current MVP v0.1 behavior.
 
 ## 1. Purpose and scientific boundary
 
@@ -25,10 +28,11 @@ SRM-09/10/11. No new score, defect conversion, risk calculation, corrective
 action or reassessment rule is proposed here.
 
 Throughout this document, **source-supported principle** means that a cited
-dissertation passage motivates the observation. **Proposed rule** means a
-possible deterministic specialization of that principle; the dissertation
-does not itself approve its Ukrainian grammar. **Unresolved** identifies a
-decision that cannot be filled by parser output or implementation judgment.
+dissertation passage motivates the observation. A rule's explicit status says
+whether its deterministic specialization is approved, blocked, or deferred;
+the dissertation does not itself approve Ukrainian grammar. **Unresolved**
+identifies a decision that cannot be filled by parser output or implementation
+judgment.
 
 ## 2. Source traceability and existing MVP baseline
 
@@ -82,24 +86,24 @@ mixed accepted/unresolved processing and source-offset round trips.
 | F. Attachment | Conditions, criteria and methods need traceable targets (§2.1 Table 2.1; §3.2 ¶5–7). | MVP only has narrow condition anchor and quantitative Evidence containment. No general relation object or cross-clause attachment procedure is approved. |
 | G. Actor/action/object | §2.1 describes expected behavior and possible independent actions. | Model-spec §7.11 explicitly defers `has_actor`, `has_action`, `has_object`. Parser annotations alone do not justify a new family. |
 
-## 4. Proposed rule registry
+## 4. Rule registry and dispositions
 
-All six IDs below are **provisional proposals, not allocated production IDs**.
-The approved rule-ID policy in model-spec §7.7 applies only after researcher
-approval and incorporation into `model-spec.md`. A proposed executable rule
-uses the approved parser-neutral structures and exact Evidence contract; it
-does not authorize implementation by itself.
+Exactly three IDs below are now allocated for the bounded SRM-04 first slice.
+The other three remain blocked or deferred and are not production allocations.
+The approved rule-ID policy in model-spec §7.7 and the authoritative contracts
+in model-spec §7.14.16 apply. Scientific approval authorizes SRM-04 to implement
+the exact bounded rules; it is not itself an implementation.
 
 | Candidate rule | First-slice disposition | Scientific reason |
 | --- | --- | --- |
-| `COND-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | The bounded comma-delimited postposed `якщо` template in §4.1 now requires an explicit finite verbal condition, one MVP-compatible governing result, and a complete neutral relation, suffix-projection, Evidence and diagnostic contract. It needs no general attachment engine. |
-| `RESULT-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | The binary active-infinitive `і`/`та` construction in §4.2 has a closed syntax and selects multiple exact Evidence references for inherited normative scope. |
+| `COND-UK-002` | `APPROVED_FOR_SRM04_FIRST_SLICE` | The bounded comma-delimited postposed `якщо` template in §4.1 requires an explicit finite verbal condition, one MVP-compatible governing result, and a complete neutral relation, suffix-projection, Evidence and diagnostic contract. It needs no general attachment engine. |
+| `RESULT-UK-002` | `APPROVED_FOR_SRM04_FIRST_SLICE` | The binary active-infinitive `і`/`та` construction in §4.2 has a closed syntax and selects multiple exact Evidence references for inherited normative scope. |
 | `RESULT-UK-003` | `RESEARCH_BLOCKED` | The sources show nonmodal examples but provide no textual fact that distinguishes normative present tense from description. Parser syntax, source position and neighboring clauses cannot supply that force. |
-| `ACCEPT-UK-001` | `READY_FOR_RESEARCHER_APPROVAL` | The exact-output subset in §4.4 requires a non-empty Ukrainian guillemet literal inside an accepted `RESULT-UK-001` result **and** an accepted leading `COND-UK-001` condition that governs that result through the exact approved source partition. This follows model-spec §7.14.5 and does not generalize unconditional observable results into criteria. |
+| `ACCEPT-UK-001` | `APPROVED_FOR_SRM04_FIRST_SLICE` | The exact-output subset in §4.4 requires a non-empty Ukrainian guillemet literal inside an accepted `RESULT-UK-001` result **and** an accepted leading `COND-UK-001` condition that governs that result through the exact approved source partition. This follows model-spec §7.14.5 and does not generalize unconditional observable results into criteria. |
 | `VERIFY-UK-002` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | No additional source-attested verification-role construction is sufficiently specified beyond `VERIFY-UK-001`; the concept remains valid, but the synthetic `підтверджується` construction has no dissertation authority. |
-| `ATTACH-UK-001` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | The ready rules establish bounded local relations internally. A reusable cross-observation relationship has no approved consumer or domain representation yet and is unnecessary for the first slice. |
+| `ATTACH-UK-001` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | The approved first-slice rules establish bounded local relations internally. A reusable cross-observation relationship has no approved consumer or domain representation yet and is unnecessary for the first slice. |
 
-Shared mechanics for the three ready proposals are: operate on one original
+Shared mechanics for the three approved first-slice rules are: operate on one original
 trimmed `Requirement.text`; use only source-aligned parser-neutral annotations;
 use zero-based Unicode code-point `[start_offset,end_offset)` spans; exclude
 surrounding whitespace and sentence-final punctuation; preserve every exact
@@ -131,7 +135,7 @@ is missing or changes. No detector may manufacture or repair an arc.
 | 2. Exact source | §2.1 Table 2.1, Completeness and Singularity rows; worked application §8 Table 7 R5′; model-spec §7.14.3 general-family discussion. |
 | 3. MVP limitation | `COND-UK-001` covers only its edge templates and does not resolve internal/postposed `якщо`, nested or coordinated attachment. |
 | 4. Feature / Feature ID | Existing `condition_contexts[]` / `condition_context`; no new family. |
-| 5. Proposed Rule ID | `COND-UK-002` (provisional; `COND-UK-001` unchanged). |
+| 5. Rule ID | `COND-UK-002` (allocated for the bounded contract; `COND-UK-001` unchanged). |
 | 6. Ukrainian construction | Exactly one binary source structure in one parser sentence and semicolon segment: `<one governing result>, <якщо-clause>`. The comma is mandatory. `якщо` is the only marker, matched as a complete token on the approved NFC plus Unicode `casefold()` view. No synonym, morphology generation or other marker is admitted. |
 | 7. Parser annotations | Existing `SentenceAnnotation` and `TokenAnnotation` offsets, `lemma`, `upos`, morphology, `head_token_id`, and `dependency_relation`. The condition head must be `VERB` with `VerbForm=Fin`; the `якщо` token must have `dependency_relation=mark` and `head_token_id` equal to that condition head. The condition head must have `dependency_relation=advcl` and `head_token_id` equal to the governing prefix's normative predicate-chain head; that head must be connected to the one lexical behavior infinitive through the accepted `RESULT-UK-001` chain. All referenced heads must be in the same sentence/segment. The selected backend emitted exactly this graph for P01: `якщо → відповідає` (`mark`), `відповідає → повинна` (`advcl`, `VerbForm=Fin`), `зберегти → повинна` (`xcomp`), and `Система → повинна` (`nsubj`). |
 | 8. Deterministic recognition procedure | (1) Find exactly one comma followed only by whitespace and complete-token `якщо`. (2) Let the trimmed prefix before the comma be the governing-result interval and the suffix from `якщо` to the segment end be the condition interval. (3) Apply the normative subject/predicate requirements of `RESULT-UK-001` to the prefix interval, at absolute offsets, without invoking condition separation; require exactly one local subject, one approved normative surface, one connected lexical behavior predicate, no coordination and no negation. (4) Require the finite-head, `mark` and `advcl` head identities from item 7; the `advcl` target is the accepted prefix's normative predicate-chain head, not an arbitrary nearby token. (5) Project the condition-head subtree onto the condition interval: every token in the trimmed suffix must be the condition head or its descendant, their source projection must equal the whole suffix, and no nonpunctuation descendant may lie outside it. The mandatory delimiter comma immediately before the suffix is excluded from this projection because the selected backend attaches that punctuation token to the condition head. Only then accept. This bounded local relation is part of the rule; `ATTACH-UK-001` is not called or stored. |
@@ -144,7 +148,7 @@ is missing or changes. No detector may manufacture or repair an arc.
 | 15. Applicability | Detect explicit text only; criterion applicability remains `UNKNOWN` unless an independent approved rule states otherwise. |
 | 16. Known limitations | Only one comma-delimited postposed `якщо` clause with one explicit finite verbal head and one simple normative result is covered. Leading `якщо` remains `COND-UK-001`; zero-copula/adjectival predicates, multiple, nested, coordinated and nonmodal structures remain outside this rule. A future zero-copula proposal must define its own representation, recognition and cases. |
 | 17. Dependencies and interaction | Proposed dispatch checks this exact postposed form before `COND-UK-001`. An accepted or unresolved `COND-UK-002` candidate owns only that marker span, preventing the old `COND-UK-001` postposed-`якщо` diagnostic from duplicating it. Other markers and segments remain governed unchanged by `COND-UK-001`. Evidence IDs are `COND-UK-002:E001…` in accepted source order; identical `(feature_id,start,end)` output from the same rule is collapsed. No domain change and no `ATTACH-UK-001` dependency. |
-| 18. Scientific approval | `READY_FOR_RESEARCHER_APPROVAL` / `PROPOSED_FOR_APPROVAL`. Approval would authorize only this bounded production contract after it is recorded in `model-spec.md`. |
+| 18. Scientific approval | `APPROVED_FOR_SRM04_FIRST_SLICE` through D01 and D08, with D06-D07's no-attachment/no-domain-change boundary; authoritative contract in model-spec §7.14.16.2. |
 
 ### 4.2 `RESULT-UK-002` — coordinated results with explicit normative scope
 
@@ -154,7 +158,7 @@ is missing or changes. No detector may manufacture or repair an arc.
 | 2. Exact source | §2.1 Table 2.1, Completeness and Singularity rows; model-spec §7.14.4 family-level statement that each independent coordinated result is a separate observation. |
 | 3. MVP limitation | `RESULT-UK-001` leaves coordinated predicate/`conj` scope unresolved. |
 | 4. Feature / Feature ID | Existing `expected_results[]` / `expected_result`. |
-| 5. Proposed Rule ID | `RESULT-UK-002` (provisional). |
+| 5. Rule ID | `RESULT-UK-002` (allocated for this bounded binary construction). |
 | 6. Ukrainian construction | One parser sentence/semicolon segment of exact source shape `<explicit local subject> <one approved normative surface> <first active infinitive phrase> <і\|та> <second active infinitive phrase>`. Approved normative surfaces are exactly `повинен`, `повинна`, `повинні`, `має`, `мають`. Exactly two lexical predicates and one coordinator are allowed. A leading/postposed condition, comma, colon, dash or internal hard boundary is excluded from this first subset. |
 | 7. Parser annotations | Existing parser-neutral offsets, `lemma`, `upos`, morphology, heads and UD-compatible relations. The first predicate must be `VERB` with `VerbForm=Inf` and connected to the normative construction through the `RESULT-UK-001` `xcomp`/`ccomp`/`aux`/`cop` chain. The second must be `VERB`, `VerbForm=Inf`, `dependency_relation=conj`, and `head_token_id` equal to the first predicate. The exact source coordinator token is `і` or `та`, has `dependency_relation=cc`, and `head_token_id` equal to the second predicate. One `nsubj`/`nsubj:*` belongs to the governing clause; no second local subject is allowed. The selected backend emitted that exact P03 graph: `Система → повинна` (`nsubj`), `зберегти → повинна` (`xcomp`, `VerbForm=Inf`), `повідомити → зберегти` (`conj`, `VerbForm=Inf`) and `і → повідомити` (`cc`). |
 | 8. Deterministic recognition procedure | (1) Segment exactly as `RESULT-UK-001`. (2) Require one normative surface and one local subject. (3) Require exactly the two infinitive predicate heads and coordination graph in item 7. (4) Reject any parser-visible `neg`, `або`, `чи`, adversative coordinator, second coordinator, additional lexical verb/participle, ellipsis, condition candidate or noncontiguous source mapping. (5) Let the first phrase run from segment start through the last non-whitespace character before the coordinator; let the second predicate phrase run from the first non-whitespace character after the coordinator through segment end, excluding terminal punctuation. Because no other verb or coordinator is allowed, every source-explicit complement/modifier in those intervals belongs to its respective predicate phrase; no semantic complement classifier is hidden in the rule. (6) Emit two observations. |
@@ -167,7 +171,7 @@ is missing or changes. No detector may manufacture or repair an arc.
 | 15. Applicability | Structural detection does not decide whether more than one result is a singularity defect or change C/V applicability. |
 | 16. Known limitations | This covers only binary active infinitive coordination with explicit shared normative force. It does not prove logical independence, support passive/coordinated finite predicates, or decide singularity. |
 | 17. Dependencies and interaction | Proposed candidate dispatch precedes `RESULT-UK-001` only for a segment with a normative anchor and an apparent source two-verb `і`/`та` coordination. Such a segment is already unresolved, with no accepted partial result, under the approved single-result grammar; ownership by an accepted or unresolved `RESULT-UK-002` candidate therefore cannot suppress an approved MVP observation. With no such candidate, the complete segment falls through unchanged to `RESULT-UK-001`, including its approved diagnostics. Accepted observations from other source-distinct segments are preserved; adding an unresolved segment yields family `INCOMPLETE / DETECTED`. Evidence IDs sort by `(start_offset,end_offset,evidence_id)`, giving E001, E002, E003 above. Within each observation, refs use the same ordering; observations sort by predicate-bearing Evidence start, first predicate then second, which resolves the shared-anchor tie. Same-rule duplicate spans collapse. No `ATTACH-UK-001` or domain change is required. |
-| 18. Scientific approval | `READY_FOR_RESEARCHER_APPROVAL` / `PROPOSED_FOR_APPROVAL`. Approval would authorize only this binary construction after recording it in `model-spec.md`. |
+| 18. Scientific approval | `APPROVED_FOR_SRM04_FIRST_SLICE` through D02 and D08, with D06-D07's no-attachment/no-domain-change boundary; authoritative contract in model-spec §7.14.16.3. |
 
 ### 4.3 `RESULT-UK-003` — nonmodal expected results under requirement force
 
@@ -200,20 +204,20 @@ is missing or changes. No detector may manufacture or repair an arc.
 | 2. Exact source | §2.1 Table 2.1 requires enough information for condition, expected reaction and fulfilment criterion and identifies a test oracle as Verifiability evidence; §2.3 ¶17–21 distinguishes objective operationalization from general verifiability; §3.2 Table 3.4 permits expected behavior or a condition as criterion content but requires contextual correctness; model-spec §7.14.5 narrows nonnumeric recognition to complete observable behavior under an explicit condition and requires result-clause Evidence plus a reference to the separately captured governing condition. |
 | 3. MVP limitation | `ACCEPT-QUANT-001` needs a contained, judgeable numeric anchor and cannot recognize a nonnumeric oracle. Conversely, an exact output without an explicit governing condition is observable but is outside the currently approved nonnumeric scientific boundary. |
 | 4. Feature / Feature ID | Existing `acceptance_criteria[]` / `acceptance_criterion`. |
-| 5. Proposed Rule ID | `ACCEPT-UK-001` (provisional; `ACCEPT-QUANT-001` unchanged). |
+| 5. Rule ID | `ACCEPT-UK-001` (allocated for this bounded exact-message contract; `ACCEPT-QUANT-001` unchanged). |
 | 6. Ukrainian construction | Narrow leading-condition exact-output template: one accepted leading `COND-UK-001` condition, followed by its delimiter comma and one accepted `RESULT-UK-001` result. Inside that result, the lexical predicate lemma and complete source token are `показати`; its direct object has lemma and complete source token `повідомлення`; immediately after that object, ignoring only Unicode whitespace, is one non-empty, non-nested Ukrainian guillemet literal `«…»`. No postposed condition, other output verb, object noun or quote style is included. |
 | 7. Parser annotations | Accepted `COND-UK-001` and `RESULT-UK-001` observations/Evidence are required. For the result, source-aligned predicate and object tokens are required; the `повідомлення` token must have `dependency_relation=obj` and `head_token_id` equal to the `показати` token. Token offsets and sentence boundary are required. Quote boundaries and the condition/result source partition are recognized in original text, not inferred from parser punctuation. For P07 the selected backend emitted `система → повинна` (`nsubj`), `показати → повинна` (`xcomp`, `VerbForm=Inf`) and `повідомлення → показати` (`obj`); the condition itself is accepted by the existing lexical `COND-UK-001` leading template. |
 | 8. Deterministic recognition procedure | (1) Reuse exactly one accepted leading `COND-UK-001` condition and exactly one accepted `RESULT-UK-001` output; duplicate neither grammar. (2) Establish the local governing relation only when the accepted condition starts the same hard segment, its Evidence is followed by the approved delimiter comma and only whitespace before the result Evidence, and the result occupies the rest of that hard segment excluding terminal punctuation. (3) Within the result Evidence span, require the exact predicate/object relation in items 6–7. (4) Require exactly one `«` and its following `»`, non-empty interior, no nested `«`/`»`, and no non-whitespace source characters between `повідомлення` and `«`. (5) Require the closing `»` to be the last non-whitespace character of result Evidence. (6) Emit one clause-level criterion. No general attachment or semantic judgeability algorithm is invoked. |
 | 9. Evidence / offsets | One accepted literal criterion uses two independent same-family Evidence fragments with `feature_id=ACCEPTANCE_CRITERION` and `rule_id=ACCEPT-UK-001`: the exact accepted governing-condition span and the complete accepted result-clause span. They do not reuse upstream Evidence IDs. The condition fragment mirrors the accepted `COND-UK-001` source interval because cross-family IDs cannot be referenced by an acceptance observation; exact `(requirement_id,start_offset,end_offset)` equality preserves the dependency without a new field. In P07, `E001=[0,23)` `Якщо сервіс недоступний` and `E002=[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; the observation references `(E001,E002)`. The exact oracle remains `[63,83)` with content `[64,82)`. |
 | 10. Attachment semantics | The accepted `COND-UK-001` leading template and exact source partition in item 8 establish one local condition → result relation; equality with the accepted result span establishes criterion → result composition. The criterion judges only the exact displayed-message behavior under that condition. No reusable relationship object or `ATTACH-UK-001` link is required. |
-| 11. Positive example | `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` has accepted condition `[0,23)`, accepted result `[25,83)`, and one proposed acceptance observation referencing its own condition-support and result Evidence `[0,23)` and `[25,83)`. |
+| 11. Positive example | `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` has accepted condition `[0,23)`, accepted result `[25,83)`, and one approved acceptance observation referencing its own condition-support and result Evidence `[0,23)` and `[25,83)`. |
 | 12. Negative example | `Якщо сервіс не відповідає, система повинна показати зрозуміле повідомлення.` has an accepted condition and result but no specified literal content. An otherwise matching unconditional exact output is separately excluded by P22. |
 | 13. False-positive boundary | No accepted leading governing condition, a nonmatching condition/result source partition, a result without the exact predicate/object pair, unquoted or empty output, another quote style, nested/multiple literals, text after the closing guillemet, a method name, a subjective adjective or a test link is not accepted. No automatic equivalence of observable result and criterion is introduced. |
 | 14. UNRESOLVED behavior | If accepted condition/result dependencies exist but their local source partition cannot be established, or the accepted result contains the exact `показати повідомлення` pair but guillemet pairing, nesting, object attachment or result boundary cannot be determined, emit `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` for the result span, no criterion, and `INCOMPLETE`. If required condition or result analysis is blocked or incomplete, emit `ACCEPT_LITERAL_DEPENDENCY_BLOCKED`, no Evidence and `INCOMPLETE`. With no accepted explicit condition, the narrow rule completes with no contribution even when an exact output result is observable. A determinate empty/unquoted output likewise contributes nothing and completes. |
 | 15. Applicability | A nonnumeric criterion can be relevant without making every requirement's criterion universally mandatory; SRM-09 governs type-specific applicability. |
 | 16. Known limitations | The rule covers only exact displayed output under one accepted leading `COND-UK-001` condition. It proves judgeability for that conditioned output only; it does not prove complete requirement fulfilment, usability, domain correctness, procedure quality or test execution. Unconditional exact outputs, postposed conditions and other nonnumeric states remain outside coverage. |
 | 17. Dependencies and interaction | Depends on accepted leading `COND-UK-001` and accepted `RESULT-UK-001`, and runs independently of `ACCEPT-QUANT-001`; neither rule supplies the other's scientific justification. Same-rule duplicate spans collapse. Merge identity is the shared complete result-clause span. If both acceptance rules accept that result, retain the literal rule's condition-support/result Evidence and the quantitative rule's result Evidence but emit **one clause-level `FeatureObservation`**. Order refs by `(start_offset,end_offset,rule precedence,evidence_id)`, with existing `ACCEPT-QUANT-001` before `ACCEPT-UK-001` only for equal spans. P21 therefore orders `(ACCEPT-UK-001:E001, ACCEPT-QUANT-001:E001, ACCEPT-UK-001:E002)`. Source-distinct result spans remain distinct observations. Diagnostics from either rule remain; accepted plus unresolved yields `INCOMPLETE / DETECTED`, while unresolved-only yields `INCOMPLETE / UNRESOLVED`. No domain change, `RESULT-UK-002/003`, `ATTACH-UK-001`, formula or applicability change is required. |
-| 18. Scientific approval | `READY_FOR_RESEARCHER_APPROVAL` / `PROPOSED_FOR_APPROVAL`. Approval would authorize only this exact-message subset after recording it in `model-spec.md`. |
+| 18. Scientific approval | `APPROVED_FOR_SRM04_FIRST_SLICE` through D04, D06-D08; authoritative contract in model-spec §7.14.16.4. |
 
 ### 4.5 `VERIFY-UK-002` — further explicit method-role constructions
 
@@ -259,7 +263,7 @@ is missing or changes. No detector may manufacture or repair an arc.
 | 15. Applicability | Relation availability does not change feature or criterion applicability; `UNKNOWN`/`NOT_APPLICABLE` stay distinct. |
 | 16. Known limitations | Cross-rule queries such as “which method verifies which result?” remain unavailable. If a future consumer requires them, a typed relation contract must be approved first. |
 | 17. Dependencies | Deferred future contract, if required: stable observation endpoint identity; relation type and direction; one-to-one/one-to-many cardinality; endpoint Evidence/provenance; source ordering; explicit resolved/ambiguous/missing state; missing-endpoint and parser-failure rules; and a location in `RequirementExtractionResult`. None is needed for the first slice. |
-| 18. Scientific approval | `DEFERRED_FROM_FIRST_SRM04_SLICE`. It must not block the three ready rules and is excluded from SRM-04 first-slice implementation. |
+| 18. Scientific approval | `DEFERRED_FROM_FIRST_SRM04_SLICE`. It must not block the three approved first-slice rules and is excluded from SRM-04 implementation. |
 
 ## 5. Multi-clause and attachment semantics
 
@@ -279,7 +283,7 @@ The required uncertainty distinctions remain:
 | Relationship case | Treatment |
 | --- | --- |
 | Supported unambiguous attachment | Accept only under the complete local rule that defines both endpoints and the exact structural path or containment relation. |
-| Multiple scientifically justified relationships | Outside the three ready subsets. A future typed contract must preserve every supported pair rather than select one. |
+| Multiple scientifically justified relationships | Outside the three approved subsets. A future typed contract must preserve every supported pair rather than select one. |
 | Ambiguous attachment | Withhold the dependent observation/link and emit a source-bound rule diagnostic when the candidate boundary is known. |
 | Missing attachment information | Preserve independent observations; create no relation and no fake Evidence. |
 | Unsupported syntax or unreliable parser output | Apply the consuming detector's parser-blocked/incomplete outcome; never treat it as `NOT_DETECTED`. |
@@ -327,7 +331,7 @@ model-spec §7.5.1 requires accepted refs to match the observation's feature
 family. Exact requirement ID and span equality connect the condition-support
 copy to that accepted condition without a cross-family reference or new field.
 When `ACCEPT-QUANT-001` accepts the same result span, the one merged observation
-has all three same-family refs ordered as §4.4 defines. No ready proposal changes
+has all three same-family refs ordered as §4.4 defines. No approved rule changes
 `RequirementExtractionResult`.
 Parser edges remain internal recognition inputs and are never accepted Evidence.
 Actor/action/object fields remain deferred under model-spec §7.11.
@@ -343,7 +347,7 @@ Rule interaction is deterministic:
 - `ACCEPT-UK-001` consumes an accepted leading `COND-UK-001` condition plus the
   accepted `RESULT-UK-001` result that completes the same hard segment. With no
   accepted condition, even an exact output is only an observable result for this
-  proposal and the rule contributes no acceptance observation. It runs
+  rule and the rule contributes no acceptance observation. It runs
   independently of `ACCEPT-QUANT-001`; independent justifications retain their
   Evidence and rule provenance. A shared complete result span merges into one
   clause-level acceptance observation with the condition-support and both
@@ -370,8 +374,8 @@ changed by this document.
 
 ## 7. Ukrainian positive, negative and unresolved reference cases
 
-Rows P01–P04, P07–P08 and P14–P22 are the **proposed approval fixtures** for the
-three ready rules. Their statuses below describe the proposed rule contribution;
+Rows P01–P04, P07–P08 and P14–P22 are the **approved binding fixtures** for the
+three allocated first-slice rules. Their statuses describe the approved rule contribution;
 family merging then follows §6. P05–P06 and P09–P13 are explicitly
 `ILLUSTRATIVE_ONLY` because their rules are blocked or deferred. No illustrative
 row can become an SRM-04 test. All offsets are zero-based Unicode code-point,
@@ -379,28 +383,28 @@ start-inclusive/end-exclusive positions in the exact trimmed input.
 
 | Case and exact input | Rule / observations and Evidence | Processing, detection and diagnostic | Explanation / status |
 | --- | --- | --- | --- |
-| P01 `Система повинна зберегти запит, якщо сервіс не відповідає.` | `COND-UK-002`: one `condition_context`; `COND-UK-002:E001=[32,57)` `якщо сервіс не відповідає` | `COMPLETE / DETECTED`; no diagnostic | Explicit finite condition head `відповідає`. The pinned backend probe produced `mark(якщо → відповідає)`, `advcl(відповідає → повинна)`, `xcomp(зберегти → повинна)` and `nsubj(Система → повинна)`; it attached the delimiter comma to `відповідає`, which §4.1 excludes from the suffix projection. Every mandatory neutral check is therefore satisfied. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P02 `Система повинна показати слово «якщо» у довідці.` | `COND-UK-002`: no observation or Evidence; quoted token candidate `[32,36)` is excluded | `COMPLETE / NOT_DETECTED`; no diagnostic | `якщо` is inside `[31,37)` `«якщо»` and cannot satisfy the condition relation. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P03 `Система повинна зберегти запит і повідомити оператора.` | `RESULT-UK-002`: result 1 refs `E002`; result 2 refs `E001,E003`. `E001=[0,15)` `Система повинна`; `E002=[0,30)` `Система повинна зберегти запит`; `E003=[33,53)` `повідомити оператора` | `COMPLETE / DETECTED`; no diagnostic | Binary active-infinitive `і` coordination with exact shared scope and no invented text. The pinned backend probe produced the required `nsubj`/`xcomp`/`conj`/`cc` graph recorded in §4.2. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P04 `Система повинна показати напис «зберегти і повідомити».` | `RESULT-UK-002`: no new observation/Evidence; quoted text `[32,53)` has no two-verb `conj`/`cc` graph | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; segment falls through unchanged to `RESULT-UK-001` | Quoted coordinator cannot create another result. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P01 `Система повинна зберегти запит, якщо сервіс не відповідає.` | `COND-UK-002`: one `condition_context`; `COND-UK-002:E001=[32,57)` `якщо сервіс не відповідає` | `COMPLETE / DETECTED`; no diagnostic | Explicit finite condition head `відповідає`. The pinned backend probe produced `mark(якщо → відповідає)`, `advcl(відповідає → повинна)`, `xcomp(зберегти → повинна)` and `nsubj(Система → повинна)`; it attached the delimiter comma to `відповідає`, which §4.1 excludes from the suffix projection. Every mandatory neutral check is therefore satisfied. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P02 `Система повинна показати слово «якщо» у довідці.` | `COND-UK-002`: no observation or Evidence; quoted token candidate `[32,36)` is excluded | `COMPLETE / NOT_DETECTED`; no diagnostic | `якщо` is inside `[31,37)` `«якщо»` and cannot satisfy the condition relation. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P03 `Система повинна зберегти запит і повідомити оператора.` | `RESULT-UK-002`: result 1 refs `E002`; result 2 refs `E001,E003`. `E001=[0,15)` `Система повинна`; `E002=[0,30)` `Система повинна зберегти запит`; `E003=[33,53)` `повідомити оператора` | `COMPLETE / DETECTED`; no diagnostic | Binary active-infinitive `і` coordination with exact shared scope and no invented text. The pinned backend probe produced the required `nsubj`/`xcomp`/`conj`/`cc` graph recorded in §4.2. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P04 `Система повинна показати напис «зберегти і повідомити».` | `RESULT-UK-002`: no new observation/Evidence; quoted text `[32,53)` has no two-verb `conj`/`cc` graph | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; segment falls through unchanged to `RESULT-UK-001` | Quoted coordinator cannot create another result. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
 | P05 `Якщо сервіс недоступний, події зберігаються у черзі.` | `RESULT-UK-003` candidate result `[25,51)`; no accepted Evidence | No proposed processing/detection contract | Present tense does not establish normative force. `RESEARCH_BLOCKED / ILLUSTRATIVE_ONLY`. |
 | P06 `У журналі зазначено, що події зберігаються у черзі.` | `RESULT-UK-003` descriptive clause `[24,50)`; no accepted Evidence | No proposed processing/detection contract | Demonstrates why syntax alone cannot distinguish force. `RESEARCH_BLOCKED / ILLUSTRATIVE_ONLY`. |
-| P07 `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` | Accepted `COND-UK-001` condition `[0,23)` and `RESULT-UK-001` result `[25,83)`. `ACCEPT-UK-001`: one `acceptance_criterion`; `E001=[0,23)` `Якщо сервіс недоступний`, `E002=[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; refs `(E001,E002)`; oracle `[63,83)`, content `[64,82)` | `COMPLETE / DETECTED`; no diagnostic | The accepted leading condition and result exactly partition one hard segment. The selected backend produced `obj(повідомлення → показати)`. The zero-copula condition is accepted only by existing `COND-UK-001`, not treated as a finite `COND-UK-002` predicate. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P08 `Якщо сервіс не відповідає, система повинна показати зрозуміле повідомлення.` | Accepted condition `[0,25)` and result `[27,74)`; `ACCEPT-UK-001`: no observation/Evidence because the result has no literal oracle | `COMPLETE / NOT_DETECTED`; no diagnostic | The governing condition is explicit, but a subjective adjective is not exact output content. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P07 `Якщо сервіс недоступний, система повинна показати повідомлення «Сервіс недоступний».` | Accepted `COND-UK-001` condition `[0,23)` and `RESULT-UK-001` result `[25,83)`. `ACCEPT-UK-001`: one `acceptance_criterion`; `E001=[0,23)` `Якщо сервіс недоступний`, `E002=[25,83)` `система повинна показати повідомлення «Сервіс недоступний»`; refs `(E001,E002)`; oracle `[63,83)`, content `[64,82)` | `COMPLETE / DETECTED`; no diagnostic | The accepted leading condition and result exactly partition one hard segment. The selected backend produced `obj(повідомлення → показати)`. The zero-copula condition is accepted only by existing `COND-UK-001`, not treated as a finite `COND-UK-002` predicate. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P08 `Якщо сервіс не відповідає, система повинна показати зрозуміле повідомлення.` | Accepted condition `[0,25)` and result `[27,74)`; `ACCEPT-UK-001`: no observation/Evidence because the result has no literal oracle | `COMPLETE / NOT_DETECTED`; no diagnostic | The governing condition is explicit, but a subjective adjective is not exact output content. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
 | P09 `Виконання підтверджується інспекцією журналу.` | `VERIFY-UK-002` candidate method `[26,44)`; no proposed Evidence | No proposed processing/detection contract | `підтверджується` is synthetic and not source-authorized. `DEFERRED / ILLUSTRATIVE_ONLY`. |
 | P10 `Система створює тестовий випадок.` | Artifact phrase `[16,32)`; no `VERIFY-UK-002` Evidence | No proposed processing/detection contract; existing `VERIFY-UK-001` remains authoritative | Names an artifact/system behavior, not a new verification-role construction. `DEFERRED / ILLUSTRATIVE_ONLY`. |
-| P11 `Якщо сервіс недоступний, система повинна зберегти запит і повідомити оператора.` | Condition `[0,23)` and result candidates `[25,55)`, `[58,78)`; no relationship Evidence | No `ATTACH-UK-001` result | Leading-condition plus coordinated-result scope is outside the ready binary result subset. `DEFERRED / ILLUSTRATIVE_ONLY`. |
+| P11 `Якщо сервіс недоступний, система повинна зберегти запит і повідомити оператора.` | Condition `[0,23)` and result candidates `[25,55)`, `[58,78)`; no relationship Evidence | No `ATTACH-UK-001` result | Leading-condition plus coordinated-result scope is outside the approved binary result subset. `DEFERRED / ILLUSTRATIVE_ONLY`. |
 | P12 `Система повинна зберегти запит і повідомити оператора при перевірці.` | Ambiguous phrase `[54,67)` `при перевірці`; no relationship Evidence | No `ATTACH-UK-001` result | Neither source order nor proximity selects a target. `DEFERRED / ILLUSTRATIVE_ONLY`. |
 | P13 `Система повинна зберегти запит; перевірка: інспекція журналу.` | Existing method candidate `[43,60)` and result `[0,30)` remain independent; no relationship Evidence | Existing `VERIFY-UK-001` governs method detection; no `ATTACH-UK-001` result | A method observation does not prove which result/criterion it verifies. `DEFERRED / ILLUSTRATIVE_ONLY`. |
-| P14 `Система повинна зберегти запит і повідомити оператора.` with parsed text present but required coordination annotation incomplete | `RESULT-UK-002`: no observation/Evidence; affected candidate `[0,53)` | `INCOMPLETE / UNRESOLVED`; `RESULT_COORD_PARSER_BLOCKED` with `DiagnosticSpan=[0,53)` | Missing required annotation cannot become absence. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P15 `Система повинна зберегти запит якщо сервіс не відповідає.` | `COND-UK-002`: no observation/Evidence; marker phrase `[31,56)` lacks the mandatory comma | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; existing rules remain authoritative | The finite condition otherwise matches the positive grammar, so this case isolates the mandatory-comma boundary. Whitespace/position cannot replace the comma template. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P16 `Система повинна зберегти запит і повідомити оператора, якщо сервіс не відповідає.` | `COND-UK-002`: no observation/Evidence; condition candidate `[55,80)` | `INCOMPLETE / UNRESOLVED`; `COND_POSTPOSED_YAKSHCHO_UNRESOLVED` with `DiagnosticSpan=[55,80)` | The explicit finite condition is present, but the prefix has more than one result predicate, so this rule cannot select a unique governing predicate-chain head. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P17 `Система повинна зберегти запит і не повідомляти оператора.` | `RESULT-UK-002`: no observation/Evidence; segment candidate `[0,57)` | `INCOMPLETE / UNRESOLVED`; `RESULT_COORD_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[0,57)` | Parser-visible negation is excluded; the detector does not invert or discard it. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P18 `Система повинна зберегти запит або повідомити оператора.` | `RESULT-UK-002`: no observation/Evidence; alternative coordinator `[31,34)` | Extension contribution `COMPLETE / NOT_DETECTED`; no extension diagnostic; segment falls through to existing `RESULT-UK-001` behavior | `або` is not an approved shared-obligation coordinator for this rule. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P19 `Якщо сервіс не відповідає, система повинна показати повідомлення «».` | Accepted condition `[0,25)` and result `[27,67)`; `ACCEPT-UK-001`: no observation/Evidence; empty literal `[65,67)` `«»` | `COMPLETE / NOT_DETECTED`; no diagnostic | The condition dependency is satisfied; empty output is deterministically insufficient, not an ambiguous oracle. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P20 `Якщо сервіс не відповідає, система повинна показати повідомлення «Помилка «E1»».` | Accepted condition `[0,25)`; `ACCEPT-UK-001`: no observation/Evidence; affected result `[27,79)`, nested literal `[65,79)` `«Помилка «E1»»` | `INCOMPLETE / UNRESOLVED`; `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[27,79)` | The condition dependency is satisfied, but the bounded rule does not choose inner/outer quote semantics. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P21 `Якщо сервіс не відповідає, система повинна не більше ніж за 2 с показати повідомлення «Сервіс недоступний».` | Upstream: `COND-UK-001:E001=[0,25)` `Якщо сервіс не відповідає`; `RESULT-UK-001:E001=[27,106)` `система повинна не більше ніж за 2 с показати повідомлення «Сервіс недоступний»`; judgeable `QUANT-UK-001:E001=[43,63)` `не більше ніж за 2 с`. Acceptance Evidence: `ACCEPT-UK-001:E001` copies `[0,25)`; `ACCEPT-UK-001:E002` and `ACCEPT-QUANT-001:E001` each copy `[27,106)`. One merged `acceptance_criterion` refs `(ACCEPT-UK-001:E001, ACCEPT-QUANT-001:E001, ACCEPT-UK-001:E002)`; oracle `[86,106)` `«Сервіс недоступний»`, content `[87,105)` `Сервіс недоступний` | Both rules `COMPLETE`; merged family `COMPLETE / DETECTED`; no diagnostic | Existing detectors actually accept the condition, result, inclusive `LESS_THAN_OR_EQUAL` quantitative bound and quantitative criterion. The selected backend produced local `nsubj`, `xcomp` with `VerbForm=Inf`, and `obj(повідомлення → показати)`; original text supplies the final guillemet boundary. Both rule justifications and rule IDs remain independent. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
-| P22 `Система повинна показати повідомлення «Сервіс недоступний».` | Accepted `RESULT-UK-001` result `[0,58)` with oracle `[38,58)` and content `[39,57)`; no accepted `COND-UK-001` condition; `ACCEPT-UK-001`: no observation/Evidence | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; the expected result remains accepted | Exact output is observable, but without an explicit accepted governing condition it is outside the proposed nonnumeric criterion subset. `PROPOSED_PENDING_RESEARCHER_APPROVAL`. |
+| P14 `Система повинна зберегти запит і повідомити оператора.` with parsed text present but required coordination annotation incomplete | `RESULT-UK-002`: no observation/Evidence; affected candidate `[0,53)` | `INCOMPLETE / UNRESOLVED`; `RESULT_COORD_PARSER_BLOCKED` with `DiagnosticSpan=[0,53)` | Missing required annotation cannot become absence. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P15 `Система повинна зберегти запит якщо сервіс не відповідає.` | `COND-UK-002`: no observation/Evidence; marker phrase `[31,56)` lacks the mandatory comma | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; existing rules remain authoritative | The finite condition otherwise matches the positive grammar, so this case isolates the mandatory-comma boundary. Whitespace/position cannot replace the comma template. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P16 `Система повинна зберегти запит і повідомити оператора, якщо сервіс не відповідає.` | `COND-UK-002`: no observation/Evidence; condition candidate `[55,80)` | `INCOMPLETE / UNRESOLVED`; `COND_POSTPOSED_YAKSHCHO_UNRESOLVED` with `DiagnosticSpan=[55,80)` | The explicit finite condition is present, but the prefix has more than one result predicate, so this rule cannot select a unique governing predicate-chain head. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P17 `Система повинна зберегти запит і не повідомляти оператора.` | `RESULT-UK-002`: no observation/Evidence; segment candidate `[0,57)` | `INCOMPLETE / UNRESOLVED`; `RESULT_COORD_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[0,57)` | Parser-visible negation is excluded; the detector does not invert or discard it. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P18 `Система повинна зберегти запит або повідомити оператора.` | `RESULT-UK-002`: no observation/Evidence; alternative coordinator `[31,34)` | Extension contribution `COMPLETE / NOT_DETECTED`; no extension diagnostic; segment falls through to existing `RESULT-UK-001` behavior | `або` is not an approved shared-obligation coordinator for this rule. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P19 `Якщо сервіс не відповідає, система повинна показати повідомлення «».` | Accepted condition `[0,25)` and result `[27,67)`; `ACCEPT-UK-001`: no observation/Evidence; empty literal `[65,67)` `«»` | `COMPLETE / NOT_DETECTED`; no diagnostic | The condition dependency is satisfied; empty output is deterministically insufficient, not an ambiguous oracle. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P20 `Якщо сервіс не відповідає, система повинна показати повідомлення «Помилка «E1»».` | Accepted condition `[0,25)`; `ACCEPT-UK-001`: no observation/Evidence; affected result `[27,79)`, nested literal `[65,79)` `«Помилка «E1»»` | `INCOMPLETE / UNRESOLVED`; `ACCEPT_LITERAL_UNRESOLVED_CANDIDATE` with `DiagnosticSpan=[27,79)` | The condition dependency is satisfied, but the bounded rule does not choose inner/outer quote semantics. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P21 `Якщо сервіс не відповідає, система повинна не більше ніж за 2 с показати повідомлення «Сервіс недоступний».` | Upstream: `COND-UK-001:E001=[0,25)` `Якщо сервіс не відповідає`; `RESULT-UK-001:E001=[27,106)` `система повинна не більше ніж за 2 с показати повідомлення «Сервіс недоступний»`; judgeable `QUANT-UK-001:E001=[43,63)` `не більше ніж за 2 с`. Acceptance Evidence: `ACCEPT-UK-001:E001` copies `[0,25)`; `ACCEPT-UK-001:E002` and `ACCEPT-QUANT-001:E001` each copy `[27,106)`. One merged `acceptance_criterion` refs `(ACCEPT-UK-001:E001, ACCEPT-QUANT-001:E001, ACCEPT-UK-001:E002)`; oracle `[86,106)` `«Сервіс недоступний»`, content `[87,105)` `Сервіс недоступний` | Both rules `COMPLETE`; merged family `COMPLETE / DETECTED`; no diagnostic | Existing detectors actually accept the condition, result, inclusive `LESS_THAN_OR_EQUAL` quantitative bound and quantitative criterion. The selected backend produced local `nsubj`, `xcomp` with `VerbForm=Inf`, and `obj(повідомлення → показати)`; original text supplies the final guillemet boundary. Both rule justifications and rule IDs remain independent. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| P22 `Система повинна показати повідомлення «Сервіс недоступний».` | Accepted `RESULT-UK-001` result `[0,58)` with oracle `[38,58)` and content `[39,57)`; no accepted `COND-UK-001` condition; `ACCEPT-UK-001`: no observation/Evidence | Extension contribution `COMPLETE / NOT_DETECTED`; no diagnostic; the expected result remains accepted | Exact output is observable, but without an explicit accepted governing condition it is outside the approved nonnumeric criterion subset. `APPROVED_FOR_SRM04_FIRST_SLICE`. |
 
 MVP regression anchors below are **existing approved behavior**, not new SRM-03
 reference cases; their exact results remain governed by model-spec §§7.14.3–7.14.7:
@@ -428,7 +432,8 @@ P07, P08 and P19–P22 and emitted the head/relation/morphology facts recorded i
 §§4.1, 4.2, 4.4 and P21. A separate read-only call through the current baseline
 extractor confirmed that P21 already yields accepted `COND-UK-001`,
 `RESULT-UK-001`, `QUANT-UK-001` and `ACCEPT-QUANT-001` outputs at the documented
-offsets. `ACCEPT-UK-001` remains proposed and was not presented as executed.
+offsets. `ACCEPT-UK-001` remains unimplemented; its now-approved contract was
+not presented as executed.
 These probes validate present implementation feasibility only. They were not
 added as fixtures, did not modify the adapter, and were not a test-suite run;
 the pinned SRM-04 fixtures in §9 remain mandatory.
@@ -440,48 +445,48 @@ parser-neutral boundary, C/V/U calculators, `RequirementQualityProfile`,
 specification aggregation and console presentation are unchanged. Existing
 `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, `VERIFY-UK-001`,
 `QUANT-001`, `QUANT-UK-001` and `UK-VAGUE-001` keep their approved scope and
-IDs. New candidate rules must be distinguishable from those baselines and
-must not alter their prior binding cases. One non-empty line remains one
+IDs. The three newly approved rules are distinguishable from those baselines
+and must not alter their prior binding cases. One non-empty line remains one
 requirement. A recognized extra clause is an observation within that object,
 not a new requirement ID. An unsupported extra candidate is neither evidence
 of absence nor a confirmed defect. No new actor/action/object feature is
 introduced merely because the parser exposes a dependency tree.
 
-## 9. Dependencies and SRM-04 implementation handoff
+## 9. SRM-04 authorization and prerequisites
 
-The following is the proposed bounded handoff. Nothing may be implemented until
-the researcher approves the applicable decision package and the resulting rule
-is recorded in `model-spec.md`.
+The researcher has approved the bounded handoff below, and model-spec §7.14.16
+is now authoritative. SRM-04 is authorized to implement exactly the three
+`APPROVED_FOR_SRM04_FIRST_SLICE` rows after adding their required pinned-backend
+fixtures. No blocked or deferred row is authorized.
 
-| Rule ID | Disposition | Exact supported subset | Required scientific approval | Domain / Evidence contract | Required reference cases | Parser-neutral validation prerequisite | SRM-04 implementation and diagnostics | Excluded behavior |
+| Rule ID | Disposition | Exact supported subset | Approval basis or future prerequisite | Domain / Evidence contract | Required reference cases | Parser-neutral validation prerequisite | SRM-04 implementation and diagnostics | Excluded behavior |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `COND-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | One comma-delimited postposed `якщо` clause with one explicit finite `VERB` condition head, complete condition-subtree projection over the suffix, and attachment to exactly one simple MVP normative predicate-chain head | D01 and D08 | Existing condition observation and one exact suffix Evidence; no domain change or exported relation | P01, P02, P15, P16, plus parser-blocked fixture | Lock P01's observed `nsubj`/`xcomp` plus `mark(якщо → відповідає)` and `advcl(відповідає → повинна)` head identities and delimiter-comma attachment against the pinned backend; missing/changing required annotations must take the parser-blocked or unresolved path, never a fallback | Add exact candidate ownership, checks, Evidence and the two diagnostics; merge with `COND-UK-001` without duplicate Evidence/diagnostics and preserve all unrelated MVP markers | Zero-copula/adjectival conditions; other markers; no comma; multiple/nested/coordinated conditions; several results; nonmodal result; general attachment |
-| `RESULT-UK-002` | `READY_FOR_RESEARCHER_APPROVAL` | Exactly two active infinitive predicates coordinated by source `і`/`та` under one explicit MVP normative subject/anchor | D02 and D08 | Three exact same-family Evidence items; two observations; refs `(E002)` and `(E001,E003)`; no reconstruction or domain change | P03, P04, P14, P17, P18, plus explicit more-than-two exclusion | Lock P03's observed `nsubj`/`xcomp`/`conj`/`cc`, `VerbForm=Inf` and head identities; exercise incomplete annotations as `RESULT_COORD_PARSER_BLOCKED` | Add binary dispatch, Evidence construction, deterministic ref/observation ordering and diagnostics; retain source-distinct accepted MVP results and mixed accepted/unresolved output | Passive/finite coordination; more than two results; `або`/`чи`; negation; conditions; ellipsis; separate subjects; singularity judgment |
+| `COND-UK-002` | `APPROVED_FOR_SRM04_FIRST_SLICE` | One comma-delimited postposed `якщо` clause with one explicit finite `VERB` condition head, complete condition-subtree projection over the suffix, and attachment to exactly one simple MVP normative predicate-chain head | D01 and D08 | Existing condition observation and one exact suffix Evidence; no domain change or exported relation | P01, P02, P15, P16, plus parser-blocked fixture | Lock P01's observed `nsubj`/`xcomp` plus `mark(якщо → відповідає)` and `advcl(відповідає → повинна)` head identities and delimiter-comma attachment against the pinned backend; missing/changing required annotations must take the parser-blocked or unresolved path, never a fallback | Add exact candidate ownership, checks, Evidence and the two diagnostics; merge with `COND-UK-001` without duplicate Evidence/diagnostics and preserve all unrelated MVP markers | Zero-copula/adjectival conditions; other markers; no comma; multiple/nested/coordinated conditions; several results; nonmodal result; general attachment |
+| `RESULT-UK-002` | `APPROVED_FOR_SRM04_FIRST_SLICE` | Exactly two active infinitive predicates coordinated by source `і`/`та` under one explicit MVP normative subject/anchor | D02 and D08 | Three exact same-family Evidence items; two observations; refs `(E002)` and `(E001,E003)`; no reconstruction or domain change | P03, P04, P14, P17, P18, plus explicit more-than-two exclusion | Lock P03's observed `nsubj`/`xcomp`/`conj`/`cc`, `VerbForm=Inf` and head identities; exercise incomplete annotations as `RESULT_COORD_PARSER_BLOCKED` | Add binary dispatch, Evidence construction, deterministic ref/observation ordering and diagnostics; retain source-distinct accepted MVP results and mixed accepted/unresolved output | Passive/finite coordination; more than two results; `або`/`чи`; negation; conditions; ellipsis; separate subjects; singularity judgment |
 | `RESULT-UK-003` | `RESEARCH_BLOCKED` | None | A future decision supplying independently observable normative force | Undetermined | P05–P06 remain illustrative | None authorized | No SRM-04 work | All present-tense/nonmodal result inference, including worked R5′ |
-| `ACCEPT-UK-001` | `READY_FOR_RESEARCHER_APPROVAL` | Accepted leading `COND-UK-001` condition plus its accepted `RESULT-UK-001` remainder containing exact `показати` predicate, its `повідомлення` object and one final non-empty `«…»` literal | D04, D06, D07 and D08 | Two literal-rule Evidence fragments: condition-support copy and full result; P21 merge adds `ACCEPT-QUANT-001` result Evidence to one observation; no domain change | P07, P08, P19–P22, plus condition/result dependency-blocked fixture | Lock P07/P21 source partition, accepted upstream dependencies, result chain and `obj(повідомлення → показати)`; scan guillemets only in original result text; missing/incomplete dependency is blocked | Compose existing condition/result outputs, exact quote scan, two-piece Evidence and diagnostics; implement P21's three-ref merge while preserving rule provenance and mixed status | No accepted leading condition; postposed conditions; other verbs/nouns/quote styles; unquoted, empty, nested or vague outputs; general states; results from `RESULT-UK-002/003`; domain or procedure adequacy |
+| `ACCEPT-UK-001` | `APPROVED_FOR_SRM04_FIRST_SLICE` | Accepted leading `COND-UK-001` condition plus its accepted `RESULT-UK-001` remainder containing exact `показати` predicate, its `повідомлення` object and one final non-empty `«…»` literal | D04, D06, D07 and D08 | Two literal-rule Evidence fragments: condition-support copy and full result; P21 merge adds `ACCEPT-QUANT-001` result Evidence to one observation; no domain change | P07, P08, P19–P22, plus condition/result dependency-blocked fixture | Lock P07/P21 source partition, accepted upstream dependencies, result chain and `obj(повідомлення → показати)`; scan guillemets only in original result text; missing/incomplete dependency is blocked | Compose existing condition/result outputs, exact quote scan, two-piece Evidence and diagnostics; implement P21's three-ref merge while preserving rule provenance and mixed status | No accepted leading condition; postposed conditions; other verbs/nouns/quote styles; unquoted, empty, nested or vague outputs; general states; results from `RESULT-UK-002/003`; domain or procedure adequacy |
 | `VERIFY-UK-002` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | None beyond existing `VERIFY-UK-001` | Future source-backed construction decision | None yet | P09–P10 illustrative only | None authorized | No SRM-04 work | Synthetic governing verbs, vocabulary-only detection and reproducibility claims |
 | `ATTACH-UK-001` | `DEFERRED_FROM_FIRST_SRM04_SLICE` | No reusable relationship; bounded local relations remain inside their detector rules | Future consumer plus complete typed-relation decision | Future stable observation identity and relation structure, only if approved | P11–P13 illustrative only | Parser arcs remain local detector inputs, never exported relations | No SRM-04 work | Universal pairing, distance fallbacks, exported parser edges and inferred one-to-many links |
 
-The proposed **first SRM-04 slice** is exactly `COND-UK-002`,
-`RESULT-UK-002`, and `ACCEPT-UK-001` after approval. It may add detector
+The authorized **first SRM-04 slice** is exactly `COND-UK-002`,
+`RESULT-UK-002`, and `ACCEPT-UK-001`. It may add detector
 implementations and directly related tests only. It must not add a relationship
 engine, change feature families/domain models, implement `RESULT-UK-003` or
 `VERIFY-UK-002`, decide singularity, alter applicability/calculators, or continue
-into SRM-05+. Rejection or partial approval removes the affected row from the
-slice without changing MVP behavior.
+into SRM-05+. This document-only approval does not itself change MVP behavior.
 
 ## 10. Researcher Approval Package — SRM-03
 
-Every choice below remains unapproved. `PROPOSED_FOR_APPROVAL` means the
-scientific/operational choice is complete enough for an explicit researcher
-decision; it does not mean accepted. `RESEARCH_BLOCKED` and `DEFERRED` items do
-not enter the first SRM-04 slice.
+D01, D02, D04, D06, D07, and D08 are researcher-approved as one bounded
+package, with the authoritative record in model-spec §7.14.16. D03 remains
+`RESEARCH_BLOCKED`; D05 and D09 remain `DEFERRED`. Blocked and deferred items
+do not enter the first SRM-04 slice.
 
 ### D01 — bounded postposed `якщо`
 
 | Approval-package item | Disposition |
 | --- | --- |
-| 1. Decision ID / status | `D01` — `PROPOSED_FOR_APPROVAL`. |
+| 1. Decision ID / status | `D01` — `APPROVED_FOR_SRM04_FIRST_SLICE`. |
 | 2. Scientific source and baseline | §2.1 Table 2.1 condition/reaction completeness; worked R5′; `COND-UK-001` marker/offset mechanics and its deliberate postposed-`якщо` gap. |
 | 3. Exact proposed choice | Approve `COND-UK-002` exactly as §4.1: comma-required `<one simple normative result>, якщо <one explicit finite-verbal suffix condition>`, complete-token marker, `mark` to the finite head, `advcl` from that head to the accepted prefix's normative predicate-chain head, complete condition-subtree projection over the suffix (excluding the delimiter comma) and one condition Evidence. Zero-copula/adjectival predicates are outside this choice. |
 | 4. Material alternatives | General attachment engine; marker/comma regex alone; all postposed subordinate clauses. Rejected because they add unnecessary domain machinery or cannot prove the target. |
@@ -489,14 +494,14 @@ not enter the first SRM-04 slice.
 | 6. Domain/Evidence consequence | Existing `condition_context`; no domain field. One exact Evidence item and two new diagnostic codes. Local relation is not exported. |
 | 7. Supporting cases | Corrected P01 finite-verb positive, P02 quoted negative, corrected P15 no-comma negative and corrected P16 multiple-result unresolved; the selected backend emitted P01's required graph, while parser-blocked handling is fixed by §4.1/model-spec §7.15.8. |
 | 8. Known limitations | One marker, one comma, one result and one explicit finite-verbal condition only; no zero-copula, coordinated, nested or nonmodal coverage. |
-| 9. Remaining blocker | Researcher approval and recording in `model-spec.md`. SRM-04 must add a pinned-backend P01 graph fixture and blocked-annotation fixture before production use; this is implementation validation of the complete rule, not a missing scientific choice. |
+| 9. Remaining prerequisite | SRM-04 must add a pinned-backend P01 graph fixture and blocked-annotation fixture before production use; this is implementation validation of the complete approved rule, not a missing scientific choice. |
 | 10. SRM-04 authorization | Implement the §4.1 detector contribution, precedence, Evidence, diagnostics and directly related approved cases. |
 
 ### D02 — binary coordinated normative results
 
 | Approval-package item | Disposition |
 | --- | --- |
-| 1. Decision ID / status | `D02` — `PROPOSED_FOR_APPROVAL`. |
+| 1. Decision ID / status | `D02` — `APPROVED_FOR_SRM04_FIRST_SLICE`. |
 | 2. Scientific source and baseline | §2.1 Completeness/Singularity; model-spec §7.14.4 states independent coordinated results are separate observations but leaves general coordination outside `RESULT-UK-001`. |
 | 3. Exact proposed choice | Approve only two active infinitives under one explicit MVP normative subject/anchor, with source `і`/`та`, exact `conj`/`cc` graph, no conditions/negation/alternatives/extra verbs. Select multiple exact Evidence refs: shared subject+anchor plus the second predicate phrase. |
 | 4. Material alternatives | One covering span for both results obscures which predicate constitutes result 2; predicate-only Evidence loses normative force; a new provenance field is unnecessary. Existing multi-Evidence observations preserve both facts exactly. |
@@ -504,7 +509,7 @@ not enter the first SRM-04 slice.
 | 6. Domain/Evidence consequence | No domain change. Under model-spec §§7.5 and 7.5.1, three exact same-family Evidence items support two existing `FeatureObservation`s; fragments may jointly justify an observation, overlap is allowed, refs resolve within `EXPECTED_RESULT`, and source reconstruction is prohibited. Rule-specific ref/observation tie order and diagnostics are fixed in §4.2. |
 | 7. Supporting cases | P03 positive, P04 quoted negative, P14 blocked annotation, P17 negation unresolved, P18 alternative negative; arity greater than two is explicitly excluded by §4.2. |
 | 8. Known limitations | Binary active infinitives only; no logical-independence or singularity conclusion. |
-| 9. Remaining blocker | Researcher approval and `model-spec.md` recording. SRM-04 must lock the observed P03 neutral graph and its incomplete-annotation behavior; no Evidence representation or scientific algorithm choice remains open. |
+| 9. Remaining prerequisite | SRM-04 must lock the observed P03 neutral graph and its incomplete-annotation behavior; no Evidence representation or scientific algorithm choice remains open. |
 | 10. SRM-04 authorization | Implement §4.2 segment dispatch, parser checks, Evidence/observation construction, diagnostics and approved fixtures. |
 
 ### D03 — nonmodal normative force
@@ -526,15 +531,15 @@ not enter the first SRM-04 slice.
 
 | Approval-package item | Disposition |
 | --- | --- |
-| 1. Decision ID / status | `D04` — `PROPOSED_FOR_APPROVAL`. |
-| 2. Scientific source and baseline | Model-spec §7.14.5 expressly requires complete observable nonnumeric behavior under an explicit condition and Evidence for the behavior plus the separately captured condition. §2.1 Table 2.1 links local completeness to condition, reaction and fulfilment criterion and permits a test oracle; §2.3 ¶17–21 requires objective operationalization; §3.2 Table 3.4 permits expected behavior or a condition but requires contextual correctness. `ACCEPT-QUANT-001` remains the only approved production acceptance rule. |
+| 1. Decision ID / status | `D04` — `APPROVED_FOR_SRM04_FIRST_SLICE`. |
+| 2. Scientific source and baseline | Model-spec §7.14.5 expressly requires complete observable nonnumeric behavior under an explicit condition and Evidence for the behavior plus the separately captured condition. §2.1 Table 2.1 links local completeness to condition, reaction and fulfilment criterion and permits a test oracle; §2.3 ¶17–21 requires objective operationalization; §3.2 Table 3.4 permits expected behavior or a condition but requires contextual correctness. `ACCEPT-QUANT-001` was the prior production acceptance baseline; this approval adds only bounded `ACCEPT-UK-001`. |
 | 3. Exact proposed choice | Approve `ACCEPT-UK-001` only for an accepted leading `COND-UK-001` condition whose comma-delimited remainder is one accepted `RESULT-UK-001` containing exact `показати` → `повідомлення` object and one final non-empty `«…»` literal. Treat the literal as an oracle for that displayed output under that condition only. |
 | 4. Material alternatives | Permit unconditional exact output; accept every observable result; add a general condition/result relation; accept adjective-based message quality, general state semantics or other output verbs. The unconditional form would be a broader new scientific proposal than model-spec §7.14.5; the others require unapproved interpretation or attachment machinery. |
 | 5. Scientific defence | The explicit condition supplies the approved context boundary and the exact literal supplies a reproducible equality oracle. Reusing the already accepted leading condition/result source partition avoids proximity inference and makes no claim about complete requirement fulfilment. |
 | 6. Domain/Evidence consequence | Existing acceptance family and no domain change. The literal observation references two new `ACCEPT-UK-001` Evidence items: the exact accepted-condition span and complete result span. The condition-support span duplicates source coordinates, not the cross-family `COND-UK-001` Evidence ID. In P21, `ACCEPT-QUANT-001` adds its independent result-span Evidence and the three refs merge into one clause-level observation. |
 | 7. Supporting cases | P07 conditioned positive; P08 conditioned unquoted negative; P19 conditioned empty-literal negative; P20 conditioned nested-literal unresolved; P21 conditioned quantitative/literal merge positive; P22 unconditional exact-output boundary. |
 | 8. Known limitations | Leading approved conditions and exact displayed messages only; no unconditional or postposed-condition coverage, general nonnumeric state, usability or domain-correctness judgment. |
-| 9. Remaining blocker | Researcher approval and `model-spec.md` recording. SRM-04 must lock P07/P21 source partitions, result/object graphs, P21 quantitative composition and condition/result dependency-blocked cases; no general judgeability or attachment choice remains open. |
+| 9. Remaining prerequisite | SRM-04 must lock P07/P21 source partitions, result/object graphs, P21 quantitative composition and condition/result dependency-blocked cases; no general judgeability or attachment choice remains open. |
 | 10. SRM-04 authorization | Implement §4.4's accepted condition/result composition, exact quote scan, two-piece Evidence, P21 merge, diagnostics and approved fixtures only. |
 
 ### D05 — further verification constructions
@@ -556,22 +561,22 @@ not enter the first SRM-04 slice.
 
 | Approval-package item | Disposition |
 | --- | --- |
-| 1. Decision ID / status | `D06` — `PROPOSED_FOR_APPROVAL` for first-slice architecture. |
+| 1. Decision ID / status | `D06` — `APPROVED_FOR_SRM04_FIRST_SLICE` for local-only relations; reusable attachment remains deferred. |
 | 2. Scientific source and baseline | §2.1 condition/result and criterion meanings; §3.2 criterion chain; approved `ACCEPT-QUANT-001` already demonstrates bounded local containment without a universal engine. |
-| 3. Exact proposed choice | Keep every first-slice relation inside its complete detector rule. `ACCEPT-UK-001` may reuse only the exact accepted leading `COND-UK-001`/`RESULT-UK-001` source partition; this is local composition, not a reusable relation. Defer `ATTACH-UK-001` and never make it a dependency of the ready rules. |
+| 3. Exact proposed choice | Keep every first-slice relation inside its complete detector rule. `ACCEPT-UK-001` may reuse only the exact accepted leading `COND-UK-001`/`RESULT-UK-001` source partition; this is local composition, not a reusable relation. Defer `ATTACH-UK-001` and never make it a dependency of the approved rules. |
 | 4. Material alternatives | Universal attachment engine or stored parser dependency edges. Rejected because no current consumer/semantics justify them. |
 | 5. Scientific defence | A local rule can prove only the relation it needs; this prevents accidental generalization from punctuation or proximity. |
 | 6. Domain/Evidence consequence | No relationship object. `ACCEPT-UK-001` records same-family copies of the exact condition and result spans as provenance; upstream cross-family IDs are not used as endpoints. Parser edges stay internal and non-evidentiary. |
 | 7. Supporting cases | Corrected P01, P03, P07 and P21 show complete local relations; P22 prevents unconditional widening; P11–P13 show why a broader engine is deferred. |
 | 8. Known limitations | Cross-observation relationship queries are unavailable. |
-| 9. Remaining blocker | None for ready rules; future `ATTACH-UK-001` needs the D07 contract and an actual consumer. |
+| 9. Remaining blocker | None for the approved first-slice rules; future `ATTACH-UK-001` needs the D07 contract and an actual consumer. |
 | 10. SRM-04 authorization | Implement local checks only; do not add attachment infrastructure. |
 
 ### D07 — domain representation
 
 | Approval-package item | Disposition |
 | --- | --- |
-| 1. Decision ID / status | `D07` — `PROPOSED_FOR_APPROVAL` as **no domain change for first slice**; reusable relation representation `DEFERRED`. |
+| 1. Decision ID / status | `D07` — `APPROVED_FOR_SRM04_FIRST_SLICE` as **no domain change for first slice**; reusable relation representation `DEFERRED`. |
 | 2. Scientific source and baseline | Existing `FeatureObservation.evidence_refs` supports several Evidence items; `RequirementExtractionResult` contains the six outcomes and accepted Evidence only. |
 | 3. Exact proposed choice | Use multiple same-family Evidence refs to justify one observation for `RESULT-UK-002`, to preserve `ACCEPT-UK-001` condition plus result provenance, and to merge both acceptance rules on the P21 result span. Add no cross-family ref, target ID or relation collection. |
 | 4. Material alternatives | Add provenance/anchor fields or a relation object now. Rejected as unnecessary for the bounded rules. |
@@ -586,15 +591,15 @@ not enter the first SRM-04 slice.
 
 | Approval-package item | Disposition |
 | --- | --- |
-| 1. Decision ID / status | `D08` — `PROPOSED_FOR_APPROVAL`. |
+| 1. Decision ID / status | `D08` — `APPROVED_FOR_SRM04_FIRST_SLICE`. |
 | 2. Scientific source and baseline | Model-spec §§7.5, 7.7, 7.14.2 and 7.15.7–7.15.8 define exact Evidence, stable rule IDs, ordering and mixed outcomes. |
-| 3. Exact proposed choice | Approve the corrected finite-condition grammar, parser-neutral head identities, explicit-condition boundary for literal acceptance, precedence, ownership, clause-level acceptance deduplication, Evidence IDs, source/tie ordering and diagnostics in §§4 and 6 together with proposed fixtures P01–P04, P07–P08 and P14–P22. |
+| 3. Exact proposed choice | Approve the corrected finite-condition grammar, parser-neutral head identities, explicit-condition boundary for literal acceptance, precedence, ownership, clause-level acceptance deduplication, Evidence IDs, source/tie ordering and diagnostics in §§4 and 6 together with binding fixtures P01–P04, P07–P08 and P14–P22. |
 | 4. Material alternatives | Let old and new rules emit duplicate diagnostics or silently prefer accepted output. Rejected because mixed uncertainty and rule provenance would be lost. |
 | 5. Scientific defence | Candidate ownership preserves one deterministic interpretation while leaving unrelated MVP segments unchanged. |
-| 6. Domain/Evidence consequence | No domain change; only new rule IDs, Evidence IDs and diagnostic codes after approval. Existing multi-ref observations represent RESULT fragments, conditioned literal provenance and P21's three-ref acceptance merge without parser data, cross-family refs or fabricated text. |
+| 6. Domain/Evidence consequence | No domain change; SRM-04 may add only the approved rule IDs, Evidence IDs and diagnostic codes. Existing multi-ref observations represent RESULT fragments, conditioned literal provenance and P21's three-ref acceptance merge without parser data, cross-family refs or fabricated text. |
 | 7. Supporting cases | P01–P04, P07–P08, P14–P22 and the four existing MVP regression anchors. |
 | 8. Known limitations | P05–P06 and P09–P13 are illustrative and cannot be promoted by D08. |
-| 9. Remaining blocker | Researcher approval of the corrected contracts and fixture set, followed by recording them in `model-spec.md`. Pinned-backend graph and degraded-annotation tests are mandatory SRM-04 validation; no unspecified scientific case semantics remain in the first slice. |
+| 9. Remaining prerequisite | Pinned-backend graph and degraded-annotation tests are mandatory SRM-04 validation; no unspecified scientific case semantics remain in the first slice. |
 | 10. SRM-04 authorization | Implement only the approved corrected case matrix, exact neutral-annotation checks and interaction semantics; do not infer missing arcs or complete rules by engineering judgment. |
 
 ### D09 — singularity boundary
@@ -612,7 +617,7 @@ not enter the first SRM-04 slice.
 | 9. Exact prerequisite | SRM-09/10 must approve inclusion, independence criterion, applicability, result representation and cases. |
 | 10. SRM-04 authorization | None beyond preserving multiple result observations in one requirement. |
 
-Approval of D01, D02, D04, D06, D07 and D08 as a consistent package would
-make the three-row first slice in §9 implementable without further scientific
-choices. D03 remains blocked; D05 and D09 remain deferred. Approval must be
-recorded in `model-spec.md` by the researcher before SRM-04 begins.
+Approval of D01, D02, D04, D06, D07 and D08 as a consistent package is now
+recorded in model-spec §7.14.16. The three-row first slice in §9 is authorized
+without further scientific choices, subject to its mandatory pinned-backend
+fixtures. D03 remains blocked; D05 and D09 remain deferred.
