@@ -371,3 +371,56 @@ pinned-backend, regression, and deferred-boundary gates passed.
 
 **SRM-04 implementation status: `READY_FOR_RESEARCHER_ACCEPTANCE`.**
 
+## 16. Researcher acceptance and closeout
+
+The technical audit status is `READY_FOR_RESEARCHER_ACCEPTANCE` for the
+implementation baseline `6c96fca9a2ac4b71c7389d5538806bafb339113b`.
+This report was published by PR #89 and merged into `main` at verified merge
+commit `62f4f08f97310bd8e0601986e570dd7143176fc1`. Publication of the report is
+not an explicit researcher-acceptance decision.
+
+The exact accepted scope is limited to:
+
+- `COND-UK-002`;
+- `RESULT-UK-002`;
+- `ACCEPT-UK-001`.
+
+The report records 203 targeted tests passed with 0 skipped, 2 MVP acceptance
+tests passed with 0 skipped, and 757 full-suite tests passed with 0 skipped.
+The pinned backend versions `spacy==3.8.16` and `uk-core-news-sm==3.8.0` were
+also verified.
+
+The following boundaries remain explicitly outside this acceptance:
+
+- `RESULT-UK-003`: `RESEARCH_BLOCKED`;
+- `VERIFY-UK-002`: `DEFERRED`;
+- `ATTACH-UK-001`: `DEFERRED`;
+- singularity: `DEFERRED`;
+- `RQD-006`: `PARTIALLY_APPROVED / OPEN`.
+
+**Researcher decision: `ACCEPTED`.** This explicit researcher decision is
+distinct from the earlier technical audit status
+`READY_FOR_RESEARCHER_ACCEPTANCE`; it is not inferred from the technical audit
+or from the merge of PR #89.
+
+### Researcher-acceptance statement
+
+The researcher explicitly confirmed the following decision:
+
+> Як дослідник, приймаю реалізацію першого зрізу SRM-04 у складі COND-UK-002,
+> RESULT-UK-002 та ACCEPT-UK-001 на підставі
+> docs/srm-04-acceptance-report.md. Приймання не поширюється на заблоковані або
+> відкладені правила та не означає створення нового baseline чи release.
+
+### Manual closeout references
+
+- Issue #71 (`SRM-03`) is the research-decision and authorization basis for
+  the bounded contracts. Its closeout remains a manual step and requires
+  confirmation that the issue's own acceptance criteria are satisfied.
+- Issue #72 (`SRM-04`) covers only the approved SRM-04 first slice listed
+  above. Its closeout remains a manual step; it must not be used to imply
+  completion or approval of any deferred, blocked, or open boundary.
+
+Neither issue is claimed closed by this report. No baseline tag or release is
+created or authorized here.
+
