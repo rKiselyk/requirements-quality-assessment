@@ -384,6 +384,130 @@ def test_incomplete_condition_or_result_dependency_is_blocked(
     ]
 
 
+def upstream_blocked(requirement, rule_id, start, end):
+    return DetectionDiagnostic(
+        "UPSTREAM_BLOCKED",
+        "fixture dependency unavailable",
+        rule_id,
+        DiagnosticSpan(requirement.text[start:end], start, end),
+    )
+
+
+def test_condition_from_another_segment_cannot_conceal_local_block(
+    pinned_parser,
+):
+    first = "Якщо режим активний, система повинна зберегти журнал"
+    second = P07[:-1]
+    text = f"{first}; {second}."
+    requirement = Requirement("R072", 12, text)
+    second_start = len(first) + 2
+    outcome, evidence = direct_literal(
+        requirement,
+        parse(pinned_parser, requirement),
+        condition_spans=((0, first.index(",")),),
+        result_spans=((second_start + 25, second_start + 83),),
+        condition_diagnostics=(
+            upstream_blocked(
+                requirement,
+                "COND-UK-001",
+                second_start,
+                second_start + 23,
+            ),
+        ),
+    )
+    assert evidence == outcome.observations == ()
+    assert outcome.processing_status is DetectionProcessingStatus.INCOMPLETE
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert [item.code for item in outcome.diagnostics] == [
+        LITERAL_DEPENDENCY_BLOCKED_CODE
+    ]
+
+
+def test_result_from_another_segment_cannot_conceal_local_block(pinned_parser):
+    first = "Система повинна зберегти журнал"
+    second = P07[:-1]
+    text = f"{first}; {second}."
+    requirement = Requirement("R072", 12, text)
+    second_start = len(first) + 2
+    outcome, evidence = direct_literal(
+        requirement,
+        parse(pinned_parser, requirement),
+        condition_spans=((second_start, second_start + 23),),
+        result_spans=((0, len(first)),),
+        result_diagnostics=(
+            upstream_blocked(
+                requirement,
+                "RESULT-UK-001",
+                second_start + 25,
+                second_start + 83,
+            ),
+        ),
+    )
+    assert evidence == outcome.observations == ()
+    assert outcome.processing_status is DetectionProcessingStatus.INCOMPLETE
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert [item.code for item in outcome.diagnostics] == [
+        LITERAL_DEPENDENCY_BLOCKED_CODE
+    ]
+
+
+def test_local_block_preserves_independently_accepted_criterion(pinned_parser):
+    clause = P07[:-1]
+    text = f"{clause}; {P07}"
+    requirement = Requirement("R072", 12, text)
+    second_start = len(clause) + 2
+    outcome, evidence = direct_literal(
+        requirement,
+        parse(pinned_parser, requirement),
+        condition_spans=((0, 23),),
+        result_spans=((25, 83), (second_start + 25, second_start + 83)),
+        condition_diagnostics=(
+            upstream_blocked(
+                requirement,
+                "COND-UK-001",
+                second_start,
+                second_start + 23,
+            ),
+        ),
+    )
+    assert len(evidence) == 2
+    assert len(outcome.observations) == 1
+    assert outcome.processing_status is DetectionProcessingStatus.INCOMPLETE
+    assert outcome.status is DetectionStatus.DETECTED
+    assert [item.code for item in outcome.diagnostics] == [
+        LITERAL_DEPENDENCY_BLOCKED_CODE
+    ]
+
+
+def test_unrelated_incomplete_segment_does_not_block_complete_candidate(
+    pinned_parser,
+):
+    first = P07[:-1]
+    second = "Якщо режим невідомий"
+    text = f"{first}; {second}."
+    requirement = Requirement("R072", 12, text)
+    second_start = len(first) + 2
+    outcome, evidence = direct_literal(
+        requirement,
+        parse(pinned_parser, requirement),
+        condition_spans=((0, 23),),
+        result_spans=((25, 83),),
+        condition_diagnostics=(
+            upstream_blocked(
+                requirement,
+                "COND-UK-001",
+                second_start,
+                second_start + len(second),
+            ),
+        ),
+    )
+    assert len(evidence) == 2
+    assert len(outcome.observations) == 1
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.DETECTED
+    assert outcome.diagnostics == ()
+
+
 def test_invalid_local_source_partition_is_unresolved(pinned_parser):
     requirement = Requirement("R072", 12, P07)
     outcome, evidence = direct_literal(

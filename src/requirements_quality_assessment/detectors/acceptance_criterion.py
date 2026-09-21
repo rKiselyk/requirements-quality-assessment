@@ -627,6 +627,35 @@ def _leading_literal_candidate_segments(
     return tuple(candidates)
 
 
+def _sources_in_segment(
+    sources: tuple[Evidence, ...],
+    segment: tuple[int, int],
+) -> tuple[Evidence, ...]:
+    start, end = segment
+    return tuple(
+        source
+        for source in sources
+        if start <= source.start_offset and source.end_offset <= end
+    )
+
+
+def _dependency_incomplete_in_segment(
+    outcome: FeatureDetectionOutcome[FeatureObservation],
+    segment: tuple[int, int],
+) -> bool:
+    if outcome.processing_status is DetectionProcessingStatus.COMPLETE:
+        return False
+    start, end = segment
+    return any(
+        diagnostic.candidate_span is None
+        or (
+            diagnostic.candidate_span.start_offset < end
+            and start < diagnostic.candidate_span.end_offset
+        )
+        for diagnostic in outcome.diagnostics
+    )
+
+
 class LiteralAcceptanceCriterionDetector:
     """Implement only ACCEPT-UK-001's conditioned exact-message rule."""
 
@@ -674,15 +703,19 @@ class LiteralAcceptanceCriterionDetector:
             RESULT_RULE_ID,
         )
 
-        dependency_incomplete = (
-            condition_outcome.processing_status
-            is DetectionProcessingStatus.INCOMPLETE
-            or expected_outcome.processing_status
-            is DetectionProcessingStatus.INCOMPLETE
-        )
         source_candidates = _leading_literal_candidate_segments(requirement.text)
-        dependency_blocked = dependency_incomplete and len(source_candidates) > min(
-            len(conditions), len(results)
+        dependency_blocked = any(
+            (
+                not _sources_in_segment(conditions, segment)
+                and _dependency_incomplete_in_segment(
+                    condition_outcome, segment
+                )
+            )
+            or (
+                not _sources_in_segment(results, segment)
+                and _dependency_incomplete_in_segment(expected_outcome, segment)
+            )
+            for segment in source_candidates
         )
 
         parser_outcome = self._parser.parse(requirement)
