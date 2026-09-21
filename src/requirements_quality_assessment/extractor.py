@@ -5,6 +5,7 @@ from typing import Protocol
 from .detectors import (
     AcceptanceCriterionBaselineDetector,
     ConditionContextBaselineDetector,
+    ConditionContextDetector,
     ExpectedResultBaselineDetector,
     QuantitativeBaselineDetector,
     UkVagueTermDetector,
@@ -73,14 +74,20 @@ class BaselineFeatureExtractor:
         condition = (
             condition_context_detector
             if condition_context_detector is not None
-            else ConditionContextBaselineDetector(quantitative_detector=quantitative)
+            else ConditionContextDetector(parser=parser, quantitative_detector=quantitative)
         )
         expected = (
             expected_result_detector
             if expected_result_detector is not None
             else ExpectedResultBaselineDetector(
                 parser=parser,
-                condition_detector=condition,
+                # COND-UK-002 authorizes condition observations only. Preserve
+                # RESULT-UK-001's frozen separation and unresolved-candidate gate.
+                condition_detector=(
+                    condition_context_detector
+                    if condition_context_detector is not None
+                    else ConditionContextBaselineDetector(quantitative)
+                ),
             )
         )
 

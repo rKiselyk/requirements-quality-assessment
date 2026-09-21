@@ -157,6 +157,8 @@ class ConditionContextBaselineDetector:
     def detect(
         self,
         requirement: Requirement,
+        *,
+        owned_marker_spans: frozenset[tuple[int, int]] = frozenset(),
     ) -> tuple[
         FeatureDetectionOutcome[FeatureObservation],
         tuple[Evidence, ...],
@@ -168,6 +170,7 @@ class ConditionContextBaselineDetector:
                 _MarkerMatch(literal, start, end)
                 for literal in _MARKERS
                 for start, end in _literal_spans(text, view, provenance, literal)
+                if (start, end) not in owned_marker_spans
             ),
             key=lambda item: (item.start, item.end),
         ))
