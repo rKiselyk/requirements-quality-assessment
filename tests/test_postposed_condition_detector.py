@@ -1,6 +1,7 @@
 """SRM-04A: model-spec §7.14.16.2 and binding P01/P02/P15/P16."""
 
 from dataclasses import replace
+from importlib.metadata import PackageNotFoundError, version
 
 import pytest
 
@@ -343,13 +344,38 @@ def test_existing_templates_do_not_invoke_extension_parser(text):
 
 @pytest.fixture(scope="module")
 def pinned_p01():
+    required_versions = {
+        "spacy": "3.8.16",
+        "uk-core-news-sm": "3.8.0",
+    }
+    installed_versions = {}
+    for distribution, required_version in required_versions.items():
+        try:
+            installed_versions[distribution] = version(distribution)
+        except PackageNotFoundError:
+            pytest.fail(
+                f"Mandatory pinned backend is unavailable: {distribution} "
+                f"{required_version} is not installed.",
+                pytrace=False,
+            )
+    assert installed_versions == required_versions, (
+        "Mandatory pinned backend version mismatch: "
+        f"required {required_versions}, installed {installed_versions}."
+    )
+
     requirement = Requirement("R072", 12, P01)
     outcome = SpaCyRequirementParser().parse(requirement)
-    if any(d.code is ParserDiagnosticCode.PARSER_UNAVAILABLE for d in outcome.diagnostics):
-        pytest.skip("optional pinned spaCy 3.8.16 / uk_core_news_sm 3.8.0 unavailable")
-    assert outcome.diagnostics == ()
+    if outcome.diagnostics:
+        details = "; ".join(
+            f"{diagnostic.code.value}: {diagnostic.explanation}"
+            for diagnostic in outcome.diagnostics
+        )
+        pytest.fail(
+            f"Mandatory pinned backend could not execute P01: {details}",
+            pytrace=False,
+        )
     parsed = outcome.parsed_requirement
-    assert parsed is not None
+    assert parsed is not None, "Mandatory pinned backend returned no P01 parse."
     assert (parsed.parser.library_version, parsed.parser.model_version) == ("3.8.16", "3.8.0")
     return requirement, parsed
 
