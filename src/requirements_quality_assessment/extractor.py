@@ -3,7 +3,7 @@
 from typing import Protocol
 
 from .detectors import (
-    AcceptanceCriterionBaselineDetector,
+    AcceptanceCriterionDetector,
     ConditionContextBaselineDetector,
     ConditionContextDetector,
     ExpectedResultBaselineDetector,
@@ -79,9 +79,11 @@ class BaselineFeatureExtractor:
         )
         baseline_expected = ExpectedResultBaselineDetector(
             parser=parser,
-            condition_detector=(condition_context_detector
-                                if condition_context_detector is not None
-                                else ConditionContextBaselineDetector(quantitative)),
+            condition_detector=(
+                condition_context_detector
+                if condition_context_detector is not None
+                else ConditionContextBaselineDetector(quantitative)
+            ),
         )
         expected = (
             expected_result_detector
@@ -103,12 +105,17 @@ class BaselineFeatureExtractor:
         self._acceptance_criterion_detector = (
             acceptance_criterion_detector
             if acceptance_criterion_detector is not None
-            else AcceptanceCriterionBaselineDetector(
+            else AcceptanceCriterionDetector(
+                parser=parser,
+                condition_detector=condition,
                 # ACCEPT-QUANT-001 retains its approved RESULT-UK-001
                 # dependency, including unresolved quantitative linkage.
-                expected_result_detector=(expected_result_detector
-                                          if expected_result_detector is not None
-                                          else baseline_expected),
+                expected_result_detector=(
+                    expected_result_detector
+                    if expected_result_detector is not None
+                    else baseline_expected
+                ),
+                literal_expected_result_detector=expected,
                 quantitative_detector=quantitative,
             )
         )
