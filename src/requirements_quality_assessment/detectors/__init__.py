@@ -3,6 +3,7 @@
 from .acceptance_criterion import AcceptanceCriterionBaselineDetector
 from .condition_context import ConditionContextBaselineDetector
 from .expected_result import ExpectedResultBaselineDetector
+from .coordinated_result import CoordinatedExpectedResultDetector, ExpectedResultDetector
 from .postposed_condition import ConditionContextDetector, PostposedConditionDetector
 from .quantitative import QuantitativeBaselineDetector
 from .vague_terms import UkVagueTermDetector
@@ -14,6 +15,8 @@ __all__ = [
     "ConditionContextDetector",
     "PostposedConditionDetector",
     "ExpectedResultBaselineDetector",
+    "CoordinatedExpectedResultDetector",
+    "ExpectedResultDetector",
     "QuantitativeBaselineDetector",
     "UkVagueTermDetector",
     "VerificationMethodBaselineDetector",
