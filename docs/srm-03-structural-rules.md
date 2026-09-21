@@ -307,9 +307,10 @@ research cases, not binding tests or claims of current detector output.**
 `DETECTED` in a proposed row is a *target outcome conditional on approval of
 the rule and its blockers*; `UNRESOLVED` is the intended conservative outcome
 when a stated blocker remains. Source spans are quoted exactly from each
-trimmed sentence; accepted offset pairs would be calculated and verified
-against that original text under §7.5 before SRM-04 tests. `—` means no
-accepted Evidence for the target candidate.
+trimmed sentence; the listed zero-based, end-exclusive offset pairs were
+checked against that original text under §7.5. They remain proposed fixtures
+and cannot become binding SRM-04 tests before researcher approval. `—` means
+no accepted Evidence for the target candidate.
 
 | Case / original Ukrainian sentence | Target observation; relevant exact source span | Proposed Rule ID; expected outcome | Scientific justification | Approval status |
 | --- | --- | --- | --- | --- |
