@@ -1,6 +1,6 @@
 """First-production source-span quantitative lexical detection."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 import re
 import unicodedata
@@ -18,6 +18,7 @@ from ..domain.quantitative import (
     ComparatorLabel,
     NumericValueComponent,
     QuantitativeConstraintObservation,
+    TextComponent,
     UnitComponent,
     UnitLabel,
 )
@@ -25,6 +26,7 @@ from ..domain.quantitative import (
 
 QUANT_RULE_ID = "QUANT-001"
 QUANT_UK_RULE_ID = "QUANT-UK-001"
+QUANT_METRIC_RULE_ID = "QUANT-METRIC-001"
 UNRESOLVED_NUMERIC_DIAGNOSTIC_CODE = "QUANT_UNRESOLVED_NUMERIC_CANDIDATE"
 
 _NUMERIC_PATTERN = re.compile(r"[0-9]+(?:,[0-9]+)?")
@@ -52,6 +54,9 @@ _UNIT_LABELS = {
 }
 _UNIT_SURFACES = tuple(sorted(_UNIT_LABELS, key=len, reverse=True))
 _DURATION_UNIT_SURFACES = frozenset({"с", "секунд", "хв", "хвилин"})
+_METRIC_TEXT = "Час відгуку"
+_METRIC_PREFIX = f"{_METRIC_TEXT} "
+_HARD_BOUNDARIES = frozenset(".;?!")
 
 
 @dataclass(frozen=True, slots=True)
@@ -424,6 +429,86 @@ def _evidence_and_observations(
     return tuple(evidence), tuple(observations)
 
 
+def _is_eligible_metric_anchor(
+    observation: QuantitativeConstraintObservation,
+    source: Evidence,
+) -> bool:
+    comparator = observation.comparator
+    return (
+        source.rule_id == QUANT_RULE_ID
+        and comparator is not None
+        and comparator.label is ComparatorLabel.LESS_THAN_OR_EQUAL
+        and comparator.inclusivity is BoundaryInclusivity.INCLUSIVE
+        and observation.value is not None
+        and observation.unit is not None
+        and observation.unit.label in {UnitLabel.SECOND, UnitLabel.MINUTE}
+    )
+
+
+def _hard_clause_end(text: str) -> int:
+    return next(
+        (index for index, character in enumerate(text) if character in _HARD_BOUNDARIES),
+        len(text),
+    )
+
+
+def _exact_metric_surface_count(text: str, end: int) -> int:
+    return sum(
+        1
+        for match in re.finditer(re.escape(_METRIC_TEXT), text[:end])
+        if _outer_boundaries(text, match.start(), match.end())
+    )
+
+
+def _enrich_response_time_metric(
+    requirement: Requirement,
+    evidence: tuple[Evidence, ...],
+    observations: tuple[QuantitativeConstraintObservation, ...],
+) -> tuple[tuple[Evidence, ...], tuple[QuantitativeConstraintObservation, ...]]:
+    """Attach the exact QUANT-METRIC-001 prefix to one accepted scalar anchor."""
+    if not requirement.text.startswith(_METRIC_PREFIX):
+        return evidence, observations
+
+    by_id = {source.evidence_id: source for source in evidence}
+    accepted = tuple(
+        (index, observation, source)
+        for index, observation in enumerate(observations)
+        if len(observation.evidence_refs) == 1
+        for source in (by_id.get(observation.evidence_refs[0]),)
+        if source is not None and _is_eligible_metric_anchor(observation, source)
+    )
+    clause_end = _hard_clause_end(requirement.text)
+    clause_anchors = tuple(
+        item for item in accepted if item[2].start_offset < clause_end
+    )
+    if (
+        len(clause_anchors) != 1
+        or clause_anchors[0][2].start_offset != len(_METRIC_PREFIX)
+        or _exact_metric_surface_count(requirement.text, clause_end) != 1
+    ):
+        return evidence, observations
+
+    observation_index, observation, _ = clause_anchors[0]
+    metric_id = f"{QUANT_METRIC_RULE_ID}:E001"
+    metric_evidence = Evidence(
+        evidence_id=metric_id,
+        requirement_id=requirement.id,
+        feature_id=FeatureId.QUANTITATIVE_CONSTRAINT,
+        text=_METRIC_TEXT,
+        start_offset=0,
+        end_offset=len(_METRIC_TEXT),
+        rule_id=QUANT_METRIC_RULE_ID,
+    )
+    enriched = replace(
+        observation,
+        metric=TextComponent((metric_id,)),
+        evidence_refs=(metric_id, *observation.evidence_refs),
+    )
+    enriched_observations = list(observations)
+    enriched_observations[observation_index] = enriched
+    return (metric_evidence, *evidence), tuple(enriched_observations)
+
+
 def _diagnostics(
     text: str,
     candidates: tuple[_Candidate, ...],
@@ -462,6 +547,9 @@ class QuantitativeBaselineDetector:
         protected = _protected_frequency_spans(text, view, provenance)
         candidates = _accepted_candidates(text, view, provenance, protected)
         evidence, observations = _evidence_and_observations(requirement, candidates)
+        evidence, observations = _enrich_response_time_metric(
+            requirement, evidence, observations,
+        )
         diagnostics = _diagnostics(text, candidates, protected)
         processing_status = (
             DetectionProcessingStatus.INCOMPLETE
