@@ -126,6 +126,28 @@ def test_trailing_numeric_context_preserves_metric_link_and_baseline_diagnostic(
     ]
 
 
+def test_competing_lexical_scalar_bound_prevents_metric_attachment():
+    text = "Час відгуку ≤ 2 с та не більше 3 с."
+    _, outcome, evidence = detect(text)
+
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.DETECTED
+    assert outcome.diagnostics == ()
+    assert len(outcome.observations) == 2
+    assert [
+        (source.evidence_id, source.rule_id, source.text)
+        for source in evidence
+    ] == [
+        ("QUANT-001:E001", QUANT_RULE_ID, "≤ 2 с"),
+        ("QUANT-UK-001:E001", QUANT_UK_RULE_ID, "не більше 3 с"),
+    ]
+    assert [observation.metric for observation in outcome.observations] == [None, None]
+    assert [observation.evidence_refs for observation in outcome.observations] == [
+        ("QUANT-001:E001",),
+        ("QUANT-UK-001:E001",),
+    ]
+
+
 @pytest.mark.parametrize(
     ("text", "scalar_texts", "diagnostic_texts"),
     [

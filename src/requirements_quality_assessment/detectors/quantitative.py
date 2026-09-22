@@ -445,6 +445,19 @@ def _is_eligible_metric_anchor(
     )
 
 
+def _is_competing_metric_bound(
+    observation: QuantitativeConstraintObservation,
+    source: Evidence,
+) -> bool:
+    return (
+        source.rule_id in {QUANT_RULE_ID, QUANT_UK_RULE_ID}
+        and observation.comparator is not None
+        and observation.value is not None
+        and observation.unit is not None
+        and observation.unit.label in {UnitLabel.SECOND, UnitLabel.MINUTE}
+    )
+
+
 def _hard_clause_end(text: str) -> int:
     return next(
         (index for index, character in enumerate(text) if character in _HARD_BOUNDARIES),
@@ -470,19 +483,24 @@ def _enrich_response_time_metric(
         return evidence, observations
 
     by_id = {source.evidence_id: source for source in evidence}
-    accepted = tuple(
+    accepted_bounds = tuple(
         (index, observation, source)
         for index, observation in enumerate(observations)
         if len(observation.evidence_refs) == 1
         for source in (by_id.get(observation.evidence_refs[0]),)
-        if source is not None and _is_eligible_metric_anchor(observation, source)
+        if source is not None and _is_competing_metric_bound(observation, source)
     )
     clause_end = _hard_clause_end(requirement.text)
+    clause_bounds = tuple(
+        item for item in accepted_bounds if item[2].start_offset < clause_end
+    )
     clause_anchors = tuple(
-        item for item in accepted if item[2].start_offset < clause_end
+        item for item in clause_bounds
+        if _is_eligible_metric_anchor(item[1], item[2])
     )
     if (
         len(clause_anchors) != 1
+        or len(clause_bounds) != 1
         or clause_anchors[0][2].start_offset != len(_METRIC_PREFIX)
         or _exact_metric_surface_count(requirement.text, clause_end) != 1
     ):
