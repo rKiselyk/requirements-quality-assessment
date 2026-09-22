@@ -287,3 +287,33 @@ context grammar, ambiguity handling, count-noun and nested roles, written-out
 numbers, generic ranges, shared or multiple bounds, and future frequency
 grammar. No new frozen baseline, tag, release, or release authorization is
 created by this report.
+
+## 14. Researcher acceptance and closeout
+
+The bounded `QUANT-METRIC-001` implementation was delivered by merged PR #95.
+Its technical audit was published by merged PR #96 at verified merge commit
+`888cf2202bc4ea46d2db82ec8f76775c53c10fa8`, with the technical status
+`READY_FOR_RESEARCHER_ACCEPTANCE`. The explicit researcher decision below
+occurred after that technical audit and is distinct from the earlier technical
+status.
+
+**Researcher decision: `ACCEPTED`.** The accepted scope is exactly
+`QUANT-METRIC-001` under `docs/model-spec.md` §7.14.6.7.
+
+### Researcher-acceptance statement
+
+The researcher explicitly confirmed the following decision:
+
+> Як дослідник, приймаю реалізацію QUANT-METRIC-001 у межах
+> затвердженого §7.14.6.7 docs/model-spec.md на підставі
+> docs/srm-05c-implementation-acceptance-report.md.
+>
+> Приймання поширюється лише на SRM-05C, не закриває SRM-05 або
+> RQD-008 і не створює нового baseline, tag чи release.
+
+This acceptance does not extend to general metric recognition, metric ambiguity
+diagnostics, context/load/population linkage, nested quantitative structures,
+shared metrics or multiple-bound attachment, written-out numbers, frequency
+grammar, generic ranges, or any other deferred SRM-05 work. Issue #73 (SRM-05)
+and `RQD-008` remain open. No new baseline, tag, release, or release
+authorization is created by this acceptance.
