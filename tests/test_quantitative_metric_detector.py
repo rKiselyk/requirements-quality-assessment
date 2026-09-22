@@ -13,6 +13,7 @@ from requirements_quality_assessment.detectors.expected_result import (
     RULE_ID as RESULT_RULE_ID,
 )
 from requirements_quality_assessment.detectors.quantitative import (
+    QUANT_CONTEXT_RULE_ID,
     QUANT_METRIC_RULE_ID,
     QUANT_RULE_ID,
     QUANT_UK_RULE_ID,
@@ -105,15 +106,31 @@ def test_binding_metric_prefix_enriches_existing_scalar_observation(text, value,
     )
 
 
-def test_trailing_numeric_context_preserves_metric_link_and_baseline_diagnostic():
+def test_context_enrichment_preserves_metric_link_and_baseline_diagnostic():
     text = "Час відгуку ≤ 2 с при 500 одночасних користувачах"
     _, outcome, evidence = detect(text)
 
     assert len(outcome.observations) == 1
-    assert [source.text for source in evidence] == ["Час відгуку", "≤ 2 с"]
+    assert [source.text for source in evidence] == [
+        "Час відгуку",
+        "≤ 2 с",
+        "при 500 одночасних користувачах",
+    ]
+    assert [source.rule_id for source in evidence] == [
+        QUANT_METRIC_RULE_ID,
+        QUANT_RULE_ID,
+        QUANT_CONTEXT_RULE_ID,
+    ]
+    assert outcome.observations[0].metric == TextComponent(
+        ("QUANT-METRIC-001:E001",)
+    )
+    assert outcome.observations[0].context == TextComponent(
+        ("QUANT-CONTEXT-001:E001",)
+    )
     assert outcome.observations[0].evidence_refs == (
         "QUANT-METRIC-001:E001",
         "QUANT-001:E001",
+        "QUANT-CONTEXT-001:E001",
     )
     assert outcome.processing_status is DetectionProcessingStatus.INCOMPLETE
     assert outcome.status is DetectionStatus.DETECTED

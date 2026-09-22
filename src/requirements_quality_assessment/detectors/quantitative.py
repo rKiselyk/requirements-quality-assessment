@@ -27,6 +27,7 @@ from ..domain.quantitative import (
 QUANT_RULE_ID = "QUANT-001"
 QUANT_UK_RULE_ID = "QUANT-UK-001"
 QUANT_METRIC_RULE_ID = "QUANT-METRIC-001"
+QUANT_CONTEXT_RULE_ID = "QUANT-CONTEXT-001"
 UNRESOLVED_NUMERIC_DIAGNOSTIC_CODE = "QUANT_UNRESOLVED_NUMERIC_CANDIDATE"
 
 _NUMERIC_PATTERN = re.compile(r"[0-9]+(?:,[0-9]+)?")
@@ -56,6 +57,7 @@ _UNIT_SURFACES = tuple(sorted(_UNIT_LABELS, key=len, reverse=True))
 _DURATION_UNIT_SURFACES = frozenset({"с", "секунд", "хв", "хвилин"})
 _METRIC_TEXT = "Час відгуку"
 _METRIC_PREFIX = f"{_METRIC_TEXT} "
+_CONTEXT_SUFFIX = "при 500 одночасних користувачах"
 _HARD_BOUNDARIES = frozenset(".;?!")
 
 
@@ -527,6 +529,60 @@ def _enrich_response_time_metric(
     return (metric_evidence, *evidence), tuple(enriched_observations)
 
 
+def _enrich_response_time_context(
+    requirement: Requirement,
+    evidence: tuple[Evidence, ...],
+    observations: tuple[QuantitativeConstraintObservation, ...],
+) -> tuple[tuple[Evidence, ...], tuple[QuantitativeConstraintObservation, ...]]:
+    """Attach the exact QUANT-CONTEXT-001 suffix to one accepted metric link."""
+    by_id = {source.evidence_id: source for source in evidence}
+    metric_observations = tuple(
+        (index, observation)
+        for index, observation in enumerate(observations)
+        if observation.metric is not None
+        and len(observation.metric.evidence_refs) == 1
+        and (metric_source := by_id.get(observation.metric.evidence_refs[0]))
+        is not None
+        and metric_source.rule_id == QUANT_METRIC_RULE_ID
+    )
+    if len(metric_observations) != 1:
+        return evidence, observations
+
+    observation_index, observation = metric_observations[0]
+    scalar_sources = tuple(
+        by_id[reference]
+        for reference in observation.evidence_refs
+        if reference in by_id and by_id[reference].rule_id == QUANT_RULE_ID
+    )
+    if len(scalar_sources) != 1 or observation.context is not None:
+        return evidence, observations
+
+    scalar_source = scalar_sources[0]
+    expected_tail = f" {_CONTEXT_SUFFIX}"
+    if requirement.text[scalar_source.end_offset:] != expected_tail:
+        return evidence, observations
+
+    context_start = scalar_source.end_offset + 1
+    context_id = f"{QUANT_CONTEXT_RULE_ID}:E001"
+    context_evidence = Evidence(
+        evidence_id=context_id,
+        requirement_id=requirement.id,
+        feature_id=FeatureId.QUANTITATIVE_CONSTRAINT,
+        text=_CONTEXT_SUFFIX,
+        start_offset=context_start,
+        end_offset=len(requirement.text),
+        rule_id=QUANT_CONTEXT_RULE_ID,
+    )
+    enriched = replace(
+        observation,
+        context=TextComponent((context_id,)),
+        evidence_refs=(*observation.evidence_refs, context_id),
+    )
+    enriched_observations = list(observations)
+    enriched_observations[observation_index] = enriched
+    return (*evidence, context_evidence), tuple(enriched_observations)
+
+
 def _diagnostics(
     text: str,
     candidates: tuple[_Candidate, ...],
@@ -566,6 +622,9 @@ class QuantitativeBaselineDetector:
         candidates = _accepted_candidates(text, view, provenance, protected)
         evidence, observations = _evidence_and_observations(requirement, candidates)
         evidence, observations = _enrich_response_time_metric(
+            requirement, evidence, observations,
+        )
+        evidence, observations = _enrich_response_time_context(
             requirement, evidence, observations,
         )
         diagnostics = _diagnostics(text, candidates, protected)

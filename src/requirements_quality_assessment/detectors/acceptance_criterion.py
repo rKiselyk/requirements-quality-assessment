@@ -27,6 +27,7 @@ from .expected_result import (
     ExpectedResultBaselineDetector,
 )
 from .quantitative import (
+    QUANT_CONTEXT_RULE_ID,
     QUANT_METRIC_RULE_ID,
     QUANT_RULE_ID,
     QUANT_UK_RULE_ID,
@@ -42,7 +43,7 @@ DEPENDENCY_BLOCKED_CODE = "ACCEPT_DEPENDENCY_BLOCKED"
 
 _QUANTITATIVE_RULE_IDS = frozenset({QUANT_RULE_ID, QUANT_UK_RULE_ID})
 _QUANTITATIVE_COMPONENT_RULE_IDS = frozenset(
-    {*_QUANTITATIVE_RULE_IDS, QUANT_METRIC_RULE_ID}
+    {*_QUANTITATIVE_RULE_IDS, QUANT_METRIC_RULE_ID, QUANT_CONTEXT_RULE_ID}
 )
 _NON_JUDGEABLE_EXPLANATION = (
     "A contained accepted quantitative candidate is not judgeable under "
