@@ -2253,8 +2253,8 @@ exact contract approved in this subsection; consequently, SRM-05D C0 is
 completed and researcher-accepted within that exact scope. This later
 implementation acceptance does not retroactively change the earlier scientific
 decision, approve SRM-05E E0, E1, E2, or the R2′ relationship, broaden any
-grammar, or close `RQD-008` or SRM-05 issue #73. PR #100 remains open, and no
-baseline, tag, or release is created by this acceptance record.
+grammar, or close `RQD-008` or SRM-05 issue #73. No baseline, tag, or release is
+created by this acceptance record.
 
 `QUANT-CONTEXT-001` is a new bounded rule that enriches one already accepted
 `QUANT-METRIC-001` observation. It does not change the immutable meaning,
