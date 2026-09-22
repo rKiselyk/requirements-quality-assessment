@@ -13,6 +13,7 @@ from ..domain.detection import (
 )
 from ..domain.features import FeatureObservation
 from .quantitative import (
+    QUANT_METRIC_RULE_ID,
     QUANT_RULE_ID,
     QUANT_UK_RULE_ID,
     QuantitativeBaselineDetector,
@@ -193,11 +194,19 @@ class ConditionContextBaselineDetector:
                 for reference in observation.evidence_refs
                 if reference in quantitative_by_id
             )
+            scalar_references = tuple(
+                source
+                for source in referenced
+                if source.rule_id in {QUANT_RULE_ID, QUANT_UK_RULE_ID}
+            )
             if (referenced and len(referenced) == len(observation.evidence_refs)
-                    and all(source.rule_id in {QUANT_RULE_ID, QUANT_UK_RULE_ID}
-                            for source in referenced)):
+                    and scalar_references
+                    and all(source.rule_id in {
+                        QUANT_RULE_ID, QUANT_UK_RULE_ID, QUANT_METRIC_RULE_ID,
+                    } for source in referenced)):
                 accepted_quantitative_spans.extend(
-                    (source.start_offset, source.end_offset) for source in referenced
+                    (source.start_offset, source.end_offset)
+                    for source in scalar_references
                 )
 
         protected_comma_spans = [

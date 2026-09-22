@@ -27,6 +27,7 @@ from .expected_result import (
     ExpectedResultBaselineDetector,
 )
 from .quantitative import (
+    QUANT_METRIC_RULE_ID,
     QUANT_RULE_ID,
     QUANT_UK_RULE_ID,
     UNRESOLVED_NUMERIC_DIAGNOSTIC_CODE,
@@ -40,6 +41,9 @@ UNRESOLVED_CANDIDATE_CODE = "ACCEPT_UNRESOLVED_CANDIDATE"
 DEPENDENCY_BLOCKED_CODE = "ACCEPT_DEPENDENCY_BLOCKED"
 
 _QUANTITATIVE_RULE_IDS = frozenset({QUANT_RULE_ID, QUANT_UK_RULE_ID})
+_QUANTITATIVE_COMPONENT_RULE_IDS = frozenset(
+    {*_QUANTITATIVE_RULE_IDS, QUANT_METRIC_RULE_ID}
+)
 _NON_JUDGEABLE_EXPLANATION = (
     "A contained accepted quantitative candidate is not judgeable under "
     "ACCEPT-QUANT-001."
@@ -211,19 +215,25 @@ class AcceptanceCriterionBaselineDetector:
                 quantitative_by_id.get(reference)
                 for reference in observation.evidence_refs
             )
+            scalar_sources = tuple(
+                source
+                for source in sources
+                if source is not None and source.rule_id in _QUANTITATIVE_RULE_IDS
+            )
             if (
                 not sources
                 or any(source is None for source in sources)
                 or any(
                     source.feature_id is not FeatureId.QUANTITATIVE_CONSTRAINT
-                    or source.rule_id not in _QUANTITATIVE_RULE_IDS
+                    or source.rule_id not in _QUANTITATIVE_COMPONENT_RULE_IDS
                     for source in sources
                     if source is not None
                 )
+                or not scalar_sources
             ):
                 continue
             accepted_quantitative.append(
-                (observation, tuple(source for source in sources if source is not None))
+                (observation, scalar_sources)
             )
 
         unresolved_quantitative_spans = tuple(
