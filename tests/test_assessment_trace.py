@@ -249,7 +249,10 @@ def test_unresolved_reference_case_preserves_diagnostic_not_evidence():
     record = _record(_result(method=_unresolved(FeatureId.VERIFICATION_METHOD)))
     verifiability = _trace(record, CharacteristicId.VERIFIABILITY)
 
-    assert record.quality_profile.verifiability.state is CharacteristicAssessmentState.UNKNOWN
+    assert (
+        record.quality_profile.verifiability.state
+        is CharacteristicAssessmentState.UNKNOWN
+    )
     assert record.quality_profile.verifiability.value is None
     assert verifiability.decision_code is TraceDecisionCode.V_MATERIAL_INPUT_UNRESOLVED
     assert verifiability.inputs[2].effect_code is TraceEffectCode.V_UNRESOLVED_MATERIAL
@@ -319,7 +322,10 @@ def test_v4_provisional_lower_evidence_reference_case():
     ))
     trace = _trace(record, CharacteristicId.VERIFIABILITY)
 
-    assert record.quality_profile.verifiability.state is CharacteristicAssessmentState.UNKNOWN
+    assert (
+        record.quality_profile.verifiability.state
+        is CharacteristicAssessmentState.UNKNOWN
+    )
     assert record.quality_profile.verifiability.value is None
     assert trace.decision_code is TraceDecisionCode.V_MATERIAL_INPUT_UNRESOLVED
     assert _effects(trace) == (
@@ -328,6 +334,49 @@ def test_v4_provisional_lower_evidence_reference_case():
         TraceEffectCode.V_COMPLETED_ABSENCE,
     )
     assert trace.inputs[1].observation_indexes == (0,)
+
+
+def test_v4_unresolved_lower_sibling_is_non_material_when_lower_tier_exists():
+    record = _record(_result(
+        acceptance=_unresolved(FeatureId.ACCEPTANCE_CRITERION),
+        quantitative=_quantitative(),
+        method=_unresolved(FeatureId.VERIFICATION_METHOD),
+    ))
+    trace = _trace(record, CharacteristicId.VERIFIABILITY)
+
+    assert (
+        record.quality_profile.verifiability.state
+        is CharacteristicAssessmentState.UNKNOWN
+    )
+    assert record.quality_profile.verifiability.value is None
+    assert trace.decision_code is TraceDecisionCode.V_MATERIAL_INPUT_UNRESOLVED
+    assert _effects(trace) == (
+        TraceEffectCode.V_UNRESOLVED_MATERIAL,
+        TraceEffectCode.V_PRESENT_NONSELECTING,
+        TraceEffectCode.V_UNRESOLVED_NON_MATERIAL,
+    )
+    assert trace.inputs[2].diagnostic_indexes == (0,)
+
+
+def test_acceptance_and_lower_candidates_remain_material_without_lower_evidence():
+    record = _record(_result(
+        acceptance=_unresolved(FeatureId.ACCEPTANCE_CRITERION),
+        quantitative=_unresolved(FeatureId.QUANTITATIVE_CONSTRAINT),
+        method=_unresolved(FeatureId.VERIFICATION_METHOD),
+    ))
+    trace = _trace(record, CharacteristicId.VERIFIABILITY)
+
+    assert (
+        record.quality_profile.verifiability.state
+        is CharacteristicAssessmentState.UNKNOWN
+    )
+    assert record.quality_profile.verifiability.value is None
+    assert trace.decision_code is TraceDecisionCode.V_MATERIAL_INPUT_UNRESOLVED
+    assert _effects(trace) == (
+        TraceEffectCode.V_UNRESOLVED_MATERIAL,
+        TraceEffectCode.V_UNRESOLVED_MATERIAL,
+        TraceEffectCode.V_UNRESOLVED_MATERIAL,
+    )
 
 
 # -- Joint validation and additional required behavior -----------------------

@@ -243,11 +243,14 @@ def _expected_v(
         )
 
     if acceptance.processing_status is DetectionProcessingStatus.INCOMPLETE:
+        lower_tier_established = any(outcome.observations for outcome in lower)
         effects = (TraceEffectCode.V_UNRESOLVED_MATERIAL,) + tuple(
             TraceEffectCode.V_PRESENT_NONSELECTING
             if outcome.observations
             else TraceEffectCode.V_COMPLETED_ABSENCE
             if outcome.processing_status is DetectionProcessingStatus.COMPLETE
+            else TraceEffectCode.V_UNRESOLVED_NON_MATERIAL
+            if lower_tier_established
             else TraceEffectCode.V_UNRESOLVED_MATERIAL
             for outcome in lower
         )
