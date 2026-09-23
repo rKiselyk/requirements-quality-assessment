@@ -87,9 +87,7 @@ _EFFECT_INTERPRETATIONS = {
     TraceEffectCode.V_PRESENT_NONSELECTING: "observed; accepted but does not select the final tier",
     TraceEffectCode.V_COMPLETED_ABSENCE: "completed absence; supplies no accepted V evidence",
     TraceEffectCode.V_UNRESOLVED_MATERIAL: "unresolved and material; resolution could change the tier",
-    TraceEffectCode.V_UNRESOLVED_NON_MATERIAL: (
-        "unresolved but non-material; another accepted path already fixes the numeric class"
-    ),
+    TraceEffectCode.V_UNRESOLVED_NON_MATERIAL: "unresolved but non-material",
     TraceEffectCode.U_SIGNAL_PRESENT: "observed; establishes the supported signal tier",
     TraceEffectCode.U_COMPLETED_SIGNAL_ABSENCE: "completed absence of the supported signal class",
     TraceEffectCode.U_UNRESOLVED_MATERIAL: (
@@ -302,6 +300,20 @@ class ConsoleReporter:
         for input_trace in trace.inputs:
             outcome = outcome_for_feature(record.extraction_result, input_trace.feature_id)
             interpretation = _EFFECT_INTERPRETATIONS[input_trace.effect_code]
+            if input_trace.effect_code is TraceEffectCode.V_UNRESOLVED_NON_MATERIAL:
+                if trace.decision_code is TraceDecisionCode.V_FULL_ACCEPTANCE_TIER:
+                    interpretation += "; accepted acceptance evidence fixes the computed V=1 class"
+                elif trace.decision_code is TraceDecisionCode.V_PARTIAL_LOWER_TIER:
+                    interpretation += (
+                        "; accepted lower-tier evidence fixes the computed V=1/2 class"
+                    )
+                elif trace.decision_code is TraceDecisionCode.V_MATERIAL_INPUT_UNRESOLVED:
+                    interpretation += (
+                        "; accepted lower-tier evidence establishes the provisional lower "
+                        "tier, so this unresolved lower-tier input cannot improve it; the "
+                        "final result remains UNKNOWN because unresolved acceptance may "
+                        "change the tier to V=1"
+                    )
             if (
                 input_trace.effect_code is TraceEffectCode.V_PRESENT_NONSELECTING
                 and trace.decision_code is TraceDecisionCode.V_MATERIAL_INPUT_UNRESOLVED

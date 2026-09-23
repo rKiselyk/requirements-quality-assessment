@@ -7,6 +7,7 @@ import pytest
 from requirements_quality_assessment.aggregator import SpecificationQualityAggregator
 from requirements_quality_assessment.assessor import RequirementQualityAssessor
 from requirements_quality_assessment.domain import (
+    CharacteristicAssessmentState,
     DetectionDiagnostic,
     DetectionProcessingStatus,
     DiagnosticSpan,
@@ -19,6 +20,7 @@ from requirements_quality_assessment.domain import (
     Requirement,
     RequirementExtractionResult,
     RequirementFeatures,
+    TraceEffectCode,
     UnitComponent,
     UnitLabel,
     VagueTermOccurrence,
@@ -259,7 +261,7 @@ def test_signal_finding_resolves_source_and_is_never_described_as_a_defect() -> 
                 method=_unresolved(FeatureId.VERIFICATION_METHOD),
             ),
             ("V_COMPLETED_ABSENCE", "V_SELECTS_LOWER_TIER", "V_UNRESOLVED_NON_MATERIAL"),
-            "another accepted path already fixes the numeric class",
+            "accepted lower-tier evidence fixes the computed V=1/2 class",
             "this accepted lower-tier evidence is provisional",
         ),
         (
@@ -286,6 +288,26 @@ def test_v_materiality_and_provisional_evidence_are_explicit(
     assert positions == sorted(positions)
     assert required_text in output
     assert forbidden_text not in verifiability
+
+
+def test_v4_unresolved_method_is_non_material_without_fixing_final_class() -> None:
+    record = _record(
+        acceptance=_unresolved(FeatureId.ACCEPTANCE_CRITERION),
+        quantitative=_quantitative(),
+        method=_unresolved(FeatureId.VERIFICATION_METHOD),
+    )
+
+    assessment = record.quality_profile.verifiability
+    method_input = record.trace.characteristics[1].inputs[2]
+    output = _render(record)
+    interpretation = output[output.index("HUMAN-READABLE INTERPRETATION"):]
+
+    assert assessment.state is CharacteristicAssessmentState.UNKNOWN
+    assert assessment.value is None
+    assert method_input.effect_code is TraceEffectCode.V_UNRESOLVED_NON_MATERIAL
+    assert "accepted lower-tier evidence establishes the provisional lower tier" in interpretation
+    assert "final result remains UNKNOWN because unresolved acceptance may change the tier to V=1" in interpretation
+    assert "fixes the numeric class" not in interpretation
 
 
 def test_record_rendering_is_deterministic() -> None:
