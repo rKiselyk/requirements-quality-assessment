@@ -2,6 +2,7 @@
 
 from typing import Protocol
 
+from .assessment_trace import RequirementAssessmentTraceBuilder
 from .calculators import (
     CompletenessCalculator,
     UnambiguityCalculator,
@@ -9,6 +10,7 @@ from .calculators import (
 )
 from .domain import (
     CharacteristicAssessment,
+    RequirementAssessmentRecord,
     RequirementExtractionResult,
     RequirementQualityProfile,
 )
@@ -58,3 +60,10 @@ class RequirementQualityAssessor:
             verifiability=verifiability,
             unambiguity=unambiguity,
         )
+
+    def assess_record(
+        self, result: RequirementExtractionResult
+    ) -> RequirementAssessmentRecord:
+        """Assess one result and return its jointly validated SRM-10 record."""
+        profile = self.assess(result)
+        return RequirementAssessmentTraceBuilder().build(result, profile)
