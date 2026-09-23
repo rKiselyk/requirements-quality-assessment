@@ -102,7 +102,7 @@ The trace does not duplicate `state`, `value`, `assessment_rule_id`, Findings, o
 | `applicability` | Preserves applicability only where the rule allocates it | Required field; nullable | `RQD-023` and `CALC-C-MVP-001` | 1 value or `None` | C=`APPLICABLE`; V/U=`None`; detection never determines applicability |
 | `observation_indexes` | References accepted observations without copying them | Required; may be empty | Outcome's immutable ordered observations | 0..n | Zero-based, unique, ascending, in range; includes all accepted observations, including non-selecting/mixed observations |
 | `diagnostic_indexes` | References unresolved reasons without converting them to Evidence/Findings | Required; may be empty | Outcome's immutable ordered diagnostics | 0..n | Zero-based, unique, ascending, in range; includes all diagnostics |
-| `effect_code` | States how the input affected the rule result | Required | Approved calculation/propagation rule | 1 | Agrees with observations, processing, diagnostics, decision code, and §6 |
+| `effect_code` | States how the input family affected the rule result | Required | Approved calculation/propagation rule | Exactly 1 per family | Assigned by the characteristic-specific precedence in §6; agrees with observations, processing, diagnostics, and decision code |
 
 Tuple indexes are local references into one immutable extraction result, not durable cross-run IDs. They are proposed because observations and diagnostics currently have no IDs. Existing observation `evidence_refs` remain the only links to accepted `Evidence`; diagnostic candidate spans remain non-Evidence.
 
@@ -131,7 +131,7 @@ Input effect codes:
 - `C_COMPLETED_ABSENCE_0`: complete empty outcome, contributing exactly 0 without Evidence.
 - `C_REQUIRED_UNRESOLVED`: incomplete outcome; observations and diagnostics remain referenced, and the result is withheld.
 
-The three effects must reproduce the approved branch/value under `CALC-C-MVP-001`; repeated observations contribute at most 1.
+The three effects must reproduce the approved branch/value under `CALC-C-MVP-001`; repeated observations contribute at most 1. For a same-family mixed outcome, `C_REQUIRED_UNRESOLVED` takes precedence over `C_PRESENT_1`: accepted observations remain preserved, but incomplete processing of any required C family withholds the assessment.
 
 ### 6.2 Verifiability
 
@@ -142,9 +142,25 @@ Decision codes:
 - `V_COMPLETED_NO_EVIDENCE_TIER`: all relevant processing complete and all paths absent; exact value `0`.
 - `V_MATERIAL_INPUT_UNRESOLVED`: a candidate could change tier; `UNKNOWN`, value `None`.
 
-Input effect codes are `V_SELECTS_FULL_TIER`, `V_SELECTS_LOWER_TIER`, `V_PRESENT_NONSELECTING`, `V_COMPLETED_ABSENCE`, `V_UNRESOLVED_MATERIAL`, and `V_UNRESOLVED_NON_MATERIAL`.
+Input effect codes are `V_SELECTS_FULL_TIER`, `V_SELECTS_LOWER_TIER`, `V_PRESENT_NONSELECTING`, `V_COMPLETED_ABSENCE`, `V_UNRESOLVED_MATERIAL`, and `V_UNRESOLVED_NON_MATERIAL`. No additional mixed-state code is required.
 
-All three inputs are present. Mixed accepted/incomplete outcomes retain observation and diagnostic indexes. A diagnostic is material only if resolution could change the numeric class; otherwise it remains visible and computation may proceed.
+Exactly one code is assigned to each of the three V families by this precedence:
+
+1. If a family has accepted observations, use an accepted-observation code, even when that same outcome is `INCOMPLETE` and has diagnostics:
+   - acceptance criterion → `V_SELECTS_FULL_TIER`;
+   - lower-tier family under `V_PARTIAL_LOWER_TIER` → `V_SELECTS_LOWER_TIER`;
+   - lower-tier family under `V_FULL_ACCEPTANCE_TIER` or `V_MATERIAL_INPUT_UNRESOLVED` → `V_PRESENT_NONSELECTING`.
+2. Otherwise, a complete empty family uses `V_COMPLETED_ABSENCE`.
+3. Otherwise, the family is incomplete and empty. Use `V_UNRESOLVED_MATERIAL` if resolving its candidate could change the final numeric class; use `V_UNRESOLVED_NON_MATERIAL` if an already accepted path fixes that class.
+
+`V_PRESENT_NONSELECTING` has two bounded uses: accepted lower-tier evidence is non-selecting because accepted acceptance already fixes `V=1`, or it is provisional evidence while a material unresolved acceptance candidate withholds the assessment. In the second use, it must not be described as selecting a final `1/2` tier or as a computed result.
+
+Diagnostics on a family that also has accepted observations are always preserved by `diagnostic_indexes`, but are non-material within that family: the accepted observation already establishes the highest tier that the same family can supply, so resolving another same-family candidate cannot change its tier contribution. This materiality is explained by the accepted-observation effect code together with the referenced diagnostics and the characteristic `decision_code`; it does not require a second effect code. Cross-family materiality remains governed by V1–V4:
+
+- V1: accepted acceptance fixes `V=1`; every unresolved lower-tier empty family is `V_UNRESOLVED_NON_MATERIAL`, and accepted lower-tier families are `V_PRESENT_NONSELECTING`.
+- V2: no accepted evidence plus an unresolved lower-tier candidate yields `UNKNOWN`; each incomplete empty lower-tier family that could establish `1/2` is `V_UNRESOLVED_MATERIAL`.
+- V3: acceptance is complete/absent and accepted lower-tier evidence fixes `V=1/2`; accepted lower-tier families use `V_SELECTS_LOWER_TIER`, while an incomplete empty lower-tier sibling uses `V_UNRESOLVED_NON_MATERIAL`.
+- V4: an incomplete empty acceptance family is `V_UNRESOLVED_MATERIAL`; accepted lower-tier families use `V_PRESENT_NONSELECTING` as preserved provisional evidence, and the assessment remains `UNKNOWN` because acceptance could change the class from `1/2` to `1`.
 
 ### 6.3 Unambiguity
 
@@ -154,7 +170,7 @@ Decision codes:
 - `U_COMPLETED_SIGNAL_ABSENCE_TIER`: complete empty scan; exact value `1` without absence Evidence.
 - `U_MATERIAL_INPUT_UNRESOLVED`: no occurrence and processing could surface one; `UNKNOWN`, value `None`.
 
-Input effect codes are `U_SIGNAL_PRESENT`, `U_COMPLETED_SIGNAL_ABSENCE`, and `U_UNRESOLVED_MATERIAL`. `U_SIGNAL_PRESENT` retains any mixed-state diagnostics, which cannot lower the class below `1/2`.
+Input effect codes are `U_SIGNAL_PRESENT`, `U_COMPLETED_SIGNAL_ABSENCE`, and `U_UNRESOLVED_MATERIAL`. For a same-family mixed outcome, `U_SIGNAL_PRESENT` takes precedence: it retains accepted occurrences and all diagnostics, whose resolution cannot lower the class below `1/2`.
 
 For `U_SUPPORTED_SIGNAL_TIER`, each occurrence maps one-to-one to an assessment Finding with `kind=SIGNAL`, `code=VAGUE_TERM_SIGNAL`, `rule_id=FIND-U-VAGUE-001`, `criterion_id=None`, and exactly that occurrence's `evidence_refs`, in existing source/Finding order. No `QUALITY_PROBLEM` or `U=0` is valid.
 
@@ -162,7 +178,7 @@ For `U_SUPPORTED_SIGNAL_TIER`, each occurrence maps one-to-one to an assessment 
 
 A completed absence is valid only for `processing_status=COMPLETE`, `observations=()`, and `diagnostics=()`. Its trace indexes are empty; there is no trace-level `evidence_refs` field from which fake Evidence could be created.
 
-Every referenced observation's existing `evidence_ref` resolves exactly once in `extraction_result.evidence`, matches the family and requirement, and satisfies:
+Every existing entry in each referenced observation's `evidence_refs` resolves exactly once in `extraction_result.evidence`, matches the family and requirement, and satisfies:
 
 ```text
 Requirement.text[Evidence.start_offset:Evidence.end_offset] == Evidence.text
@@ -194,7 +210,9 @@ These rows become binding only if this proposal is approved; they reuse existing
 | Completed absence | Case E: relevant C/V/U outcomes complete and empty | C value `0` with three absence effects; V value `0` with three absence effects; U value `1` with absence effect; all refs empty |
 | Unresolved | Case D: method candidate unresolved; no accepted V evidence | V material unresolved, `UNKNOWN`/`None`; method references diagnostic, whose candidate span is not Evidence |
 | SIGNAL | Case B: accepted `швидко` occurrence | U signal tier, value `1/2`; one occurrence ref, one `FIND-U-VAGUE-001` Finding ref, exact Evidence, kind `SIGNAL` |
-| Mixed evidence | §7.16.6: accepted acceptance; quantitative accepted/incomplete; method complete/absent | V full tier, value `1`; acceptance selects; quantitative observations/diagnostics preserved as non-selecting/non-material; method completed absence |
+| V1 same-family mixed | §7.16.6/V1: accepted acceptance; quantitative accepted/incomplete; method complete/absent | V full tier, value `1`; acceptance=`V_SELECTS_FULL_TIER`; quantitative=`V_PRESENT_NONSELECTING` with observations and non-material diagnostics preserved; method=`V_COMPLETED_ABSENCE` |
+| V3 unresolved lower sibling | V3: acceptance complete/absent; accepted quantitative evidence; method incomplete/empty | V partial tier, value `1/2`; quantitative=`V_SELECTS_LOWER_TIER`; method=`V_UNRESOLVED_NON_MATERIAL`; method diagnostics remain visible |
+| V4 provisional lower evidence | V4: acceptance incomplete/empty; accepted quantitative evidence; method complete/absent | V material unresolved, `UNKNOWN`/`None`; acceptance=`V_UNRESOLVED_MATERIAL`; quantitative=`V_PRESENT_NONSELECTING` as provisional evidence, not a selected final tier; method=`V_COMPLETED_ABSENCE` |
 
 ## 10. Reporter consumption contract
 
@@ -211,7 +229,7 @@ Researcher approval is required for this package, specifically:
 5. completed-empty outcomes as sole current absence provenance, without Evidence;
 6. one-to-one U occurrence → `FIND-U-VAGUE-001` provenance validation;
 7. `MVP-V0.1-BOUNDED-CVU-001` and its non-claims; and
-8. the five §9 reference rows as binding trace cases.
+8. the seven §9 reference rows as binding trace cases.
 
 Until approved, this document defines no production contract and must not be recorded as researcher approval in `model-spec.md`.
 
