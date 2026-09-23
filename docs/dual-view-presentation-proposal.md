@@ -1,13 +1,15 @@
 # Dual-view CLI presentation contract proposal
 
-- **Status:** `PROPOSED_FOR_RESEARCHER_APPROVAL`
-- **Scope:** documentation and research proposal only
-- **Proposed amendment to:** [`model-spec.md` §19](model-spec.md)
+- **Status:** `RESEARCHER_APPROVED`
+- **Researcher decision date:** 2026-09-23
+- **Authoritative amendment:** [`model-spec.md` §19.6](model-spec.md)
+- **Delivery:** existing branch `feature/dual-view-presentation` and existing
+  PR #108
 - **Scientific input contract:** [`model-spec.md` §7.17](model-spec.md)
 
-## 1. Decision requested
+## 1. Approved decision
 
-Approve two presentations of the same already-computed
+The researcher approves two presentations of the same already-computed
 `RequirementAssessmentRecord` values and `SpecificationQualityProfile`:
 
 1. `user` — a concise Ukrainian assessment and the new CLI default; and
@@ -21,11 +23,11 @@ The proposed CLI interface remains:
 
 The default is `user`. Explicit `--view audit` produces the existing output.
 
-This proposal does not change `model-spec.md`, does not claim current
-scientific approval, and does not authorize implementation. Until the
-researcher approves this package and the decision is recorded as an amendment
-to §19, the current §19 contract and current `ConsoleReporter` output remain
-normative.
+The authoritative approval is recorded in `model-spec.md` §19.6. The
+researcher directed approval, implementation, tests, and user documentation to
+be completed in the same branch and PR #108. This document does not itself
+change production behavior; the implementation in that PR does so only within
+the approved presentation boundary.
 
 ## 2. Scientific and architectural invariants
 
@@ -68,7 +70,7 @@ complete machine-resolvable path that justifies the same result.
 
 ## 3. Explicit amendment to the approved §19 contract
 
-If approved, this proposal amends §19 as follows:
+The approved §19.6 amendment provides:
 
 - current §19.1–§19.4 and current `ConsoleReporter.render()` become the
   normative `audit` view without any content or byte change;
@@ -79,10 +81,10 @@ If approved, this proposal amends §19 as follows:
 - the user view may omit internal trace detail only because the exact same
   detail remains available through `--view audit` and the audit API.
 
-This is a deliberate proposed amendment, not an interpretation silently
-derived from the currently approved text. In particular, existing §19 requires
-detailed trace presentation. The researcher must explicitly approve the
-concise projection and its omissions before implementation.
+This is a deliberate approved amendment, not an interpretation silently
+derived from the previously approved text. The detailed presentation remains
+normative as the audit view; §19.6 separately authorizes the concise projection
+and its exact omissions.
 
 ## 4. Exact `user`-view contract
 
@@ -512,7 +514,7 @@ default change is at the CLI selection boundary.
 
 ### 7.1 New user API
 
-Add a separate renderer only after approval:
+Add the approved separate renderer in this implementation:
 
 ```python
 class UserConsoleReporter:
@@ -565,10 +567,10 @@ View selection is never passed into the reader, extractor, assessor,
 calculators, trace builder, aggregator, or domain models. File errors, UTF-8
 handling, stderr text, and exit codes remain independent of the selected view.
 
-## 8. Future test and acceptance matrix
+## 8. Implementation test and acceptance matrix
 
-This proposal adds no tests. A later implementation issue, after researcher
-approval, must cover at least this matrix.
+The implementation in the existing branch and PR #108 must cover at least this
+matrix.
 
 | Area | Fixture/action | Required result |
 |---|---|---|
@@ -593,15 +595,14 @@ approval, must cover at least this matrix.
 | No new science | Dependency/import review plus manually constructed completed records | User renderer depends on completed domain records only and performs no detection, scoring, aggregation, materiality decision, Finding classification, or Evidence generation |
 | Determinism | Render identical inputs repeatedly | Byte-identical output per view |
 
-Passing these tests demonstrates conformance to an approved presentation
-contract. It does not itself provide researcher approval or scientific
+Passing these tests demonstrates implementation conformance to the approved
+presentation contract. It does not by itself constitute broader scientific
 validation.
 
-## 9. Researcher approval gate
+## 9. Researcher approval and implementation record
 
-Implementation remains blocked until the researcher explicitly approves or
-rejects this revised package. Approval must be recorded as an amendment to
-`docs/model-spec.md` §19 and must resolve together:
+The researcher approved this package as one decision, recorded in
+`docs/model-spec.md` §19.6. The approved package resolves together:
 
 1. `--view {user,audit}` with default `user`;
 2. the normative conciseness requirement and exact user layout in §4;
@@ -615,11 +616,8 @@ rejects this revised package. Approval must be recorded as an amendment to
 10. unchanged `ConsoleReporter.render()` as the audit API; and
 11. byte-for-byte audit compatibility and single-pipeline guarantees.
 
-Approval of this research proposal does not itself authorize production code.
-A separate implementation issue and pull request would still be required.
-Rejection or requested changes leave current §19 and current production
-behavior untouched.
-
-This revision changes only the proposal document. It authorizes no production
-implementation, test modification, scientific-rule change, merge, or closure
-of PR #108.
+The researcher additionally directed production implementation, tests, and
+README documentation to be completed in the existing
+`feature/dual-view-presentation` branch and existing PR #108. No separate
+issue, branch, or pull request is required. This approval changes no
+scientific rule and does not authorize merging or closing PR #108.
