@@ -87,6 +87,103 @@ reassessment, and advanced semantic consistency analysis. These broader
 properties require a requirement set, artifact relationships, lifecycle
 evidence, or other context and remain future extensions.
 
+### 2.1 SRM-02 minimum complete single-requirement model approval
+
+**Status: `RESEARCHER_APPROVED`. Approval date: 2026-09-23.** The decision
+record is
+[`srm-02-minimum-complete-model-approval.md`](srm-02-minimum-complete-model-approval.md);
+the preceding
+[`srm-02-minimum-complete-model-audit.md`](srm-02-minimum-complete-model-audit.md)
+remains the historical pre-approval analysis.
+
+For the first complete single-requirement milestone, the approved scientific
+result is the existing bounded multidimensional
+`RequirementQualityProfile(C, V, U)`, containing independent Completeness,
+Verifiability, and Unambiguity assessments. No scalar total-quality score is
+introduced. The six other individual-requirement properties enumerated by
+Section 2.1 of the dissertation remain theoretical context or future
+scientific work unless separately operationalized and approved; this milestone
+does not claim to evaluate all nine automatically.
+
+The implemented bounded six-family extraction is scientifically sufficient
+for this first complete model. Here, *complete* means that the following chain
+is complete and explainable for the explicitly supported bounded rules:
+
+```text
+Requirement
+→ Feature Extraction
+→ Characteristic Assessment
+→ RequirementQualityProfile(C, V, U)
+→ supported Findings
+→ Explainable Report
+```
+
+It does not mean exhaustive recognition of every Ukrainian formulation. A
+detector outcome of `NOT_DETECTED` means that the implemented bounded detector
+completed without accepting an observation; it is not proof that no
+semantically equivalent construction exists outside the implemented grammar.
+Known unsupported coverage and approved-but-unimplemented detector rules must
+be disclosed by the completed reporting and validation work.
+
+The existing `RQD-023` MVP applicability simplification is retained for this
+first complete model. Requirement-type classification and a new applicability
+matrix are not milestone prerequisites. `UNKNOWN` and `NOT_APPLICABLE` remain
+distinct and retain their existing approved semantics.
+
+The first complete model is **SIGNAL-only** at the Finding layer.
+`FIND-U-VAGUE-001` remains a `SIGNAL`. This approval creates no
+`QUALITY_PROBLEM`, confirmed material ambiguity, `U_i = 0`, defect probability,
+risk assessment, or corrective action. A low Completeness or Verifiability
+value, or a completed absence used by an existing calculator, must not be
+converted automatically into a confirmed defect. `RQD-016` and the
+confirmed-material-ambiguity procedure remain open future research, but they
+do not block this approved SIGNAL-only first model.
+
+The remaining work required to complete the approved milestone slice is:
+
+1. an SRM-10 scientific contract for a structured
+   characteristic-to-source assessment trace and its explanation semantics;
+2. SRM-11 implementation that preserves contributing feature outcomes,
+   accepted observations, exact Evidence, completed-absence provenance, and
+   unresolved diagnostics through assessment, without changing the approved
+   calculations;
+3. SRM-12 end-to-end integration and presentation of assessment state and
+   exact value, assessment Rule ID, contributing outcomes, accepted source
+   Evidence, non-fabricated absence provenance, unresolved diagnostics,
+   `SIGNAL` provenance, and bounded-coverage limitations; and
+4. SRM-13 bounded end-to-end validation under separately approved reference
+   annotations, methodology, measures, and acceptance interpretation.
+
+This subsection approves only those semantic obligations. SRM-10 owns the
+detailed structured-trace contract; no final trace field, implementation type,
+or storage shape is approved here. Scientific calculation remains outside the
+CLI and reporter. SRM-13 owns the experimental methodology and evaluation
+measures; no threshold or new reference value is approved here.
+
+Exact R3 (Section 7.14.6.9) and exact F1-A/M-A (Section 7.14.6.10) retain their
+existing statuses:
+`RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED`. Their
+scientific approvals are neither revoked nor weakened, but their
+implementation is not a prerequisite for this first complete-model milestone.
+Unimplemented F1-A must not be presented as supported. SRM-03 through SRM-08
+remain bounded detection-depth extension streams and are not unconditional
+milestone predecessors merely because their issues remain open.
+
+The approved critical path is therefore:
+
+```text
+SRM-02 scope approval
+→ SRM-10 minimum trace/explanation contract
+→ SRM-11 implementation
+→ SRM-12 end-to-end integration and explainable reporting
+→ SRM-13 bounded validation
+```
+
+SRM-09 type classification is not a prerequisite while the retained
+`RQD-023` simplification remains in force. No future approval of another
+detector rule reopens the milestone unless that rule is explicitly selected
+into the approved first-complete-model slice.
+
 ## 3. Source and traceability policy
 
 The source hierarchy is:
@@ -6428,6 +6525,14 @@ Any future scalar index requires a separate researcher-approved scientific
 decision.
 
 ### 18.3 Remaining implementation-blocking RQDs
+
+The gates below describe unresolved work in the wider research and detector
+roadmap. They are not all prerequisites for the researcher-approved minimum
+complete single-requirement milestone. Section 2.1 governs that milestone:
+the detailed trace/explanation contract, its implementation and integration,
+and bounded validation remain blocking; `RQD-023` type expansion,
+`QUALITY_PROBLEM` conversion, confirmed `U_i = 0`, exact R3/F1-A
+implementation, and broader SRM-03–08 detector coverage do not.
 
 The remaining decisions are grouped into four approval gates:
 
