@@ -9,7 +9,9 @@ now approved as Python standard-library `fractions.Fraction` (Section 13);
 specification-level aggregation semantics (`AGG-MVP-001`, Section 12) are now
 `APPROVED_FOR_MVP_V0.1`; the `ConsoleReporter` presentation contract
 (exact-`Fraction`-only display, Section 19, `RQD-015`) is now
-`APPROVED_FOR_MVP_V0.1`; `QUALITY_PROBLEM` conversion (`RQD-016`) remains
+`APPROVED_FOR_MVP_V0.1`; the SRM-10 minimum assessment trace contract is
+`RESEARCHER_APPROVED / NOT_IMPLEMENTED` (Section 7.17; approval date
+2026-09-23) and is binding for SRM-11 and SRM-12; `QUALITY_PROBLEM` conversion (`RQD-016`) remains
 open; the bounded SRM-03 structural rules `COND-UK-002`, `RESULT-UK-002`, and
 `ACCEPT-UK-001` are `APPROVED_FOR_SRM04_FIRST_SLICE` (Section 7.14.16), while
 broader `RQD-006` grammar remains open; the bounded SRM-05C metric-link rule
@@ -139,11 +141,12 @@ converted automatically into a confirmed defect. `RQD-016` and the
 confirmed-material-ambiguity procedure remain open future research, but they
 do not block this approved SIGNAL-only first model.
 
-The remaining work required to complete the approved milestone slice is:
+The milestone dependency state is:
 
-1. an SRM-10 scientific contract for a structured
-   characteristic-to-source assessment trace and its explanation semantics;
-2. SRM-11 implementation that preserves contributing feature outcomes,
+1. **SRM-10 scientific contract — `RESEARCHER_APPROVED / NOT_IMPLEMENTED`:**
+   Section 7.17 now defines the binding structured characteristic-to-source
+   assessment trace and explanation semantics approved on 2026-09-23;
+2. SRM-11 implementation of that exact contract, preserving contributing feature outcomes,
    accepted observations, exact Evidence, completed-absence provenance, and
    unresolved diagnostics through assessment, without changing the approved
    calculations;
@@ -154,11 +157,12 @@ The remaining work required to complete the approved milestone slice is:
 4. SRM-13 bounded end-to-end validation under separately approved reference
    annotations, methodology, measures, and acceptance interpretation.
 
-This subsection approves only those semantic obligations. SRM-10 owns the
-detailed structured-trace contract; no final trace field, implementation type,
-or storage shape is approved here. Scientific calculation remains outside the
-CLI and reporter. SRM-13 owns the experimental methodology and evaluation
-measures; no threshold or new reference value is approved here.
+This subsection approved the milestone obligations; the later researcher
+decision in Section 7.17 now approves the complete SRM-10 structured-trace
+contract. Its production implementation remains assigned to SRM-11 and its
+end-to-end reporter integration to SRM-12. Scientific calculation remains
+outside the CLI and reporter. SRM-13 owns the experimental methodology and
+evaluation measures; no threshold or new reference value is approved here.
 
 Exact R3 (Section 7.14.6.9) and exact F1-A/M-A (Section 7.14.6.10) retain their
 existing statuses:
@@ -173,7 +177,7 @@ The approved critical path is therefore:
 
 ```text
 SRM-02 scope approval
-→ SRM-10 minimum trace/explanation contract
+→ SRM-10 minimum trace/explanation contract (researcher-approved)
 → SRM-11 implementation
 → SRM-12 end-to-end integration and explainable reporting
 → SRM-13 bounded validation
@@ -260,6 +264,7 @@ applicability set, or confirmation procedure are not operationally defined.
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; per-requirement property-specific derivation is now approved for MVP v0.1 by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). This is an MVP v0.1 operationalization, not a closure of broader future research into `a_ij` beyond the approved scope (e.g. confirmed-material-ambiguity `0`, specification-level aggregation) | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement scope) |
 | Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is now likewise approved via `AGG-MVP-001` (Section 12) | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_AND_AGGREGATE_CALCULATION_APPROVED` |
+| Per-requirement assessment trace | SRM-02 approval obligations; researcher-approved SRM-10 decision package, Section 7.17 | Sections 7.5, 7.15-7.17, 8-10, and 15 | `RequirementAssessmentRecord` and its companion trace bind characteristic state/value to governing rule, feature outcomes, accepted observations, diagnostics, Findings, exact Evidence, completed absence, and bounded non-claims without a second calculation model | Yes | `RESEARCHER_APPROVED / NOT_IMPLEMENTED` (approval date 2026-09-23; binding for SRM-11/SRM-12) |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation is now closed under `AGG-MVP-001` (Section 12): `UNKNOWN` values are excluded from the mean and tracked as `unknown_count`, never treated as zero | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; the named baseline, structural, metric, and context Rule IDs remain allocated. Section 7.14.6.9 additionally approves the exact bounded R3 relationship science, and Section 7.14.6.10 approves exact F1-A in the existing quantitative observation shape; both remain unimplemented with Rule IDs unallocated | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED`; exact R3 and F1-A `RESEARCHER_APPROVED / NOT_IMPLEMENTED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
@@ -5374,6 +5379,332 @@ under `RQD-015` / Section 19 (exact-`Fraction`-only display; decimal/
 percentage rounding is `NOT_APPLICABLE`), while any confirmed-ambiguity
 `QUALITY_PROBLEM` rule remains separately open under `RQD-016`.
 
+### 7.17 SRM-10 Minimum Assessment Trace Contract
+
+**Scientific status: `RESEARCHER_APPROVED`. Approval date: 2026-09-23.**  
+**Production status: `NOT_IMPLEMENTED`.**  
+**Decision package:**
+[`srm-10-assessment-trace-proposal.md`](srm-10-assessment-trace-proposal.md).
+
+The researcher approves the complete SRM-10 proposal, including all eight
+decision gates and all seven binding reference cases below. This section is
+the authoritative scientific contract for SRM-11 implementation and SRM-12
+end-to-end integration/reporting. It changes no detector, formula, exact value,
+applicability decision, Evidence rule, or Finding rule.
+
+The trace provides this resolvable path:
+
+```text
+CharacteristicAssessment(state, exact value)
+→ CharacteristicTrace(governing rule and decision path)
+→ FeatureInputTrace(rule effect and outcome reference)
+→ FeatureDetectionOutcome(observations, processing, diagnostics)
+→ accepted observation.evidence_refs
+→ RequirementExtractionResult.evidence
+→ exact Evidence span in Requirement.text
+```
+
+For completed absence, the path ends at a completed empty detector outcome and
+creates no `Evidence`. For unresolved processing, the path ends at
+`DetectionDiagnostic` and optional `DiagnosticSpan`, never at invented
+`Evidence`. The trace explains decisions already made by approved rules; it is
+not a second calculation model.
+
+#### 7.17.1 Approved companion structures
+
+```text
+RequirementAssessmentRecord
+  extraction_result: RequirementExtractionResult
+  quality_profile: RequirementQualityProfile
+  trace: RequirementAssessmentTrace
+
+RequirementAssessmentTrace
+  requirement_id: str
+  characteristics: tuple[CharacteristicTrace, CharacteristicTrace,
+                         CharacteristicTrace]
+  coverage_profile_id: str
+
+CharacteristicTrace
+  characteristic_id: CharacteristicId
+  governing_rule_id: str
+  decision_code: TraceDecisionCode
+  inputs: tuple[FeatureInputTrace, ...]
+  finding_refs: tuple[str, ...]
+
+FeatureInputTrace
+  feature_id: FeatureId
+  applicability: CriterionApplicability | None
+  observation_indexes: tuple[int, ...]
+  diagnostic_indexes: tuple[int, ...]
+  effect_code: TraceEffectCode
+```
+
+`RequirementAssessmentRecord` is the minimum per-requirement reporter input.
+It composes existing immutable scientific values and does not copy requirement
+text, Evidence, observations, diagnostics, assessments, or Findings.
+
+#### 7.17.2 Approved field contract
+
+`RequirementAssessmentRecord`:
+
+| Field | Meaning | Required/optional | Source | Cardinality | Validation rule |
+| --- | --- | --- | --- | --- | --- |
+| `extraction_result` | Requirement, six feature outcomes, and accepted Evidence registry | Required | Existing domain boundary or manually constructed domain value | 1 | Valid `RequirementExtractionResult`; all existing Evidence round-trip/reference invariants hold |
+| `quality_profile` | Authoritative assessment state, exact value, assessment Rule ID, Findings, and explanation | Required | Existing calculators/profile assembly | 1 | Valid profile containing exactly C, V, U |
+| `trace` | Links the profile to extraction inputs | Required | Calculators or a calculator-level trace builder executing the same rules | 1 | Valid jointly against the other two fields; cannot alter them |
+
+`RequirementAssessmentTrace`:
+
+| Field | Meaning | Required/optional | Source | Cardinality | Validation rule |
+| --- | --- | --- | --- | --- | --- |
+| `requirement_id` | Joins trace to source artifact | Required | `extraction_result.requirement.id` | 1 | Equals extraction requirement ID and every referenced Finding/Evidence requirement ID |
+| `characteristics` | Trace for each independent profile component | Required | Approved profile structure | Exactly 3 | One each in C, V, U order; no duplicates or other characteristics |
+| `coverage_profile_id` | Selects canonical bounded-coverage disclosures | Required | This contract | 1 | Exactly `MVP-V0.1-BOUNDED-CVU-001` |
+
+`CharacteristicTrace`:
+
+| Field | Meaning | Required/optional | Source | Cardinality | Validation rule |
+| --- | --- | --- | --- | --- | --- |
+| `characteristic_id` | Selects the authoritative assessment in the profile | Required | Existing `CharacteristicId` | 1 | Matches profile component and governing rule |
+| `governing_rule_id` | Rule executed or attempted, including a withheld result | Required | Approved calculation rule | 1 | C=`CALC-C-MVP-001`; V=`CALC-V-MVP-001`; U=`CALC-U-MVP-001`; for `COMPUTED`, equals `assessment_rule_id` |
+| `decision_code` | Approved rule branch producing, withholding, or establishing non-applicability | Required | Governing rule | 1 | Allowed for the characteristic and consistent with state, exact value, inputs, and diagnostics under Sections 7.17.4-7.17.6 |
+| `inputs` | Exhaustive feature outcomes consulted by the rule | Required | Existing extraction result | C=3; V=3; U=1 | Exactly the families in Section 7.17.3, without duplicates; all indexes resolve |
+| `finding_refs` | References Findings already in the assessment | Required; may be empty | `assessment.findings[].finding_id` | 0..n | Every and only assessment Finding, in existing order; C/V empty in the current scope |
+
+The trace does not duplicate `state`, `value`, `assessment_rule_id`, Findings,
+or explanation. The existing assessment remains authoritative.
+`governing_rule_id` is separate because the existing envelope permits
+`assessment_rule_id = None` for `UNKNOWN`, while an explainable withheld result
+must still name the attempted approved rule.
+
+`FeatureInputTrace`:
+
+| Field | Meaning | Required/optional | Source | Cardinality | Validation rule |
+| --- | --- | --- | --- | --- | --- |
+| `feature_id` | Selects an existing `FeatureDetectionOutcome` | Required | Existing `FeatureId`/`RequirementFeatures` mapping | 1 | Authorized input family for the characteristic |
+| `applicability` | Preserves applicability only where the rule allocates it | Required field; nullable | `RQD-023` and `CALC-C-MVP-001` | 1 value or `None` | C=`APPLICABLE`; V/U=`None`; detection never determines applicability |
+| `observation_indexes` | References accepted observations without copying them | Required; may be empty | Outcome's immutable ordered observations | 0..n | Zero-based, unique, ascending, and in range; includes all accepted observations, including non-selecting and mixed-state observations |
+| `diagnostic_indexes` | References unresolved reasons without converting them to Evidence or Findings | Required; may be empty | Outcome's immutable ordered diagnostics | 0..n | Zero-based, unique, ascending, and in range; includes all diagnostics |
+| `effect_code` | States how the input family affected the rule result | Required | Approved calculation/propagation rule | Exactly 1 per family | Assigned by the characteristic-specific precedence below; agrees with observations, processing, diagnostics, and `decision_code` |
+
+Observation and diagnostic references are local `(feature_id, tuple index)`
+references into one immutable `RequirementExtractionResult`; they are not
+durable cross-run identifiers. No new observation or diagnostic IDs are
+allocated. Existing observation `evidence_refs` remain the only links to
+accepted `Evidence`; diagnostic candidate spans remain non-Evidence.
+
+#### 7.17.3 Required inputs and applicability
+
+| Characteristic | Required trace inputs | Applicability |
+| --- | --- | --- |
+| C | `condition_context`, `expected_result`, `acceptance_criterion` | `APPLICABLE` for all three under the retained MVP simplification |
+| V | `acceptance_criterion`, `quantitative_constraint`, `verification_method` | `None`; alternative evidence paths, not mandatory criteria |
+| U | `vague_term_occurrence` | `None`; signal detector, not an applicability criterion |
+
+`NOT_APPLICABLE` remains representable as `state=NOT_APPLICABLE`,
+`value=None`, `decision_code=CHARACTERISTIC_NOT_APPLICABLE`, no
+`QUALITY_PROBLEM`, and a `governing_rule_id` naming an approved
+non-applicability rule. No current C/V/U rule establishes that state, so it is
+unreachable and invalid for records produced under the current approved rules.
+The trace must not invent a rule merely to exercise the state.
+
+#### 7.17.4 Completeness decision and effect codes
+
+Approved decision codes:
+
+- `C_CRITERION_RATIO_COMPUTED`: all inputs completed; the existing exact ratio
+  is authoritative.
+- `C_REQUIRED_INPUT_UNRESOLVED`: a required input is incomplete; state is
+  `UNKNOWN`, value is `None`.
+
+Approved input effect codes:
+
+- `C_PRESENT_1`: accepted observation(s), contributing exactly 1.
+- `C_COMPLETED_ABSENCE_0`: complete empty outcome, contributing exactly 0
+  without Evidence.
+- `C_REQUIRED_UNRESOLVED`: incomplete outcome; observations and diagnostics
+  remain referenced and the result is withheld.
+
+The three effects must reproduce the approved branch and exact value under
+`CALC-C-MVP-001`; repeated observations contribute at most 1. For a same-family
+mixed outcome, `C_REQUIRED_UNRESOLVED` takes precedence over `C_PRESENT_1`:
+accepted observations remain preserved, but incomplete processing of any
+required C family withholds the assessment.
+
+#### 7.17.5 Verifiability decision, effect, and mixed-state semantics
+
+Approved decision codes:
+
+- `V_FULL_ACCEPTANCE_TIER`: accepted acceptance criterion; exact value `1`.
+- `V_PARTIAL_LOWER_TIER`: no accepted acceptance criterion and accepted
+  quantitative or method evidence; exact value `1/2`.
+- `V_COMPLETED_NO_EVIDENCE_TIER`: all relevant processing complete and all
+  three paths absent; exact value `0`.
+- `V_MATERIAL_INPUT_UNRESOLVED`: a candidate could change the tier; state is
+  `UNKNOWN`, value is `None`.
+
+Approved input effect codes are `V_SELECTS_FULL_TIER`,
+`V_SELECTS_LOWER_TIER`, `V_PRESENT_NONSELECTING`, `V_COMPLETED_ABSENCE`,
+`V_UNRESOLVED_MATERIAL`, and `V_UNRESOLVED_NON_MATERIAL`. Exactly one code is
+assigned to each of the three V input families by this precedence:
+
+1. If a family has accepted observations, use an accepted-observation code,
+   even when that same outcome is `INCOMPLETE` and has diagnostics:
+   - acceptance criterion → `V_SELECTS_FULL_TIER`;
+   - lower-tier family under `V_PARTIAL_LOWER_TIER` →
+     `V_SELECTS_LOWER_TIER`;
+   - lower-tier family under `V_FULL_ACCEPTANCE_TIER` or
+     `V_MATERIAL_INPUT_UNRESOLVED` → `V_PRESENT_NONSELECTING`.
+2. Otherwise, a complete empty family uses `V_COMPLETED_ABSENCE`.
+3. Otherwise, the family is incomplete and empty. Use
+   `V_UNRESOLVED_MATERIAL` if resolving its candidate could change the final
+   numeric class; use `V_UNRESOLVED_NON_MATERIAL` if an already accepted path
+   fixes that class.
+
+`V_PRESENT_NONSELECTING` has exactly two bounded uses: accepted lower-tier
+evidence is non-selecting because accepted acceptance already fixes `V=1`, or
+it is provisional evidence while a material unresolved acceptance candidate
+withholds the assessment. In the provisional use, the trace must not describe
+the evidence as selecting a final `1/2` tier and must not imply a computed
+result. "Provisional" describes only the evidence's role in the unfinished
+characteristic decision; the underlying accepted observation and source
+`Evidence` remain accepted and unchanged.
+
+Diagnostics on a family that also has accepted observations are always
+preserved by `diagnostic_indexes`, but are non-material within that family:
+the accepted observation already establishes the highest tier that the same
+family can supply. The accepted-observation `effect_code`, referenced
+diagnostics, and characteristic `decision_code` together explain that
+materiality; no second effect code is used.
+
+The binding cross-family consequences preserve Section 9's V1-V4 behavior:
+
+- V1: accepted acceptance fixes `V=1`; each unresolved lower-tier empty family
+  is `V_UNRESOLVED_NON_MATERIAL`, and accepted lower-tier families are
+  `V_PRESENT_NONSELECTING`.
+- V2: no accepted evidence plus an unresolved lower-tier candidate yields
+  `UNKNOWN`; each incomplete empty lower-tier family that could establish
+  `1/2` is `V_UNRESOLVED_MATERIAL`.
+- V3: acceptance is complete/absent and accepted lower-tier evidence fixes
+  `V=1/2`; accepted lower-tier families use `V_SELECTS_LOWER_TIER`, while an
+  incomplete empty lower-tier sibling uses `V_UNRESOLVED_NON_MATERIAL`.
+- V4: an incomplete empty acceptance family is `V_UNRESOLVED_MATERIAL`;
+  accepted lower-tier families use `V_PRESENT_NONSELECTING` as preserved
+  provisional evidence, and the assessment remains `UNKNOWN` because
+  acceptance could change the class from `1/2` to `1`.
+
+#### 7.17.6 Unambiguity, Findings, absence, and exact-source validation
+
+Approved U decision codes:
+
+- `U_SUPPORTED_SIGNAL_TIER`: accepted occurrence(s); exact value `1/2`
+  regardless of count.
+- `U_COMPLETED_SIGNAL_ABSENCE_TIER`: complete empty scan; exact value `1`
+  without absence Evidence.
+- `U_MATERIAL_INPUT_UNRESOLVED`: no occurrence and processing could surface
+  one; state is `UNKNOWN`, value is `None`.
+
+Approved U input effect codes are `U_SIGNAL_PRESENT`,
+`U_COMPLETED_SIGNAL_ABSENCE`, and `U_UNRESOLVED_MATERIAL`. For a same-family
+mixed outcome, `U_SIGNAL_PRESENT` takes precedence: it retains accepted
+occurrences and all diagnostics, whose resolution cannot lower the class below
+`1/2`.
+
+For `U_SUPPORTED_SIGNAL_TIER`, each occurrence maps one-to-one to an assessment
+Finding with `kind=SIGNAL`, `code=VAGUE_TERM_SIGNAL`,
+`rule_id=FIND-U-VAGUE-001`, `criterion_id=None`, and exactly that occurrence's
+`evidence_refs`, in existing source/Finding order. No `QUALITY_PROBLEM` or
+`U=0` is valid under this contract.
+
+A completed absence is valid only when its selected outcome has
+`processing_status=COMPLETE`, `observations=()`, and `diagnostics=()`. Its
+trace indexes are empty; there is no trace-level `evidence_refs` field from
+which fake Evidence could be created.
+
+Every existing entry in each referenced observation's `evidence_refs` resolves
+exactly once in `extraction_result.evidence`, matches the family and
+requirement, and satisfies:
+
+```text
+Requirement.text[Evidence.start_offset:Evidence.end_offset] == Evidence.text
+```
+
+Every referenced diagnostic retains its rule ID, code, explanation, and
+optional candidate span. A candidate span round-trips to requirement text but
+remains explicitly non-Evidence. Accepted observations/source Evidence used
+provisionally at the rule layer, completed absence, and unresolved diagnostic
+information therefore remain distinct.
+
+#### 7.17.7 Approved bounded-coverage profile
+
+`MVP-V0.1-BOUNDED-CVU-001` requires these canonical disclosures:
+
+1. Coverage is limited to implemented bounded six-family extraction and the
+   approved C/V/U rules, not exhaustive Ukrainian linguistic or semantic
+   analysis.
+2. `NOT_DETECTED` and completed absence mean no accepted observation under
+   completed implemented rules, not universal semantic absence.
+3. C/V values, including low values or zero, are rule outputs and not
+   confirmed defects.
+4. `U=1` means absence of the supported signal class, not proof of unique
+   interpretation; `U=1/2` is signal presence, not confirmed ambiguity; the
+   current U rule never produces `0`.
+5. `FIND-U-VAGUE-001` is `SIGNAL` only; no current `QUALITY_PROBLEM`, severity,
+   confidence, risk, or corrective action exists.
+6. R3 and F1-A are researcher-approved but unimplemented and are not claimed
+   as runtime coverage.
+7. The record is a multidimensional C/V/U profile, not a scalar requirement
+   score or product-quality prediction.
+
+The reporter may format these statements but may not select, weaken,
+strengthen, or infer different claims from characteristic values.
+
+#### 7.17.8 Seven binding trace reference cases
+
+| Case | Existing facts | Required trace result |
+| --- | --- | --- |
+| Positive | Section 7.16.8 Case A: all C observations; V acceptance evidence; U complete/no signal | C three `C_PRESENT_1`, value `1`; V full tier, value `1`; U completed signal absence, value `1`, no fake Evidence |
+| Completed absence | Section 7.16.8 Case E: relevant C/V/U outcomes complete and empty | C value `0` with three absence effects; V value `0` with three absence effects; U value `1` with absence effect; all references empty |
+| Unresolved | Section 7.16.8 Case D: method candidate unresolved; no accepted V evidence | V material unresolved, `UNKNOWN`/`None`; method references the diagnostic, whose candidate span is not Evidence |
+| SIGNAL | Section 7.16.8 Case B: accepted `швидко` occurrence | U signal tier, value `1/2`; one occurrence reference, one `FIND-U-VAGUE-001` Finding reference, exact Evidence, kind `SIGNAL` |
+| V1 same-family mixed | Section 7.16.6/V1: accepted acceptance; quantitative accepted/incomplete; method complete/absent | V full tier, value `1`; acceptance=`V_SELECTS_FULL_TIER`; quantitative=`V_PRESENT_NONSELECTING` with observations and non-material diagnostics preserved; method=`V_COMPLETED_ABSENCE` |
+| V3 unresolved lower sibling | Section 9 V3: acceptance complete/absent; accepted quantitative evidence; method incomplete/empty | V partial tier, value `1/2`; quantitative=`V_SELECTS_LOWER_TIER`; method=`V_UNRESOLVED_NON_MATERIAL`; method diagnostics remain visible |
+| V4 provisional lower evidence | Section 9 V4: acceptance incomplete/empty; accepted quantitative evidence; method complete/absent | V material unresolved, `UNKNOWN`/`None`; acceptance=`V_UNRESOLVED_MATERIAL`; quantitative=`V_PRESENT_NONSELECTING` as provisional evidence, not a selected final tier; method=`V_COMPLETED_ABSENCE` |
+
+These cases are binding for the trace contract and do not replace or change the
+existing numeric reference cases in Section 7.16.8.
+
+#### 7.17.9 Approved gates and implementation boundary
+
+The researcher approves all eight SRM-10 gates as one package:
+
+1. `RequirementAssessmentRecord` and the companion trace structures, jointly
+   validated against existing extraction/profile values;
+2. local `(feature_id, tuple index)` observation/diagnostic references instead
+   of new IDs;
+3. required trace `governing_rule_id`, including for `UNKNOWN`, without
+   changing the nullable `CharacteristicAssessment.assessment_rule_id` field;
+4. the C/V/U decision and effect codes and validation rules;
+5. completed-empty outcomes as sole current completed-absence provenance,
+   without Evidence;
+6. one-to-one vague occurrence → `FIND-U-VAGUE-001` `SIGNAL` provenance;
+7. `MVP-V0.1-BOUNDED-CVU-001` and its canonical non-claims; and
+8. all seven Section 7.17.8 rows as binding trace cases.
+
+Production remains `NOT_IMPLEMENTED`. SRM-11 must implement exactly this
+contract without changing calculator science or coupling calculators to a
+concrete extractor/NLP implementation. SRM-12 must carry the validated record
+through end-to-end orchestration and render it without making scientific
+decisions. The CLI remains orchestration-only; the reporter must not calculate
+a value, choose a tier, decide diagnostic materiality, assign applicability,
+create a Finding, synthesize Evidence, classify a defect, or combine C/V/U.
+
+The approval introduces no new linguistic grammar, detector, threshold,
+characteristic, scalar score, `QUALITY_PROBLEM`, risk, confidence, severity,
+or corrective action. Existing formulas and exact values, `RQD-023`, the
+SIGNAL-only first-model boundary, deferred R3/F1-A production, and existing
+Evidence/Finding rules remain unchanged.
+
 ## 8. Completeness
 
 ### Explicitly defined by the dissertation
@@ -6338,9 +6669,13 @@ automated linguistic or semantic signal to remain distinguishable from a
 confirmed defect. A detector count must not be presented directly as a quality
 percentage without an approved interpretation rule.
 
-The reporter receives completed structured results and performs no calculation.
+The reporter receives a validated `RequirementAssessmentRecord` under the
+researcher-approved Section 7.17 trace contract and performs no calculation.
 Section 19 (MVP-10A) records the approved presentation contract, consistent
-with this constraint.
+with this constraint. SRM-12 integration must preserve the record's accepted
+observations, provisional rule role, completed absence, unresolved diagnostics,
+exact Evidence, Findings, and bounded-coverage disclosures without making a
+scientific decision in the reporter.
 
 ## 16. Reference examples
 
@@ -6529,7 +6864,8 @@ decision.
 The gates below describe unresolved work in the wider research and detector
 roadmap. They are not all prerequisites for the researcher-approved minimum
 complete single-requirement milestone. Section 2.1 governs that milestone:
-the detailed trace/explanation contract, its implementation and integration,
+the detailed trace/explanation contract is now `RESEARCHER_APPROVED` in
+Section 7.17, while its SRM-11 production implementation, SRM-12 integration,
 and bounded validation remain blocking; `RQD-023` type expansion,
 `QUALITY_PROBLEM` conversion, confirmed `U_i = 0`, exact R3/F1-A
 implementation, and broader SRM-03–08 detector coverage do not.
@@ -6638,18 +6974,22 @@ Section 13), the recommended sequence is:
    `fractions.Fraction` for `CharacteristicAssessment.value` as approved in
    Section 13 — this is no longer blocked by an unselected numeric
    representation;
-2. `SpecificationQualityAggregator` and `SpecificationQualityProfile` have
+2. implement the `RESEARCHER_APPROVED / NOT_IMPLEMENTED` Section 7.17
+   `RequirementAssessmentRecord` and companion trace exactly under SRM-11,
+   then preserve it through SRM-12 integration and reporting without moving
+   scientific decisions into the reporter;
+3. `SpecificationQualityAggregator` and `SpecificationQualityProfile` have
    since been implemented against the approved `AGG-MVP-001` rule and
    representation contract (Section 12, RQD-012/RQD-022 closed; MVP-09D /
    PR #63); the presentation/display portion of `RQD-015` (gate 3 above) is
    now likewise approved (Section 19) and no longer blocks the later
    `ConsoleReporter` implementation task;
-3. broader detector grammar — parser/template operationalization beyond the
+4. broader detector grammar — parser/template operationalization beyond the
    `COND-UK-001/002`, `RESULT-UK-001/002`, `ACCEPT-QUANT-001`,
    `ACCEPT-UK-001`, and `VERIFY-UK-001` bounded subsets under `RQD-006`, and
    implementation of the exact approved-but-unimplemented R3 relationship and
    F1-A observation plus grammar beyond the exact metric, C0, R3, and F1-A
-   contracts under `RQD-008` — can evolve independently of steps 1-2,
+   contracts under `RQD-008` — can evolve independently of steps 1-3,
    as future detector-coverage work, unless a later feature specifically
    requires it. It is not a prerequisite for calculator implementation.
 
@@ -6696,6 +7036,14 @@ display contract rather than inventing a different one, and must still not
 implement a `QUALITY_PROBLEM` conversion (RQD-016 remains open for that
 only).
 
+Section 7.17 is now the binding SRM-10 scientific contract for SRM-11 and
+SRM-12. Those implementation streams must use the approved
+`RequirementAssessmentRecord`, local tuple-index references, governing Rule
+IDs, decision/effect codes, completed-absence provenance, vague-term `SIGNAL`
+provenance, bounded-coverage profile, mixed-state semantics, and seven binding
+trace cases exactly as specified. Production remains `NOT_IMPLEMENTED` at this
+decision point.
+
 ## 19. MVP-10A — ConsoleReporter Presentation Contract
 
 **Status: `APPROVED_FOR_MVP_V0.1`.** This section records the
@@ -6710,8 +7058,9 @@ implementation) is reopened, reinterpreted, or modified here.
 
 ### 19.1 Scope and inputs
 
-This section concerns only how already-computed, exact domain results
-(`CharacteristicAssessment`, `Finding`, `RequirementQualityProfile`,
+This section concerns only how already-computed, exact domain results and their
+approved trace bundle (`RequirementAssessmentRecord`, `CharacteristicAssessment`,
+`Finding`, `RequirementQualityProfile`,
 `SpecificationCharacteristicAggregate`, `SpecificationQualityProfile`) are
 displayed to a human reader. `ConsoleReporter` must not calculate, aggregate,
 round an internal `Fraction`, infer a missing value, create or classify a
@@ -6738,7 +7087,7 @@ sources; those decisions are now approved in §19.2.
 | Q2 | Decimal precision / rounding | `APPROVED_FOR_MVP_V0.1` / `NOT_APPLICABLE` | Because MVP v0.1 uses exact-fraction-only presentation (Q1), MVP v0.1 defines no decimal-place precision, rounding mode, tie-breaking rule, trailing-zero policy, or percentage rounding. This is not an unresolved MVP issue — it is deliberately not applicable under the approved exact-fraction contract. Any future decimal/percentage representation requires a new, separate, explicit presentation decision | Avoids inventing an unused rounding rule; keeps the MVP deterministic by having nothing left to decide |
 | Q3 | Unavailable-value tokens (`UNKNOWN`, `NOT_APPLICABLE`) | `APPROVED_FOR_MVP_V0.1` | Display the literal tokens `UNKNOWN` and `NOT_APPLICABLE` verbatim; do not abbreviate `NOT_APPLICABLE` to `N/A` in the canonical MVP console output. Neither state may ever be rendered as numeric zero | 1:1 traceable to `CharacteristicAssessmentState`; invents no new vocabulary; unambiguous; never confusable with a number |
 | Q4 | Partial-observability aggregate metadata (`computed_count`/`unknown_count`/`not_applicable_count`/`total_count`) | `APPROVED_FOR_MVP_V0.1` | Every specification-level characteristic aggregate displays all four observability counts, unconditionally — not only when `unknown_count > 0` | Uniform and deterministic; guarantees a partially observed aggregate (`state == COMPUTED` with `unknown_count > 0`) never appears fully observed, consistent with the missing-data policy's intent (Section 14) |
-| Q5 | Per-requirement output — which fields, and requirement id/text availability | `APPROVED_FOR_MVP_V0.1` as a presentation requirement; the concrete supply mechanism is an **MVP-10B architecture question**, not a scientific one | The normal human-readable per-requirement output must be attributable to its source requirement and include at minimum requirement id and original requirement text, followed by the Completeness/Verifiability/Unambiguity assessment presentation (`state`, `value`, `assessment_rule_id` when `COMPUTED`, `findings`, `explanation`). `RequirementQualityProfile` itself carries none of that requirement-level context (it holds only the three `CharacteristicAssessment`s). **MVP-10A does not approve a new domain object, a new scientific data field, a particular Python method signature, or a specific tuple/wrapper type** — the exact reporter/orchestrator API used to supply the existing `Requirement` context together with its profile is an MVP-10B software-architecture choice that must reuse existing approved domain semantics rather than inventing new scientific fields. This architecture choice does not block `ConsoleReporter` implementation after this approval | No new domain fields, no new domain type, no fixed API shape; keeps the presentation requirement (attributability) separate from the concrete Python signature |
+| Q5 | Per-requirement output — which fields, and requirement id/text availability | `APPROVED_FOR_MVP_V0.1`; the later SRM-10 scientific supply contract is `RESEARCHER_APPROVED / NOT_IMPLEMENTED` in Section 7.17 | The normal human-readable per-requirement output must be attributable to its source requirement and include at minimum requirement id and original requirement text, followed by the Completeness/Verifiability/Unambiguity assessment presentation (`state`, `value`, `assessment_rule_id` when `COMPUTED`, `findings`, `explanation`). `RequirementQualityProfile` itself carries none of that requirement-level context. Section 7.17 now approves `RequirementAssessmentRecord` as the minimum reporter input, combining the extraction result, quality profile, and companion trace without copying source text, Evidence, observations, diagnostics, assessments, or Findings. The concrete production implementation remains SRM-11/SRM-12 work and may not redesign the approved scientific fields or semantics | Preserves Q5 attributability while using the later approved trace/input contract; production remains unimplemented and the reporter still makes no scientific decisions |
 | Q6 | Findings presentation | `APPROVED_FOR_MVP_V0.1` | Surface the already-approved `Finding` information: `kind`, `code`, `rule_id`, `criterion_id` (when present), `evidence_refs`, and `explanation`. The finding kind must remain visibly identifiable — in particular, `SIGNAL` must be rendered as `SIGNAL`, not as a defect, failure, severity, risk, or `QUALITY_PROBLEM`. No `QUALITY_PROBLEM` conversion is introduced | Makes the `SIGNAL`/`QUALITY_PROBLEM` distinction visible to the reader without performing the `RQD-016` conversion; invents no severity, confidence, or priority |
 | Q7 | Specification summary layout (`C_file`/`V_file`/`U_file`) | `APPROVED_FOR_MVP_V0.1` | Display specification-level results independently, in the order Completeness, Verifiability, Unambiguity. For each: `state`; `value` as exact `Fraction` when `COMPUTED`, otherwise `UNKNOWN` or `NOT_APPLICABLE`; `computed_count`; `unknown_count`; `not_applicable_count`; `total_count`; `aggregation_rule_id`. Do not produce an overall file score, a weighted score, a combined C/V/U result, or a whole-file scalar state | Reuses only approved, already-implemented fields; no weighting or combination invented |
 | Q8 | Deterministic ordering (requirements, C/V/U, findings, spec summary) | `APPROVED_FOR_MVP_V0.1` | Requirements in reader/source order (`R001`, `R002`, ... as already generated); Completeness → Verifiability → Unambiguity in that fixed order everywhere; findings in their existing approved evidence/source ordering (ascending `start_offset`, Section 7.16.5); specification summary in the same Completeness → Verifiability → Unambiguity order. Do not introduce severity ordering, ranking, prioritization, or score sorting | No severity/ranking invented; matches every existing ordering rule already present in this specification |
@@ -6764,9 +7113,8 @@ Approved structure:
 
 ```text
 Per-requirement block (repeated once per requirement, in source order):
-    requirement id, original requirement text (see Q5 — attributability
-        requirement; concrete supply mechanism is an MVP-10B architecture
-        decision, not a scientific one, and does not block implementation)
+    validated RequirementAssessmentRecord (Section 7.17)
+    requirement id, original requirement text from extraction_result
     for each of Completeness, Verifiability, Unambiguity (fixed order):
         state
         value: exact Fraction, or the literal token UNKNOWN / NOT_APPLICABLE
@@ -6774,6 +7122,9 @@ Per-requirement block (repeated once per requirement, in source order):
         findings (each: kind, code, rule_id, criterion_id if present,
             evidence_refs, explanation)
         explanation
+        structured CharacteristicTrace / FeatureInputTrace explanation
+            from Section 7.17 (formatting only; no recalculation)
+    canonical MVP-V0.1-BOUNDED-CVU-001 disclosures from Section 7.17
 
 Specification summary block (once, after all requirement blocks):
     for each of C_file, V_file, U_file (fixed order):
@@ -6828,7 +7179,8 @@ findings does not resolve or require `QUALITY_PROBLEM` conversion.
 `AGG-MVP-001`, the `Finding`/`SIGNAL` contract, and the
 `SpecificationCharacteristicAggregate`/`SpecificationQualityProfile`
 implementation (MVP-09D / PR #63) are unchanged and are not reopened by this
-section. The concrete Python mechanism a future MVP-10B implementation uses
-to pair requirement context (id/text) with `RequirementQualityProfile` (Q5)
-is a software-architecture decision, not a new scientific one, and does not
-block `ConsoleReporter` implementation after this approval.
+section. Section 7.17's later SRM-10 decision now supplies the binding
+`RequirementAssessmentRecord` and companion trace for Q5. Its scientific
+contract is `RESEARCHER_APPROVED`, its production status is `NOT_IMPLEMENTED`,
+and SRM-11/SRM-12 must implement and integrate it without changing this
+presentation contract or moving scientific decisions into the reporter.
