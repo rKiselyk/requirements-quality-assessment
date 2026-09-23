@@ -34,8 +34,9 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
     extractor = BaselineFeatureExtractor()
     assessor = RequirementQualityAssessor()
     results = tuple((r, extractor.extract(r)) for r in requirements)
-    profiles = tuple((r, assessor.assess(result)) for r, result in results)
-    specification = SpecificationQualityAggregator().aggregate(p for _, p in profiles)
+    records = tuple(assessor.assess_record(result) for _, result in results)
+    profiles = tuple(record.quality_profile for record in records)
+    specification = SpecificationQualityAggregator().aggregate(profiles)
 
     families = (
         "condition_contexts", "expected_results", "acceptance_criteria",
@@ -50,7 +51,7 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
             for e in result.evidence
         )
 
-    positive = profiles[0][1]
+    positive = profiles[0]
     assert (positive.completeness.value, positive.verifiability.value,
             positive.unambiguity.value) == (Fraction(1), Fraction(1), Fraction(1))
     assert [(e.text, e.start_offset, e.end_offset) for e in results[0][1].evidence] == [
@@ -60,7 +61,7 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
         ("не більше ніж за 2 с", 52, 72),
     ]
 
-    vague = profiles[1][1]
+    vague = profiles[1]
     assert (vague.completeness.value, vague.verifiability.value,
             vague.unambiguity.value) == (Fraction(1, 3), Fraction(0), Fraction(1, 2))
     signal = vague.unambiguity.findings[0]
@@ -69,18 +70,18 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
     source = {e.evidence_id: e for e in results[1][1].evidence}[signal.evidence_refs[0]]
     assert (source.text, source.start_offset, source.end_offset) == ("швидко", 16, 22)
 
-    quantitative = profiles[2][1]
+    quantitative = profiles[2]
     assert (quantitative.completeness.value, quantitative.verifiability.value,
             quantitative.unambiguity.value) == (Fraction(2, 3), Fraction(1), Fraction(1))
     assert results[2][1].features.quantitative_constraints.status is DetectionStatus.DETECTED
 
-    unresolved = profiles[3][1]
+    unresolved = profiles[3]
     assert results[3][1].features.acceptance_criteria.status is DetectionStatus.UNRESOLVED
     assert unresolved.completeness.state is CharacteristicAssessmentState.UNKNOWN
     assert unresolved.verifiability.state is CharacteristicAssessmentState.UNKNOWN
     assert unresolved.completeness.value is unresolved.verifiability.value is None
 
-    verified = profiles[4][1]
+    verified = profiles[4]
     assert results[4][1].features.verification_methods.status is DetectionStatus.DETECTED
     assert verified.verifiability.value == Fraction(1, 2)
 
@@ -94,9 +95,10 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
             specification.verifiability.unknown_count) == (4, 1)
     assert specification.unambiguity.computed_count == 5
 
-    report = ConsoleReporter().render(profiles, specification)
+    report = ConsoleReporter().render(records, specification)
     assert "kind: SIGNAL" in report
-    assert "QUALITY_PROBLEM" not in report
+    assert "kind: QUALITY_PROBLEM" not in report
+    assert "no current QUALITY_PROBLEM" in report
     assert "value: 5/8" in report
     assert "value: UNKNOWN" in report
     assert [report.index(f"Requirement R{i:03d}") for i in range(1, 6)] == sorted(
