@@ -26,25 +26,46 @@ Put one requirement on each non-empty line of a UTF-8 file, for example `require
 Система повинна швидко оновити статус.
 ```
 
-Run:
+Run the default concise Ukrainian user view:
 
 ```powershell
 python -m requirements_quality_assessment requirements.txt
+```
+
+Use the audit view when you need the complete scientific trace, including Rule
+IDs, decision/effect codes, accepted observations, exact Evidence and offsets,
+diagnostics, Findings, and coverage disclosures:
+
+```powershell
+python -m requirements_quality_assessment --view audit requirements.txt
+```
+
+The default command is equivalent to explicitly selecting `--view user`:
+
+```powershell
+python -m requirements_quality_assessment --view user requirements.txt
 ```
 
 Leading and trailing whitespace is trimmed. Blank lines are ignored. Each remaining physical line is one requirement, even if it contains multiple sentences or clauses. The reader retains source order and line numbers, assigns IDs `R001`, `R002`, and so on, and retains punctuation in the trimmed text. The CLI reports missing files and invalid UTF-8 as errors with a nonzero exit code. An empty input produces a specification summary with zero requirements and `NOT_APPLICABLE` aggregates.
 
 ## Interpret the results
 
-For each requirement the report shows three separate assessments:
+For each requirement, the concise user view shows the original text, three
+separate exact results, three short Ukrainian explanations, and a conditional
+`Звернути увагу` section for supported `SIGNAL` findings or material unresolved
+diagnostics. Accepted Evidence and diagnostic candidates remain distinct. The
+audit view exposes the complete trace behind the same already-computed results;
+selecting a view does not rerun or change the assessment.
+
+The three independent assessments are:
 
 - **Completeness** (`CALC-C-MVP-001`) counts whether the approved condition/context, expected result, and acceptance criterion families are detected. In this MVP, all three are mandatory for each supported input; the value is their exact unweighted detected fraction.
 - **Verifiability** (`CALC-V-MVP-001`) uses alternative evidence paths. An accepted acceptance criterion yields `1`; otherwise an accepted quantitative constraint or explicit verification method yields `1/2`; complete absence of all three yields `0`.
 - **Unambiguity** (`CALC-U-MVP-001`) yields `1` when complete scanning finds no supported vague-term signal and `1/2` when it finds at least one. It does not produce `0`; confirmation of material ambiguity is a future research decision.
 
-Values are displayed as exact fractions, without decimal conversion or rounding. Each computed assessment names its rule and explains contributing features. `COMPUTED` means the approved rule produced a value. `UNKNOWN` means unresolved required detection could change the value, so no numeric value is shown. `NOT_APPLICABLE` means the approved applicability or aggregation contract has no applicable value; it is also shown for an empty specification. Neither unavailable state is zero. The current CLI supports individual input requirements for all three characteristics, so `NOT_APPLICABLE` is normally visible at specification level for empty input or in constructed domain/aggregation cases.
+Values are displayed as exact fractions, without decimal conversion or rounding. `COMPUTED` means the approved rule produced a value. `UNKNOWN` means unresolved required detection could change the value, so no numeric value is shown. `NOT_APPLICABLE` means the approved applicability or aggregation contract has no applicable value; it is also shown for an empty specification. Neither unavailable state is zero. The current CLI supports individual input requirements for all three characteristics, so `NOT_APPLICABLE` is normally visible at specification level for empty input or in constructed domain/aggregation cases. Rule IDs and the complete contributing-feature trace are available in `--view audit`.
 
-An accepted vague-term occurrence can create a `SIGNAL` Finding under `FIND-U-VAGUE-001`. A signal points to exact source evidence and is a potential ambiguity indicator, **not** a confirmed quality problem. No automatic `QUALITY_PROBLEM` conversion is approved for MVP v0.1. The console report shows a Finding's evidence references and explanation; the underlying extraction result retains exact source text and Unicode code-point offsets.
+An accepted vague-term occurrence can create a `SIGNAL` Finding under `FIND-U-VAGUE-001`. A signal points to exact source evidence and is a potential ambiguity indicator, **not** a confirmed quality problem. No automatic `QUALITY_PROBLEM` conversion is approved for MVP v0.1. The user view shows the relevant source fragment once; the audit view additionally shows Evidence references, explanations, and Unicode code-point offsets.
 
 `AGG-MVP-001` produces separate specification-level Completeness, Verifiability, and Unambiguity means from `COMPUTED` requirement assessments using exact fraction arithmetic. It excludes `UNKNOWN` and `NOT_APPLICABLE` from each mean and always displays computed, unknown, not-applicable, and total counts. If there are no computed values but at least one unknown value, the aggregate is `UNKNOWN`; if neither computed nor unknown values exist, it is `NOT_APPLICABLE`. There is no combined requirement or file score.
 

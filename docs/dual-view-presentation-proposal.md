@@ -1,6 +1,7 @@
 # Dual-view CLI presentation contract proposal
 
 - **Status:** `RESEARCHER_APPROVED`
+- **Production status:** `IMPLEMENTED_AND_ACCEPTED` in PR #108
 - **Researcher decision date:** 2026-09-23
 - **Authoritative amendment:** [`model-spec.md` §19.6](model-spec.md)
 - **Delivery:** existing branch `feature/dual-view-presentation` and existing
