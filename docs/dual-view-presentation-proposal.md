@@ -1,40 +1,36 @@
 # Dual-view CLI presentation contract proposal
 
 - **Status:** `PROPOSED_FOR_RESEARCHER_APPROVAL`
-- **Proposal scope:** presentation and CLI selection only
-- **Authoritative contract that remains in force unless this proposal is
-  approved:** [`model-spec.md` §19](model-spec.md)
+- **Scope:** documentation and research proposal only
+- **Proposed amendment to:** [`model-spec.md` §19](model-spec.md)
 - **Scientific input contract:** [`model-spec.md` §7.17](model-spec.md)
 
 ## 1. Decision requested
 
 Approve two presentations of the same already-computed
-`RequirementAssessmentRecord` and `SpecificationQualityProfile`:
+`RequirementAssessmentRecord` values and `SpecificationQualityProfile`:
 
-1. `user` — a concise Ukrainian report and the new CLI default; and
-2. `audit` — the existing complete formal, trace, Evidence, diagnostic, and
-   bounded-coverage report, byte-for-byte unchanged.
+1. `user` — a concise Ukrainian assessment and the new CLI default; and
+2. `audit` — the existing complete formal, scientific-trace report.
 
-The proposed CLI option is exactly:
+The proposed CLI interface remains:
 
 ```text
 --view {user,audit}
 ```
 
-Its default is exactly `user`.
+The default is `user`. Explicit `--view audit` produces the existing output.
 
-This document proposes an amendment to the approved presentation contract. It
-does **not** amend `docs/model-spec.md`, does not claim approval, and does not
-authorize implementation. Until a researcher explicitly approves this package
-and the decision is recorded in the authoritative model specification, §19
-remains the only approved presentation contract and the current
-`ConsoleReporter` behavior remains normative.
+This proposal does not change `model-spec.md`, does not claim current
+scientific approval, and does not authorize implementation. Until the
+researcher approves this package and the decision is recorded as an amendment
+to §19, the current §19 contract and current `ConsoleReporter` output remain
+normative.
 
-## 2. Relationship to the approved model
+## 2. Scientific and architectural invariants
 
-### 2.1 Unchanged scientific boundary
-
-Both views receive the same completed domain values. The pipeline remains:
+Both views consume the same completed objects after the single approved
+scientific pipeline has finished:
 
 ```text
 RequirementReader
@@ -47,87 +43,71 @@ RequirementReader
 → selected presentation renderer
 ```
 
-View selection occurs only after assessment and aggregation. Neither renderer
-may run a detector, decide applicability, calculate or aggregate a value,
-choose a tier, determine diagnostic materiality, create or classify a Finding,
-synthesize Evidence, or alter source text. There is one detection path, one
-assessment path, one aggregation path, and one Finding path.
+View selection occurs only at the final presentation boundary. There is no
+second extraction, assessment, calculation, aggregation, interpretation
+engine, Finding classification, or Evidence generation.
 
-The user renderer is a formatting projection over the exact same
-`RequirementAssessmentRecord` consumed by the audit renderer. Its Ukrainian
-phrases are fixed renderings of existing characteristic IDs, decision codes,
-effect codes, states, Findings, Evidence, and diagnostics. They are not a
-second scientific interpretation model.
+Both views preserve:
 
-### 2.2 Explicit amendment to §19, not a silent override
+- exact `Fraction` values;
+- literal `UNKNOWN` and `NOT_APPLICABLE` values;
+- independent Completeness, Verifiability, and Unambiguity results in C/V/U
+  order;
+- original requirement text and source order;
+- the distinction among accepted Evidence, an unresolved diagnostic
+  candidate, and completed absence without Evidence;
+- `SIGNAL` as a potential indicator, never a confirmed defect;
+- all four aggregate observability counts;
+- all seven approved bounded non-claims; and
+- no scalar requirement or file score, rating, recommendation, risk,
+  corrective action, severity, confidence, or new scientific rule.
 
-If approved, the following interpretation is added to §19:
+The difference is presentation depth. The user view answers “what is the
+result and why should I understand it this way?” The audit view exposes the
+complete machine-resolvable path that justifies the same result.
 
-- the present §19.1–§19.4 contract becomes the normative `audit` view and is
-  retained in full;
-- the new `user` view is an additional normative projection that may replace
-  the detailed formal explanation with the fixed concise Ukrainian templates
-  in this proposal;
-- the user view may omit raw observation dataclass serialization, tuple
-  indexes, raw English `assessment.explanation` and `Finding.explanation`, and
-  repeated per-requirement coverage blocks because all remain available in
-  `audit`;
-- the user view must still expose state, exact value, the applicable rule,
-  source text, input disposition, accepted Evidence, unresolved diagnostics,
-  completed absence, Findings, and the seven bounded non-claims at the
-  granularity specified below; and
-- Q1–Q4 and Q6–Q8 retain their scientific meaning. Q5 is extended from one
-  canonical detailed layout to two approved layouts over the same record.
+## 3. Explicit amendment to the approved §19 contract
 
-The deliberate user-view omissions above are the part of this proposal that
-requires researcher approval. They must not be inferred from the existing §19.
+If approved, this proposal amends §19 as follows:
 
-## 3. Proposed normative contract
+- current §19.1–§19.4 and current `ConsoleReporter.render()` become the
+  normative `audit` view without any content or byte change;
+- a new concise `user` view becomes the CLI default;
+- §19 Q1–Q4 and Q6–Q8 keep their approved scientific meaning;
+- Q5 is extended from one detailed presentation to two presentations over the
+  same completed record; and
+- the user view may omit internal trace detail only because the exact same
+  detail remains available through `--view audit` and the audit API.
 
-### 3.1 View names and selection
+This is a deliberate proposed amendment, not an interpretation silently
+derived from the currently approved text. In particular, existing §19 requires
+detailed trace presentation. The researcher must explicitly approve the
+concise projection and its omissions before implementation.
 
-The only accepted view tokens are lowercase `user` and `audit`.
+## 4. Exact `user`-view contract
 
-```text
-python -m requirements_quality_assessment PATH
-    ≡ python -m requirements_quality_assessment --view user PATH
+### 4.1 Conciseness is normative
 
-python -m requirements_quality_assessment --view audit PATH
-    → existing ConsoleReporter output
-```
+The user view is not a translated audit report. For each requirement it has:
 
-`argparse` rejects every other view value using its normal invalid-choice
-behavior. File-reading errors, UTF-8 handling, stderr text, and exit codes do
-not depend on the selected view.
+1. the requirement ID and original Ukrainian text;
+2. one compact three-line C/V/U result;
+3. exactly three short explanations under `Чому така оцінка`, one per
+   characteristic and no more than two sentences each;
+4. `Звернути увагу` only when there is a supported `SIGNAL` or a material
+   unresolved diagnostic; and
+5. `Підстава в тексті` only when additional accepted source fragments
+   materially improve understanding and have not already been shown under
+   `Звернути увагу`.
 
-### 3.2 Exact value, state, and ordering rules in both views
+The user view must not contain a separate block for every
+`FeatureInputTrace`. It must not reproduce the formal result plus a second
+interpretation of the same trace.
 
-Both views must:
-
-- render a computed `Fraction` using its exact reduced string form, such as
-  `0`, `1/3`, `1/2`, `11/18`, or `1`;
-- render unavailable values using the literal token `UNKNOWN` or
-  `NOT_APPLICABLE`; neither may be replaced by `0`, `N/A`, a blank, a decimal,
-  or a percentage;
-- preserve `Requirement.text` exactly after the reader's approved trimming
-  step, including punctuation;
-- preserve reader/source requirement order;
-- preserve the characteristic order Completeness, Verifiability,
-  Unambiguity; the exact user labels are `Повнота`, `Перевірюваність`, and
-  `Однозначність`;
-- preserve existing Finding/Evidence source order and diagnostic order; and
-- place the specification summary after every requirement block, in the same
-  C/V/U order.
-
-No view may add a scalar score, combined state, rating, recommendation, risk,
-priority, severity, confidence, corrective action, or new scientific rule.
-
-## 4. Exact `user`-view layout
-
-### 4.1 Whole-report grammar
+### 4.2 Whole-report layout
 
 `UserConsoleReporter.render(records, specification_profile)` returns a string
-with no trailing newline and this exact section order:
+with no trailing newline and this exact order:
 
 ```text
 Звіт про якість вимог
@@ -138,445 +118,401 @@ with no trailing newline and this exact section order:
 
 ...
 
-<specification summary block>
+<concise specification summary>
 
-<one bounded-non-claims block>
+<one report-level bounded disclosure>
 ```
 
 Blocks are separated by one empty line. The CLI's existing `print(...)` adds
-the final newline. An empty input contains the title, the specification
-summary with three `NOT_APPLICABLE` aggregates and zero counts, and the single
-bounded-non-claims block; it contains no requirement block.
+the final newline. For an empty input, no requirement block appears; the
+summary and the one bounded disclosure remain.
 
-### 4.2 Requirement block
+### 4.3 Always-visible requirement information
 
-Each requirement block has this exact conditional grammar:
+Every requirement uses exactly this outer layout:
 
 ```text
 Вимога <requirement.id>
 Текст: <requirement.text>
 
-Повнота
-  Стан: <COMPUTED|UNKNOWN|NOT_APPLICABLE>
-  Значення: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
-  Правило оцінювання: <assessment_rule_id>              # COMPUTED only
-  Керівне правило: <governing_rule_id>                  # otherwise
-  Пояснення: <fixed Ukrainian decision template>
-  Вхідні дані:
-    <input blocks in trace order>
-  Знахідки: немає                                       # when empty
-  <finding block>                                       # otherwise
+Повнота: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
+Перевірюваність: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
+Однозначність: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
 
-Перевірюваність
-  ...
-
-Однозначність
-  ...
+Чому така оцінка:
+  - Повнота: <one or two short sentences>
+  - Перевірюваність: <one or two short sentences>
+  - Однозначність: <one or two short sentences>
+<optional attention section>
+<optional source-basis section>
 ```
 
-The comments above describe conditions and are not output. For a computed
-assessment, `Правило оцінювання` renders the authoritative
-`assessment_rule_id`; joint record validation guarantees that it equals the
-trace's `governing_rule_id`. For `UNKNOWN` or `NOT_APPLICABLE`, no absent
-`assessment_rule_id` is invented: `Керівне правило` renders the existing
-trace `governing_rule_id`.
+`Requirement.text` is copied exactly after the approved reader trimming step.
+A computed value is rendered as its exact reduced fraction. An unavailable
+value is the literal token `UNKNOWN` or `NOT_APPLICABLE`, never `0`, `N/A`, a
+blank, decimal, or percentage.
 
-### 4.3 Fixed characteristic decision explanations
+Raw assessment state is not printed separately because the literal result
+already conveys the user-relevant state. The audit view retains both `state`
+and `value` fields.
 
-The user renderer selects exactly one phrase by the already-present
-`TraceDecisionCode`:
+### 4.4 Exact explanation templates
 
-| Existing decision code | Exact Ukrainian `Пояснення` |
-|---|---|
-| `C_CRITERION_RATIO_COMPUTED` | `Точне значення Повноти є відношенням кількості виявлених обов'язкових сімейств ознак до трьох; повторні спостереження не додають ваги.` |
-| `C_REQUIRED_INPUT_UNRESOLVED` | `Повнота має стан UNKNOWN, тому що принаймні одне обов'язкове сімейство ознак не розв'язане.` |
-| `V_FULL_ACCEPTANCE_TIER` | `Прийняте Evidence критерію приймання визначає повний затверджений рівень Перевірюваності.` |
-| `V_PARTIAL_LOWER_TIER` | `Критерій приймання завершено відсутністю; прийняте Evidence кількісного обмеження або методу перевірки визначає нижчий затверджений рівень Перевірюваності.` |
-| `V_COMPLETED_NO_EVIDENCE_TIER` | `Усі три шляхи Перевірюваності завершено без прийнятого спостереження; отримано затверджений нульовий рівень без створення Evidence відсутності.` |
-| `V_MATERIAL_INPUT_UNRESOLVED` | `Перевірюваність має стан UNKNOWN, тому що невирішений істотний кандидат може змінити рівень.` |
-| `U_SUPPORTED_SIGNAL_TIER` | `Прийняте входження підтримуваного індикатора дає U=1/2 незалежно від кількості входжень; це SIGNAL, а не підтверджена неоднозначність чи дефект.` |
-| `U_COMPLETED_SIGNAL_ABSENCE_TIER` | `Пошук підтримуваного класу сигналів завершено без прийнятого входження; отримано U=1 без створення Evidence відсутності, але не доведено єдиність тлумачення.` |
-| `U_MATERIAL_INPUT_UNRESOLVED` | `Однозначність має стан UNKNOWN, тому що невирішена обробка ще може виявити підтримуваний SIGNAL.` |
-| `CHARACTERISTIC_NOT_APPLICABLE` | `Назване керівне правило встановило стан NOT_APPLICABLE.` |
+The renderer fills the templates below only from the already-approved
+`CharacteristicTrace`, `FeatureInputTrace`, referenced outcomes, and completed
+assessment. It may use existing decision/effect codes to select a template,
+but it must not print those codes or reinterpret them.
 
-These phrases summarize only existing decision codes. They do not translate a
-numeric value into a quality judgment.
+The fixed Ukrainian feature names used in lists are:
 
-### 4.4 Input labels and effect explanations
+- `умову/контекст`;
+- `очікуваний результат`;
+- `критерій приймання`;
+- `кількісне обмеження`;
+- `метод перевірки`; and
+- `підтримуваний SIGNAL`.
 
-Feature IDs have these fixed user labels:
-
-| Existing `FeatureId` | Exact label |
-|---|---|
-| `condition_context` | `Умова/контекст` |
-| `expected_result` | `Очікуваний результат/реакція` |
-| `acceptance_criterion` | `Критерій приймання/виконання` |
-| `quantitative_constraint` | `Кількісне обмеження` |
-| `verification_method` | `Метод перевірки` |
-| `vague_term_occurrence` | `Збіг із підтримуваним словником індикаторів` |
-
-Each `FeatureInputTrace` renders exactly one input block:
+For a computed Completeness ratio:
 
 ```text
-    - <fixed feature label>:
-      Вплив: <fixed effect phrase>
-      <zero or more accepted-Evidence lines>
-      <zero or more diagnostic blocks>
-      <completed-absence line when and only when applicable>
+Виявлено: <detected C items>; за реалізованими правилами не виявлено: <completed-absent C items>. Кожен із трьох складників враховується один раз<optional repeated-observation suffix>.
 ```
 
-The fixed effect phrases are:
-
-| Existing effect code | Exact Ukrainian phrase |
-|---|---|
-| `C_PRESENT_1` | `прийняте спостереження; внесок у відношення трьох сімейств дорівнює 1` |
-| `C_COMPLETED_ABSENCE_0` | `завершена відсутність; внесок дорівнює 0` |
-| `C_REQUIRED_UNRESOLVED` | `невирішений обов'язковий вхід; результат утримано` |
-| `V_SELECTS_FULL_TIER` | `прийняте спостереження визначає повний рівень` |
-| `V_SELECTS_LOWER_TIER` | `прийняте спостереження визначає нижчий рівень` |
-| `V_PRESENT_NONSELECTING` | `прийняте спостереження збережено, але воно не визначає остаточний рівень` |
-| `V_COMPLETED_ABSENCE` | `завершена відсутність; прийнятого Evidence для Перевірюваності немає` |
-| `V_UNRESOLVED_MATERIAL` | `невирішений істотний кандидат; його розв'язання може змінити рівень` |
-| `V_UNRESOLVED_NON_MATERIAL` | `невирішений неістотний для поточного рівня кандидат` |
-| `U_SIGNAL_PRESENT` | `прийняте спостереження встановлює підтримуваний рівень SIGNAL` |
-| `U_COMPLETED_SIGNAL_ABSENCE` | `завершена відсутність підтримуваного класу SIGNAL` |
-| `U_UNRESOLVED_MATERIAL` | `невирішений істотний кандидат; його розв'язання ще може виявити підтримуваний SIGNAL` |
-
-When `V_PRESENT_NONSELECTING` accompanies
-`V_MATERIAL_INPUT_UNRESOLVED`, append exactly:
+If no list item exists, render `немає`. When one C family has more than one
+accepted observation, append exactly:
 
 ```text
-; роль цього Evidence є попередньою, доки невирішений критерій приймання може змінити рівень
+, тому повторні спостереження одного складника не збільшують оцінку
 ```
 
-When `V_UNRESOLVED_NON_MATERIAL` is used, append one of these already-decided
-reasons, selected only from the characteristic decision code:
-
-- `V_FULL_ACCEPTANCE_TIER`:
-  `; прийнятий критерій приймання вже зафіксував V=1`;
-- `V_PARTIAL_LOWER_TIER`:
-  `; прийняте Evidence нижчого рівня вже зафіксувало V=1/2`;
-- `V_MATERIAL_INPUT_UNRESOLVED`:
-  `; цей кандидат не може поліпшити попередній нижчий рівень, але остаточний результат лишається UNKNOWN через невирішений критерій приймання`.
-
-### 4.5 Accepted Evidence, diagnostics, and completed absence
-
-The three concepts must never share a label or be collapsed into one status.
-
-For every Evidence reference of every accepted observation selected by
-`observation_indexes`, in observation and reference order, render:
+For `UNKNOWN` Completeness:
 
 ```text
-      Прийняте Evidence: <evidence_id> — «<Evidence.text>» [<start_offset>,<end_offset>), правило <Evidence.rule_id>
+Виявлено: <detected C items>; за реалізованими правилами не виявлено: <completed-absent C items>; невирішено: <material unresolved C items>. Через невирішений обов'язковий складник результат UNKNOWN.
 ```
 
-The text and offsets are copied, not normalized or recalculated. This line
-means accepted source Evidence. It is never emitted for a diagnostic candidate
-or completed absence.
-
-For every diagnostic selected by `diagnostic_indexes`, render:
+For full-tier Verifiability:
 
 ```text
-      Діагностика (не Evidence): <code>; правило <rule_id>
-        Кандидат: «<text>» [<start_offset>,<end_offset>)   # span present
-        Кандидат: немає                                  # span absent
+Виявлено прийнятий критерій приймання, тому застосовано повний затверджений рівень. Інші прийняті або невирішені нижчі шляхи не змінюють цього рівня.
 ```
 
-The comments are not output. The user view intentionally omits the current raw
-English diagnostic explanation; its materiality is already stated by the
-approved effect code and characteristic decision. The audit view retains the
-complete diagnostic explanation and exact `DiagnosticSpan` fields.
+The second sentence is omitted when no accepted or unresolved lower-tier input
+exists.
 
-When and only when the selected outcome is `COMPLETE` and has no accepted
-observations, render:
+For lower-tier Verifiability:
 
 ```text
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
+Критерій приймання завершено без прийнятого спостереження; виявлено <accepted quantitative constraint and/or verification method>, тому застосовано нижчий затверджений рівень.
 ```
 
-An input may contain both accepted Evidence and diagnostics. In that mixed
-case both are rendered under their distinct labels, and no completed-absence
-line is rendered.
-
-### 4.6 Findings
-
-With no Findings, render exactly:
+For zero-tier Verifiability:
 
 ```text
-  Знахідки: немає
+Критерій приймання, кількісне обмеження та метод перевірки завершено без прийнятих спостережень. Це завершена відсутність за реалізованими правилами, а не підтверджений дефект.
 ```
 
-Otherwise render, in existing Finding order:
+For `UNKNOWN` Verifiability:
 
 ```text
-  Знахідки:
-    - Вид: <finding.kind>
-      Код: <finding.code>
-      Правило: <finding.rule_id>
-      Критерій: <finding.criterion_id>                    # non-null only
-      Посилання Evidence: <comma-separated evidence_refs|немає>
-      Пояснення: <fixed user-facing finding explanation>
-      <resolved accepted-Evidence lines>
+Виявлено: <accepted V inputs>; за реалізованими правилами не виявлено: <completed-absent V inputs>; невирішено: <material unresolved V inputs>. Невирішений істотний кандидат може змінити рівень, тому результат UNKNOWN.
 ```
 
-The comment is not output. The only currently approved user-facing Finding
-template is:
+For Unambiguity with one or more supported signals:
 
-| Existing Finding contract | Exact Ukrainian explanation |
-|---|---|
-| `kind=SIGNAL`, `code=VAGUE_TERM_SIGNAL`, `rule_id=FIND-U-VAGUE-001` | `Підтримуваний індикатор потенційної неоднозначності; це SIGNAL, а не підтверджена неоднозначність, дефект, QUALITY_PROBLEM, рівень серйозності, упевненість або ризик.` |
+```text
+Виявлено <count> підтримуваний SIGNAL, тому значення 1/2; кількість сигналів не накопичує оцінку. SIGNAL є потенційним індикатором, а не підтвердженою неоднозначністю чи дефектом.
+```
 
-Resolved Finding Evidence uses the same `Прийняте Evidence:` line from §4.5.
-`SIGNAL` therefore remains visible as the literal Finding kind and in the
-explanation. The renderer may not relabel it as a defect, failure, problem,
-risk, warning severity, or recommendation.
+Ukrainian number agreement may use `підтримуваних SIGNAL` for counts other
+than one; this is language formatting, not a scientific decision.
 
-### 4.7 Specification summary
+For completed absence of the supported signal class:
 
-The exact summary grammar is:
+```text
+Пошук підтримуваного класу SIGNAL завершено без прийнятих входжень, тому значення 1. Це не доводить єдиність тлумачення.
+```
+
+For `UNKNOWN` Unambiguity:
+
+```text
+Пошук підтримуваного класу SIGNAL не завершено: невирішена обробка ще може виявити індикатор. Тому результат UNKNOWN.
+```
+
+For any future separately approved `NOT_APPLICABLE` characteristic:
+
+```text
+Стан NOT_APPLICABLE встановлено чинним керівним правилом; числового значення немає.
+```
+
+No current requirement-level C/V/U rule establishes `NOT_APPLICABLE`; the
+renderer must not invent such a rule merely to exercise the template.
+
+The phrases `за реалізованими правилами не виявлено` and `завершено без
+прийнятих спостережень` are mandatory for completed absence. They must not be
+shortened to an unbounded claim such as “the requirement has no criterion.”
+
+### 4.5 Conditional `Звернути увагу`
+
+Render this section only when the completed record contains either:
+
+- a supported Finding with `kind=SIGNAL`; or
+- a diagnostic already classified by the approved trace as material to an
+  `UNKNOWN` result.
+
+```text
+Звернути увагу:
+  - <attention item>
+```
+
+Each supported vague-term Finding is rendered once, in existing source order:
+
+```text
+SIGNAL: «<exact Evidence.text>» — підтримуваний індикатор потенційної неоднозначності, а не підтверджений дефект.
+```
+
+Each material diagnostic is rendered once even if the same underlying
+diagnostic blocks more than one characteristic. The affected characteristic
+names are combined in C/V/U order. With a candidate span:
+
+```text
+Невирішений кандидат (не прийняте Evidence): «<exact DiagnosticSpan.text>». Він може змінити <affected characteristics>, тому відповідний результат лишається UNKNOWN.
+```
+
+Without a candidate span:
+
+```text
+Невирішений кандидат без окремого джерельного фрагмента (не прийняте Evidence). Він може змінити <affected characteristics>, тому відповідний результат лишається UNKNOWN.
+```
+
+When the same source range is accepted Evidence for another feature, replace
+the first template with this exact distinction:
+
+```text
+Невирішений кандидат <diagnostic feature label> (не прийняте Evidence): «<exact DiagnosticSpan.text>». Цей самий фрагмент окремо прийнято як Evidence <accepted feature label>; невирішений кандидат може змінити <affected characteristics>, тому відповідний результат лишається UNKNOWN.
+```
+
+This wording preserves both roles without converting the diagnostic candidate
+to Evidence. Diagnostic codes, rule IDs, detailed explanations, offsets, and
+materiality trace remain in audit mode.
+
+If neither condition applies, the entire `Звернути увагу` heading is omitted;
+the user view does not print `немає`.
+
+### 4.6 Conditional `Підстава в тексті`
+
+This optional section shows only accepted Evidence that materially helps a
+reader understand the short explanation and is not already shown in
+`Звернути увагу`:
+
+```text
+Підстава в тексті:
+  - <Ukrainian role>: «<exact Evidence.text>»< + «additional exact Evidence.text»>.
+```
+
+Rules:
+
+- use accepted Evidence only, never a diagnostic span or completed absence;
+- copy complete `Evidence.text` exactly; do not derive a shorter span or create
+  a new Evidence object;
+- when one observation needs multiple Evidence references, join their exact
+  texts with ` + ` in reference order;
+- include this section only for accepted V evidence that selects a tier, a C
+  family with multiple accepted observations, or accepted Evidence whose
+  separate role beside a material diagnostic must be explained;
+- preserve source/observation order;
+- show each Evidence source range once even if more than one characteristic
+  references it;
+- do not repeat SIGNAL Evidence already shown under `Звернути увагу`;
+- do not create Evidence or a fragment for completed absence; and
+- omit the entire section when the original text and short explanations are
+  already sufficient.
+
+This is a source-attribution aid, not a complete Evidence registry. Exact
+Evidence objects remain available in audit mode.
+
+### 4.7 Information boundary: always, conditional, audit-only
+
+| Information | User visibility | Contract |
+|---|---|---|
+| Requirement ID and original text | Always | Exact source-order value |
+| C/V/U result | Always | Three compact lines; exact fraction or literal unavailable state |
+| Why the result has that value/state | Always | Three bullets, each one or two short Ukrainian sentences |
+| Supported `SIGNAL` | Conditional | `Звернути увагу`; literal `SIGNAL`, exact source fragment, explicit non-defect wording |
+| Material unresolved diagnostic | Conditional | `Звернути увагу`; exact candidate fragment when present and explicit `(не прийняте Evidence)` |
+| Accepted source fragment helpful to understanding | Conditional | `Підстава в тексті`; deduplicated and concise |
+| Non-material diagnostic | Audit only | It does not require user action to understand the current class |
+| Rule IDs and coverage profile ID | Audit only | Retained byte-for-byte in current output |
+| `TraceDecisionCode` and `TraceEffectCode` | Audit only | Never dumped in user mode |
+| Processing/detection status and applicability fields | Audit only | Never dumped in user mode |
+| Observation and diagnostic indexes | Audit only | Never dumped in user mode |
+| Raw dataclass serialization | Audit only | Never dumped in user mode |
+| Evidence IDs, exact offsets, feature IDs, and detector rule IDs | Audit only | User source fragments remain attributable; complete provenance stays in audit |
+| Raw assessment/Finding/diagnostic explanations | Audit only | User mode uses only the fixed concise templates above |
+| Full per-input trace blocks | Audit only | No user-mode `FeatureInputTrace` repetition |
+| Seven bounded non-claims | Always at report level | Exactly one concise disclosure block in user mode; existing per-record audit disclosures unchanged |
+
+### 4.8 Concise specification summary
+
+The user summary appears once after all requirement blocks:
 
 ```text
 Підсумок специфікації
-Проаналізовано вимог: <number of materialized records>
-
-Повнота
-  Стан: <state>
-  Значення: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
-  Обчислено: <computed_count>
-  UNKNOWN: <unknown_count>
-  NOT_APPLICABLE: <not_applicable_count>
-  Усього: <total_count>
-  Правило агрегації: <aggregation_rule_id>
-
-Перевірюваність
-  ...
-
-Однозначність
-  ...
+Вимог: <record count>
+Повнота: <exact Fraction|UNKNOWN|NOT_APPLICABLE> (обчислено: <computed_count>; UNKNOWN: <unknown_count>; NOT_APPLICABLE: <not_applicable_count>; усього: <total_count>)
+Перевірюваність: <exact Fraction|UNKNOWN|NOT_APPLICABLE> (обчислено: <computed_count>; UNKNOWN: <unknown_count>; NOT_APPLICABLE: <not_applicable_count>; усього: <total_count>)
+Однозначність: <exact Fraction|UNKNOWN|NOT_APPLICABLE> (обчислено: <computed_count>; UNKNOWN: <unknown_count>; NOT_APPLICABLE: <not_applicable_count>; усього: <total_count>)
 ```
 
-All four counts are unconditional for every characteristic, including an empty
-specification and aggregates whose state is `UNKNOWN` or `NOT_APPLICABLE`.
-The renderer displays only the supplied aggregate; it does not recompute the
-mean or counts.
+All four counts are unconditional for every characteristic. The renderer
+copies the supplied aggregate fields; it does not recalculate them. No overall
+file-quality value or state is added. `aggregation_rule_id` remains audit-only.
 
-### 4.8 One report-level bounded-non-claims block
+### 4.9 One report-level bounded disclosure
 
-The user view renders this block exactly once, after the specification
-summary. It is a faithful concise Ukrainian rendering of all seven canonical
-`MVP-V0.1-BOUNDED-CVU-001` disclosures, not a replacement scientific profile:
+The user view renders this block exactly once, after the summary. It preserves
+all seven canonical `MVP-V0.1-BOUNDED-CVU-001` non-claims:
 
 ```text
-Межі інтерпретації (MVP-V0.1-BOUNDED-CVU-001)
-  1. Покриття обмежене реалізованим обмеженим вилученням шести сімейств ознак і затвердженими правилами C/V/U; це не вичерпний лінгвістичний або семантичний аналіз української мови.
-  2. NOT_DETECTED і завершена відсутність означають відсутність прийнятого спостереження за завершеними реалізованими правилами, а не універсальну семантичну відсутність.
+Межі звіту
+  1. Покриття обмежене реалізованими правилами для шести сімейств ознак і C/V/U; це не вичерпний аналіз української мови або змісту вимог.
+  2. NOT_DETECTED і завершена відсутність означають лише, що завершені реалізовані правила не прийняли спостереження; це не універсальна семантична відсутність.
   3. Значення C/V, зокрема низькі або нульові, є результатами правил, а не підтвердженими дефектами.
-  4. U=1 означає відсутність підтримуваного класу сигналів, а не доказ єдиного тлумачення; U=1/2 означає наявність сигналу, а не підтверджену неоднозначність; чинне правило U не повертає 0.
-  5. FIND-U-VAGUE-001 має лише вид SIGNAL; чинна модель не створює QUALITY_PROBLEM, рівень серйозності, упевненість, ризик або коригувальну дію.
-  6. R3 і F1-A затверджені дослідником, але не реалізовані й не заявляються як покриття виконання.
+  4. U=1 означає відсутність підтримуваного класу SIGNAL, а не доказ єдиного тлумачення; U=1/2 означає наявність SIGNAL, а не підтверджену неоднозначність; чинне правило U не повертає 0.
+  5. FIND-U-VAGUE-001 створює лише SIGNAL; чинна модель не створює QUALITY_PROBLEM, рівень серйозності, упевненість, ризик або коригувальну дію.
+  6. R3 і F1-A затверджені дослідником, але не реалізовані й не належать до заявленого покриття виконання.
   7. Це багатовимірний профіль C/V/U, а не скалярна оцінка вимоги чи прогноз якості програмного продукту.
 ```
 
-The audit view continues to render the existing canonical disclosures inside
-every requirement record exactly as it does now. Moving the user rendering to
-one report-level block does not authorize weakening, selecting, or inferring a
-different claim.
+The audit view continues to render its existing canonical disclosure block
+inside every record. The user renderer may not select, weaken, or strengthen
+these seven claims.
 
-## 5. DEMONSTRATION — actual known current-main results
+## 5. DEMONSTRATION — actual previously observed results
 
-**DEMONSTRATION ONLY.** The following values are the actual results from the
-eight-requirement run on current `main` including merged PR #107
-(`931ef74`). They demonstrate the proposed layout; they do not create new
-detector, calculator, aggregation, or validation reference cases.
+**DEMONSTRATION ONLY.** The following outputs use actual results previously
+observed on current `main` including merged PR #107. They demonstrate the
+proposed presentation and are not new approved reference annotations,
+detector expectations, or validation data.
 
-The eight observed profiles were:
+### 5.1 DEMONSTRATION — R002
 
-| ID | C | V | U |
-|---|---:|---:|---:|
-| `R001` | `1` | `1` | `1` |
-| `R002` | `1/3` | `0` | `1/2` |
-| `R003` | `2/3` | `1` | `1` |
-| `R004` | `UNKNOWN` | `UNKNOWN` | `1` |
-| `R005` | `UNKNOWN` | `1/2` | `1` |
-| `R006` | `1/3` | `0` | `1` |
-| `R007` | `1` | `1` | `1` |
-| `R008` | `1/3` | `0` | `1/2` |
-
-### 5.1 DEMONSTRATION — R002 user block
+The audit record contains the accepted `швидко` Evidence at `[16,22)`. The
+offset remains audit-only in the proposed user view.
 
 ```text
 Вимога R002
 Текст: Система повинна швидко оновити статус.
 
-Повнота
-  Стан: COMPUTED
-  Значення: 1/3
-  Правило оцінювання: CALC-C-MVP-001
-  Пояснення: Точне значення Повноти є відношенням кількості виявлених обов'язкових сімейств ознак до трьох; повторні спостереження не додають ваги.
-  Вхідні дані:
-    - Умова/контекст:
-      Вплив: завершена відсутність; внесок дорівнює 0
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-    - Очікуваний результат/реакція:
-      Вплив: прийняте спостереження; внесок у відношення трьох сімейств дорівнює 1
-      Прийняте Evidence: RESULT-UK-001:E001 — «Система повинна швидко оновити статус» [0,37), правило RESULT-UK-001
-    - Критерій приймання/виконання:
-      Вплив: завершена відсутність; внесок дорівнює 0
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-  Знахідки: немає
+Повнота: 1/3
+Перевірюваність: 0
+Однозначність: 1/2
 
-Перевірюваність
-  Стан: COMPUTED
-  Значення: 0
-  Правило оцінювання: CALC-V-MVP-001
-  Пояснення: Усі три шляхи Перевірюваності завершено без прийнятого спостереження; отримано затверджений нульовий рівень без створення Evidence відсутності.
-  Вхідні дані:
-    - Критерій приймання/виконання:
-      Вплив: завершена відсутність; прийнятого Evidence для Перевірюваності немає
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-    - Кількісне обмеження:
-      Вплив: завершена відсутність; прийнятого Evidence для Перевірюваності немає
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-    - Метод перевірки:
-      Вплив: завершена відсутність; прийнятого Evidence для Перевірюваності немає
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-  Знахідки: немає
+Чому така оцінка:
+  - Повнота: Виявлено: очікуваний результат; за реалізованими правилами не виявлено: умову/контекст і критерій приймання. Кожен із трьох складників враховується один раз.
+  - Перевірюваність: Критерій приймання, кількісне обмеження та метод перевірки завершено без прийнятих спостережень. Це завершена відсутність за реалізованими правилами, а не підтверджений дефект.
+  - Однозначність: Виявлено 1 підтримуваний SIGNAL, тому значення 1/2; кількість сигналів не накопичує оцінку. SIGNAL є потенційним індикатором, а не підтвердженою неоднозначністю чи дефектом.
 
-Однозначність
-  Стан: COMPUTED
-  Значення: 1/2
-  Правило оцінювання: CALC-U-MVP-001
-  Пояснення: Прийняте входження підтримуваного індикатора дає U=1/2 незалежно від кількості входжень; це SIGNAL, а не підтверджена неоднозначність чи дефект.
-  Вхідні дані:
-    - Збіг із підтримуваним словником індикаторів:
-      Вплив: прийняте спостереження встановлює підтримуваний рівень SIGNAL
-      Прийняте Evidence: UK-VAGUE-001:E001 — «швидко» [16,22), правило UK-VAGUE-001
-  Знахідки:
-    - Вид: SIGNAL
-      Код: VAGUE_TERM_SIGNAL
-      Правило: FIND-U-VAGUE-001
-      Посилання Evidence: UK-VAGUE-001:E001
-      Пояснення: Підтримуваний індикатор потенційної неоднозначності; це SIGNAL, а не підтверджена неоднозначність, дефект, QUALITY_PROBLEM, рівень серйозності, упевненість або ризик.
-      Прийняте Evidence: UK-VAGUE-001:E001 — «швидко» [16,22), правило UK-VAGUE-001
+Звернути увагу:
+  - SIGNAL: «швидко» — підтримуваний індикатор потенційної неоднозначності, а не підтверджений дефект.
 ```
 
-### 5.2 DEMONSTRATION — R004 user block
+No separate source-basis section is needed: the only fragment material to the
+user's attention is already shown once under `Звернути увагу`.
 
-This case demonstrates that accepted quantitative Evidence remains visible
-while the separate acceptance diagnostic remains explicitly non-Evidence.
+### 5.2 DEMONSTRATION — R004
+
+The same exact source fragment has two approved but distinct roles: accepted
+quantitative Evidence and a separate unresolved acceptance-criterion
+diagnostic candidate. The user output makes that distinction without exposing
+their internal IDs or offsets.
 
 ```text
 Вимога R004
 Текст: Система повинна відповісти до 2 с.
 
-Повнота
-  Стан: UNKNOWN
-  Значення: UNKNOWN
-  Керівне правило: CALC-C-MVP-001
-  Пояснення: Повнота має стан UNKNOWN, тому що принаймні одне обов'язкове сімейство ознак не розв'язане.
-  Вхідні дані:
-    - Умова/контекст:
-      Вплив: завершена відсутність; внесок дорівнює 0
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-    - Очікуваний результат/реакція:
-      Вплив: прийняте спостереження; внесок у відношення трьох сімейств дорівнює 1
-      Прийняте Evidence: RESULT-UK-001:E001 — «Система повинна відповісти до 2 с» [0,33), правило RESULT-UK-001
-    - Критерій приймання/виконання:
-      Вплив: невирішений обов'язковий вхід; результат утримано
-      Діагностика (не Evidence): ACCEPT_UNRESOLVED_CANDIDATE; правило ACCEPT-QUANT-001
-        Кандидат: «до 2 с» [27,33)
-  Знахідки: немає
+Повнота: UNKNOWN
+Перевірюваність: UNKNOWN
+Однозначність: 1
 
-Перевірюваність
-  Стан: UNKNOWN
-  Значення: UNKNOWN
-  Керівне правило: CALC-V-MVP-001
-  Пояснення: Перевірюваність має стан UNKNOWN, тому що невирішений істотний кандидат може змінити рівень.
-  Вхідні дані:
-    - Критерій приймання/виконання:
-      Вплив: невирішений істотний кандидат; його розв'язання може змінити рівень
-      Діагностика (не Evidence): ACCEPT_UNRESOLVED_CANDIDATE; правило ACCEPT-QUANT-001
-        Кандидат: «до 2 с» [27,33)
-    - Кількісне обмеження:
-      Вплив: прийняте спостереження збережено, але воно не визначає остаточний рівень; роль цього Evidence є попередньою, доки невирішений критерій приймання може змінити рівень
-      Прийняте Evidence: QUANT-UK-001:E001 — «до 2 с» [27,33), правило QUANT-UK-001
-    - Метод перевірки:
-      Вплив: завершена відсутність; прийнятого Evidence для Перевірюваності немає
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-  Знахідки: немає
+Чому така оцінка:
+  - Повнота: Виявлено: очікуваний результат; за реалізованими правилами не виявлено: умову/контекст; невирішено: критерій приймання. Через невирішений обов'язковий складник результат UNKNOWN.
+  - Перевірюваність: Виявлено: кількісне обмеження; за реалізованими правилами не виявлено: метод перевірки; невирішено: критерій приймання. Невирішений істотний кандидат може змінити рівень, тому результат UNKNOWN.
+  - Однозначність: Пошук підтримуваного класу SIGNAL завершено без прийнятих входжень, тому значення 1. Це не доводить єдиність тлумачення.
 
-Однозначність
-  Стан: COMPUTED
-  Значення: 1
-  Правило оцінювання: CALC-U-MVP-001
-  Пояснення: Пошук підтримуваного класу сигналів завершено без прийнятого входження; отримано U=1 без створення Evidence відсутності, але не доведено єдиність тлумачення.
-  Вхідні дані:
-    - Збіг із підтримуваним словником індикаторів:
-      Вплив: завершена відсутність підтримуваного класу SIGNAL
-      Завершена відсутність: прийнятого спостереження немає; Evidence відсутності не створено.
-  Знахідки: немає
+Звернути увагу:
+  - Невирішений кандидат критерію приймання (не прийняте Evidence): «до 2 с». Цей самий фрагмент окремо прийнято як Evidence кількісного обмеження; невирішений кандидат може змінити Повноту й Перевірюваність, тому відповідний результат лишається UNKNOWN.
 ```
 
-### 5.3 DEMONSTRATION — eight-case specification summary
+The fragment is shown once. It is not duplicated in a source-basis section.
+
+### 5.3 DEMONSTRATION — R008
+
+```text
+Вимога R008
+Текст: Система повинна швидко зберігати дані та показувати повідомлення.
+
+Повнота: 1/3
+Перевірюваність: 0
+Однозначність: 1/2
+
+Чому така оцінка:
+  - Повнота: Виявлено: два очікувані результати; за реалізованими правилами не виявлено: умову/контекст і критерій приймання. Кожен із трьох складників враховується один раз, тому повторні спостереження одного складника не збільшують оцінку.
+  - Перевірюваність: Критерій приймання, кількісне обмеження та метод перевірки завершено без прийнятих спостережень. Це завершена відсутність за реалізованими правилами, а не підтверджений дефект.
+  - Однозначність: Виявлено 1 підтримуваний SIGNAL, тому значення 1/2; кількість сигналів не накопичує оцінку. SIGNAL є потенційним індикатором, а не підтвердженою неоднозначністю чи дефектом.
+
+Звернути увагу:
+  - SIGNAL: «швидко» — підтримуваний індикатор потенційної неоднозначності, а не підтверджений дефект.
+
+Підстава в тексті:
+  - Перше прийняте спостереження очікуваного результату: «Система повинна швидко зберігати дані».
+  - Друге прийняте спостереження очікуваного результату: «Система повинна» + «показувати повідомлення».
+```
+
+The two observations belong to one Completeness family and therefore do not
+increase the value beyond that family's single contribution.
+
+### 5.4 DEMONSTRATION — eight-case specification summary
 
 ```text
 Підсумок специфікації
-Проаналізовано вимог: 8
-
-Повнота
-  Стан: COMPUTED
-  Значення: 11/18
-  Обчислено: 6
-  UNKNOWN: 2
-  NOT_APPLICABLE: 0
-  Усього: 8
-  Правило агрегації: AGG-MVP-001
-
-Перевірюваність
-  Стан: COMPUTED
-  Значення: 1/2
-  Обчислено: 7
-  UNKNOWN: 1
-  NOT_APPLICABLE: 0
-  Усього: 8
-  Правило агрегації: AGG-MVP-001
-
-Однозначність
-  Стан: COMPUTED
-  Значення: 7/8
-  Обчислено: 8
-  UNKNOWN: 0
-  NOT_APPLICABLE: 0
-  Усього: 8
-  Правило агрегації: AGG-MVP-001
+Вимог: 8
+Повнота: 11/18 (обчислено: 6; UNKNOWN: 2; NOT_APPLICABLE: 0; усього: 8)
+Перевірюваність: 1/2 (обчислено: 7; UNKNOWN: 1; NOT_APPLICABLE: 0; усього: 8)
+Однозначність: 7/8 (обчислено: 8; UNKNOWN: 0; NOT_APPLICABLE: 0; усього: 8)
 ```
 
-The full user report would append the single §4.8 disclosure block after this
-summary. It is omitted from this demonstration snippet only to avoid repeating
-the already exact normative text.
+The complete user report appends the single §4.9 `Межі звіту` block. It is not
+repeated in this demonstration snippet.
 
-## 6. CLI and API compatibility plan
-
-### 6.1 Audit API: exact backward compatibility
+## 6. Audit view: complete and unchanged
 
 `ConsoleReporter.render(requirement_results, specification_profile)` remains
 the audit API with:
 
 - the same class name and import path;
 - the same signature and accepted record/legacy-tuple inputs;
-- the same returned bytes for the same inputs;
-- the same formal fields, raw domain rendering, decision/effect trace,
-  accepted observations, resolved Evidence, diagnostics, completed-absence
-  statements, Findings, human-readable interpretation, per-record seven-item
-  coverage disclosure, and specification summary; and
-- the same ordering and whitespace.
+- byte-for-byte identical output for identical inputs;
+- all existing formal fields and raw domain rendering;
+- Rule IDs, assessment state/value, decision/effect codes, applicability,
+  processing and detection statuses;
+- every accepted observation and observation index;
+- exact Evidence IDs, text, offsets, feature IDs, and detector Rule IDs;
+- every diagnostic index, code, rule, explanation, and candidate span;
+- completed-absence provenance without fabricated Evidence;
+- Findings and resolved Finding Evidence;
+- the current full human-readable interpretation;
+- the current seven-item coverage disclosure in every record; and
+- the current specification summary and aggregation Rule IDs.
 
-No existing `ConsoleReporter` call silently changes to user output. The only
+No existing `ConsoleReporter` caller silently receives user output. The only
 default change is at the CLI selection boundary.
 
-### 6.2 New user API
+## 7. CLI and API compatibility plan
 
-Add a separate public renderer with this proposed API:
+### 7.1 New user API
+
+Add a separate renderer only after approval:
 
 ```python
 class UserConsoleReporter:
@@ -587,17 +523,19 @@ class UserConsoleReporter:
     ) -> str: ...
 ```
 
-It intentionally requires completed records and has no legacy
-`tuple[Requirement, RequirementQualityProfile]` mode because the concise trace,
-Evidence/diagnostic distinction, and bounded explanations require §7.17 data.
-It does not subclass `ConsoleReporter` and does not call
-`ConsoleReporter.render()` and parse its text. Shared pure formatting helpers
-may be extracted only when doing so leaves `ConsoleReporter.render()` output
-exactly unchanged.
+The user API requires completed §7.17 records. It has no legacy
+`tuple[Requirement, RequirementQualityProfile]` mode because concise
+explanation, diagnostic materiality, and source attribution require the
+approved trace bundle.
 
-### 6.3 CLI orchestration
+The user renderer does not subclass the audit renderer and does not parse audit
+text. It formats the same domain objects directly. Pure shared formatting
+helpers are allowed only if `ConsoleReporter.render()` remains byte-for-byte
+unchanged.
 
-The CLI adds one parser argument:
+### 7.2 CLI orchestration
+
+The CLI adds:
 
 ```python
 parser.add_argument(
@@ -607,80 +545,81 @@ parser.add_argument(
 )
 ```
 
-After the existing single extraction/assessment pass and single aggregation
-pass, orchestration chooses one renderer:
+Only after the existing single assessment and aggregation pass:
 
 ```text
 user  → UserConsoleReporter.render(records, specification_profile)
 audit → ConsoleReporter.render(records, specification_profile)
 ```
 
-The records and profile are the same objects whichever view is selected. View
-selection may not be passed into the reader, extractor, assessor, calculators,
-trace builder, aggregator, or domain models.
+The intentional compatibility change is:
 
-The intentional CLI compatibility change is:
+- `python -m requirements_quality_assessment PATH` becomes the concise user
+  view;
+- it equals `python -m requirements_quality_assessment --view user PATH`;
+- `python -m requirements_quality_assessment --view audit PATH` is
+  byte-for-byte equal to the pre-change CLI output for the same input; and
+- direct `ConsoleReporter.render()` callers observe no change.
 
-- old `python -m requirements_quality_assessment PATH` output becomes the
-  Ukrainian user view after approval and implementation;
-- old output remains exactly available as
-  `python -m requirements_quality_assessment --view audit PATH`; and
-- direct callers of `ConsoleReporter.render()` observe no change.
+View selection is never passed into the reader, extractor, assessor,
+calculators, trace builder, aggregator, or domain models. File errors, UTF-8
+handling, stderr text, and exit codes remain independent of the selected view.
 
-## 7. Test and acceptance matrix for a future implementation
+## 8. Future test and acceptance matrix
 
-This proposal adds no tests. If approved, a later implementation issue must
-cover at least the following matrix.
+This proposal adds no tests. A later implementation issue, after researcher
+approval, must cover at least this matrix.
 
-| Area | Fixture/action | Required acceptance result |
+| Area | Fixture/action | Required result |
 |---|---|---|
-| Audit API byte compatibility | Run every existing reporter fixture through `ConsoleReporter.render()` before and after the change | Exact string equality, including whitespace, detailed fields, trace, diagnostic explanations, coverage disclosures, and summary |
-| Audit CLI compatibility | Compare the pre-change default CLI output with post-change `--view audit` for the same UTF-8 input | Byte-for-byte stdout equality; same stderr and exit code |
-| Audit legacy API | Existing `(Requirement, RequirementQualityProfile)` iterable | Continues to render exactly as before |
-| CLI default | Omit `--view` | Output equals explicit `--view user` |
-| CLI choices | Use `user`, `audit`, and an invalid token | Both valid tokens select the named view; invalid token is rejected by `argparse` |
-| One scientific pass | Spy/count reader, extractor, assessor, trace, and aggregator calls under each view | Same call counts and same record/profile objects; no second detection, assessment, aggregation, or Finding path |
-| User R002 SIGNAL | Actual R002 record from §5.1 | Exact user block; `1/3`, `0`, `1/2`; literal `SIGNAL`; exact `швидко` Evidence `[16,22)`; no language that confirms a defect or `QUALITY_PROBLEM` |
-| User R004 UNKNOWN | Actual R004 record from §5.2 | C and V each show `Стан: UNKNOWN` and `Значення: UNKNOWN`; no zero substitution; diagnostic is labeled `(не Evidence)`; accepted quantitative Evidence remains separate and provisional |
-| User completed absence | Complete empty feature outcome | Exact completed-absence line; no Evidence line synthesized |
-| User mixed outcome | One input with accepted observations and diagnostics | Both accepted Evidence and non-Evidence diagnostic render under distinct labels; no completed-absence line |
-| User `NOT_APPLICABLE` | Approved empty-specification aggregate now; a requirement record only if a future separately approved governing rule makes that state reachable | Literal `NOT_APPLICABLE` in state and value; never `0` or `N/A`; no non-applicability rule is invented for a test |
-| Fractions | Per-requirement and aggregate values including `1/3` and `11/18` | Exact fractions only; no decimal, percentage, or rounding |
-| Ordering | Supply records and Findings in approved source order | Requirements, C/V/U, input traces, Findings/Evidence, and summary retain their supplied approved order; no ranking or sorting by value |
-| Aggregate visibility | Eight-case profile from §5.3 | Exact `11/18`, `1/2`, `7/8` and all four counts for every characteristic |
-| Partial aggregate | `COMPUTED` aggregate with nonzero `unknown_count` and/or `not_applicable_count` | All four counts remain visible beside the exact computed value |
-| Empty specification | No records and the approved empty aggregate | Three literal `NOT_APPLICABLE` values; four zero counts for each; no scalar whole-file state |
-| Seven non-claims | Any nonempty and empty user report | Exactly one report-level disclosure block containing all seven numbered claims in §4.8; no per-record omission weakens them |
-| No prohibited output | Search complete user and audit reports | No scalar score, combined C/V/U result, rating, recommendation, risk, corrective action, invented Finding, or new scientific rule |
-| Determinism | Render identical inputs repeatedly | Byte-identical output for each view |
+| Audit API backward compatibility | Render every existing reporter fixture before and after the change | Byte-for-byte equality, including all fields, trace, disclosures, whitespace, and summary |
+| Audit CLI backward compatibility | Compare pre-change default output with post-change `--view audit` | Byte-for-byte stdout equality; unchanged stderr and exit code |
+| CLI default | Compare omitted `--view` with explicit `--view user` | Byte-for-byte equality |
+| Same science | Capture records and aggregate passed to each renderer | Same completed values/objects; one extraction, assessment, trace, Finding, and aggregation path |
+| R002 concise user view | Actual R002 record | Exact §5.1 output; compact `1/3`, `0`, `1/2`; one source-attributable `SIGNAL`; no confirmed-defect wording |
+| R004 concise user view | Actual R004 record | Exact §5.2 output; literal C/V `UNKNOWN`; accepted quantitative Evidence and non-Evidence diagnostic remain distinct; material blocker explained |
+| R008 concise user view | Actual R008 record | Exact §5.3 output; two expected-result observations explained without extra C weight; one `SIGNAL` and no trace dump |
+| Exact values | Fractions such as `1/3` and `11/18`; unavailable states | Exact fractions and literal `UNKNOWN`/`NOT_APPLICABLE`; no decimal, percentage, zero substitution, or `N/A` |
+| SIGNAL handling | One and multiple supported vague-term Findings | Literal `SIGNAL`, exact source fragment, source order, and explicit potential-indicator/non-defect wording; U count remains non-cumulative |
+| Diagnostic handling | Material diagnostic with and without a candidate span | `Звернути увагу` explains every affected `UNKNOWN`; candidate is explicitly not accepted Evidence; technical details remain audit-only |
+| Shared span roles | R004 accepted quantitative Evidence plus acceptance diagnostic | One concise item distinguishes both roles; no conversion of diagnostic to Evidence |
+| Completed absence | Complete empty outcome | Short bounded explanation only; no fabricated Evidence or source fragment |
+| Evidence concision | Evidence reused across characteristics or already shown in attention | Material source fragment appears once unless repetition is essential for clarity |
+| Aggregate counts | Eight-case aggregate and partial-observability cases | Independent exact C/V/U values and all four counts on every line |
+| Ordering | Multiple requirements, Findings, diagnostics, and source fragments | Requirement/source order, C/V/U order, and existing source order remain deterministic; no value/risk ranking |
+| One disclosure | Empty and nonempty user reports | Exactly one report-level block containing all seven bounded non-claims |
+| Readability | Inspect complete user output | No raw dataclass representation, observation/diagnostic indexes, Rule IDs, decision/effect-code dumps, processing-status dump, or repeated full trace blocks |
+| Audit discoverability | Run the same input with `--view audit` | Every omitted technical detail remains accessible in the unchanged audit output |
+| No new science | Dependency/import review plus manually constructed completed records | User renderer depends on completed domain records only and performs no detection, scoring, aggregation, materiality decision, Finding classification, or Evidence generation |
+| Determinism | Render identical inputs repeatedly | Byte-identical output per view |
 
-Passing tests show conformance to an approved presentation contract; they do
-not constitute researcher approval or scientific validation.
+Passing these tests demonstrates conformance to an approved presentation
+contract. It does not itself provide researcher approval or scientific
+validation.
 
-## 8. Researcher approval gate
+## 9. Researcher approval gate
 
-Implementation is blocked until the researcher explicitly approves or rejects
-this package as one decision. Approval must be recorded in
-`docs/model-spec.md` as an amendment to §19 and must resolve all of these
-points together:
+Implementation remains blocked until the researcher explicitly approves or
+rejects this revised package. Approval must be recorded as an amendment to
+`docs/model-spec.md` §19 and must resolve together:
 
-1. `--view {user,audit}` with CLI default `user`;
-2. existing `ConsoleReporter.render()` retained unchanged as the audit API;
-3. separate `UserConsoleReporter` over completed
-   `RequirementAssessmentRecord` values;
-4. the exact Ukrainian layout, labels, decision/effect templates, and
-   Finding template in §4;
-5. exact-Fraction and literal unavailable-state rendering;
-6. the explicit accepted Evidence / diagnostic / completed-absence
-   distinction;
-7. visible `SIGNAL` without confirmed-defect conversion;
-8. one report-level user disclosure preserving all seven bounded non-claims;
-9. unconditional four-count aggregates and all ordering guarantees; and
-10. the audit and CLI compatibility guarantees in §6.
+1. `--view {user,audit}` with default `user`;
+2. the normative conciseness requirement and exact user layout in §4;
+3. the always-visible, conditionally visible, and audit-only boundary;
+4. the fixed Ukrainian explanation and attention wording;
+5. literal unavailable states and exact fractions;
+6. source-attributable `SIGNAL` and explicit non-defect language;
+7. separate accepted Evidence, diagnostic candidates, and completed absence;
+8. the concise four-count specification summary;
+9. exactly one user-level disclosure preserving all seven bounded non-claims;
+10. unchanged `ConsoleReporter.render()` as the audit API; and
+11. byte-for-byte audit compatibility and single-pipeline guarantees.
 
-Approval of presentation does not approve production code. A separate scoped
-implementation issue and pull request would still be required. Rejection or a
-requested change leaves the current §19 and current CLI behavior untouched.
+Approval of this research proposal does not itself authorize production code.
+A separate implementation issue and pull request would still be required.
+Rejection or requested changes leave current §19 and current production
+behavior untouched.
 
-This proposal authorizes no implementation, test modification, commit, push,
-pull request, merge, or scientific-model change.
+This revision changes only the proposal document. It authorizes no production
+implementation, test modification, scientific-rule change, merge, or closure
+of PR #108.
