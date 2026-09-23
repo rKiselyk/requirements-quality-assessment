@@ -105,8 +105,8 @@ It must not collapse them into one accuracy number.
 
 | ID | Research question | Primary comparison unit |
 | --- | --- | --- |
-| `RQ-SRM13-1` | How accurately does the system identify approved observations in each of the six bounded feature families? | Reference observation versus system observation, per family |
-| `RQ-SRM13-2` | How accurately does the system localize and link exact accepted Evidence? | Exact source span and graph link |
+| `RQ-SRM13-1` | How accurately does the system identify approved typed observations in each of the six bounded feature families, independently of exact Evidence localization? | Evidence-independent typed observation identity/content, per family |
+| `RQ-SRM13-2` | How accurately does the system localize and link exact accepted Evidence, and how often are both the typed observation and all of its exact Evidence links jointly correct? | Exact source span and graph link; strict joint observation-plus-Evidence match reported separately |
 | `RQ-SRM13-3` | How accurately does the system distinguish completed processing, completed absence, accepted observations, incomplete processing, diagnostics, and downstream `UNKNOWN`? | Categorical processing/state result and diagnostic provenance |
 | `RQ-SRM13-4` | How often does each C, V, and U assessment match the independently derived state and exact value under the approved rules? | Per-characteristic state and exact `Fraction` |
 | `RQ-SRM13-5` | How faithfully does the trace explain the authoritative assessment and resolve to observations, diagnostics, Evidence, and Findings? | Decision/effect code and referential-integrity path |
@@ -448,6 +448,26 @@ Evidence equality for evaluation uses feature family, exact offsets, text, and
 Rule ID. Reference-only IDs are join keys and are not compared literally with
 runtime-generated IDs.
 
+Evaluation uses two projections of each `ReferenceObservation`:
+
+1. The **typed-content key** excludes `evidence_refs`, Evidence IDs, Evidence
+   text, and Evidence offsets. For a simple observation it contains
+   `feature_id` and `observation_type`; for a quantitative observation it also
+   contains the approved non-Evidence typed content (component presence,
+   comparator label and inclusivity, exact decimal value, unit label, and
+   `unresolved_components`); for a vague-term observation it also contains
+   `vague_vocabulary_id` and `vague_matched_literal`.
+2. The **exact Evidence-link signature** contains every resolved observation-
+   level and component-level link, including its component role, feature
+   family, exact offsets, exact text, and Rule ID. It preserves link
+   multiplicity; overlapping spans are not merged, and multi-span observations
+   retain every span. Run-local Evidence IDs are excluded from the signature.
+
+The first projection supports observation-detection measurement without span
+equality. The second supports the separate strict joint observation+Evidence
+measure and the primary Evidence evaluation in §8.3. Neither projection
+changes the reference schema or the production observation contract.
+
 ### 7.3 C/V/U assessment and processing/`UNKNOWN`
 
 ```text
@@ -579,22 +599,61 @@ imbalance can make a single statistic misleading.
 
 ### 8.2 Observation detection
 
-For each feature family, match a system observation to a reference observation
-only when its approved typed content and complete Evidence-link set match. Use
-one-to-one matching; an item cannot satisfy multiple references.
+Two observation measures are required and must be reported separately.
 
-Report true-positive, false-positive, and false-negative counts and the
-resulting precision, recall, and F1 separately per family. Micro and macro
-summaries may be reported only in addition to, not instead of, family-level
-results. Exact per-case set match and observation-count error are also
-reported. The matching algorithm and treatment of multi-span or overlapping
-observations must be frozen before unblinding.
+**Primary observation-detection comparison.** Match on the §7.2
+typed-content key only. Exact Evidence spans, Evidence text, Evidence Rule IDs,
+Evidence IDs, and Evidence-link equality do not participate in this match.
+Report true-positive, false-positive, and false-negative counts and precision,
+recall, and F1 separately per feature family, together with exact per-case
+typed-observation multiset match and observation-count error.
+
+**Strict joint observation+Evidence comparison.** Match only when both the
+typed-content key and the complete exact Evidence-link signature from §7.2
+match. Report its true-positive, false-positive, and false-negative counts and
+precision, recall, F1, and exact per-case joint multiset match separately from
+the primary observation-detection results. This stricter measure does not
+replace §8.3, which remains the primary Evidence localization/link evaluation.
+
+Both comparisons use the following deterministic one-to-one policy within
+each case and feature family:
+
+1. Preserve every reference and system observation as a separate multiset
+   member; do not de-duplicate observations with equal content or spans.
+2. For the primary comparison, partition observations by typed-content key.
+   Within each partition, pair the first reference member with the first
+   system member, the second with the second, and so on, using each side's
+   immutable observation-tuple order. Pair only up to the smaller partition
+   count; remaining reference members are false negatives and remaining
+   system members are false positives.
+3. For the strict joint comparison, independently partition by the composite
+   `(typed-content key, exact Evidence-link signature)` and apply the same
+   tuple-order pairing. This obtains deterministic exact joint matches without
+   using partial span overlap to choose a pair.
+4. Overlapping spans are retained as distinct linked spans. Multi-span
+   observations match strictly only when every role-specific link and its
+   multiplicity match. No span union, duplicate collapse, approximate match,
+   or best-overlap rematching is allowed.
+
+Micro and macro summaries may be reported only in addition to, not instead of,
+family-level results. The typed-content serialization, Evidence-link
+signature, and tuple-order policy must be frozen before unblinding.
 
 ### 8.3 Exact Evidence spans and links
 
-The primary Evidence measure is exact match of feature family, start offset,
-end offset, text, Rule ID, and required observation/component link. Report
-exact-span/link precision, recall, F1, and whole-case exact graph match.
+This section remains the primary evaluation of Evidence localization and
+linking. The primary Evidence identity is exact match of feature family, start
+offset, end offset, text, and Rule ID. Report registry-level exact-span
+precision, recall, F1, and exact per-case Evidence-registry match without
+requiring an observation match first.
+
+Evaluate Evidence links separately by comparing the complete role-specific
+Evidence-link signatures for the one-to-one typed-observation pairs established
+by the primary §8.2 policy. Report exact link-signature agreement and link-level
+precision, recall, and F1. Unmatched observations remain observation-detection
+errors and strict-joint errors; they are not relabeled as isolated Evidence
+localization/link errors. Whole-case exact graph match is additionally
+reported as the combined end-to-end Evidence result.
 
 For diagnosis only, report start-boundary error, end-boundary error, and a
 pre-approved character-overlap measure. Partial overlap is never promoted to
@@ -763,8 +822,14 @@ Use only researcher-approved categories derived from contract layers, for
 example:
 
 - corpus/reference defect;
-- supported detector miss or extra observation;
-- Evidence boundary, Rule-ID, or graph-link error;
+- observation detection error: missing, extra, or wrong approved typed
+  observation content under the primary evidence-independent comparison;
+- Evidence localization/link error: the typed observation is matched, but an
+  Evidence boundary, text, Rule ID, component role, link, or link multiplicity
+  is wrong;
+- combined observation+Evidence error: a strict joint comparison failure;
+  record whether its observation component, Evidence component, or both
+  failed, without replacing the two component error categories;
 - quantitative component/link error;
 - processing-status or diagnostic error;
 - `UNKNOWN` materiality/propagation error;
@@ -776,10 +841,13 @@ example:
 
 An error may receive multiple layer labels when propagation is involved, but
 the report must distinguish a root annotation/model error from downstream
-consequences. For example, one missed acceptance observation may cause an
-Evidence error, a V-tier difference, and trace differences; those outputs are
-all measured in their own units but must not be misreported as independent
-root causes.
+consequences. A wrong span on an otherwise matched acceptance observation is
+an Evidence localization/link error and a strict joint failure, not an
+observation-detection error. A missed acceptance observation is an
+observation-detection error and a strict joint failure; its absent Evidence
+graph must not be presented as an isolated span-localization failure. Any
+resulting V-tier and trace differences are measured in their own units but
+must not be misreported as independent root causes.
 
 If review finds a reference error, retain the original reference, correction,
 rationale, approver, and version. Report primary results against the frozen
