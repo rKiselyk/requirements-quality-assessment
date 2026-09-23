@@ -47,12 +47,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     assessor = RequirementQualityAssessor()
 
     requirement_results = tuple(
-        (requirement, assessor.assess(extractor.extract(requirement)))
+        assessor.assess_record(extractor.extract(requirement))
         for requirement in requirements
     )
 
     specification_profile = SpecificationQualityAggregator().aggregate(
-        profile for _, profile in requirement_results
+        record.quality_profile for record in requirement_results
     )
 
     print(ConsoleReporter().render(requirement_results, specification_profile))

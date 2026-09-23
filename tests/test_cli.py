@@ -122,7 +122,8 @@ def test_vague_term_signal_is_not_converted_into_a_confirmed_defect(
 
     captured = capsys.readouterr()
     assert "kind: SIGNAL" in captured.out
-    assert "QUALITY_PROBLEM" not in captured.out
+    assert "kind: QUALITY_PROBLEM" not in captured.out
+    assert "no current QUALITY_PROBLEM" in captured.out
 
 
 def test_missing_input_file_reports_error_and_nonzero_exit(tmp_path, capsys) -> None:
