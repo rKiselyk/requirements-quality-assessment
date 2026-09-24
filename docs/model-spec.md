@@ -10,10 +10,13 @@ specification-level aggregation semantics (`AGG-MVP-001`, Section 12) are now
 `APPROVED_FOR_MVP_V0.1`; the `ConsoleReporter` presentation contract
 (exact-`Fraction`-only display, Section 19, `RQD-015`) is now
 `APPROVED_FOR_MVP_V0.1`; the SRM-10 minimum assessment trace contract is
-`RESEARCHER_APPROVED / NOT_IMPLEMENTED` (Section 7.17; approval date
-2026-09-23) and is binding for SRM-11 and SRM-12; `QUALITY_PROBLEM` conversion (`RQD-016`) remains
+`RESEARCHER_APPROVED / IMPLEMENTED_AND_ACCEPTED` (Section 7.17; scientific
+approval date 2026-09-23; production implementation and integration completed
+through SRM-11 and SRM-12); the SRM-13 protocol remains proposed and its
+independent experiment has not started; `QUALITY_PROBLEM` conversion (`RQD-016`) remains
 open; the bounded SRM-03 structural rules `COND-UK-002`, `RESULT-UK-002`, and
-`ACCEPT-UK-001` are `APPROVED_FOR_SRM04_FIRST_SLICE` (Section 7.14.16), while
+`ACCEPT-UK-001` are `APPROVED_FOR_SRM04_FIRST_SLICE / IMPLEMENTED_AND_ACCEPTED`
+(Section 7.14.16), while
 broader `RQD-006` grammar remains open; the bounded SRM-05C metric-link rule
 `QUANT-METRIC-001` has scientific-contract status `RESEARCHER_APPROVED` and
 production status `IMPLEMENTED_AND_ACCEPTED` (Section 7.14.6.7); the bounded
@@ -143,26 +146,33 @@ do not block this approved SIGNAL-only first model.
 
 The milestone dependency state is:
 
-1. **SRM-10 scientific contract — `RESEARCHER_APPROVED / NOT_IMPLEMENTED`:**
-   Section 7.17 now defines the binding structured characteristic-to-source
-   assessment trace and explanation semantics approved on 2026-09-23;
-2. SRM-11 implementation of that exact contract, preserving contributing feature outcomes,
-   accepted observations, exact Evidence, completed-absence provenance, and
-   unresolved diagnostics through assessment, without changing the approved
+1. **SRM-10 scientific contract — `RESEARCHER_APPROVED`:** Section 7.17
+   defines the binding structured characteristic-to-source assessment trace
+   and explanation semantics approved on 2026-09-23;
+2. **SRM-11 — `IMPLEMENTED_AND_ACCEPTED`:** the approved immutable record and
+   trace structures, builder, decision/effect codes, and joint validation are
+   implemented and regression-tested without changing the approved C/V/U
    calculations;
-3. SRM-12 end-to-end integration and presentation of assessment state and
-   exact value, assessment Rule ID, contributing outcomes, accepted source
-   Evidence, non-fabricated absence provenance, unresolved diagnostics,
-   `SIGNAL` provenance, and bounded-coverage limitations; and
-4. SRM-13 bounded end-to-end validation under separately approved reference
-   annotations, methodology, measures, and acceptance interpretation.
+3. **SRM-12 — `IMPLEMENTED_AND_ACCEPTED`:** the validated record is preserved
+   through CLI orchestration and the complete audit reporter, including exact
+   Evidence, completed-absence provenance, unresolved diagnostics, `SIGNAL`
+   provenance, and bounded-coverage limitations;
+4. **Dual-view presentation — `IMPLEMENTED_AND_ACCEPTED`:** `--view user` is
+   the default, `--view audit` preserves the complete audit report, and both
+   views consume the same already-computed records and aggregate profile; and
+5. **SRM-13 — `PROTOCOL_PROPOSED / EXPERIMENT_NOT_STARTED`:** independent
+   bounded validation still requires the decisions, frozen corpus,
+   annotations, measures, and acceptance interpretation listed in the SRM-13
+   protocol.
 
 This subsection approved the milestone obligations; the later researcher
-decision in Section 7.17 now approves the complete SRM-10 structured-trace
-contract. Its production implementation remains assigned to SRM-11 and its
-end-to-end reporter integration to SRM-12. Scientific calculation remains
-outside the CLI and reporter. SRM-13 owns the experimental methodology and
-evaluation measures; no threshold or new reference value is approved here.
+decision in Section 7.17 approved the complete SRM-10 structured-trace
+contract. SRM-11 has since implemented it, and SRM-12 has since integrated the
+validated record into end-to-end orchestration and audit reporting. Scientific
+calculation remains outside the CLI and reporters. SRM-13 owns the independent
+experimental methodology and evaluation measures; its proposal approves no
+threshold or new reference value and records that the experiment has not
+started.
 
 Exact R3 (Section 7.14.6.9) and exact F1-A/M-A (Section 7.14.6.10) retain their
 existing statuses:
@@ -178,9 +188,10 @@ The approved critical path is therefore:
 ```text
 SRM-02 scope approval
 → SRM-10 minimum trace/explanation contract (researcher-approved)
-→ SRM-11 implementation
-→ SRM-12 end-to-end integration and explainable reporting
-→ SRM-13 bounded validation
+→ SRM-11 implementation (completed)
+→ SRM-12 end-to-end integration and explainable reporting (completed)
+→ dual-view presentation (completed)
+→ SRM-13 bounded independent validation (not started)
 ```
 
 SRM-09 type classification is not a prerequisite while the retained
@@ -264,7 +275,7 @@ applicability set, or confirmation procedure are not operationally defined.
 | Traceability | Requirement properties; requirements/product quality; metrics system | 2.1 paragraph 16; 2.2 paragraphs 23 and 27; 2.3 paragraphs 22-24 | Defined as a structural relationship property | No for text-only MVP | `OUT_OF_SCOPE_V0.1` |
 | Individual property result `a_ij` | Requirement properties | 2.1 paragraphs 20-24 and Table 2.3 | Range and examples defined; per-requirement property-specific derivation is now approved for MVP v0.1 by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). This is an MVP v0.1 operationalization, not a closure of broader future research into `a_ij` beyond the approved scope (e.g. confirmed-material-ambiguity `0`, specification-level aggregation) | Yes | `APPROVED_FOR_MVP_V0.1` (per-requirement scope) |
 | Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is now likewise approved via `AGG-MVP-001` (Section 12) | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_AND_AGGREGATE_CALCULATION_APPROVED` |
-| Per-requirement assessment trace | SRM-02 approval obligations; researcher-approved SRM-10 decision package, Section 7.17 | Sections 7.5, 7.15-7.17, 8-10, and 15 | `RequirementAssessmentRecord` and its companion trace bind characteristic state/value to governing rule, feature outcomes, accepted observations, diagnostics, Findings, exact Evidence, completed absence, and bounded non-claims without a second calculation model | Yes | `RESEARCHER_APPROVED / NOT_IMPLEMENTED` (approval date 2026-09-23; binding for SRM-11/SRM-12) |
+| Per-requirement assessment trace | SRM-02 approval obligations; researcher-approved SRM-10 decision package, Section 7.17 | Sections 7.5, 7.15-7.17, 8-10, and 15 | `RequirementAssessmentRecord` and its companion trace bind characteristic state/value to governing rule, feature outcomes, accepted observations, diagnostics, Findings, exact Evidence, completed absence, and bounded non-claims without a second calculation model | Yes | `RESEARCHER_APPROVED / IMPLEMENTED_AND_ACCEPTED` (scientific approval date 2026-09-23; SRM-11 implementation and SRM-12 integration verified in production code and regression tests) |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation is now closed under `AGG-MVP-001` (Section 12): `UNKNOWN` values are excluded from the mean and tracked as `unknown_count`, never treated as zero | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; the named baseline, structural, metric, and context Rule IDs remain allocated. Section 7.14.6.9 additionally approves the exact bounded R3 relationship science, and Section 7.14.6.10 approves exact F1-A in the existing quantitative observation shape; both remain unimplemented with Rule IDs unallocated | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED`; exact R3 and F1-A `RESEARCHER_APPROVED / NOT_IMPLEMENTED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
@@ -3967,13 +3978,15 @@ unblocked by detector approval alone.
 
 #### 7.14.16 SRM-03 bounded structural-rule approval
 
-**Status: `APPROVED_FOR_SRM04_FIRST_SLICE`.** The researcher approves SRM-03
-decisions D01, D02, D04, D06, D07, and D08 as one bounded package. This
-allocates exactly `COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001` for a
-future SRM-04 implementation. The approval is scientific authorization, not an
-implementation: all currently implemented MVP v0.1 behavior, formulas,
-applicability rules, domain structures, and existing rule contracts remain
-unchanged until SRM-04 is implemented and validated.
+**Scientific status: `APPROVED_FOR_SRM04_FIRST_SLICE`. Production status:
+`IMPLEMENTED_AND_ACCEPTED`.** The researcher approved SRM-03 decisions D01,
+D02, D04, D06, D07, and D08 as one bounded package, allocating exactly
+`COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001`. At approval time this was
+scientific authorization rather than implementation. All three rules have
+since been implemented behind the feature-extraction boundary and verified by
+their binding, pinned-backend, degraded-operation, and integration tests. The
+implementation changes no C/V/U formula, applicability rule, domain profile,
+or Finding conversion.
 
 The approved source is [SRM-03](srm-03-structural-rules.md), especially
 Sections 4-7, 9, and decisions D01, D02, D04, D06, D07, and D08. The complete
@@ -4138,19 +4151,19 @@ pending a real consumer and complete typed-relation contract. Singularity is
 `DEFERRED` pending an approved independence criterion, applicability, result
 representation, and cases.
 
-##### 7.14.16.7 SRM-04 authorization and prerequisites
+##### 7.14.16.7 SRM-04 authorization, implementation, and prerequisites
 
-SRM-04 is authorized to implement **only** `COND-UK-002`, `RESULT-UK-002`, and
+SRM-04 was authorized to implement **only** `COND-UK-002`, `RESULT-UK-002`, and
 `ACCEPT-UK-001`, with their precedence, ownership, Evidence, diagnostics,
-ordering, interactions, and binding cases above. It must reuse the current
-feature families, parser-neutral types, `FeatureObservation.evidence_refs`, and
-`RequirementExtractionResult`; it must not add attachment infrastructure,
-change calculators/applicability, decide singularity, or implement any deferred
-or blocked rule.
+ordering, interactions, and binding cases above. The completed implementation
+reuses the existing feature families, parser-neutral types,
+`FeatureObservation.evidence_refs`, and `RequirementExtractionResult`; it adds
+no attachment infrastructure, calculator/applicability change, singularity
+decision, or deferred/blocked rule.
 
 The recorded selected-backend graphs are implementation-feasibility evidence,
-not scientific authority or a parser-accuracy claim. Before production use,
-SRM-04 must add direct fixtures against the pinned spaCy 3.8.16 /
+not scientific authority or a parser-accuracy claim. Production verification
+includes direct fixtures against the pinned spaCy 3.8.16 /
 `uk_core_news_sm` 3.8.0 backend for:
 
 - P01's `nsubj`/`xcomp` plus exact `mark`/`advcl` head identities and delimiter-
@@ -4165,8 +4178,11 @@ SRM-04 must add direct fixtures against the pinned spaCy 3.8.16 /
 
 Those pinned-backend fixtures validate the approved rules; no detector may
 manufacture or repair a missing arc. The complete authorized reference set is
-P01-P04, P07-P08, and P14-P22. No further scientific choice is required for
-that bounded first slice.
+P01-P04, P07-P08, and P14-P22. The implementations and corresponding tests are
+in `postposed_condition.py` / `test_postposed_condition_detector.py`,
+`coordinated_result.py` / `test_coordinated_result_detector.py`, and
+`acceptance_criterion.py` / `test_literal_acceptance_criterion_detector.py`.
+No further scientific choice is required for that bounded first slice.
 
 ### 7.15 Parser & Domain Operationalization Contract — APPROVED FOR MVP v0.1
 
@@ -5365,24 +5381,24 @@ the future confirmed-material-ambiguity rule.
 | Sections 12 and 14 — **RESOLVED** | Requirement properties supports property means; Metrics system requires `NA` for an empty applicability set and separates missing from non-applicable | `AGG-MVP-001` (Section 12) approved: exclude `UNKNOWN` values from the mean and report coverage as `unknown_count`; aggregate state `UNKNOWN` when the applicability set is non-empty but nothing is `COMPUTED`; aggregate state `NOT_APPLICABLE`/NA when the applicability set is empty | Determines `C_file`, `V_file`, and `U_file` behavior | None; property-level aggregation propagation and empty/partially-known denominator semantics are approved for MVP v0.1 |
 
 `CompletenessCalculator`, `VerifiabilityCalculator`, and
-`UnambiguityCalculator` are no longer blocked by open scientific formulas or
-by an unselected internal representation: `CALC-C-MVP-001`, `CALC-V-MVP-001`,
-and `CALC-U-MVP-001` authorize their calculation logic in principle, and
-Section 13 now records `fractions.Fraction` as the concrete production
-representation of `1/3` and `2/3`, so MVP-06, MVP-07, and MVP-08 are no
-longer blocked on either ground. A concrete implementation must construct and
-propagate `Fraction` values exactly (for example `Fraction(1, 3)`,
-`Fraction(2, 3)`, `Fraction(1, 2)`), never via an intermediate `float` or
-approximate `Decimal` conversion. `SpecificationQualityAggregator` has since
-been implemented in production (MVP-09D / PR #63); presentation is approved
-under `RQD-015` / Section 19 (exact-`Fraction`-only display; decimal/
-percentage rounding is `NOT_APPLICABLE`), while any confirmed-ambiguity
+`UnambiguityCalculator` are implemented and regression-tested against
+`CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`. They construct and
+propagate exact `fractions.Fraction` values (for example `Fraction(1, 3)`,
+`Fraction(2, 3)`, and `Fraction(1, 2)`), never through an intermediate `float`
+or approximate `Decimal` conversion. `RequirementQualityAssessor` preserves
+the three independent assessments in `RequirementQualityProfile` without a
+scalar score. `SpecificationQualityAggregator` has likewise been implemented
+in production (MVP-09D / PR #63); presentation is implemented under
+`RQD-015` / Section 19 (exact-`Fraction`-only display; decimal/percentage
+rounding is `NOT_APPLICABLE`), while any confirmed-ambiguity
 `QUALITY_PROBLEM` rule remains separately open under `RQD-016`.
 
 ### 7.17 SRM-10 Minimum Assessment Trace Contract
 
 **Scientific status: `RESEARCHER_APPROVED`. Approval date: 2026-09-23.**  
-**Production status: `NOT_IMPLEMENTED`.**  
+**Production status at approval: `NOT_IMPLEMENTED`.**
+**Current production status: `IMPLEMENTED_AND_ACCEPTED` through SRM-11 and
+SRM-12.**
 **Decision package:**
 [`srm-10-assessment-trace-proposal.md`](srm-10-assessment-trace-proposal.md).
 
@@ -5691,13 +5707,22 @@ The researcher approves all eight SRM-10 gates as one package:
 7. `MVP-V0.1-BOUNDED-CVU-001` and its canonical non-claims; and
 8. all seven Section 7.17.8 rows as binding trace cases.
 
-Production remains `NOT_IMPLEMENTED`. SRM-11 must implement exactly this
-contract without changing calculator science or coupling calculators to a
-concrete extractor/NLP implementation. SRM-12 must carry the validated record
-through end-to-end orchestration and render it without making scientific
-decisions. The CLI remains orchestration-only; the reporter must not calculate
-a value, choose a tier, decide diagnostic materiality, assign applicability,
-create a Finding, synthesize Evidence, classify a defect, or combine C/V/U.
+SRM-11 implemented this contract in `domain/trace.py`,
+`assessment_trace.py`, and `RequirementQualityAssessor.assess_record`. The
+immutable structures are jointly validated against the extraction result and
+quality profile; the seven binding trace cases and invalid cross-object
+combinations are covered by `tests/test_assessment_trace.py`. SRM-12 carries
+the validated record through end-to-end CLI orchestration and the audit
+reporter; `tests/test_explainable_reporter.py`, `tests/test_cli.py`, and
+`tests/test_mvp_acceptance.py` verify source-resolvable Evidence, diagnostics,
+completed absence, Findings, ordering, and bounded disclosures. These are
+implementation-conformance and regression claims, not independent scientific
+validation.
+
+The original implementation boundary remains normative: the CLI is
+orchestration-only; a reporter must not calculate a value, choose a tier,
+decide diagnostic materiality, assign applicability, create a Finding,
+synthesize Evidence, classify a defect, or combine C/V/U.
 
 The approval introduces no new linguistic grammar, detector, threshold,
 characteristic, scalar score, `QUALITY_PROBLEM`, risk, confidence, severity,
@@ -6669,13 +6694,13 @@ automated linguistic or semantic signal to remain distinguishable from a
 confirmed defect. A detector count must not be presented directly as a quality
 percentage without an approved interpretation rule.
 
-The reporter receives a validated `RequirementAssessmentRecord` under the
-researcher-approved Section 7.17 trace contract and performs no calculation.
+The reporters receive validated `RequirementAssessmentRecord` values under the
+researcher-approved Section 7.17 trace contract and perform no calculation.
 Section 19 (MVP-10A) records the approved presentation contract, consistent
-with this constraint. SRM-12 integration must preserve the record's accepted
-observations, provisional rule role, completed absence, unresolved diagnostics,
-exact Evidence, Findings, and bounded-coverage disclosures without making a
-scientific decision in the reporter.
+with this constraint. The implemented SRM-12 integration preserves the
+record's accepted observations, provisional rule role, completed absence,
+unresolved diagnostics, exact Evidence, Findings, and bounded-coverage
+disclosures without making a scientific decision in either reporter.
 
 ## 16. Reference examples
 
@@ -6817,7 +6842,7 @@ approval.
 | `RQD-003` | Approve an operational definition of per-requirement Verifiability. | `APPROVED_FOR_MVP_V0.1` | `CALC-V-MVP-001` (Section 9) approves the alternative-evidence-path formula (acceptance criterion → `1`; quantitative/method only → `1/2`; none after complete processing → `0`) and its material-dependency unresolved propagation. Absence-based `QUALITY_PROBLEM` conversion remains separately gated under RQD-016. | CLOSED FOR MVP v0.1 — MVP-07 NO LONGER SCIENTIFICALLY BLOCKED BY THE VERIFIABILITY FORMULA | None for the formula itself; `QUALITY_PROBLEM` conversion remains under RQD-016 |
 | `RQD-004` | Approve an operational definition of per-requirement Unambiguity. | `AUTOMATED_SCALE_APPROVED_FOR_MVP_V0.1 / CONFIRMED_AMBIGUITY_OPEN` | `CALC-U-MVP-001` (Section 10) approves the executable automated MVP scale: no accepted supported signal after complete scanning → `1`; one or more → `1/2`. `0` remains reserved for a future, separately approved confirmed-material-ambiguity rule and is never produced by `CALC-U-MVP-001`. `FIND-U-VAGUE-001` remains a signal-only rule. | CLOSED FOR MVP v0.1 AUTOMATED SCALE — MVP-08 NO LONGER SCIENTIFICALLY BLOCKED BY THE UNAMBIGUITY NUMERIC RULE; confirmed-ambiguity `0` rule remains OPEN | Confirmed-ambiguity rule and any `QUALITY_PROBLEM` conversion remain under RQD-016 and future research |
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule by itself; score contribution for the mapped features is separately authorized by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). | CLOSED FOR MVP v0.1 | None directly; broader detector grammar remains gated under RQD-006/RQD-008 |
-| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates the original `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` subsets and, through the SRM-03 approval in Section 7.14.16, exactly three additional bounded rules: finite-verbal postposed `COND-UK-002`, binary coordinated active-infinitive `RESULT-UK-002`, and conditioned exact-message `ACCEPT-UK-001`. Section 7.15 supplies the unchanged spaCy/parser-neutral boundary. General condition/subordinate attachment, zero-copula/multiple/nested/coordinated conditions, nonmodal force (`RESULT-UK-003`), coordination beyond the binary rule, general negation/implicit subjects, broader nonnumeric acceptance, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, arbitrary method grammar, actor/action/object, and singularity remain open, blocked, or deferred. | PARTIALLY APPROVED / OPEN | SRM-04 may implement only the Section 7.14.16 first slice after adding its mandatory pinned-backend fixtures. Broader detector coverage remains open. This does not block calculators, which consume `RequirementExtractionResult` independently of remaining detector grammar. |
+| `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates the original `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` subsets and, through the SRM-03 approval in Section 7.14.16, exactly three additional bounded rules: finite-verbal postposed `COND-UK-002`, binary coordinated active-infinitive `RESULT-UK-002`, and conditioned exact-message `ACCEPT-UK-001`. Section 7.15 supplies the unchanged spaCy/parser-neutral boundary. The three SRM-04 rules are implemented and tested; general condition/subordinate attachment, zero-copula/multiple/nested/coordinated conditions, nonmodal force (`RESULT-UK-003`), coordination beyond the binary rule, general negation/implicit subjects, broader nonnumeric acceptance, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, arbitrary method grammar, actor/action/object, and singularity remain open, blocked, or deferred. | PARTIALLY APPROVED / OPEN | The approved Section 7.14.16 first slice is `IMPLEMENTED_AND_ACCEPTED`, including mandatory pinned-backend fixtures. Broader detector coverage remains open. This does not block calculators, which consume `RequirementExtractionResult` independently of remaining detector grammar. |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; the automated Unambiguity calculation itself is approved by `CALC-U-MVP-001` (Section 10) |
 | `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6-7.14.6.10, and 7.15 approve the conservative scalar baseline, `QUANT-001`/`QUANT-UK-001`, exact implemented-and-accepted `QUANT-METRIC-001` and `QUANT-CONTEXT-001`, the unchanged acceptance containment/judgeability contract, complete exact R3 relationship science, and exact F1-A/M-A frequency recognition. R3 and F1-A are each `RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED`; R3 uses a dedicated non-consumed relationship record, while F1-A uses the existing ordinary quantitative observation shape and is deliberately consumed by `CALC-V-MVP-001` but excluded from `ACCEPT-QUANT-001`. Both retain unallocated new Evidence IDs. R3's `до 300` remains `UPPER_BOUND / UNRESOLVED`; F1-A fixes `NOT_LESS_FREQUENT / None`, `Decimal("5") / SECOND`, metric Evidence `[0, 62)`, and anchor Evidence `[63, 90)` only for its two exact envelopes. Their implementation and all grammar beyond the metric, C0, R3, and F1-A contracts—including ambiguity diagnostics, variable count-noun and broader nested roles, written-out numbers, generic ranges, and broader frequency grammar—remain open/deferred. | PARTIALLY APPROVED / OPEN | SRM-05 issue #73 remains `OPEN`; R3 and F1-A each require a separately authorized implementation contract and final Rule/Evidence ID allocation. F2 remains `NOT_READY`; broader detector coverage remains open. Existing `VerifiabilityCalculator` needs no formula change, but an implemented F1-A observation can change computed inputs and outputs exactly as approved in Sections 7.14.6.10.7 and 9. |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
@@ -6827,7 +6852,7 @@ approval.
 | `RQD-013` | Define `RequirementQualityScore = f(Completeness, Verifiability, Unambiguity)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves `RequirementQualityProfile(C, V, U)` and intentionally has no scalar integrated requirement-quality score. Any future index requires separate researcher approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-014` | Define `FileQualityScore = g(Q_1, ..., Q_n)`. | `DEFERRED_FROM_MVP_V0.1` | MVP v0.1 preserves property-level means in `SpecificationQualityProfile(C_file, V_file, U_file)` and intentionally has no scalar integrated file-quality score. Exact missing/`UNKNOWN` propagation is now approved under `AGG-MVP-001` (RQD-012/RQD-022, Section 12); this row remains closed on the separate scalar-exclusion question, unaffected by that approval. | CLOSED FOR MVP v0.1 | None; scalar aggregation excluded |
 | `RQD-015` | Approve numeric precision and rounding. | `APPROVED_FOR_MVP_V0.1` (calculation semantics, internal representation, aggregate arithmetic, and presentation all closed) | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Section 13) approve exact mathematical calculator formula semantics (`1/3`, `2/3`, `1/2`) with no calculator-level intermediate rounding. Section 13 additionally approves Python standard-library `fractions.Fraction` as the internal production representation for per-requirement `CharacteristicAssessment.value` (`value: Fraction | None`, Section 7.16.2), distinct from the unchanged `Decimal` representation used for extracted quantitative measurement values, **and** for the `AGG-MVP-001` specification-level aggregate (Section 12): the aggregate mean over `COMPUTED` values is computed with the same exact, unrounded `Fraction` arithmetic. Section 19 (MVP-10A) now additionally approves the reporter/display layer: computed values are displayed as their exact reduced `Fraction`; MVP v0.1 defines no decimal or percentage rounding, so decimal-place precision, rounding mode, tie-breaking, and trailing-zero policy are not applicable, not unresolved. | CALCULATION-SEMANTICS, INTERNAL-REPRESENTATION, AGGREGATE-COMPUTATION-EXACTNESS, AND PRESENTATION/DISPLAY PORTIONS ALL CLOSED FOR MVP v0.1 | MVP-06/07/08 are no longer blocked by numeric representation; MVP-09/10 specification aggregation is no longer blocked by numeric representation or inclusion-set semantics; MVP-11/12 `ConsoleReporter` implementation is no longer blocked by `RQD-015` — the approved presentation contract is recorded in Section 19. Any future decimal/percentage representation would require a new, separate presentation decision |
-| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | Section 7.16.5 finalizes the minimal Finding representation, absence provenance, and `FIND-U-VAGUE-001`. The other five feature families produce no finding, and no `QUALITY_PROBLEM` rule is approved. Severity, probability, risk, confidence, priority, and corrective action are excluded. **This task approves no new `QUALITY_PROBLEM` rule**; this row remains open specifically, and only, for future `QUALITY_PROBLEM` conversion rules. | OPEN ONLY FOR `QUALITY_PROBLEM` RULES | MVP-06-08, MVP-10. Section 19 (MVP-10A)'s now-approved `ConsoleReporter` presentation contract displays existing `SIGNAL` findings without performing any `QUALITY_PROBLEM` conversion; this row remains open exactly as before — approving presentation does not resolve or require `QUALITY_PROBLEM` conversion |
+| `RQD-016` | Define the problem taxonomy and when an observation becomes a reported problem. | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | Section 7.16.5 finalizes the minimal Finding representation, absence provenance, and `FIND-U-VAGUE-001`. The other five feature families produce no finding, and no `QUALITY_PROBLEM` rule is approved. Severity, probability, risk, confidence, priority, and corrective action are excluded. **This task approves no new `QUALITY_PROBLEM` rule**; this row remains open specifically, and only, for future `QUALITY_PROBLEM` conversion rules. | OPEN ONLY FOR `QUALITY_PROBLEM` RULES | None for the implemented SIGNAL-only bounded model. Both reporters display existing `SIGNAL` findings without performing any `QUALITY_PROBLEM` conversion; adding such a conversion remains blocked pending a separate researcher decision |
 | `RQD-017` | Provide approved reference requirements with expected features, scores, and explanations. | `BINDING_NUMERIC_CASES_APPROVED_FOR_MVP_V0.1` | Section 7.16.8 approves Cases A-E as binding numeric reference cases: A=(C=1,V=1,U=1), B=(C=1/3,V=0,U=1/2), C=(C=0,V=1/2,U=1), D=(C=0,V=UNKNOWN,U=1), E=(C=0,V=0,U=1), each with `assessment_rule_id` traceability. Downstream specification-level aggregation acceptance is not solved by this approval. | CLOSED FOR MVP v0.1 PER-REQUIREMENT NUMERIC REFERENCE CASES; AGGREGATION-LEVEL REFERENCE CASES REMAIN OPEN | Specification-level aggregation (MVP-09/10, MVP-12) |
 | `RQD-018` | Define input-language, Unicode/case/punctuation, and multi-sentence or multi-clause behavior. | `APPROVED_FOR_MVP_V0.1` | UTF-8/Unicode input and original punctuation are preserved; linguistic matching may be case-insensitive; Ukrainian is the supported language-dependent profile; one input line remains one requirement even with multiple sentences or clauses. | CLOSED FOR MVP v0.1 | None |
 | `RQD-019` | Decide how consistency, traceability, coverage, and other broader properties relate to the three-characteristic MVP. | `APPROVED_FOR_EXCLUSION_FROM_MVP_V0.1` | Per-line Consistency and Traceability, global Completeness, coverage, product-quality prediction, risk, and corrective actions require broader context and remain future extensions. | CLOSED FOR MVP v0.1 | None |
@@ -6859,26 +6884,27 @@ approval.
 Any future scalar index requires a separate researcher-approved scientific
 decision.
 
-### 18.3 Remaining implementation-blocking RQDs
+### 18.3 Remaining research and implementation gates
 
 The gates below describe unresolved work in the wider research and detector
 roadmap. They are not all prerequisites for the researcher-approved minimum
-complete single-requirement milestone. Section 2.1 governs that milestone:
-the detailed trace/explanation contract is now `RESEARCHER_APPROVED` in
-Section 7.17, while its SRM-11 production implementation, SRM-12 integration,
-and bounded validation remain blocking; `RQD-023` type expansion,
-`QUALITY_PROBLEM` conversion, confirmed `U_i = 0`, exact R3/F1-A
-implementation, and broader SRM-03–08 detector coverage do not.
+complete single-requirement implementation. Section 2.1 governs that
+milestone: the detailed trace/explanation contract is `RESEARCHER_APPROVED`
+and its SRM-11 production implementation and SRM-12 integration are complete.
+Independent SRM-13 experimental validation remains pending. `RQD-023` type
+expansion, `QUALITY_PROBLEM` conversion, confirmed `U_i = 0`, exact R3/F1-A
+implementation, and broader detector coverage remain outside the implemented
+bounded C/V/U claim.
 
-The remaining decisions are grouped into four approval gates:
+The current decision areas are grouped into four approval gates:
 
 1. **Remaining feature-operationalization and quality-problem gate:** Section
    7.14 records approved detector strategies and baselines. Section 7.15
    approves the backend and domain representation, while `RQD-006` remains
    open for parser/template grammar beyond the `COND-UK-001/002`,
    `RESULT-UK-001/002`, `ACCEPT-QUANT-001`, `ACCEPT-UK-001`, and
-   `VERIFY-UK-001` bounded subsets. Section 7.14.16 authorizes SRM-04 only for
-   the three new bounded rules and their mandatory pinned-backend fixtures;
+   `VERIFY-UK-001` bounded subsets. The three Section 7.14.16 SRM-04 rules and
+   their mandatory pinned-backend fixtures are implemented and accepted;
    Section 7.14.6.7's exact `QUANT-METRIC-001` scientific contract is
    `RESEARCHER_APPROVED` and its production implementation is
    `IMPLEMENTED_AND_ACCEPTED`; Section 7.14.6.8's exact
@@ -6898,12 +6924,12 @@ The remaining decisions are grouped into four approval gates:
    SCOPE:** `RQD-002`-`RQD-004` and the per-requirement portions of
    `RQD-010`-`RQD-012` and `RQD-022` are now approved. `CALC-C-MVP-001`,
    `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) authorize the
-   calculation logic for `C_i`, `V_i`, and the automated `U_i` in principle, so
-   MVP-06, MVP-07, and MVP-08 are no longer blocked by open scientific
-   formulas. This gate is now closed for both the calculation semantics and
-   the internal production numeric representation: Section 13 approves
-   `fractions.Fraction` as the concrete representation for `1/3` and `2/3`, so
-   no separate implementer choice remains. Only the confirmed-material-
+   calculation logic for `C_i`, `V_i`, and the automated `U_i`; the three
+   calculators and `RequirementQualityAssessor` are implemented and
+   regression-tested against those rules. This gate is closed for both the
+   calculation semantics and the internal production numeric representation:
+   Section 13 approves, and production uses, `fractions.Fraction` as the
+   concrete representation. Only the confirmed-material-
    ambiguity `U_i = 0` rule and any `QUALITY_PROBLEM` conversion (RQD-016)
    remain scientifically open within this gate.
 3. **Property aggregation and numeric-contract gate — CLOSED FOR MVP v0.1,
@@ -6919,16 +6945,21 @@ The remaining decisions are grouped into four approval gates:
    Sections 12-13). The presentation/display portion of `RQD-015` is now
    likewise `APPROVED_FOR_MVP_V0.1` within this gate (Section 19:
    exact-`Fraction`-only display; decimal/percentage rounding not applicable)
-   — this closes `RQD-015` in full. `SpecificationQualityAggregator`
-   and `SpecificationQualityProfile` have since been implemented in production
-   against the approved `AGG-MVP-001` rule and representation contract
-   (Section 12, MVP-09D / PR #63).
+   — this closes `RQD-015` in full. `SpecificationQualityAggregator`,
+   `SpecificationQualityProfile`, `ConsoleReporter`, and `UserConsoleReporter`
+   are implemented in production against the approved aggregation and
+   presentation contracts.
 4. **Scientific acceptance gate:** the per-requirement portion of `RQD-017`
    is approved (Cases A-E are binding numeric reference cases).
    Specification-level numeric reference cases are illustrated in Section 12's
    worked examples but are not yet separately declared binding under
    `RQD-017`; that remains a distinct, not-yet-addressed decision, independent
-   of gate 3 above (which is now closed).
+   of gate 3 above (which is now closed). The SRM-13 protocol is only
+   `PROPOSED_FOR_RESEARCHER_REVIEW`; its decision gates are unresolved, its
+   independent corpus and annotations do not exist in approved frozen form,
+   and the experiment has not started. Unit, integration, acceptance, and
+   regression tests establish implementation conformance only and must not be
+   counted as independent experimental observations.
 
 `RQD-020` remains `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED`. It is not
 part of the current implementation-blocking gates because confidence and
@@ -6963,86 +6994,41 @@ contract.
    `c_acceptance` and `CALC-V-MVP-001`'s acceptance-criterion tier do not
    increase from multiple accepted observations in the same family.
 
-Now that the per-requirement characteristic-calculation gate is closed,
-including the internal production numeric representation (`fractions.Fraction`,
-Section 13), the recommended sequence is:
+The current production sequence is complete through presentation:
 
-1. implement and test `CompletenessCalculator`, `VerifiabilityCalculator`, and
-   `UnambiguityCalculator` against manually constructed and currently
-   extracted `RequirementExtractionResult` inputs, per `CALC-C-MVP-001`,
-   `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10), using
-   `fractions.Fraction` for `CharacteristicAssessment.value` as approved in
-   Section 13 — this is no longer blocked by an unselected numeric
-   representation;
-2. implement the `RESEARCHER_APPROVED / NOT_IMPLEMENTED` Section 7.17
-   `RequirementAssessmentRecord` and companion trace exactly under SRM-11,
-   then preserve it through SRM-12 integration and reporting without moving
-   scientific decisions into the reporter;
-3. `SpecificationQualityAggregator` and `SpecificationQualityProfile` have
-   since been implemented against the approved `AGG-MVP-001` rule and
-   representation contract (Section 12, RQD-012/RQD-022 closed; MVP-09D /
-   PR #63); the presentation/display portion of `RQD-015` (gate 3 above) is
-   now likewise approved (Section 19) and no longer blocks the later
-   `ConsoleReporter` implementation task;
-4. broader detector grammar — parser/template operationalization beyond the
-   `COND-UK-001/002`, `RESULT-UK-001/002`, `ACCEPT-QUANT-001`,
-   `ACCEPT-UK-001`, and `VERIFY-UK-001` bounded subsets under `RQD-006`, and
-   implementation of the exact approved-but-unimplemented R3 relationship and
-   F1-A observation plus grammar beyond the exact metric, C0, R3, and F1-A
-   contracts under `RQD-008` — can evolve independently of steps 1-3,
-   as future detector-coverage work, unless a later feature specifically
-   requires it. It is not a prerequisite for calculator implementation.
+1. six-family bounded feature extraction produces immutable outcomes,
+   diagnostics, and exact accepted Evidence;
+2. the three approved calculators produce independent C/V/U assessments and
+   `RequirementQualityAssessor` assembles `RequirementQualityProfile`;
+3. SRM-11 builds and jointly validates `RequirementAssessmentRecord` and its
+   companion trace without changing the calculator results;
+4. `SpecificationQualityAggregator` applies `AGG-MVP-001` to the completed
+   profiles; and
+5. SRM-12 and the dual-view amendment preserve the same completed records and
+   aggregate profile through the audit and default user views.
 
-The Section 7.15 domain/data-contract subset of MVP-01 may start only after
-PR #19 is merged. The three Section 7.14.16 rules are scientifically authorized
-for SRM-04 but are not implemented by this document-only approval. Other
-unapproved detector rules remain blocked; the overall document stays `DRAFT`
-pending the remaining gates.
+The remaining critical-path work is SRM-13 scientific approval and independent
+experimental execution, not another production trace or reporter
+implementation. Broader detector grammar, exact R3 and F1-A implementation,
+confirmed material ambiguity, and `QUALITY_PROBLEM` conversion remain separate
+research/extension streams. The overall document stays `DRAFT` because those
+scientific boundaries and validation gates remain open, not because the
+bounded SRM-11/SRM-12 implementation is absent.
 
-### 18.5 Downstream GitHub issue impact after characteristic-contract approval
+### 18.5 Current implementation and validation status
 
-The prior detector issues remain governed by Sections 7.14-7.15. The
-characteristic implementation issues for Completeness, Verifiability, and
-Unambiguity (MVP-06, MVP-07, MVP-08) are no longer blocked by open scientific
-formulas: RQD-002-RQD-004 and the per-requirement portions of RQD-010-RQD-012
-are approved via `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001`
-(Sections 8-10), so implementation of their calculation logic is authorized in
-principle. A future implementation issue may implement the Section 7.16
-identifiers, assessment envelope, Finding representation, `FIND-U-VAGUE-001`
-conversion, and the three numeric `CompletenessCalculator`,
-`VerifiabilityCalculator`, and `UnambiguityCalculator` rules exactly as
-specified in Sections 8-10 and 7.16.7-7.16.8. `RQD-015` has now selected and
-recorded the internal production numeric representation in Section 13:
-Python standard-library `fractions.Fraction`, used exactly as
-`CharacteristicAssessment.value: Fraction | None` (Section 7.16.2). The
-implementation issue does not select or re-derive that representation itself
-— it must follow the recorded decision (`Fraction`) rather than inferring or
-choosing a different type (`float`, `Decimal`, or otherwise) on its own. It
-may still **not** implement a `QUALITY_PROBLEM` conversion (RQD-016 remains
-open for that only), a confirmed-material-ambiguity `U_i = 0` rule, or
-specification-level aggregation (`SpecificationQualityAggregator`,
-`C_file`/`V_file`/`U_file`).
+| Stream | Scientific status | Production status | Verification boundary |
+| --- | --- | --- | --- |
+| SRM-10 assessment trace | `RESEARCHER_APPROVED` (2026-09-23) | `IMPLEMENTED_AND_ACCEPTED` by SRM-11 | Binding cases and joint invariants are regression-tested; this is implementation conformance |
+| SRM-11 trace implementation | Governed by Section 7.17 | `IMPLEMENTED_AND_ACCEPTED` | `RequirementAssessmentRecord`, `RequirementAssessmentTrace`, `CharacteristicTrace`, `FeatureInputTrace`, decision/effect codes, and cross-object validation are present and tested |
+| SRM-12 integration/reporting | Governed by Sections 7.17, 15, and 19 | `IMPLEMENTED_AND_ACCEPTED` | CLI preserves completed records; the audit reporter resolves observations, Evidence, diagnostics, absence, Findings, and disclosures without recalculation |
+| Dual-view presentation | `RESEARCHER_APPROVED` | `IMPLEMENTED_AND_ACCEPTED` after PR #108 | Default `user` and explicit `audit` views consume one shared scientific pipeline; compatibility and view-selection behavior are tested |
+| SRM-13 experimental validation | Protocol `PROPOSED_FOR_RESEARCHER_REVIEW` | Experiment not started | No approved frozen independent corpus, annotations, measures, thresholds, results, or acceptance conclusion exists |
 
-No issue may infer a `QUALITY_PROBLEM` or characteristic score beyond the
-approved `CALC-C/V/U-MVP-001` formulas from detector or parser rules.
-Specification aggregation is no longer scientifically blocked: the
-specification-level missing/`UNKNOWN` propagation (Sections 12-14,
-`AGG-MVP-001`) is now `APPROVED_FOR_MVP_V0.1`. `SpecificationQualityAggregator`
-and `SpecificationQualityProfile` have since been implemented exactly to the
-Section 12 representation contract (MVP-09D / PR #63). The presentation
-contract is now also `APPROVED_FOR_MVP_V0.1` (Section 19): a future
-`ConsoleReporter` implementation must follow the approved exact-`Fraction`-only
-display contract rather than inventing a different one, and must still not
-implement a `QUALITY_PROBLEM` conversion (RQD-016 remains open for that
-only).
-
-Section 7.17 is now the binding SRM-10 scientific contract for SRM-11 and
-SRM-12. Those implementation streams must use the approved
-`RequirementAssessmentRecord`, local tuple-index references, governing Rule
-IDs, decision/effect codes, completed-absence provenance, vague-term `SIGNAL`
-provenance, bounded-coverage profile, mixed-state semantics, and seven binding
-trace cases exactly as specified. Production remains `NOT_IMPLEMENTED` at this
-decision point.
+No current or future issue may infer a `QUALITY_PROBLEM` or characteristic
+score beyond the approved `CALC-C/V/U-MVP-001` formulas. The current
+implementation does not authorize confirmed `U_i = 0`, R3, F1-A, a scalar
+requirement/file score, or any independent-validation claim.
 
 ## 19. MVP-10A — ConsoleReporter Presentation Contract
 
@@ -7087,7 +7073,7 @@ sources; those decisions are now approved in §19.2.
 | Q2 | Decimal precision / rounding | `APPROVED_FOR_MVP_V0.1` / `NOT_APPLICABLE` | Because MVP v0.1 uses exact-fraction-only presentation (Q1), MVP v0.1 defines no decimal-place precision, rounding mode, tie-breaking rule, trailing-zero policy, or percentage rounding. This is not an unresolved MVP issue — it is deliberately not applicable under the approved exact-fraction contract. Any future decimal/percentage representation requires a new, separate, explicit presentation decision | Avoids inventing an unused rounding rule; keeps the MVP deterministic by having nothing left to decide |
 | Q3 | Unavailable-value tokens (`UNKNOWN`, `NOT_APPLICABLE`) | `APPROVED_FOR_MVP_V0.1` | Display the literal tokens `UNKNOWN` and `NOT_APPLICABLE` verbatim; do not abbreviate `NOT_APPLICABLE` to `N/A` in the canonical MVP console output. Neither state may ever be rendered as numeric zero | 1:1 traceable to `CharacteristicAssessmentState`; invents no new vocabulary; unambiguous; never confusable with a number |
 | Q4 | Partial-observability aggregate metadata (`computed_count`/`unknown_count`/`not_applicable_count`/`total_count`) | `APPROVED_FOR_MVP_V0.1` | Every specification-level characteristic aggregate displays all four observability counts, unconditionally — not only when `unknown_count > 0` | Uniform and deterministic; guarantees a partially observed aggregate (`state == COMPUTED` with `unknown_count > 0`) never appears fully observed, consistent with the missing-data policy's intent (Section 14) |
-| Q5 | Per-requirement output — which fields, and requirement id/text availability | `APPROVED_FOR_MVP_V0.1`; the later SRM-10 scientific supply contract is `RESEARCHER_APPROVED / NOT_IMPLEMENTED` in Section 7.17 | The normal human-readable per-requirement output must be attributable to its source requirement and include at minimum requirement id and original requirement text, followed by the Completeness/Verifiability/Unambiguity assessment presentation (`state`, `value`, `assessment_rule_id` when `COMPUTED`, `findings`, `explanation`). `RequirementQualityProfile` itself carries none of that requirement-level context. Section 7.17 now approves `RequirementAssessmentRecord` as the minimum reporter input, combining the extraction result, quality profile, and companion trace without copying source text, Evidence, observations, diagnostics, assessments, or Findings. The concrete production implementation remains SRM-11/SRM-12 work and may not redesign the approved scientific fields or semantics | Preserves Q5 attributability while using the later approved trace/input contract; production remains unimplemented and the reporter still makes no scientific decisions |
+| Q5 | Per-requirement output — which fields, and requirement id/text availability | `APPROVED_FOR_MVP_V0.1`; the later SRM-10 scientific supply contract is `RESEARCHER_APPROVED / IMPLEMENTED_AND_ACCEPTED` in Section 7.17 | The normal human-readable per-requirement output must be attributable to its source requirement and include at minimum requirement id and original requirement text, followed by the Completeness/Verifiability/Unambiguity assessment presentation (`state`, `value`, `assessment_rule_id` when `COMPUTED`, `findings`, `explanation`). `RequirementQualityProfile` itself carries none of that requirement-level context. Section 7.17 approves, and SRM-11/SRM-12 implement and integrate, `RequirementAssessmentRecord` as the minimum reporter input, combining the extraction result, quality profile, and companion trace without copying source text, Evidence, observations, diagnostics, assessments, or Findings | Preserves Q5 attributability through the implemented trace/input contract; the reporter still makes no scientific decisions |
 | Q6 | Findings presentation | `APPROVED_FOR_MVP_V0.1` | Surface the already-approved `Finding` information: `kind`, `code`, `rule_id`, `criterion_id` (when present), `evidence_refs`, and `explanation`. The finding kind must remain visibly identifiable — in particular, `SIGNAL` must be rendered as `SIGNAL`, not as a defect, failure, severity, risk, or `QUALITY_PROBLEM`. No `QUALITY_PROBLEM` conversion is introduced | Makes the `SIGNAL`/`QUALITY_PROBLEM` distinction visible to the reader without performing the `RQD-016` conversion; invents no severity, confidence, or priority |
 | Q7 | Specification summary layout (`C_file`/`V_file`/`U_file`) | `APPROVED_FOR_MVP_V0.1` | Display specification-level results independently, in the order Completeness, Verifiability, Unambiguity. For each: `state`; `value` as exact `Fraction` when `COMPUTED`, otherwise `UNKNOWN` or `NOT_APPLICABLE`; `computed_count`; `unknown_count`; `not_applicable_count`; `total_count`; `aggregation_rule_id`. Do not produce an overall file score, a weighted score, a combined C/V/U result, or a whole-file scalar state | Reuses only approved, already-implemented fields; no weighting or combination invented |
 | Q8 | Deterministic ordering (requirements, C/V/U, findings, spec summary) | `APPROVED_FOR_MVP_V0.1` | Requirements in reader/source order (`R001`, `R002`, ... as already generated); Completeness → Verifiability → Unambiguity in that fixed order everywhere; findings in their existing approved evidence/source ordering (ascending `start_offset`, Section 7.16.5); specification summary in the same Completeness → Verifiability → Unambiguity order. Do not introduce severity ordering, ranking, prioritization, or score sorting | No severity/ranking invented; matches every existing ordering rule already present in this specification |
@@ -7179,11 +7165,11 @@ findings does not resolve or require `QUALITY_PROBLEM` conversion.
 `AGG-MVP-001`, the `Finding`/`SIGNAL` contract, and the
 `SpecificationCharacteristicAggregate`/`SpecificationQualityProfile`
 implementation (MVP-09D / PR #63) are unchanged and are not reopened by this
-section. Section 7.17's later SRM-10 decision now supplies the binding
+section. Section 7.17's later SRM-10 decision supplies the binding
 `RequirementAssessmentRecord` and companion trace for Q5. Its scientific
-contract is `RESEARCHER_APPROVED`, its production status is `NOT_IMPLEMENTED`,
-and SRM-11/SRM-12 must implement and integrate it without changing this
-presentation contract or moving scientific decisions into the reporter.
+contract is `RESEARCHER_APPROVED`; SRM-11 and SRM-12 have implemented and
+integrated it without changing this presentation contract or moving scientific
+decisions into the reporter.
 
 ### 19.6 Dual-view presentation amendment
 
@@ -7315,9 +7301,10 @@ source order. Neither view sorts by value, severity, risk, or priority.
 
 This amendment changes presentation only. It changes no detector, feature
 rule, applicability decision, Evidence contract, Finding contract, trace
-semantics, formula, exact value, or aggregation result. It authorizes
-implementation in the existing `feature/dual-view-presentation` branch and PR
-#108; it does not authorize merging that PR. The R002, R004, R008, and
+semantics, formula, exact value, or aggregation result. At approval time it
+authorized implementation in `feature/dual-view-presentation` and PR #108
+without itself authorizing the merge; PR #108 has since been merged and the
+production status is recorded above. The R002, R004, R008, and
 eight-requirement outputs in Section 5 of the decision package are
 demonstrations of previously observed results, not new reference annotations
 or detector acceptance cases.
