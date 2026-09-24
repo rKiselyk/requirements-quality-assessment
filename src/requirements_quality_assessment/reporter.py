@@ -7,9 +7,12 @@ from typing import Iterable
 from .domain import (
     CharacteristicAssessment,
     CharacteristicAssessmentState,
+    CharacteristicId,
     CharacteristicTrace,
+    DetectionDiagnostic,
     DetectionProcessingStatus,
     Evidence,
+    FeatureId,
     FeatureInputTrace,
     Finding,
     FindingKind,
@@ -417,3 +420,485 @@ class ConsoleReporter:
         if value is not None:
             return str(value)
         return state.value
+
+
+_USER_CHARACTERISTICS = (
+    ("completeness", "Повнота"),
+    ("verifiability", "Перевірюваність"),
+    ("unambiguity", "Однозначність"),
+)
+
+_USER_FEATURE_ACCUSATIVE = {
+    FeatureId.CONDITION_CONTEXT: "умову/контекст",
+    FeatureId.EXPECTED_RESULT: "очікуваний результат",
+    FeatureId.ACCEPTANCE_CRITERION: "критерій приймання",
+    FeatureId.QUANTITATIVE_CONSTRAINT: "кількісне обмеження",
+    FeatureId.VERIFICATION_METHOD: "метод перевірки",
+    FeatureId.VAGUE_TERM_OCCURRENCE: "підтримуваний SIGNAL",
+}
+
+_USER_FEATURE_GENITIVE = {
+    FeatureId.CONDITION_CONTEXT: "умови/контексту",
+    FeatureId.EXPECTED_RESULT: "очікуваного результату",
+    FeatureId.ACCEPTANCE_CRITERION: "критерію приймання",
+    FeatureId.QUANTITATIVE_CONSTRAINT: "кількісного обмеження",
+    FeatureId.VERIFICATION_METHOD: "методу перевірки",
+    FeatureId.VAGUE_TERM_OCCURRENCE: "підтримуваного SIGNAL",
+}
+
+_USER_CHARACTERISTIC_ACCUSATIVE = {
+    CharacteristicId.COMPLETENESS: "Повноту",
+    CharacteristicId.VERIFIABILITY: "Перевірюваність",
+    CharacteristicId.UNAMBIGUITY: "Однозначність",
+}
+
+_MATERIAL_EFFECTS = frozenset(
+    {
+        TraceEffectCode.C_REQUIRED_UNRESOLVED,
+        TraceEffectCode.V_UNRESOLVED_MATERIAL,
+        TraceEffectCode.U_UNRESOLVED_MATERIAL,
+    }
+)
+
+_USER_COVERAGE_DISCLOSURES = (
+    "Покриття обмежене реалізованими правилами для шести сімейств ознак і C/V/U; "
+    "це не вичерпний аналіз української мови або змісту вимог.",
+    "NOT_DETECTED і завершена відсутність означають лише, що завершені реалізовані "
+    "правила не прийняли спостереження; це не універсальна семантична відсутність.",
+    "Значення C/V, зокрема низькі або нульові, є результатами правил, а не "
+    "підтвердженими дефектами.",
+    "U=1 означає відсутність підтримуваного класу SIGNAL, а не доказ єдиного "
+    "тлумачення; U=1/2 означає наявність SIGNAL, а не підтверджену неоднозначність; "
+    "чинне правило U не повертає 0.",
+    "FIND-U-VAGUE-001 створює лише SIGNAL; чинна модель не створює QUALITY_PROBLEM, "
+    "рівень серйозності, упевненість, ризик або коригувальну дію.",
+    "R3 і F1-A затверджені дослідником, але не реалізовані й не належать до "
+    "заявленого покриття виконання.",
+    "Це багатовимірний профіль C/V/U, а не скалярна оцінка вимоги чи прогноз "
+    "якості програмного продукту.",
+)
+
+
+class UserConsoleReporter:
+    """Render the approved concise Ukrainian view over completed records."""
+
+    def render(
+        self,
+        requirement_results: Iterable[RequirementAssessmentRecord],
+        specification_profile: SpecificationQualityProfile,
+    ) -> str:
+        materialized = tuple(requirement_results)
+        if any(not isinstance(item, RequirementAssessmentRecord) for item in materialized):
+            raise TypeError("user view requires RequirementAssessmentRecord inputs")
+
+        sections = ["Звіт про якість вимог"]
+        sections.extend(self._render_record(record) for record in materialized)
+        sections.append(
+            self._render_specification_summary(len(materialized), specification_profile)
+        )
+        sections.append(self._render_disclosures())
+        return "\n\n".join(sections)
+
+    def _render_record(self, record: RequirementAssessmentRecord) -> str:
+        requirement = record.extraction_result.requirement
+        lines = [f"Вимога {requirement.id}", f"Текст: {requirement.text}", ""]
+
+        for field_name, label in _USER_CHARACTERISTICS:
+            assessment = getattr(record.quality_profile, field_name)
+            lines.append(f"{label}: {self._render_value(assessment)}")
+
+        lines.extend(("", "Чому така оцінка:"))
+        for trace, (_, label) in zip(
+            record.trace.characteristics, _USER_CHARACTERISTICS, strict=True
+        ):
+            lines.append(f"  - {label}: {self._render_explanation(record, trace)}")
+
+        attention, shown_ranges = self._render_attention(record)
+        if attention:
+            lines.extend(("", "Звернути увагу:", *attention))
+
+        source_basis = self._render_source_basis(record, shown_ranges)
+        if source_basis:
+            lines.extend(("", "Підстава в тексті:", *source_basis))
+
+        return "\n".join(lines)
+
+    def _render_explanation(
+        self, record: RequirementAssessmentRecord, trace: CharacteristicTrace
+    ) -> str:
+        assessment = self._assessment_for(record, trace.characteristic_id)
+        if assessment.state is CharacteristicAssessmentState.NOT_APPLICABLE:
+            return (
+                "Стан NOT_APPLICABLE встановлено чинним керівним правилом; "
+                "числового значення немає."
+            )
+        if trace.characteristic_id is CharacteristicId.COMPLETENESS:
+            return self._render_completeness_explanation(record, trace)
+        if trace.characteristic_id is CharacteristicId.VERIFIABILITY:
+            return self._render_verifiability_explanation(record, trace)
+        return self._render_unambiguity_explanation(record, trace)
+
+    def _render_completeness_explanation(
+        self, record: RequirementAssessmentRecord, trace: CharacteristicTrace
+    ) -> str:
+        present: list[str] = []
+        absent: list[str] = []
+        unresolved: list[str] = []
+        repeated = False
+        for input_trace in trace.inputs:
+            count = len(input_trace.observation_indexes)
+            if count:
+                present.append(self._detected_completeness_label(input_trace.feature_id, count))
+                repeated = repeated or count > 1
+            if input_trace.effect_code is TraceEffectCode.C_COMPLETED_ABSENCE_0:
+                absent.append(_USER_FEATURE_ACCUSATIVE[input_trace.feature_id])
+            elif input_trace.effect_code is TraceEffectCode.C_REQUIRED_UNRESOLVED:
+                unresolved.append(_USER_FEATURE_ACCUSATIVE[input_trace.feature_id])
+
+        if trace.decision_code is TraceDecisionCode.C_REQUIRED_INPUT_UNRESOLVED:
+            return (
+                f"Виявлено: {self._join_ukrainian(present)}; за реалізованими "
+                f"правилами не виявлено: {self._join_ukrainian(absent)}; "
+                f"невирішено: {self._join_ukrainian(unresolved)}. Через невирішений "
+                "обов'язковий складник результат UNKNOWN."
+            )
+
+        repeated_suffix = (
+            ", тому повторні спостереження одного складника не збільшують оцінку"
+            if repeated
+            else ""
+        )
+        return (
+            f"Виявлено: {self._join_ukrainian(present)}; за реалізованими правилами "
+            f"не виявлено: {self._join_ukrainian(absent)}. Кожен із трьох "
+            f"складників враховується один раз{repeated_suffix}."
+        )
+
+    def _render_verifiability_explanation(
+        self, record: RequirementAssessmentRecord, trace: CharacteristicTrace
+    ) -> str:
+        if trace.decision_code is TraceDecisionCode.V_FULL_ACCEPTANCE_TIER:
+            lower_has_content = any(
+                input_trace.observation_indexes or input_trace.diagnostic_indexes
+                for input_trace in trace.inputs[1:]
+            )
+            suffix = (
+                " Інші прийняті або невирішені нижчі шляхи не змінюють цього рівня."
+                if lower_has_content
+                else ""
+            )
+            return (
+                "Виявлено прийнятий критерій приймання, тому застосовано повний "
+                f"затверджений рівень.{suffix}"
+            )
+
+        if trace.decision_code is TraceDecisionCode.V_PARTIAL_LOWER_TIER:
+            accepted = [
+                _USER_FEATURE_ACCUSATIVE[input_trace.feature_id]
+                for input_trace in trace.inputs[1:]
+                if input_trace.observation_indexes
+            ]
+            return (
+                "Критерій приймання завершено без прийнятого спостереження; "
+                f"виявлено {self._join_ukrainian(accepted)}, тому застосовано "
+                "нижчий затверджений рівень."
+            )
+
+        if trace.decision_code is TraceDecisionCode.V_COMPLETED_NO_EVIDENCE_TIER:
+            return (
+                "Критерій приймання, кількісне обмеження та метод перевірки "
+                "завершено без прийнятих спостережень. Це завершена відсутність "
+                "за реалізованими правилами, а не підтверджений дефект."
+            )
+
+        present: list[str] = []
+        absent: list[str] = []
+        unresolved: list[str] = []
+        for input_trace in trace.inputs:
+            if input_trace.observation_indexes:
+                present.append(_USER_FEATURE_ACCUSATIVE[input_trace.feature_id])
+            if input_trace.effect_code is TraceEffectCode.V_COMPLETED_ABSENCE:
+                absent.append(_USER_FEATURE_ACCUSATIVE[input_trace.feature_id])
+            elif input_trace.effect_code is TraceEffectCode.V_UNRESOLVED_MATERIAL:
+                unresolved.append(_USER_FEATURE_ACCUSATIVE[input_trace.feature_id])
+        return (
+            f"Виявлено: {self._join_ukrainian(present)}; за реалізованими правилами "
+            f"не виявлено: {self._join_ukrainian(absent)}; невирішено: "
+            f"{self._join_ukrainian(unresolved)}. Невирішений істотний кандидат "
+            "може змінити рівень, тому результат UNKNOWN."
+        )
+
+    def _render_unambiguity_explanation(
+        self, record: RequirementAssessmentRecord, trace: CharacteristicTrace
+    ) -> str:
+        outcome = outcome_for_feature(
+            record.extraction_result, FeatureId.VAGUE_TERM_OCCURRENCE
+        )
+        if trace.decision_code is TraceDecisionCode.U_SUPPORTED_SIGNAL_TIER:
+            count = len(outcome.observations)
+            agreement = "підтримуваний" if count == 1 else "підтримуваних"
+            return (
+                f"Виявлено {count} {agreement} SIGNAL, тому значення 1/2; кількість "
+                "сигналів не накопичує оцінку. SIGNAL є потенційним індикатором, "
+                "а не підтвердженою неоднозначністю чи дефектом."
+            )
+        if trace.decision_code is TraceDecisionCode.U_COMPLETED_SIGNAL_ABSENCE_TIER:
+            return (
+                "Пошук підтримуваного класу SIGNAL завершено без прийнятих "
+                "входжень, тому значення 1. Це не доводить єдиність тлумачення."
+            )
+        return (
+            "Пошук підтримуваного класу SIGNAL не завершено: невирішена обробка "
+            "ще може виявити індикатор. Тому результат UNKNOWN."
+        )
+
+    def _render_attention(
+        self, record: RequirementAssessmentRecord
+    ) -> tuple[list[str], set[tuple[int, int]]]:
+        evidence_by_id = {
+            evidence.evidence_id: evidence
+            for evidence in record.extraction_result.evidence
+        }
+        items: list[tuple[int, int, str, set[tuple[int, int]]]] = []
+        sequence = 0
+
+        unambiguity = record.quality_profile.unambiguity
+        for finding in unambiguity.findings:
+            if finding.kind is not FindingKind.SIGNAL:
+                continue
+            evidence = tuple(evidence_by_id[ref] for ref in finding.evidence_refs)
+            ranges = {(item.start_offset, item.end_offset) for item in evidence}
+            start = min(item.start_offset for item in evidence)
+            text = (
+                f"SIGNAL: {self._quote_evidence(evidence)} — підтримуваний індикатор "
+                "потенційної неоднозначності, а не підтверджений дефект."
+            )
+            items.append((start, sequence, text, ranges))
+            sequence += 1
+
+        diagnostics: dict[
+            tuple[FeatureId, int],
+            tuple[DetectionDiagnostic, FeatureId, list[CharacteristicId]],
+        ] = {}
+        for trace in record.trace.characteristics:
+            for input_trace in trace.inputs:
+                if input_trace.effect_code not in _MATERIAL_EFFECTS:
+                    continue
+                outcome = outcome_for_feature(
+                    record.extraction_result, input_trace.feature_id
+                )
+                for index in input_trace.diagnostic_indexes:
+                    key = (input_trace.feature_id, index)
+                    diagnostic = outcome.diagnostics[index]
+                    if key not in diagnostics:
+                        diagnostics[key] = (
+                            diagnostic,
+                            input_trace.feature_id,
+                            [trace.characteristic_id],
+                        )
+                    elif trace.characteristic_id not in diagnostics[key][2]:
+                        diagnostics[key][2].append(trace.characteristic_id)
+
+        requirement_text_length = len(record.extraction_result.requirement.text)
+        for diagnostic, feature_id, characteristic_ids in diagnostics.values():
+            affected = self._join_affected(characteristic_ids)
+            span = diagnostic.candidate_span
+            ranges: set[tuple[int, int]] = set()
+            if span is None:
+                start = requirement_text_length + 1
+                text = (
+                    "Невирішений кандидат без окремого джерельного фрагмента "
+                    "(не прийняте Evidence). Він може змінити "
+                    f"{affected}, тому відповідний результат лишається UNKNOWN."
+                )
+            else:
+                start = span.start_offset
+                ranges.add((span.start_offset, span.end_offset))
+                same_range_evidence = tuple(
+                    evidence
+                    for evidence in record.extraction_result.evidence
+                    if evidence.feature_id is not feature_id
+                    and evidence.start_offset == span.start_offset
+                    and evidence.end_offset == span.end_offset
+                )
+                if same_range_evidence:
+                    accepted_features = self._join_ukrainian(
+                        list(
+                            dict.fromkeys(
+                                _USER_FEATURE_GENITIVE[evidence.feature_id]
+                                for evidence in same_range_evidence
+                            )
+                        )
+                    )
+                    text = (
+                        f"Невирішений кандидат {_USER_FEATURE_GENITIVE[feature_id]} "
+                        f"(не прийняте Evidence): «{span.text}». Цей самий фрагмент "
+                        f"окремо прийнято як Evidence {accepted_features}; невирішений "
+                        f"кандидат може змінити {affected}, тому відповідний результат "
+                        "лишається UNKNOWN."
+                    )
+                else:
+                    text = (
+                        f"Невирішений кандидат (не прийняте Evidence): «{span.text}». "
+                        f"Він може змінити {affected}, тому відповідний результат "
+                        "лишається UNKNOWN."
+                    )
+            items.append((start, sequence, text, ranges))
+            sequence += 1
+
+        items.sort(key=lambda item: (item[0], item[1]))
+        shown_ranges = {source_range for item in items for source_range in item[3]}
+        return [f"  - {item[2]}" for item in items], shown_ranges
+
+    def _render_source_basis(
+        self,
+        record: RequirementAssessmentRecord,
+        shown_ranges: set[tuple[int, int]],
+    ) -> list[str]:
+        evidence_by_id = {
+            evidence.evidence_id: evidence
+            for evidence in record.extraction_result.evidence
+        }
+        seen_ranges = set(shown_ranges)
+        lines: list[str] = []
+
+        completeness_trace = record.trace.characteristics[0]
+        for input_trace in completeness_trace.inputs:
+            if len(input_trace.observation_indexes) < 2:
+                continue
+            outcome = outcome_for_feature(record.extraction_result, input_trace.feature_id)
+            for ordinal, observation_index in enumerate(
+                input_trace.observation_indexes, start=1
+            ):
+                observation = outcome.observations[observation_index]
+                evidence = tuple(
+                    evidence_by_id[reference]
+                    for reference in observation.evidence_refs
+                    if (
+                        evidence_by_id[reference].start_offset,
+                        evidence_by_id[reference].end_offset,
+                    )
+                    not in seen_ranges
+                )
+                if not evidence:
+                    continue
+                prefix = self._ordinal_prefix(ordinal)
+                lines.append(
+                    f"  - {prefix} прийняте спостереження "
+                    f"{_USER_FEATURE_GENITIVE[input_trace.feature_id]}: "
+                    f"{self._quote_evidence(evidence)}."
+                )
+                seen_ranges.update(
+                    (item.start_offset, item.end_offset) for item in evidence
+                )
+
+        verifiability_trace = record.trace.characteristics[1]
+        selecting_effects = {
+            TraceEffectCode.V_SELECTS_FULL_TIER,
+            TraceEffectCode.V_SELECTS_LOWER_TIER,
+        }
+        for input_trace in verifiability_trace.inputs:
+            if input_trace.effect_code not in selecting_effects:
+                continue
+            outcome = outcome_for_feature(record.extraction_result, input_trace.feature_id)
+            for observation_index in input_trace.observation_indexes:
+                observation = outcome.observations[observation_index]
+                evidence = tuple(
+                    evidence_by_id[reference]
+                    for reference in observation.evidence_refs
+                    if (
+                        evidence_by_id[reference].start_offset,
+                        evidence_by_id[reference].end_offset,
+                    )
+                    not in seen_ranges
+                )
+                if not evidence:
+                    continue
+                lines.append(
+                    f"  - Прийняте Evidence "
+                    f"{_USER_FEATURE_GENITIVE[input_trace.feature_id]}: "
+                    f"{self._quote_evidence(evidence)}."
+                )
+                seen_ranges.update(
+                    (item.start_offset, item.end_offset) for item in evidence
+                )
+
+        return lines
+
+    def _render_specification_summary(
+        self, analyzed_count: int, specification_profile: SpecificationQualityProfile
+    ) -> str:
+        lines = ["Підсумок специфікації", f"Вимог: {analyzed_count}"]
+        for field_name, label in _USER_CHARACTERISTICS:
+            aggregate = getattr(specification_profile, field_name)
+            value = aggregate.value if aggregate.value is not None else aggregate.state.value
+            lines.append(
+                f"{label}: {value} (обчислено: {aggregate.computed_count}; "
+                f"UNKNOWN: {aggregate.unknown_count}; NOT_APPLICABLE: "
+                f"{aggregate.not_applicable_count}; усього: {aggregate.total_count})"
+            )
+        return "\n".join(lines)
+
+    @staticmethod
+    def _render_disclosures() -> str:
+        return "\n".join(
+            [
+                "Межі звіту",
+                *(
+                    f"  {index}. {disclosure}"
+                    for index, disclosure in enumerate(_USER_COVERAGE_DISCLOSURES, 1)
+                ),
+            ]
+        )
+
+    @staticmethod
+    def _assessment_for(
+        record: RequirementAssessmentRecord, characteristic_id: CharacteristicId
+    ) -> CharacteristicAssessment:
+        return {
+            CharacteristicId.COMPLETENESS: record.quality_profile.completeness,
+            CharacteristicId.VERIFIABILITY: record.quality_profile.verifiability,
+            CharacteristicId.UNAMBIGUITY: record.quality_profile.unambiguity,
+        }[characteristic_id]
+
+    @staticmethod
+    def _render_value(assessment: CharacteristicAssessment) -> str:
+        if assessment.value is not None:
+            return str(assessment.value)
+        return assessment.state.value
+
+    @staticmethod
+    def _detected_completeness_label(feature_id: FeatureId, count: int) -> str:
+        if count == 1:
+            return _USER_FEATURE_ACCUSATIVE[feature_id]
+        if feature_id is FeatureId.EXPECTED_RESULT and count == 2:
+            return "два очікувані результати"
+        return f"{count} спостереження {_USER_FEATURE_GENITIVE[feature_id]}"
+
+    @staticmethod
+    def _join_ukrainian(items: list[str]) -> str:
+        if not items:
+            return "немає"
+        if len(items) == 1:
+            return items[0]
+        return ", ".join(items[:-1]) + " і " + items[-1]
+
+    @staticmethod
+    def _join_affected(characteristic_ids: list[CharacteristicId]) -> str:
+        labels = [
+            _USER_CHARACTERISTIC_ACCUSATIVE[characteristic_id]
+            for characteristic_id in characteristic_ids
+        ]
+        if len(labels) == 1:
+            return labels[0]
+        return ", ".join(labels[:-1]) + " й " + labels[-1]
+
+    @staticmethod
+    def _quote_evidence(evidence: tuple[Evidence, ...]) -> str:
+        return " + ".join(f"«{item.text}»" for item in evidence)
+
+    @staticmethod
+    def _ordinal_prefix(ordinal: int) -> str:
+        return {1: "Перше", 2: "Друге", 3: "Третє"}.get(
+            ordinal, f"{ordinal}-те"
+        )

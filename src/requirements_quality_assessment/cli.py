@@ -10,7 +10,7 @@ from .aggregator import SpecificationQualityAggregator
 from .assessor import RequirementQualityAssessor
 from .extractor import BaselineFeatureExtractor
 from .reader import RequirementReader
-from .reporter import ConsoleReporter
+from .reporter import ConsoleReporter, UserConsoleReporter
 
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
@@ -24,6 +24,12 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument(
         "path",
         help="Path to a UTF-8 requirements text file.",
+    )
+    parser.add_argument(
+        "--view",
+        choices=("user", "audit"),
+        default="user",
+        help="Presentation view: concise Ukrainian user report (default) or full audit trace.",
     )
     return parser.parse_args(argv)
 
@@ -55,5 +61,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         record.quality_profile for record in requirement_results
     )
 
-    print(ConsoleReporter().render(requirement_results, specification_profile))
+    reporter = UserConsoleReporter() if args.view == "user" else ConsoleReporter()
+    print(reporter.render(requirement_results, specification_profile))
     return 0

@@ -105,11 +105,11 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
         report.index(f"Requirement R{i:03d}") for i in range(1, 6)
     )
 
-    assert main([str(path)]) == 0
+    assert main(["--view", "audit", str(path)]) == 0
     first_run = capsys.readouterr()
     assert first_run.err == ""
     assert first_run.out == report + "\n"
-    assert main([str(path)]) == 0
+    assert main(["--view", "audit", str(path)]) == 0
     second_run = capsys.readouterr()
     assert second_run == first_run
 
@@ -119,7 +119,8 @@ def test_empty_input_has_not_applicable_aggregates(tmp_path, capsys) -> None:
     path.write_text(" \n\t\n", encoding="utf-8")
     assert main([str(path)]) == 0
     output = capsys.readouterr().out
-    assert "Analyzed requirements: 0" in output
-    assert output.count("  state: NOT_APPLICABLE") == 3
-    assert output.count("  value: NOT_APPLICABLE") == 3
-    assert output.count("  total_count: 0") == 3
+    assert "Вимог: 0" in output
+    assert output.count(
+        "NOT_APPLICABLE (обчислено: 0; UNKNOWN: 0; NOT_APPLICABLE: 0; усього: 0)"
+    ) == 3
+    assert output.count("Межі звіту") == 1

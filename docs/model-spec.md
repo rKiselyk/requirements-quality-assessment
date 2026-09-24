@@ -7184,3 +7184,140 @@ section. Section 7.17's later SRM-10 decision now supplies the binding
 contract is `RESEARCHER_APPROVED`, its production status is `NOT_IMPLEMENTED`,
 and SRM-11/SRM-12 must implement and integrate it without changing this
 presentation contract or moving scientific decisions into the reporter.
+
+### 19.6 Dual-view presentation amendment
+
+- **Scientific status:** `RESEARCHER_APPROVED`
+- **Approval date:** 2026-09-23
+- **Production status at approval:** `NOT_IMPLEMENTED`
+- **Production status after PR #108 implementation:** `IMPLEMENTED_AND_ACCEPTED`
+- **Approved decision package:**
+  [`dual-view-presentation-proposal.md`](dual-view-presentation-proposal.md)
+
+The researcher approves two presentation projections over the same completed
+`RequirementAssessmentRecord` values and `SpecificationQualityProfile`:
+
+1. `user` — a concise Ukrainian assessment and the CLI default; and
+2. `audit` — the complete existing report approved by Sections 19.1-19.5.
+
+This amendment does not reopen or replace the previously approved presentation
+contract. Sections 19.1-19.5 become the normative `audit` view. The existing
+`ConsoleReporter.render(requirement_results, specification_profile)` remains
+the audit API with its signature, legacy tuple support, detailed fields,
+trace, interpretations, coverage disclosures, ordering, whitespace, and output
+unchanged for identical completed inputs.
+
+#### 19.6.1 CLI selection and single scientific path
+
+The CLI interface is:
+
+```text
+--view {user,audit}
+```
+
+The default is `user`; explicit `--view audit` selects the existing complete
+report. View selection occurs only after the existing single extraction,
+assessment/trace, and aggregation pipeline has completed. Both renderers
+receive the same already-computed records and specification profile. A view
+must not cause a second extraction, calculation, aggregation, materiality
+decision, Finding classification, Evidence generation, or scientific
+interpretation path.
+
+#### 19.6.2 Concise user requirement block
+
+The user view is not a translated trace dump. Every requirement displays,
+in source order:
+
+```text
+Вимога <requirement_id>
+Текст: <original trimmed requirement text>
+
+Повнота: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
+Перевірюваність: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
+Однозначність: <exact Fraction|UNKNOWN|NOT_APPLICABLE>
+
+Чому така оцінка:
+  - Повнота: <one or two concise sentences from the approved trace>
+  - Перевірюваність: <one or two concise sentences from the approved trace>
+  - Однозначність: <one or two concise sentences from the approved trace>
+<conditional Звернути увагу>
+<conditional Підстава в тексті>
+```
+
+The three explanations state, in concise Ukrainian, which approved feature
+families have accepted observations, which completed without an accepted
+observation under implemented rules, and which material inputs remain
+unresolved. A repeated observation in one Completeness family is disclosed
+when relevant and never described as extra weight. Completed absence uses
+bounded language and never creates Evidence.
+
+`Звернути увагу` appears only for an existing supported `SIGNAL` Finding or a
+diagnostic already classified by the approved trace as material to an
+`UNKNOWN` result. A `SIGNAL` remains visibly named `SIGNAL`, includes its exact
+accepted source fragment, and is described as a potential indicator rather
+than a confirmed ambiguity or defect. A material diagnostic includes its exact
+candidate span when one exists and is labeled as not accepted Evidence. If one
+span is accepted Evidence for one feature and a diagnostic candidate for
+another, both roles are stated explicitly without converting the diagnostic
+to Evidence. The same underlying diagnostic is displayed once even when it
+withholds more than one characteristic.
+
+`Підстава в тексті` is optional. It contains only exact text from accepted
+Evidence needed to clarify a selected tier, repeated accepted observations, or
+the relationship to a material diagnostic. It preserves source/observation
+order, avoids redundant repetition across characteristics, and never invents
+a shorter Evidence span, Evidence for absence, or Evidence from a diagnostic.
+
+Raw Rule IDs, coverage profile IDs, decision/effect codes, processing and
+detection statuses, applicability, observation/diagnostic indexes, dataclass
+serialization, Evidence IDs and offsets, detector Rule IDs, raw domain
+explanations, non-material diagnostics, and full per-input trace blocks remain
+audit-only.
+
+The exact Ukrainian explanation, attention, and Evidence-formatting templates
+in Sections 4.4-4.6 of the approved decision package are binding. Their
+selection is formatting over existing validated trace codes and references;
+it creates no new assessment or interpretation rule.
+
+#### 19.6.3 Concise user specification summary
+
+After all requirement blocks, the user view displays:
+
+```text
+Підсумок специфікації
+Вимог: <record count>
+Повнота: <value/state> (обчислено: <computed_count>; UNKNOWN: <unknown_count>; NOT_APPLICABLE: <not_applicable_count>; усього: <total_count>)
+Перевірюваність: <value/state> (обчислено: <computed_count>; UNKNOWN: <unknown_count>; NOT_APPLICABLE: <not_applicable_count>; усього: <total_count>)
+Однозначність: <value/state> (обчислено: <computed_count>; UNKNOWN: <unknown_count>; NOT_APPLICABLE: <not_applicable_count>; усього: <total_count>)
+```
+
+Every computed value remains an exact reduced `Fraction`. `UNKNOWN` and
+`NOT_APPLICABLE` remain literal tokens and are never replaced by zero, `N/A`,
+a decimal, or a percentage. All four observability counts are unconditional
+for every characteristic. No overall file state, scalar score, combined C/V/U
+result, rating, recommendation, priority, risk, or corrective action is added.
+
+#### 19.6.4 Bounded non-claims and ordering
+
+The user view renders all seven canonical
+`MVP-V0.1-BOUNDED-CVU-001` non-claims exactly once in one concise report-level
+Ukrainian disclosure after the summary. The exact approved wording is Section
+4.9 of the decision package. This single placement does not select, weaken, or
+strengthen any disclosure. The audit view retains its current complete
+per-record coverage disclosure unchanged.
+
+Requirements remain in reader/source order; characteristics and aggregates
+remain in Completeness, Verifiability, Unambiguity order; Findings,
+diagnostics, observations, and accepted source fragments retain their approved
+source order. Neither view sorts by value, severity, risk, or priority.
+
+#### 19.6.5 Approval boundary
+
+This amendment changes presentation only. It changes no detector, feature
+rule, applicability decision, Evidence contract, Finding contract, trace
+semantics, formula, exact value, or aggregation result. It authorizes
+implementation in the existing `feature/dual-view-presentation` branch and PR
+#108; it does not authorize merging that PR. The R002, R004, R008, and
+eight-requirement outputs in Section 5 of the decision package are
+demonstrations of previously observed results, not new reference annotations
+or detector acceptance cases.
