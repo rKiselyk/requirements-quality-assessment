@@ -5,6 +5,8 @@
   [`srm-13-researcher-decisions.md`](srm-13-researcher-decisions.md) and the
   G2, G3, G7, and G13 provisions of
   [`srm-13-validation-protocol-proposal.md`](srm-13-validation-protocol-proposal.md)
+- **Approved G2 source policies:**
+  [`srm-13-g2-source-decisions.md`](srm-13-g2-source-decisions.md)
 - **Issue:** [#81 — SRM-13](https://github.com/rKiselyk/requirements-quality-assessment/issues/81)
 
 ## 1. Purpose and evidence convention
