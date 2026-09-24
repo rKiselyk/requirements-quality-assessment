@@ -1,9 +1,11 @@
 # SRM-13 — Researcher Approval Package
 
-- **Decision status:** `PROPOSED — REQUIRES RESEARCHER DECISION`
+- **Original package status:** `PROPOSED — REQUIRES RESEARCHER DECISION`
 - **Issue:** [#81 — SRM-13](https://github.com/rKiselyk/requirements-quality-assessment/issues/81)
 - **Protocol under review:**
   [`srm-13-validation-protocol-proposal.md`](srm-13-validation-protocol-proposal.md)
+- **Subsequent researcher policy decisions (2026-09-24):**
+  [`srm-13-researcher-decisions.md`](srm-13-researcher-decisions.md)
 - **Experiment status:** not started
 
 ## 1. Purpose and decision boundary
@@ -34,8 +36,10 @@ close it:
 
 ## 2. Gate overview
 
-No row below records approval. Every proposed choice is explicitly subject to
-researcher decision.
+The rows below preserve the options originally presented for decision. They do
+not represent the subsequent selections. The approved policy choices and the
+artifacts still required to close each gate are recorded in
+[`srm-13-researcher-decisions.md`](srm-13-researcher-decisions.md).
 
 | Gate | What the researcher must decide | What the protocol already fixes | What remains genuinely undecided and proposed disposition | Evidence required for final approval | Dependencies and timing |
 | --- | --- | --- | --- | --- | --- |
@@ -102,7 +106,11 @@ matching logic, analysis, or acceptance interpretation, those cases have
 become development-visible; a new independent claim requires a new untouched
 holdout under the approved policy.
 
-## 4. Approval sequence
+## 4. Original proposed approval sequence
+
+The policy selections in step 1 were subsequently decided on 2026-09-24 as
+recorded in the researcher decision record. Artifact review and gate closure
+remain pending.
 
 The following sequence separates immediate policy decisions from later
 artifact approvals and protects the holdout boundary:
@@ -116,7 +124,7 @@ artifact approvals and protects the holdout boundary:
    complete annotation package; G7 leakage implementation and logs; G8 frozen
    analysis plan/implementation; G9 frozen system bundle; G10/G11 interpretation
    matrices; G12 SOP; and G13 report/release templates.
-3. **Before any system-output access:** close every gate, freeze and hash the
+3. **Before any holdout-system-output access:** close every gate, freeze and hash the
    corpus/reference/system/analysis artifacts, pass readiness, and record the
    approval against exact versions. No threshold, matching rule, denominator,
    invariant disposition, or conclusion wording may be chosen after viewing
