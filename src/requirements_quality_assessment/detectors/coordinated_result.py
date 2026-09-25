@@ -19,6 +19,7 @@ from .expected_result import (
     _is_behavior_predicate, _is_subject_relation, _predicate_component,
     _sentence_segments, _tokens_in_candidate, _trim_interval,
 )
+from .directive_passive_result import DirectivePassiveExpectedResultDetector
 
 
 RULE_ID = "RESULT-UK-002"
@@ -143,7 +144,12 @@ class CoordinatedExpectedResultDetector:
         outcome, evidence, _ = self._detect(requirement, self._parser.parse(requirement))
         return outcome, evidence
 
-    def _detect(self, requirement: Requirement, parser_outcome: ParserOutcome) -> tuple[
+    def _detect(
+        self,
+        requirement: Requirement,
+        parser_outcome: ParserOutcome,
+        owned_segments: frozenset[tuple[int, int]] = frozenset(),
+    ) -> tuple[
         FeatureDetectionOutcome[FeatureObservation], tuple[Evidence, ...],
         frozenset[tuple[int, int]],
     ]:
@@ -170,6 +176,8 @@ class CoordinatedExpectedResultDetector:
             ))
         for segment in segments:
             start, end = segment.start, segment.end
+            if (start, end) in owned_segments:
+                continue
             local_coordinators = tuple(s for s in coordinators if start <= s[0] and s[1] <= end)
             if not local_coordinators or not any(start <= a and b <= end for a, b in anchors):
                 continue
@@ -219,7 +227,7 @@ class CoordinatedExpectedResultDetector:
 
 
 class ExpectedResultDetector:
-    """Dispatch binary candidates before the unchanged single-result grammar."""
+    """Dispatch bounded extensions before the unchanged single-result grammar."""
 
     def __init__(self, parser: RequirementParser | None = None,
                  condition_detector: ConditionContextBaselineDetector | None = None):
@@ -230,24 +238,44 @@ class ExpectedResultDetector:
         FeatureDetectionOutcome[FeatureObservation], tuple[Evidence, ...],
     ]:
         parser_outcome = self._parser.parse(requirement)
-        extension, new_evidence, owned = CoordinatedExpectedResultDetector()._detect(
-            requirement, parser_outcome)
+        coverage, coverage_evidence, coverage_owned = (
+            DirectivePassiveExpectedResultDetector()._detect(
+                requirement, parser_outcome
+            )
+        )
+        extension, new_evidence, coordinated_owned = (
+            CoordinatedExpectedResultDetector()._detect(
+                requirement, parser_outcome, coverage_owned
+            )
+        )
+        owned = coverage_owned | coordinated_owned
         baseline, old_evidence = ExpectedResultBaselineDetector(
             _FixedParser(parser_outcome), self._condition_detector,
         ).detect(requirement, owned_segments=owned)
         # A global parser failure has no accepted baseline contribution. Keep
         # its original diagnostic only when the extension has no candidate.
         parsed = parser_outcome.parsed_requirement
-        if extension.diagnostics and (parser_outcome.diagnostics or parsed is None
-                                      or parsed.requirement_id != requirement.id
-                                      or parsed.text != requirement.text):
-            return extension, new_evidence
-        evidence = tuple(sorted(old_evidence + new_evidence,
+        if parser_outcome.diagnostics or parsed is None \
+                or parsed.requirement_id != requirement.id \
+                or parsed.text != requirement.text:
+            if coverage.diagnostics:
+                return coverage, coverage_evidence
+            if extension.diagnostics:
+                return extension, new_evidence
+            return baseline, old_evidence
+        evidence = tuple(sorted(old_evidence + new_evidence + coverage_evidence,
                                 key=lambda e: (e.start_offset, e.end_offset, e.evidence_id)))
         by_id = {e.evidence_id: e for e in evidence}
-        observations = tuple(sorted(baseline.observations + extension.observations,
-                                    key=lambda o: by_id[o.evidence_refs[-1]].start_offset))
-        diagnostics = tuple(sorted(baseline.diagnostics + extension.diagnostics,
+        observations = tuple(sorted(
+            baseline.observations + extension.observations + coverage.observations,
+            key=lambda o: (
+                by_id[o.evidence_refs[-1]].start_offset,
+                by_id[o.evidence_refs[-1]].end_offset,
+                o.evidence_refs,
+            ),
+        ))
+        diagnostics = tuple(sorted(
+            baseline.diagnostics + extension.diagnostics + coverage.diagnostics,
                                    key=lambda d: (d.candidate_span.start_offset
                                                   if d.candidate_span else len(requirement.text) + 1,
                                                   d.candidate_span.end_offset

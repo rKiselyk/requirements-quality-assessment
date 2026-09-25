@@ -8,8 +8,16 @@ import sys
 import pytest
 
 from requirements_quality_assessment.detectors import (
+    DirectivePassiveExpectedResultDetector,
     ExpectedResultBaselineDetector,
+    ExpectedResultDetector,
     QuantitativeBaselineDetector,
+)
+from requirements_quality_assessment.detectors.directive_passive_result import (
+    IMPERATIVE_SURFACES,
+    PARSER_BLOCKED_CODE as COVERAGE_PARSER_BLOCKED_CODE,
+    RULE_ID as COVERAGE_RULE_ID,
+    UNRESOLVED_CODE as COVERAGE_UNRESOLVED_CODE,
 )
 from requirements_quality_assessment.detectors.expected_result import (
     NORMATIVE_SURFACES,
@@ -20,6 +28,7 @@ from requirements_quality_assessment.detectors.expected_result import (
 from requirements_quality_assessment.domain import (
     DetectionProcessingStatus,
     DetectionStatus,
+    DiagnosticSpan,
     FeatureId,
     FeatureObservation,
     MorphFeature,
@@ -61,6 +70,17 @@ def _participle() -> tuple[MorphFeature, ...]:
 
 def _negation() -> tuple[MorphFeature, ...]:
     return (MorphFeature("Polarity", ("Neg",)),)
+
+
+def _infinitive() -> tuple[MorphFeature, ...]:
+    return (MorphFeature("VerbForm", ("Inf",)),)
+
+
+def _impersonal_finite() -> tuple[MorphFeature, ...]:
+    return (
+        MorphFeature("Person", ("0",)),
+        MorphFeature("VerbForm", ("Fin",)),
+    )
 
 
 def _parsed(
@@ -155,6 +175,219 @@ def _scan(
             span = diagnostic.candidate_span
             assert text[span.start_offset:span.end_offset] == span.text
     return requirement, outcome, evidence
+
+
+def _scan_coverage(
+    text: str,
+    specs: tuple[_TokenSpec, ...],
+    *,
+    sentence_ranges: tuple[tuple[int, int], ...] | None = None,
+):
+    requirement = Requirement("R043", 12, text)
+    parser = _FakeParser(ParserOutcome(_parsed(requirement, specs, sentence_ranges), ()))
+    outcome, evidence = DirectivePassiveExpectedResultDetector(parser).detect(
+        requirement
+    )
+    assert parser.calls == 1
+    return requirement, outcome, evidence
+
+
+@pytest.mark.parametrize("directive", sorted(IMPERATIVE_SURFACES))
+def test_bounded_imperative_directives_are_expected_results(directive):
+    text = f"{directive.capitalize()} журнал аудиту."
+    specs = (
+        _TokenSpec(
+            directive.capitalize(), "VERB", None, "ROOT", _infinitive()
+        ),
+        _TokenSpec("журнал", "NOUN", 0, "obj"),
+        _TokenSpec("аудиту", "NOUN", 1, "nmod"),
+    )
+    _, outcome, evidence = _scan_coverage(text, specs)
+
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.DETECTED
+    assert outcome.diagnostics == ()
+    assert len(outcome.observations) == len(evidence) == 1
+    assert outcome.observations[0].evidence_refs == ("RESULT-UK-003:E001",)
+    assert (
+        evidence[0].rule_id,
+        evidence[0].text,
+        evidence[0].start_offset,
+        evidence[0].end_offset,
+    ) == (COVERAGE_RULE_ID, text[:-1], 0, len(text) - 1)
+
+
+@pytest.mark.parametrize(
+    ("text", "specs"),
+    [
+        (
+            "Завдання: додати журнал.",
+            (
+                _TokenSpec("Завдання", "NOUN", None, "ROOT"),
+                _TokenSpec(":", "PUNCT", 0, "punct"),
+                _TokenSpec("додати", "VERB", 0, "acl", _infinitive()),
+                _TokenSpec("журнал", "NOUN", 2, "obj"),
+            ),
+        ),
+        (
+            "Щоб додати журнал, відкрийте меню.",
+            (
+                _TokenSpec("Щоб", "SCONJ", 1, "mark"),
+                _TokenSpec("додати", "VERB", 3, "advcl", _infinitive()),
+                _TokenSpec("журнал", "NOUN", 1, "obj"),
+                _TokenSpec("відкрийте", "VERB", None, "ROOT"),
+                _TokenSpec("меню", "NOUN", 3, "obj"),
+            ),
+        ),
+        (
+            "Додати.",
+            (
+                _TokenSpec("Додати", "VERB", None, "ROOT", _infinitive()),
+            ),
+        ),
+        (
+            "Перенести журнал.",
+            (
+                _TokenSpec("Перенести", "VERB", None, "ROOT", _infinitive()),
+                _TokenSpec("журнал", "NOUN", 0, "obj"),
+            ),
+        ),
+    ],
+)
+def test_headings_fragments_unrelated_and_unlisted_infinitives_are_not_detected(
+    text, specs
+):
+    _, outcome, evidence = _scan_coverage(text, specs)
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.NOT_DETECTED
+    assert outcome.observations == evidence == outcome.diagnostics == ()
+
+
+def test_imperative_predicate_coordination_remains_unresolved():
+    text = "Додати модуль і створити схему."
+    specs = (
+        _TokenSpec("Додати", "VERB", None, "ROOT", _infinitive()),
+        _TokenSpec("модуль", "NOUN", 0, "obj"),
+        _TokenSpec("і", "CCONJ", 3, "cc"),
+        _TokenSpec("створити", "VERB", 0, "conj", _infinitive()),
+        _TokenSpec("схему", "NOUN", 3, "obj"),
+    )
+    _, outcome, evidence = _scan_coverage(text, specs)
+    assert evidence == ()
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert [item.code for item in outcome.diagnostics] == [
+        COVERAGE_UNRESOLVED_CODE
+    ]
+    assert outcome.diagnostics[0].candidate_span == DiagnosticSpan(
+        text[:-1], 0, len(text) - 1
+    )
+
+
+@pytest.mark.parametrize("normative", ["Має", "Повинно"])
+def test_simple_impersonal_passive_is_an_expected_result(normative):
+    text = f"{normative} бути створено журнал аудиту."
+    specs = (
+        _TokenSpec(normative, "VERB" if normative == "Має" else "ADJ", None, "ROOT"),
+        _TokenSpec("бути", "AUX", 2, "aux", _infinitive(), lemma="бути"),
+        _TokenSpec("створено", "VERB", 0, "xcomp", _impersonal_finite()),
+        _TokenSpec("журнал", "NOUN", 2, "obj"),
+        _TokenSpec("аудиту", "NOUN", 3, "nmod"),
+    )
+    _, outcome, evidence = _scan_coverage(text, specs)
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.DETECTED
+    assert outcome.diagnostics == ()
+    assert [(item.text, item.start_offset, item.end_offset) for item in evidence] == [
+        (text[:-1], 0, len(text) - 1)
+    ]
+
+
+def test_coordinated_passive_results_remain_unresolved_without_partial_evidence():
+    text = "Має бути створено журнал і надіслано звіт."
+    specs = (
+        _TokenSpec("Має", "VERB", None, "ROOT"),
+        _TokenSpec("бути", "AUX", 2, "aux", _infinitive(), lemma="бути"),
+        _TokenSpec("створено", "VERB", 0, "xcomp", _impersonal_finite()),
+        _TokenSpec("журнал", "NOUN", 2, "obj"),
+        _TokenSpec("і", "CCONJ", 5, "cc"),
+        _TokenSpec("надіслано", "VERB", 2, "conj", _impersonal_finite()),
+        _TokenSpec("звіт", "NOUN", 5, "obj"),
+    )
+    _, outcome, evidence = _scan_coverage(text, specs)
+    assert outcome.observations == evidence == ()
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert outcome.diagnostics[0].code == COVERAGE_UNRESOLVED_CODE
+    assert outcome.diagnostics[0].candidate_span.text == text[:-1]
+
+
+def test_simple_passive_requires_explicit_result_object():
+    text = "Має бути створено."
+    specs = (
+        _TokenSpec("Має", "VERB", None, "ROOT"),
+        _TokenSpec("бути", "AUX", 2, "aux", _infinitive(), lemma="бути"),
+        _TokenSpec("створено", "VERB", 0, "xcomp", _impersonal_finite()),
+    )
+    _, outcome, evidence = _scan_coverage(text, specs)
+    assert outcome.processing_status is DetectionProcessingStatus.COMPLETE
+    assert outcome.status is DetectionStatus.NOT_DETECTED
+    assert outcome.observations == evidence == outcome.diagnostics == ()
+
+
+def test_coverage_evidence_keeps_absolute_offsets_across_hard_segments():
+    text = "Журнал подій; Додати модуль аудиту."
+    expected = "Додати модуль аудиту"
+    start = text.index(expected)
+    specs = (
+        _TokenSpec("Журнал", "NOUN", None, "ROOT"),
+        _TokenSpec("подій", "NOUN", 0, "nmod"),
+        _TokenSpec("Додати", "VERB", None, "ROOT", _infinitive()),
+        _TokenSpec("модуль", "NOUN", 2, "obj"),
+        _TokenSpec("аудиту", "NOUN", 3, "nmod"),
+    )
+    _, outcome, evidence = _scan_coverage(text, specs)
+    assert outcome.status is DetectionStatus.DETECTED
+    assert (evidence[0].text, evidence[0].start_offset, evidence[0].end_offset) == (
+        expected,
+        start,
+        start + len(expected),
+    )
+
+
+def test_coverage_parser_block_is_unresolved_only_for_source_candidate():
+    requirement = Requirement("R043", 12, "Додати журнал.")
+    parser = _FakeParser(
+        ParserOutcome(
+            None,
+            (
+                ParserDiagnostic(
+                    ParserDiagnosticCode.PARSER_UNAVAILABLE, "provider detail"
+                ),
+            ),
+        )
+    )
+    outcome, evidence = DirectivePassiveExpectedResultDetector(parser).detect(
+        requirement
+    )
+    assert evidence == ()
+    assert outcome.status is DetectionStatus.UNRESOLVED
+    assert outcome.diagnostics[0].code == COVERAGE_PARSER_BLOCKED_CODE
+
+
+def test_composite_preserves_result_uk_001_behavior():
+    text = "Система повинна сформувати звіт."
+    requirement = Requirement("R043", 12, text)
+    parser = _FakeParser(
+        ParserOutcome(
+            _parsed(requirement, _active_specs("Система", "повинна", "сформувати", "звіт")),
+            (),
+        )
+    )
+    outcome, evidence = ExpectedResultDetector(parser).detect(requirement)
+    assert outcome.status is DetectionStatus.DETECTED
+    assert outcome.diagnostics == ()
+    assert [(item.rule_id, item.text) for item in evidence] == [
+        (RULE_ID, text[:-1])
+    ]
 
 
 def test_simple_active_binding_case():

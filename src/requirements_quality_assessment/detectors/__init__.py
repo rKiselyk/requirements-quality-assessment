@@ -7,6 +7,7 @@ from .acceptance_criterion import (
 )
 from .condition_context import ConditionContextBaselineDetector
 from .expected_result import ExpectedResultBaselineDetector
+from .directive_passive_result import DirectivePassiveExpectedResultDetector
 from .coordinated_result import CoordinatedExpectedResultDetector, ExpectedResultDetector
 from .postposed_condition import ConditionContextDetector, PostposedConditionDetector
 from .quantitative import QuantitativeBaselineDetector
@@ -21,6 +22,7 @@ __all__ = [
     "ConditionContextDetector",
     "PostposedConditionDetector",
     "ExpectedResultBaselineDetector",
+    "DirectivePassiveExpectedResultDetector",
     "CoordinatedExpectedResultDetector",
     "ExpectedResultDetector",
     "QuantitativeBaselineDetector",
