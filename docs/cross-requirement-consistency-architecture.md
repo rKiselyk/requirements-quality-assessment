@@ -2,7 +2,8 @@
 
 - **Branch:** `research/cross-requirement-analysis`
 - **Round:** architecture only
-- **Architecture status:** `ARCHITECTURE_REVIEW_PENDING`
+- **Architecture status:** researcher-approved; implementation planning is next
+- **Researcher approval date:** 2026-09-25
 - **Scientific baseline:** frozen on 2026-09-25
 - **Implementation effect:** none; this document creates no production contract,
   Rule ID, Evidence ID, code, test, migration, or reporter wording
@@ -139,7 +140,7 @@ snapshot. These are invalid internal/domain invariants, not scientific
 
 ## 4. Stable quantitative-observation identity
 
-The proposed architecture view is conceptually:
+The approved architecture view is conceptually:
 
 ```text
 CrossObservationRef(
@@ -189,7 +190,7 @@ human-only explanation or scientific `UNKNOWN`.
 
 ### 6.1 Contract
 
-`AssessmentSnapshot` is one immutable execution boundary, not a history or
+`AssessmentSnapshot` is one immutable QB execution boundary, not a history or
 lifecycle system. It contains:
 
 - an opaque `snapshot_id`;
@@ -197,39 +198,54 @@ lifecycle system. It contains:
 - a frozen provenance resolver/catalog;
 - a contract manifest for projection, normalization, comparison, materiality,
   aggregation, and coverage-profile versions; and
-- the exact count/order manifest used to validate all derived objects.
+- the exact QB-relevant count/order manifest used to validate all derived
+  objects.
 
-The recommended identity is conceptually
-`qb-snapshot-v1:<sha256-hex>`. The digest input is UTF-8 JSON using a
-schema-versioned object, sorted object keys, schema-ordered arrays,
-`ensure_ascii=false`, and no insignificant whitespace. Enums serialize by
-their exact value, `Decimal` and `Fraction` values serialize as tagged exact
-strings/numerator-denominator pairs, and requirement/Evidence text is not
-normalized. The canonical object contains:
+The snapshot identity is a deterministic, canonical, content-derived identity
+over only the QB-relevant source state and QB contract manifest. Conceptually:
 
-- each complete authoritative `RequirementAssessmentRecord` in input order,
-  including its exact requirement, extraction result and Evidence, unchanged
-  local quality profile, and local trace;
-- all QB contract/profile version tokens in the manifest.
+```text
+QB snapshot identity =
+    canonical(QB-relevant source state + QB contract manifest)
+```
 
-The local profile and trace participate only in whole-execution identity and
-composition validation. They are not exposed as inputs to QB projection,
-materiality, pair assessment, or Consistency aggregation.
+The semantic input is limited to:
+
+1. ordered requirement identity;
+2. exact requirement source text needed for provenance;
+3. requirement/source order;
+4. QB-relevant quantitative observations;
+5. QB-relevant Evidence and exact spans;
+6. quantitative diagnostics relevant to materiality;
+7. QB-relevant processing and provenance facts; and
+8. approved projection, materiality, comparison, aggregation, and coverage
+   contract versions.
+
+`RequirementQualityProfile`, local C/V/U states and values,
+`RequirementAssessmentTrace`, local explanation text, reporter representation,
+and unrelated local assessment metadata are explicitly excluded. A change to
+one of those excluded values cannot change QB snapshot or cross-result
+identity.
 
 It excludes file path, wall-clock time, process identity, Python object
-identity, and report view. SHA-256 is an identity/checking mechanism, not a
-security claim. The lower bridge's future production Rule/Evidence identifiers
-enter the manifest only after separately allocated during implementation.
+identity, runtime UUID, and report formatting. SHA-256 remains an acceptable
+recommended implementation mechanism, but this architecture does not freeze a
+JSON shape, whitespace policy, enum encoding, byte format, or other canonical
+serialization mechanics. Implementation must document, version, and
+regression-test one deterministic canonical encoding. The lower bridge's
+future production Rule/Evidence identifiers enter the manifest only after
+separately allocated during implementation.
 
 ### 6.2 Snapshot invariants
 
 Every projection, materiality audit record, cross-result, `R_conf` view,
 Consistency assessment, and broader `SpecificationAssessment` must carry or be
 validated against the same snapshot ID. Cross-snapshot composition is an
-internal error. A stable result identity uses the same canonical encoding and
-is conceptually `qb-result-v1:<sha256-hex>` over the snapshot ID, ordered
-observation refs, governing comparison contract version, and state. It
-contains no randomness or timestamps.
+internal error. A stable result identity derives from the QB snapshot identity,
+canonical observation refs, governing QB rule/contract version, and result
+state/identity data. It contains no randomness, timestamps, local C/V/U,
+local trace, or reporting data. The exact canonical encoding remains the same
+versioned implementation concern described above.
 
 The implementation phase must separately allocate production identifiers and
 versions for the QB pair comparison/confirmation rule, QB Consistency
@@ -237,9 +253,16 @@ aggregation rule, and QB materiality rule, in addition to the two future
 lower-bridge Rule/Evidence families. Their fields are required below, but this
 architecture document allocates none of those identifiers.
 
+`SpecificationAssessment` may compose the unchanged local profile with the QB
+assessment without importing the profile into QB identity. The orchestration
+layer must build both from the same ordered requirement source set and retain
+that source-set association through composition. A future identity for the
+complete composed assessment would be a separate architecture/implementation
+concern and cannot redefine QB snapshot identity.
+
 ## 7. Cross-result domain contract
 
-The proposed frozen result value, named conceptually
+The approved frozen result value, named conceptually
 `CrossRequirementResult`, contains:
 
 | Field group | Required content |
@@ -520,7 +543,7 @@ make the set incomplete.
 | B — introduce a separate `QbConsistencyAssessment` | Recommended. It preserves exact QB state, operand, coverage, provenance, and non-claims without coupling local and set-level calculations. |
 | C — first factor a shared generic state/value envelope | Deferred. It would refactor frozen local contracts before behavioral acceptance and still would not remove QB-specific fields. |
 
-### 16.2 Proposed fields
+### 16.2 Approved fields
 
 The separate immutable assessment contains:
 
@@ -639,7 +662,7 @@ the existing specification aggregator.
 
 ## 19. Reporter architecture
 
-Reporting remains a consumer. The proposed immutable `AssessmentReportBundle`
+Reporting remains a consumer. The approved immutable `AssessmentReportBundle`
 contains:
 
 - ordered existing `RequirementAssessmentRecord` values;
@@ -707,9 +730,10 @@ Domain corruption is never converted to scientific uncertainty. Orchestration
 may catch validation/programmer failures only to return an application error;
 it must not emit a fabricated Consistency assessment.
 
-## 22. Proposed future module boundaries
+## 22. Approved future module boundaries
 
-Names below are proposals, not created modules:
+The responsibility separation below is approved. Exact filenames remain
+implementation choices and no modules are created in this round:
 
 ```text
 requirements_quality_assessment/
@@ -818,8 +842,9 @@ status update.
 Each slice remains separately reviewable and follows issue -> implementation
 -> tests -> local review -> commit -> push -> pull request -> merge:
 
-1. approve this architecture and allocate implementation issues; allocate
-   future production identifiers only in the authorized extraction issue;
+1. prepare the implementation plan/issues and create the separate
+   implementation branch; allocate future production identifiers only in the
+   subsequently authorized extraction/rule issues;
 2. add cross-domain primitives, snapshot, ref/resolver, and validation tests;
 3. implement the two-rule atomic `LB-M-C0` bridge with frozen-local regression;
 4. add projection and provenance validation;
@@ -859,53 +884,56 @@ indexes. None is a prerequisite for correctness.
 | Architecture ID | Question | Options | Recommended decision | Rationale | Scientific dependency | Compatibility impact | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | CRA-A001 | Where does cross-analysis enter? | Before local assessment; during calculators; after all records | After the immutable ordered `RequirementAssessmentRecord[]` boundary | Prevents cross effects on local calculation and uses the accepted joined record | CRA-D051-D054; frozen pipeline | Additive downstream stage only | `DERIVED_FROM_APPROVED_SCIENCE` |
-| CRA-A002 | How should projection isolate record internals? | Pass records everywhere; immutable stable views + scoped resolver; deep-copy every object | Immutable stable views plus snapshot-scoped resolver | Minimal coupling with exact provenance and no memory identity | CRA-D043, D046, D048-D050 | New cross-only values; existing records unchanged | `ARCHITECTURE_APPROVAL_PROPOSED` |
+| CRA-A002 | How should projection isolate record internals? | Pass records everywhere; immutable stable views + scoped resolver; deep-copy every object | Immutable stable views plus snapshot-scoped resolver | Minimal coupling with exact provenance and no memory identity | CRA-D043, D046, D048-D050 | New cross-only values; existing records unchanged | `RESEARCHER_APPROVED` |
 | CRA-A003 | What identifies an observation? | Object identity; global new ID; owner + feature + source-order index | `(requirement_id, quantitative feature, observation_index)` within one snapshot | Direct concrete realization of approved identity | CRA-D046, D060-D061 | No existing observation mutation | `DERIVED_FROM_APPROVED_SCIENCE` |
 | CRA-A004 | How is Evidence carried? | Duplicate Evidence; globally rewrite IDs; qualified refs resolved against owner | Store `(requirement_id,evidence_id)` refs and validate through resolver | Preserves local IDs and five provenance invariants | CRA-D048-D050, D062 | Existing Evidence unchanged | `DERIVED_FROM_APPROVED_SCIENCE` |
-| CRA-A005 | How is one reproducible assessment snapshot identified? | Runtime UUID; path/time key; deterministic canonical content/contract digest | SHA-256 over the Section 6 canonical complete-record and QB-contract manifest | Stable across the same versioned inputs/rules; prevents cross-run mixing | CRA-D014, D043, D045 | New cross-only identity; the proposed encoding becomes frozen if approved | `ARCHITECTURE_APPROVAL_PROPOSED` |
-| CRA-A006 | What is the cross-result representation? | Loose dictionaries; one frozen validated discriminated value; separate unrelated classes per state | One frozen discriminated result with state-specific constructor validation | Common provenance/order with impossible state combinations rejected | CRA-D011-D013, D043-D047, D056-D058 | New domain type only | `ARCHITECTURE_APPROVAL_PROPOSED` |
-| CRA-A007 | How are scientific reasons represented? | Prose only; general NLP taxonomy; minimal typed QB enums + structured operands | Minimal typed unresolved/outside enums defined in Section 9 | Stable tests and explanations without scope expansion | CRA-D013, D034, D056-D058 | New cross-only vocabulary | `ARCHITECTURE_APPROVAL_PROPOSED` |
+| CRA-A005 | How is one reproducible assessment snapshot identified? | Runtime UUID; path/time key; deterministic canonical QB content/contract identity | Canonical identity over only the Section 6 QB-relevant source state and QB contract manifest; SHA-256 is recommended but exact encoding is a documented, versioned, regression-tested implementation decision | Stable across identical QB inputs/contracts, changes with QB-relevant inputs/contracts, and avoids churn from unrelated local C/V/U or trace changes | CRA-D014, D043, D045; researcher amendment dated 2026-09-25 | New cross-only identity; local-profile identity remains separate | `RESEARCHER_APPROVED` |
+| CRA-A006 | What is the cross-result representation? | Loose dictionaries; one frozen validated discriminated value; separate unrelated classes per state | One frozen discriminated result with state-specific constructor validation | Common provenance/order with impossible state combinations rejected | CRA-D011-D013, D043-D047, D056-D058 | New domain type only | `RESEARCHER_APPROVED` |
+| CRA-A007 | How are scientific reasons represented? | Prose only; general NLP taxonomy; minimal typed QB enums + structured operands | Minimal typed unresolved/outside enums defined in Section 9 | Stable tests and explanations without scope expansion | CRA-D013, D034, D056-D058 | New cross-only vocabulary | `RESEARCHER_APPROVED` |
 | CRA-A008 | How is CRA-D067 implemented? | Modify detector; ignore configured codes; downstream fail-closed classifier with audit | Dedicated downstream classifier with exactly two versioned allowlist descriptors and per-diagnostic audit | Preserves global state while proving QB-only non-materiality | CRA-D067; QB-ER-D009 | No diagnostic or C/V/U mutation | `DERIVED_FROM_APPROVED_SCIENCE` |
-| CRA-A009 | How is `LB-M-C0` implemented? | One combined rule; two independent rules; two rules atomically coordinated; generic grammar | Two separately owned bounded rules behind one whole-envelope coordinator; apply both or neither | Preserves QB-ER-D002/D005 separation and prohibits standalone/partial enrichment | QB-ER-D002, D005; model-spec 7.14.6.11 | Additive extraction change; future IDs required, none allocated here | `ARCHITECTURE_APPROVAL_PROPOSED` |
-| CRA-A010 | Which pair-selection architecture ships first? | Equal-key index; exhaustive universe; hybrid index | Exhaustive ordered requirement/observation Cartesian evaluation | Direct equivalence to science and preserves outside/unresolved coverage | CRA-D005-D009, D057, D060-D061 | Simpler first implementation; possible later performance cost | `ARCHITECTURE_APPROVAL_PROPOSED` |
-| CRA-A011 | How is supported-set mathematics represented? | General interval algebra; explicit half-line objects; minimal direction/value bound and direct predicate | Minimal inclusive direction/value bound with mixed-direction `lower > upper` predicate | Exactly equivalent for the two approved forms and easiest to explain | CRA-D033-D040 | New pure cross rule; no generic math layer | `ARCHITECTURE_APPROVAL_PROPOSED` |
+| CRA-A009 | How is `LB-M-C0` implemented? | One combined rule; two independent rules; two rules atomically coordinated; generic grammar | Two separately owned bounded rules behind one whole-envelope coordinator; apply both or neither | Preserves QB-ER-D002/D005 separation and prohibits standalone/partial enrichment | QB-ER-D002, D005; model-spec 7.14.6.11 | Additive extraction change; future IDs required, none allocated here | `RESEARCHER_APPROVED` |
+| CRA-A010 | Which pair-selection architecture ships first? | Equal-key index; exhaustive universe; hybrid index | Exhaustive ordered requirement/observation Cartesian evaluation | Direct equivalence to science and preserves outside/unresolved coverage | CRA-D005-D009, D057, D060-D061 | Simpler first implementation; possible later performance cost | `RESEARCHER_APPROVED` |
+| CRA-A011 | How is supported-set mathematics represented? | General interval algebra; explicit half-line objects; minimal direction/value bound and direct predicate | Minimal inclusive direction/value bound with mixed-direction `lower > upper` predicate | Exactly equivalent for the two approved forms and easiest to explain | CRA-D033-D040 | New pure cross rule; no generic math layer | `RESEARCHER_APPROVED` |
 | CRA-A012 | How is `R_conf[QB-v0.1]` built? | Count results; append participants; separate set-union builder | Separate validated set-union builder, emitted in source order | Counts requirements once and preserves partial observed membership | CRA-D015-D017, D021, D028 | New aggregation stage only | `DERIVED_FROM_APPROVED_SCIENCE` |
-| CRA-A013 | Should Consistency reuse `CharacteristicAssessment`? | Reuse; separate assessment; refactor a generic envelope first | Separate `QbConsistencyAssessment` | Avoids coupling set-level observability and `R_conf` to local characteristic semantics | CRA-D023-D028, D052-D054, D066-D067 | Existing assessment/profile types unchanged | `ARCHITECTURE_APPROVAL_PROPOSED` |
-| CRA-A014 | When should `SpecificationAssessment` be introduced? | Never; only after a later release; thin container before first QB reporter integration | Build layers independently, then add the thin container in the first integrated slice | Implements approved Option B without blocking isolated component work | CRA-D054-D055 | New composition; existing profile embedded unchanged | `ARCHITECTURE_APPROVAL_PROPOSED` |
-| CRA-A015 | How should reporting integrate? | Rewrite existing reporters; calculate inside reporter; compose existing local sections with a new cross section from one report bundle | Additive composed reporter/bundle | Preserves existing meanings and keeps reporting calculation-free | CRA-D043, D051-D055, D064-D065 | Existing output remains a delegated section; new section additive | `ARCHITECTURE_APPROVAL_PROPOSED` |
+| CRA-A013 | Should Consistency reuse `CharacteristicAssessment`? | Reuse; separate assessment; refactor a generic envelope first | Separate `QbConsistencyAssessment` | Avoids coupling set-level observability and `R_conf` to local characteristic semantics | CRA-D023-D028, D052-D054, D066-D067 | Existing assessment/profile types unchanged | `RESEARCHER_APPROVED` |
+| CRA-A014 | When should `SpecificationAssessment` be introduced? | Never; only after a later release; thin container before first QB reporter integration | Build layers independently, then add the thin container in the first integrated slice | Implements approved Option B without blocking isolated component work | CRA-D054-D055 | New composition; existing profile embedded unchanged | `RESEARCHER_APPROVED` |
+| CRA-A015 | How should reporting integrate? | Rewrite existing reporters; calculate inside reporter; compose existing local sections with a new cross section from one report bundle | Additive composed reporter/bundle | Preserves existing meanings and keeps reporting calculation-free | CRA-D043, D051-D055, D064-D065 | Existing output remains a delegated section; new section additive | `RESEARCHER_APPROVED` |
 | CRA-A016 | Should an indexed selector be designed now? | Implement now; define numeric threshold; defer pending evidence and equivalence proof | Defer | No approved threshold and exhaustive behavior is the oracle | CRA-D009 | No current optimization dependency | `DEFERRED` |
 | CRA-A017 | Should a generic interval/semantic engine be introduced? | Generalize now; bounded direct implementation | Reject generalization for QB-v0.1 | It would add unsupported semantics and speculative refactoring | CRA-D003, D029-D038, D064 | Keeps scope additive and deterministic | `REJECTED` |
-| CRA-A018 | Should all responsibilities live in one analyzer module? | Monolith; responsibility-separated package | Reject monolith; use Section 22 boundaries | Independent validation/testing and dependency direction are required | CRA-D010, D027, D043, D051-D052 | More small modules; no circular dependency | `ARCHITECTURE_APPROVAL_PROPOSED` |
+| CRA-A018 | Should all responsibilities live in one analyzer module? | Monolith; responsibility-separated package | Reject monolith; use Section 22 boundaries | Independent validation/testing and dependency direction are required | CRA-D010, D027, D043, D051-D052 | More small modules; no circular dependency | `RESEARCHER_APPROVED` |
 
 ## 28. Architecture Approval Checklist
 
-The following eleven architecture decisions, grouped into ten review items,
-require explicit researcher approval; scientifically forced decisions are
-intentionally absent.
+The researcher approved all eleven architecture decisions, grouped into ten
+review items, on 2026-09-25. Scientifically forced decisions remain classified
+`DERIVED_FROM_APPROVED_SCIENCE`; deferred/rejected decisions remain unchanged.
 
-- [ ] **CRA-A002 — projection boundary:** approve immutable stable QB views
-  plus a snapshot-scoped provenance resolver.
-- [ ] **CRA-A005 — snapshot identity:** approve deterministic canonical
-  content/contract identity rather than random or environment identity.
-- [ ] **CRA-A006 and CRA-A007 — result/reason representation:** approve one
-  validated discriminated cross-result and the minimal typed QB reason set.
-- [ ] **CRA-A009 — extraction bridge:** approve two separately owned metric and
-  context rules applied atomically under the exact whole-envelope coordinator.
-- [ ] **CRA-A010 — pair selection:** approve the exhaustive evaluator as the
-  first implementation and equivalence oracle.
-- [ ] **CRA-A011 — bound representation:** approve the minimal inclusive
-  direction/value representation and direct exact-`Decimal` predicate.
-- [ ] **CRA-A013 — Consistency representation:** approve a separate
-  `QbConsistencyAssessment`, not reuse/refactoring of local assessment types.
-- [ ] **CRA-A014 — specification composition timing:** approve the thin
+- [x] **CRA-A002 — projection boundary:** immutable stable QB views plus a
+  snapshot-scoped provenance resolver.
+- [x] **CRA-A005 — snapshot identity:** deterministic canonical QB-relevant
+  content/contract identity, with unrelated local C/V/U and trace state
+  excluded and exact encoding left to a documented, versioned, regression-tested
+  implementation decision.
+- [x] **CRA-A006 and CRA-A007 — result/reason representation:** one validated
+  discriminated cross-result and the minimal typed QB reason set.
+- [x] **CRA-A009 — extraction bridge:** two separately owned metric and context
+  rules applied atomically under the exact whole-envelope coordinator.
+- [x] **CRA-A010 — pair selection:** exhaustive evaluation as the first
+  implementation and behavioral-equivalence oracle; no initial index.
+- [x] **CRA-A011 — bound representation:** minimal inclusive direction/value
+  representation and direct exact-`Decimal` predicate.
+- [x] **CRA-A013 — Consistency representation:** separate immutable
+  `QbConsistencyAssessment`, with no local assessment reuse/refactoring.
+- [x] **CRA-A014 — specification composition timing:** thin non-scalar
   `SpecificationAssessment` in the first integrated reporting slice.
-- [ ] **CRA-A015 — reporting boundary:** approve additive report composition
-  from one immutable bundle while preserving existing local sections.
-- [ ] **CRA-A018 — module separation:** approve the responsibility-separated
-  cross-analysis package and reject a monolithic analyzer.
+- [x] **CRA-A015 — reporting boundary:** additive report composition from one
+  immutable bundle while preserving existing local-section meaning.
+- [x] **CRA-A018 — module separation:** responsibility-separated
+  cross-analysis modules; no monolithic analyzer.
 
-No unchecked item changes the approved science. Until approved, each remains
-an architecture proposal and production implementation is unauthorized.
+All eleven decisions above are `RESEARCHER_APPROVED`. This closes QB-v0.1
+architecture design and authorizes implementation planning, not production
+implementation on the current research branch.
 
 ## 29. Architecture contradiction audit
 
@@ -950,16 +978,17 @@ an architecture proposal and production implementation is unauthorized.
   under the extraction boundary while preserving local numeric behavior.
 
 The audit found no conflict among the frozen scientific contracts, the 27-case
-corpus, and the proposed additive architecture. All scientific obligations can
+corpus, and the approved additive architecture. All scientific obligations can
 be implemented without changing Single Requirement Analysis.
 
 `NO_SCIENTIFIC_CONTRADICTION_FOUND`
 
 ## 30. Readiness conclusion
 
-The architecture is complete enough for researcher review. Implementation,
-test creation, production identifier allocation, and branch creation remain
-unauthorized until the eleven proposed decisions in the ten checklist items
-are reviewed.
+The QB-v0.1 scientific research and architecture research/design phases are
+closed. The next phase is implementation planning followed by creation of the
+separate implementation branch. Production implementation, test creation,
+identifier allocation, refactoring, and implementation-branch creation were
+not performed in this architecture-approval round.
 
-READY_FOR_ARCHITECTURE_REVIEW
+ARCHITECTURE_APPROVED_READY_FOR_IMPLEMENTATION
