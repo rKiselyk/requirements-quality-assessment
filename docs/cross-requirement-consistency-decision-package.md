@@ -6,15 +6,16 @@
 - **Document status:** RESEARCH_ONLY / SCIENTIFIC_CONTRACT_APPROVED
 - **Researcher approval date:** 2026-09-25
 - **Approval effect:** the 41 operational decisions in the completed checklist
-  are RESEARCHER_APPROVED subject to Amendments A and B recorded below
+  are RESEARCHER_APPROVED subject to Amendments A, B, and C recorded below
 - **Implementation effect:** none; this document does not authorize production
   code, classes, detectors, tests, pipeline changes, or reporter changes
 
 ## Purpose, authority, and decision language
 
-This package defines the approved minimum scientific contract needed before a
-bounded Cross-Requirement Consistency analysis can proceed to binding reference
-cases and later architecture research. It approves the bounded hypothesis:
+This package defines the approved minimum scientific contract for bounded
+Cross-Requirement Consistency analysis. Its mixed binding reference corpus is
+approved, and Architecture Contract is the next authorized phase. It approves
+the bounded hypothesis:
 
     Consistency v0.1 =
         bounded direct quantitative constraint conflict analysis
@@ -49,8 +50,10 @@ The two decision columns have different purposes:
   BLOCKED.
 
 The researcher approved all 41 operational decisions in the final checklist on
-2026-09-25, subject to Amendments A and B in the approval record. No
-SOURCE_DEFINED, DIRECTLY_DERIVABLE, DEFERRED, or BLOCKED status was changed.
+2026-09-25, subject to Amendments A, B, and C in the approval record. Existing
+source classifications remain unchanged. CRA-D042 records completion of the
+separately authorized reference-corpus phase rather than a new operational
+decision.
 
 ### Verification of the previous research conclusions
 
@@ -266,9 +269,8 @@ M_cons[QB-v0.1] is COMPUTED only when:
 
 1. there are at least two requirements;
 2. at least one observation pair is applicable to the bounded comparison rule;
-3. quantitative-observation extraction is resolved for every requirement, so
-   the accepted observation list is complete under the current extractor
-   contract;
+3. no unresolved quantitative extraction is material to the declared
+   QB-v0.1 operand under amended CRA-D067;
 4. every potentially applicable observation pair has a resolved disposition;
 5. no result is ASSESSMENT_UNRESOLVED; and
 6. R_conf[QB-v0.1] was constructed only from CONFIRMED_CONFLICT results.
@@ -287,7 +289,9 @@ Required observability metadata is:
 - total_requirement_count;
 - requirements_with_quantitative_observations_count;
 - requirements_participating_in_applicable_comparisons_count;
-- unresolved_quantitative_extraction_count;
+- global unresolved quantitative extraction count;
+- QB-material unresolved quantitative extraction count;
+- QB-non-material preserved diagnostic count;
 - total_requirement_pair_count;
 - total_observation_pair_count considered;
 - applicable_comparison_count;
@@ -299,7 +303,9 @@ Required observability metadata is:
 - analysis rule identifier and version; and
 - coverage profile identifier and version.
 
-These are conceptual scientific fields, not approved Python names.
+These are conceptual scientific fields, not approved Python names. The global
+count preserves the existing detector meaning and cannot be silently reduced
+by QB materiality classification.
 
 | Decision ID | Question | Source status | Decision | Rationale | Consequence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -311,7 +317,7 @@ These are conceptual scientific fields, not approved Python names.
 | CRA-D027 | Does AGG-MVP-001 govern either Consistency indicator? | DIRECTLY_DERIVABLE | No. | AGG-MVP-001 averages independent local C/V/U values; each Consistency indicator is a direct set-cardinality formula with cross-coupled unknowns. | Its mixed-state policy cannot be copied automatically. | DIRECTLY_DERIVABLE |
 | CRA-D028 | Is a partial R_conf[QB-v0.1] a valid M_cons[QB-v0.1] numerator? | DIRECTLY_DERIVABLE under CRA-D024 | No. | It is an evidence-backed lower bound on observed membership, not the complete bounded operand. | It may be reported for audit only while the bounded indicator remains UNKNOWN. | DIRECTLY_DERIVABLE |
 | CRA-D066 | May the bounded slice publish an unqualified full-scope M_cons? | DIRECTLY_DERIVABLE scope limit plus researcher operationalization | No. Publish only M_cons[QB-v0.1] with its coverage profile; reserve unqualified M_cons for approved coverage of the source-defined conflict universe. | R_conf[QB-v0.1] is not known to contain participants in terminological, resource, or other logical conflicts. | The bounded value is executable without being misrepresented as universal Consistency. | RESEARCHER_APPROVED |
-| CRA-D067 | What if quantitative-observation extraction is unresolved for any requirement? | RESEARCHER_OPERATIONALIZATION | Return aggregate UNKNOWN even if no unresolved observation pair was materialized. | An unextracted observation could introduce an applicable comparison and new R_conf[QB-v0.1] members. | Resolved NOT_DETECTED may remain outside the slice, but unresolved extraction withholds M_cons[QB-v0.1]. | RESEARCHER_APPROVED |
+| CRA-D067 | What if quantitative-observation extraction is unresolved for any requirement? | RESEARCHER_OPERATIONALIZATION amended by researcher-approved QB-ER-D009 on 2026-09-25 | Return aggregate UNKNOWN when unresolved extraction may change the QB-v0.1 comparison universe, an observation-pair assessment, or membership in R_conf[QB-v0.1]. Preserve and report global extraction incompleteness. Exclude an unresolved diagnostic from the QB-material count only when an explicitly approved, versioned, fail-closed QB materiality rule proves it non-material. The current allowlist contains only embedded `500` under the existing exact upper C0 contract represented by `QUANT-CONTEXT-001` or the approved, not-implemented exact lower C0 contract in QB-ER-D005, with every readiness Section 5.3 gate satisfied. | The original strict rationale remains the default because an unextracted observation may introduce an applicable comparison or new R_conf[QB-v0.1] members. Both allowlisted C0 contracts instead prove that their exact embedded `500` is context and cannot form an independent QB comparison member. | Any failed gate or any other unresolved extraction is `QB_MATERIAL_UNRESOLVED` and withholds M_cons[QB-v0.1]. An allowlisted exact diagnostic is preserved as `QB_NON_MATERIAL`; detector `INCOMPLETE`, diagnostics, C/V/U, AGG-MVP-001, and SpecificationQualityProfile remain unchanged. | RESEARCHER_APPROVED |
 
 ## 6. Quantitative comparison identity
 
@@ -444,8 +450,8 @@ equality under the approved key rules, not inferred semantics.
 
 | Decision ID | Question | Source status | Decision | Rationale | Consequence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| CRA-D041 | Are Cases A-J the approved decision classifications? | RESEARCHER_OPERATIONALIZATION | Accept the classifications in the table as decision examples. | They expose positive, negative, non-applicable, unresolved, and multi-observation boundaries. | They seed, but do not yet constitute, binding reference cases. | RESEARCHER_APPROVED |
-| CRA-D042 | Are these binding executable reference cases now? | RESEARCHER_OPERATIONALIZATION approved; reference artifact absent | No. | The decision classifications are approved, but full requirement/Evidence fixtures have not yet been prepared or researcher-approved. | Binding reference-case research is the next authorized step; executable tests and implementation remain blocked. | BLOCKED |
+| CRA-D041 | Are Cases A-J the approved decision classifications? | RESEARCHER_OPERATIONALIZATION | Accept the classifications in the table as decision examples. | They expose positive, negative, non-applicable, unresolved, and multi-observation boundaries. | They are instantiated at explicit boundaries in the researcher-approved mixed reference corpus. | RESEARCHER_APPROVED |
+| CRA-D042 | Are these binding reference cases now? | Researcher-approved mixed corpus dated 2026-09-25 | Yes, at each case's explicit `BINDING_END_TO_END_REFERENCE_CASE` or `BINDING_DOMAIN_CONTRACT_REFERENCE_CASE` boundary in `docs/cross-requirement-consistency-reference-cases.md`. | The accepted corpus supplies full requirement/Evidence fixtures where current extraction permits and explicit domain projections elsewhere. | The exact lower-bound conflict remains only a future post-implementation validation target; no production test or implementation is authorized. | SATISFIED_BY_APPROVED_CORPUS |
 
 ## 8. Cross-result scientific contract
 
@@ -586,13 +592,27 @@ At specification level:
 
 - no requirement pair or no applicable observation comparison produces
   NOT_APPLICABLE with no M_cons[QB-v0.1] value;
-- unresolved quantitative extraction for any requirement produces UNKNOWN
-  even when it prevented an observation pair from being materialized;
-- one or more applicable comparisons, resolved extraction for every
-  requirement, and no ASSESSMENT_UNRESOLVED result permits computation;
+- unresolved quantitative extraction classified `QB_MATERIAL_UNRESOLVED`
+  produces UNKNOWN even when it prevented an observation pair from being
+  materialized;
+- global quantitative extraction incompleteness remains independently visible
+  and does not by itself force UNKNOWN when every unresolved item is proven
+  `QB_NON_MATERIAL` under amended CRA-D067;
+- `QB_NON_MATERIAL` is permitted only for exact embedded `500` diagnostics
+  under the two allowlisted, versioned C0 context contracts and every
+  fail-closed gate in
+  `docs/cross-requirement-qb-extraction-readiness.md` Section 5.3;
+- one or more applicable comparisons, zero QB-material unresolved extraction,
+  and no ASSESSMENT_UNRESOLVED result permits computation;
 - any ASSESSMENT_UNRESOLVED result produces UNKNOWN with no
   M_cons[QB-v0.1] value; and
 - confirmed results remain reportable even when the aggregate is UNKNOWN.
+
+The materiality allowlist is not a generic ignored-diagnostic mechanism. It
+does not cover `95`, `600`, R3 `300`, another population or context syntax,
+missing metric/context, unresolved inclusivity, competing observations, or an
+arbitrary future diagnostic. Any absent or invalid provenance gate fails
+closed to `QB_MATERIAL_UNRESOLVED`.
 
 | Decision ID | Question | Source status | Decision | Rationale | Consequence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -666,20 +686,30 @@ these non-claims:
   M_cons[QB-v0.1] = 1 - |R_conf[QB-v0.1]| / |R|, where
   R_conf[QB-v0.1] contains requirements participating in at least one
   CONFIRMED_CONFLICT detected under QB-v0.1
+- **Amendment C:** researcher-approved QB-ER-D009 amends CRA-D067 so only
+  unresolved extraction material to the declared QB operand withholds the
+  bounded indicator; the exact embedded `500` diagnostic may be
+  `QB_NON_MATERIAL` only under the existing exact upper C0 contract or the
+  approved exact lower C0 contract and every fail-closed provenance gate
+- **Approved extraction bridge:** QB-ER-D002 and QB-ER-D005 approve only exact
+  `LB-M-C0`; standalone LB-M0 is not approved. Production status is
+  `NOT_IMPLEMENTED`; new Rule IDs and Evidence IDs are `NOT_ALLOCATED`
 - **Full-source distinction:** unqualified M_cons retains its dissertation
   meaning across the complete source-defined conflict universe and remains
   non-executable until that universe has separately approved coverage
 - **Remaining deferred scope:** general logical, terminological, resource,
   duplication, semantic-equivalence, conversion, risk, product-quality, and
   every other out-of-scope class listed in this package
-- **Next authorized research step:** binding quantitative reference cases
+- **Next authorized phase:** Architecture Contract
 - **Not authorized:** production implementation, production classes,
   detectors, tests, pipeline refactoring, reporter changes, architecture
   implementation, or an implementation pull request
 
-Scientific approval authorizes preparation of binding reference cases only.
-Architecture remains blocked until those cases are researcher-approved and an
-architecture contract is separately prepared and researcher-approved.
+The mixed binding reference corpus and the exact extraction-readiness decisions
+are researcher-approved. The first bounded QB-v0.1 scientific slice is
+complete. Architecture Contract work is now authorized; architecture
+implementation and all production implementation remain unauthorized until
+their own contracts and approvals exist.
 
 ## 16. End-of-round report
 
@@ -692,8 +722,10 @@ No new branch was created. Nothing was merged.
 ### File modified
 
 - Updated docs/cross-requirement-consistency-decision-package.md.
-- No production code, tests, model specification, current C/V/U contract,
-  detector, reporter, or aggregation file was changed.
+- Finalization also updates the accepted reference corpus, extraction-readiness
+  record, and prospective implementation model.
+- No production code, tests, current C/V/U contract, detector, reporter, or
+  aggregation implementation was changed.
 
 ### Source-defined conclusions
 
@@ -724,8 +756,8 @@ On 2026-09-25, the researcher approved all 41 operational decisions, including:
 - a four-way result state/applicability distinction;
 - deterministic automatic confirmation only under the approved bounded rule;
 - a coverage-qualified M_cons[QB-v0.1], never an unqualified full-scope claim;
-- strict metric withholding for unresolved extraction or any
-  assessment-unresolved comparison;
+- materiality-based withholding for unresolved extraction and strict
+  withholding for any assessment-unresolved comparison;
 - mandatory observability metadata;
 - compound cross-record Evidence references;
 - no retroactive C/V/U effects;
@@ -739,6 +771,10 @@ On 2026-09-25, the researcher approved all 41 operational decisions, including:
 - **Amendment B:** M_cons[QB-v0.1] and R_conf[QB-v0.1] are the executable
   bounded operands. Unqualified M_cons remains a full-source indicator and is
   non-executable.
+- **Amendment C:** CRA-D067 preserves global extraction incompleteness while
+  withholding only for QB-material unresolved extraction. The sole current
+  non-material case is exact embedded `500` under one of the two explicitly
+  allowlisted C0 context contracts and every fail-closed gate.
 
 ### Deferred questions
 
@@ -751,26 +787,26 @@ deferred.
 
 ### Remaining deferred and blocked work
 
-Binding quantitative reference-case research is now authorized. Architecture
-and production implementation remain blocked until:
-
-1. binding quantitative reference cases are prepared and researcher-approved;
-   and
-2. an architecture contract is prepared and researcher-approved.
+The mixed binding reference corpus is researcher-approved, and the exact
+LB-M-C0 extraction bridge and diagnostic-materiality science are finalized.
+Architecture Contract is the next authorized phase. Architecture
+implementation and production implementation remain blocked pending their own
+contracts and approvals.
 
 All scientific classes explicitly deferred in this package remain deferred.
 
 ### Readiness
 
-This decision package is scientifically approved. The next authorized step is
-binding quantitative reference-case research. It is not an authorization for
-architecture or production implementation.
+This decision package, as amended by QB-ER-D009, is scientifically approved.
+The first bounded QB-v0.1 research slice is scientifically complete. The next
+authorized phase is Architecture Contract; this is not authorization for
+architecture implementation or production implementation.
 
 ## 17. Researcher Approval Checklist
 
 The researcher completed this checklist on 2026-09-25. All 41 operational
-decisions below are RESEARCHER_APPROVED, subject to Amendments A and B recorded
-in Section 15.
+decisions below are RESEARCHER_APPROVED, subject to Amendments A, B, and C
+recorded in Section 15.
 
 - [x] **Scope and analysis universe — CRA-D001, D005-D007.** Approved direct
   pairwise bounded quantitative conflict, unordered source-ordered requirement
@@ -792,11 +828,13 @@ in Section 15.
 
 - [x] **M_cons execution and claim — CRA-D023-D026, D066-D067.** Approved exact
   Fraction arithmetic, the coverage-qualified M_cons[QB-v0.1] label, strict
-  UNKNOWN propagation for unresolved extraction or any
+  UNKNOWN propagation for QB-material unresolved extraction or any
   ASSESSMENT_UNRESOLVED comparison, NOT_APPLICABLE when no comparison applies,
-  and mandatory observability metadata. **Approval rationale:** incomplete
-  extraction or unresolved pairs can change R_conf[QB-v0.1] membership, the
-  conflict coverage is bounded, and
+  and mandatory global/material/non-material observability metadata. Exact
+  embedded `500` may be `QB_NON_MATERIAL` only under either allowlisted C0
+  contract and every fail-closed gate. **Approval rationale:** material
+  incomplete extraction or unresolved pairs can change R_conf[QB-v0.1]
+  membership, the conflict coverage is bounded, and
   AGG-MVP-001 is not the same mathematical operation.
 
 - [x] **Text normalization — CRA-D029.** Approved NFC, case folding, whitespace

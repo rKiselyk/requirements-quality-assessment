@@ -1,10 +1,12 @@
 # QB-v0.1 Binding Quantitative Reference Cases
 
 - **Branch:** research/cross-requirement-analysis
-- **Research phase:** BINDING_QUANTITATIVE_REFERENCE_CASE_RESEARCH
+- **Research phase:** RESEARCHER_APPROVED_MIXED_BINDING_CORPUS
 - **Scientific authority:** the researcher-approved
   cross-requirement-consistency-decision-package.md, approval date 2026-09-25
-- **Document status:** PROPOSED_BINDING_CORPUS_FOR_RESEARCHER_APPROVAL
+- **Document status:** RESEARCHER_APPROVED / MIXED END_TO_END +
+  DOMAIN_CONTRACT CORPUS / END_TO_END_IMPLEMENTATION_TARGET_OPEN
+- **Materiality amendment date:** 2026-09-25
 - **Implementation effect:** none
 - **Production change authorization:** none
 
@@ -112,16 +114,21 @@ Therefore no current text fixture can simultaneously provide:
 - a complete resolved metric;
 - a complete resolved context;
 - a supported lower bound; and
-- resolved quantitative extraction.
+- the approved full `LB-M-C0` identity.
 
-No current text fixture can produce a COMPUTED M_cons[QB-v0.1] through the full
-end-to-end path. This is an observed baseline limitation, not a reopened
-scientific decision. Computed, conflict, normalization, resolved-context
-inequality, and NOT_LESS_FREQUENT branches are consequently bound at the domain
-contract boundary.
+No current text fixture can produce a CONFIRMED_CONFLICT and computed
+M_cons[QB-v0.1] through the full end-to-end path. This is an implementation
+limitation, not an open scientific decision: exact `LB-M-C0` is approved but
+not implemented. Amended CRA-D067 does allow current exact upper-C0 fixtures
+to produce COMPUTED or NOT_APPLICABLE aggregates when the preserved `500`
+diagnostics are the only unresolved extraction and all allowlist gates pass.
+Conflict, lower-bound composition, normalization, resolved-context inequality,
+and NOT_LESS_FREQUENT branches otherwise retain their stated binding
+boundaries.
 
-End-to-end cases still bind exact extraction, observable cross-results, strict
-UNKNOWN propagation, and NOT_APPLICABLE behavior.
+End-to-end cases still bind exact extraction, observable cross-results,
+material UNKNOWN propagation, QB-non-material C0 behavior, and NOT_APPLICABLE
+behavior.
 
 ## 3. Fixture conventions and reusable extraction records
 
@@ -172,6 +179,18 @@ For every row:
 
 These are scientific metadata names for this corpus, not production field
 names or a production Rule ID.
+
+`N_X` retains its global extraction meaning. Amended CRA-D067 requires two
+additional conceptual quantities:
+
+    QB_MATERIALITY(N_XM, N_XN)
+
+where `N_XM` is the QB-material unresolved quantitative extraction count and
+`N_XN` is the QB-non-material preserved diagnostic count. Unless a case states
+otherwise, `N_XM=N_X` and `N_XN=0`. RC-QB-005 and RC-QB-011 state the sole
+current exception: their exact upper-C0 embedded-`500` diagnostics satisfy the
+approved allowlist and every fail-closed gate, so `N_XM=0` and `N_XN=2` while
+global `N_X=2` and both detector outcomes remain `INCOMPLETE`.
 
 ### 3.3 Verified end-to-end extraction templates
 
@@ -338,7 +357,8 @@ Evidence fields without repeating their span table in every case.
 
 - **Binding status:** BINDING_END_TO_END_REFERENCE_CASE.
 - **Purpose:** bind exact context identity, same-unit identity, an observed
-  COMPATIBLE_WITHIN_RULE result, and strict extraction-uncertainty propagation.
+  COMPATIBLE_WITHIN_RULE result, and the amended CRA-D067 distinction between
+  global extraction incompleteness and QB-material incompleteness.
 - **Input requirement set:** line 1/R001 = E-U2-S-C; line 2/R002 = E-U5-S-C.
 - **Expected extraction/Evidence:** exact E-U2-S-C and E-U5-S-C rows in
   Section 3.3, including owner-qualified metric/scalar/context Evidence and
@@ -347,14 +367,16 @@ Evidence fields without repeating their span table in every case.
   (час відгуку, при 500 одночасних користувачах, SECOND).
 - **Expected cross-result:** XR-RC-QB-005-001 (R001,R002) =
   COMPATIBLE_WITHIN_RULE; two upper half-lines intersect.
-- **Expected bounded set/aggregate:** observed partial
-  R_conf[QB-v0.1]=empty set, Rconf_complete=false; aggregate UNKNOWN;
-  M_cons[QB-v0.1] absent because N_X=2.
-- **Metadata:** META(2,2,2,1,1,1,0,1,0,0,2,0,false).
+- **Expected bounded set/aggregate:** complete R_conf[QB-v0.1]=empty set;
+  aggregate COMPUTED; M_cons[QB-v0.1]=Fraction(1,1). Both quantitative
+  outcomes remain globally INCOMPLETE, but their exact C0 `500` diagnostics
+  are QB_NON_MATERIAL.
+- **Metadata:** META(2,2,2,1,1,1,0,1,0,0,2,0,true);
+  QB_MATERIALITY(0,2).
 - **Rationale/traceability:** CRA-D007, D011, D021, D024, D026, D030,
   D032-D037, D039, D067.
-- **Bounded non-claim:** NC-QB-BASE; the observed compatible result does not
-  override incomplete extraction.
+- **Bounded non-claim:** NC-QB-BASE; the computed bounded result does not erase
+  or reinterpret global incomplete extraction.
 
 ### RC-QB-006 — two supported lower bounds
 
@@ -442,8 +464,8 @@ Evidence fields without repeating their span table in every case.
 ### RC-QB-011 — current-extractor different units
 
 - **Binding status:** BINDING_END_TO_END_REFERENCE_CASE.
-- **Purpose:** bind no-conversion behavior under actual extraction and strict
-  extraction-uncertainty propagation.
+- **Purpose:** bind no-conversion behavior under actual extraction and the
+  amended C0 diagnostic-materiality rule.
 - **Input requirement set:** line 1/R001 = E-U2-S-C; line 2/R002 = E-U1-M-C.
 - **Expected extraction/Evidence:** exact Section 3.3 templates, including
   diagnostics 500 [22,25) and 500 [23,26).
@@ -451,9 +473,12 @@ Evidence fields without repeating their span table in every case.
   OUTSIDE_V0_1_APPLICABILITY. No 60-second/1-minute conversion is attempted.
 - **Expected cross-result:** XR-RC-QB-011-001 =
   OUTSIDE_V0_1_APPLICABILITY, not COMPATIBLE_WITHIN_RULE.
-- **Expected bounded set/aggregate:** observed empty
-  R_conf[QB-v0.1], incomplete; UNKNOWN with no metric because N_X=2.
-- **Metadata:** META(2,2,0,1,1,0,0,0,0,1,2,0,false).
+- **Expected bounded set/aggregate:** complete empty R_conf[QB-v0.1];
+  NOT_APPLICABLE with no numeric value because the resolved unit inequality
+  leaves no applicable comparison. Both quantitative outcomes remain globally
+  INCOMPLETE, but their exact C0 `500` diagnostics are QB_NON_MATERIAL.
+- **Metadata:** META(2,2,0,1,1,0,0,0,0,1,2,0,true);
+  QB_MATERIALITY(0,2).
 - **Rationale/traceability:** CRA-D024, D026, D033, D036, D057, D067.
 - **Bounded non-claim:** NC-QB-BASE.
 
@@ -748,16 +773,53 @@ is preserved so later work does not silently reuse them.
 
 | Rejected fixture | Intended purpose | Observed frozen-extractor behavior | Disposition/replacement |
 | --- | --- | --- | --- |
-| RF-QB-001: Час відгуку не нижче 5 с при 500 одночасних користувачах | End-to-end lower-bound conflict | QUANT-UK-001:E001 = не нижче 5 с [12,24), GREATER_THAN_OR_EQUAL/INCLUSIVE, Decimal("5"), SECOND; metric/context absent; diagnostic 500 [29,32); INCOMPLETE | Rejected for end-to-end conflict; replaced by domain cases RC-QB-001-RC-QB-004 and RC-QB-006-RC-QB-007. |
+| RF-QB-001: Час відгуку не нижче 5 с при 500 одночасних користувачах | End-to-end lower-bound conflict | QUANT-UK-001:E001 = не нижче 5 с [12,24), GREATER_THAN_OR_EQUAL/INCLUSIVE, Decimal("5"), SECOND; metric/context absent; diagnostic 500 [29,32); INCOMPLETE | Remains rejected as a current end-to-end fixture; domain cases RC-QB-001-RC-QB-004 and RC-QB-006-RC-QB-007 remain binding. The exact text is now part of the future post-implementation target in Section 5.1. |
 | RF-QB-002: ЧАС  ВІДГУКУ ≤ 2 с при 500 одночасних користувачах | Representation-only metric normalization | Only QUANT-001:E001 = ≤ 2 с [13,18); metric/context absent; diagnostic 500 [23,26); INCOMPLETE | Rejected end-to-end; normalization is bound by RC-QB-008. |
 | RF-QB-003: Час відповіді ≤ 2 с при 500 одночасних користувачах | Semantic-synonym OUTSIDE result | Only QUANT-001:E001 = ≤ 2 с [14,19); metric/context absent; diagnostic 500 [24,27); INCOMPLETE, so the text would be unresolved rather than a resolved metric mismatch | Rejected end-to-end; synonym boundary is bound by RC-QB-009. |
 | RF-QB-004: Час відгуку ≤ 2 с під час пікового навантаження | Resolved different quantitative context | Metric and upper bound are accepted, but quantitative context remains absent; COMPLETE | Rejected as a resolved-context fixture; replaced by RC-QB-010. |
 | RF-QB-005: не рідше одного разу на 5 с | NOT_LESS_FREQUENT observation | Protected frequency construction yields COMPLETE/NOT_DETECTED with no observation, Evidence, or diagnostic | Rejected end-to-end; comparator disposition is bound by RC-QB-017. |
 
-The systematic full-key context diagnostic described in Section 2.2 is an
-additional corpus limitation: E-U2-S-C, E-U5-S-C, and E-U1-M-C are valid
-end-to-end extraction fixtures, but none can yield a computed aggregate because
-their quantitative extraction is INCOMPLETE.
+The systematic full-key context diagnostic described in Section 2.2 remains a
+global extraction fact. Under amended CRA-D067, E-U2-S-C, E-U5-S-C, and
+E-U1-M-C may participate in an observable QB aggregate when their exact C0
+`500` diagnostics are the only unresolved quantitative extraction and every
+materiality gate passes. The diagnostics and `INCOMPLETE` outcomes remain
+unchanged.
+
+### 5.1 Researcher-approved future post-implementation validation target
+
+This target is scientifically approved but is not a
+`BINDING_END_TO_END_REFERENCE_CASE` under the current implementation:
+
+```text
+R001: Час відгуку ≤ 2 с при 500 одночасних користувачах
+R002: Час відгуку не нижче 5 с при 500 одночасних користувачах
+```
+
+The current R002 extraction remains exactly RF-QB-001. After an independently
+authorized and validated implementation of the exact `LB-M-C0` bridge, the
+expected scientific projection is:
+
+- both observations have normalized key
+  `(час відгуку, при 500 одночасних користувачах, SECOND)`;
+- R001 is `LESS_THAN_OR_EQUAL / INCLUSIVE`, `Decimal("2")`;
+- R002 is `GREATER_THAN_OR_EQUAL / INCLUSIVE`, `Decimal("5")`;
+- both detector outcomes may remain globally `INCOMPLETE` and both embedded
+  `500` diagnostics remain present;
+- global unresolved extraction count is 2;
+- QB-material unresolved extraction count is 0;
+- QB-non-material preserved diagnostic count is 2;
+- `(-infinity,2]` intersect `[5,+infinity)` is empty;
+- the cross result is `CONFIRMED_CONFLICT`;
+- `R_conf[QB-v0.1]={R001,R002}` and is complete; and
+- `M_cons[QB-v0.1]=Fraction(0,1)`, aggregate `COMPUTED`.
+
+Future implementation must enrich the existing R002 `QUANT-UK-001`
+observation rather than create a duplicate. Production status is
+`NOT_IMPLEMENTED`; new Rule IDs and Evidence IDs are `NOT_ALLOCATED`. The
+target becomes binding end-to-end only after implementation authorization,
+validation against the approved science, technical audit, and an explicit
+corpus status update.
 
 ## 6. Traceability matrix
 
@@ -771,13 +833,13 @@ OUTSIDE_V0_1_APPLICABILITY.
 | RC-QB-002 | D006,D060 | L5-S then U2-S | C | add R001,R002 | COMPUTED / 0 | reversed source order |
 | RC-QB-003 | D007,D021,D061 | U2-S, L5-S, U1-S | C,W,C | union R001,R002,R003 once | COMPUTED / 0 | overlapping conflicts and set semantics |
 | RC-QB-004 | D011,D037-D041 | U5-S + L2-S | W | none | COMPUTED / 1 | overlapping mixed bounds |
-| RC-QB-005 | D024,D026,D032,D039,D067 | exact extractor U2-S-C + U5-S-C | W | observed empty, incomplete | UNKNOWN / absent | exact context plus incomplete extraction |
+| RC-QB-005 | D024,D026,D032,D039,D067; QB-ER-D009 | exact extractor U2-S-C + U5-S-C | W | complete empty; global incomplete, QB material complete | COMPUTED / 1 | exact upper-C0 allowlist materiality |
 | RC-QB-006 | D034,D037,D039 | L5-S + L2-S | W | none | COMPUTED / 1 | two lower bounds |
 | RC-QB-007 | D037,D040 | U5-S + L5-S | W | none | COMPUTED / 1 | inclusive shared endpoint |
 | RC-QB-008 | D029,D030,D032,D036 | normalized case/space/NFC variants | W | none | COMPUTED / 1 | representation-only identity |
 | RC-QB-009 | D030,D057 | час відгуку + час відповіді synonym surfaces | O | none | NOT_APPLICABLE | no synonym inference |
 | RC-QB-010 | D032,D057 | standard + peak-load contexts | O | none | NOT_APPLICABLE | resolved context inequality |
-| RC-QB-011 | D024,D033,D057,D067 | extractor SECOND + MINUTE | O | observed empty, incomplete | UNKNOWN / absent | no conversion plus extraction uncertainty |
+| RC-QB-011 | D025,D033,D057,D067; QB-ER-D009 | extractor SECOND + MINUTE | O | complete empty; global incomplete, QB material complete | NOT_APPLICABLE | no conversion plus exact upper-C0 allowlist materiality |
 | RC-QB-012 | D020,D025,D033,D057 | resolved SECOND + MINUTE | O | none | NOT_APPLICABLE | no applicable comparison |
 | RC-QB-013 | D013,D030,D032,D056,D058 | extractor bounds with metric/context missing | U | observed empty, incomplete | UNKNOWN / absent | missing metric |
 | RC-QB-014 | D013,D032,D056,D058 | extractor metric present/context missing | U | observed empty, incomplete | UNKNOWN / absent | missing context |
@@ -816,11 +878,11 @@ The classification describes this corpus, not implementation readiness.
 | CRA-D020 | COVERED_BY_BINDING_CASE | RC-QB-012 and RC-QB-027. |
 | CRA-D021 | COVERED_BY_BINDING_CASE | RC-QB-022 preserves partial R_conf[QB-v0.1]. |
 | CRA-D023 | COVERED_BY_BINDING_CASE | Exact Fraction values 0, 1, and 1/3 are bound. |
-| CRA-D024 | COVERED_BY_BINDING_CASE | RC-QB-005, RC-QB-022-RC-QB-024. |
+| CRA-D024 | COVERED_BY_BINDING_CASE | RC-QB-022-RC-QB-024 bind material unresolved comparison behavior. |
 | CRA-D025 | COVERED_BY_BINDING_CASE | RC-QB-012, RC-QB-017, RC-QB-025-RC-QB-027. |
 | CRA-D026 | COVERED_BY_BINDING_CASE | Every case supplies the complete META tuple and coverage profile. |
 | CRA-D066 | COVERED_BY_BINDING_CASE | All numeric cases use M_cons[QB-v0.1]; NC-QB-BASE excludes full M_cons claims. |
-| CRA-D067 | COVERED_BY_BINDING_CASE | RC-QB-005, RC-QB-011, and RC-QB-024. |
+| CRA-D067 | COVERED_BY_BINDING_CASE | RC-QB-005 and RC-QB-011 bind the exact upper-C0 QB_NON_MATERIAL path; RC-QB-024 binds default QB_MATERIAL_UNRESOLVED behavior. |
 | CRA-D029 | COVERED_BY_BINDING_CASE | RC-QB-008 binds NFC, case, and whitespace normalization. |
 | CRA-D030 | COVERED_BY_BINDING_CASE | RC-QB-008 equality; RC-QB-009 inequality; RC-QB-013 missing metric. |
 | CRA-D032 | COVERED_BY_BINDING_CASE | RC-QB-005 equality; RC-QB-010 inequality; RC-QB-014-RC-QB-015 missing/unresolved. |
@@ -847,6 +909,15 @@ The classification describes this corpus, not implementation readiness.
 | CRA-D062 | COVERED_BY_BINDING_CASE | Section 3 exact spans and participant/span ordering. |
 | CRA-D064 | NON_CLAIM_ONLY | NC-QB-BASE is incorporated into every binding case. |
 
+The three final extraction-readiness decisions have the following corpus
+disposition:
+
+| Decision | Coverage classification | Binding coverage or validation target |
+| --- | --- | --- |
+| QB-ER-D002 | FUTURE_POST_IMPLEMENTATION_VALIDATION | Section 5.1 uses only exact `LB-M-C0`; standalone LB-M0 is absent and remains unapproved. |
+| QB-ER-D005 | FUTURE_POST_IMPLEMENTATION_VALIDATION | Section 5.1 preserves one enriched lower scalar observation with exact metric/context provenance; no current end-to-end claim is made. |
+| QB-ER-D009 | COVERED_BY_BINDING_CASE | RC-QB-005 and RC-QB-011 bind the existing upper-C0 allowlist entry; RC-QB-024 preserves the fail-closed material default. Section 5.1 records the approved lower-C0 expectation. |
+
 ### 7.1 Coverage conclusion
 
 Every approved executable scientific branch has at least one binding case
@@ -857,11 +928,12 @@ The following composition gap is explicit rather than hidden:
 
 | Gap | Classification | Reason |
 | --- | --- | --- |
-| Full text-to-COMPUTED M_cons[QB-v0.1] path | NOT_YET_COVERED | The only current linked quantitative context always makes extraction INCOMPLETE; no supported lower bound receives the full linked key. Computed semantics are bound at the domain-contract boundary instead. |
+| Full text-to-CONFIRMED_CONFLICT-to-COMPUTED M_cons[QB-v0.1] path | FUTURE_POST_IMPLEMENTATION_TARGET | Amended CRA-D067 now permits current exact upper-C0 cases to reach COMPUTED or NOT_APPLICABLE despite preserved global INCOMPLETE state. The current extractor still cannot enrich the supported lower bound with the approved full `LB-M-C0` identity. Section 5.1 binds the approved future validation target without falsely labeling it current end-to-end behavior. |
 
-This gap must be considered during architecture research and before production
-implementation. It must not be solved by changing a fixture, suppressing the
-500 diagnostic, or assuming a missing context.
+This implementation gap must be carried into Architecture Contract and later
+implementation validation. It must not be solved by changing a fixture,
+suppressing the `500` diagnostic, approving standalone LB-M0, or assuming a
+missing context.
 
 ## 8. End-of-round report
 
@@ -871,12 +943,12 @@ research/cross-requirement-analysis
 
 No new branch was created. Nothing was merged.
 
-### File created
+### File finalized
 
 docs/cross-requirement-consistency-reference-cases.md
 
-No production source, tests, detector, model-specification, C/V/U,
-aggregation, or reporter file was changed.
+No production source, tests, detector, C/V/U, aggregation, or reporter
+implementation was changed.
 
 ### Corpus counts
 
@@ -907,27 +979,32 @@ coverage across the combined corpus. Exact conflict, compatibility,
 applicability, uncertainty, set construction, Fraction arithmetic,
 NOT_APPLICABLE, ordering, provenance, and non-claim branches are covered.
 
-The full text-to-computed-aggregate composition is not currently achievable
-under the frozen extractor and is explicitly NOT_YET_COVERED end-to-end.
+Current exact upper-C0 extraction now binds one COMPUTED case and one
+NOT_APPLICABLE case under the amended materiality science while preserving
+global `INCOMPLETE`. The text-to-CONFIRMED_CONFLICT-to-COMPUTED path remains a
+researcher-approved future post-implementation target, not a verified current
+end-to-end case.
 
 ### Unresolved blockers
 
-- The only linked context produces an unresolved 500 diagnostic and therefore
-  INCOMPLETE quantitative extraction.
+- Exact C0 continues to produce the preserved `500` diagnostic and global
+  INCOMPLETE quantitative extraction; amended CRA-D067 prevents that fact alone
+  from forcing QB aggregate UNKNOWN when every allowlist gate passes.
 - The current extractor does not attach the required metric/context to
   GREATER_THAN_OR_EQUAL.
 - The current extractor does not emit NOT_LESS_FREQUENT observations.
 - Representation-varied and synonym metrics, and alternative quantitative
   contexts, do not become resolved linked components.
-- The reference corpus still requires researcher approval.
-- Architecture requires its own later contract and approval.
+- The approved `LB-M-C0` bridge remains NOT_IMPLEMENTED with new Rule and
+  Evidence IDs NOT_ALLOCATED.
+- Architecture requires its own contract and approval before implementation.
 
 ### Readiness
 
-This corpus is ready for researcher review and approval as a mixed binding
-end-to-end/domain-contract corpus with the explicit end-to-end composition
-gap above.
+This mixed binding end-to-end/domain-contract corpus is researcher-approved.
+The first bounded QB-v0.1 scientific slice is complete, with the exact future
+post-implementation target recorded separately from current verified behavior.
 
-Architecture and production implementation remain blocked. After researcher
-approval of this corpus, the next authorized phase is architecture-contract
-research, not implementation.
+The next authorized phase is Architecture Contract. Architecture
+implementation and production implementation remain blocked pending their own
+contracts and approvals.
