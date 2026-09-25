@@ -1,0 +1,2944 @@
+Requirement N001
+Text: збирати, відображати і дозволяти стягувати якнайбільше інформації про закупівельні процеси;
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N002
+Text: підтримувати високий рівень якості та узгодженості даних;
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N003
+Text: забезпечувати інструменти для пошуку і візуалізації даних.
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N005
+Text: Портал повинен збирати дані з декількох різних джерел і зводити їх під один знаменник, щоб дані могли бути оброблені і відображені в одному форматі.
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_COORD_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-002
+          explanation: Candidate fails the closed RESULT-UK-002 graph or source contract.
+          candidate_span (not accepted Evidence):
+            text: Портал повинен збирати дані з декількох різних джерел і зводити їх під один знаменник, щоб дані могли бути оброблені і відображені в одному форматі
+            range: [0,147)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N006
+Text: Дані повинні бути вичерпними, доступними і опублікованими в кількох різних відкритих форматах (наприклад, OCDS, CSV, SPARQL, XML).
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-001
+          explanation: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.
+          candidate_span (not accepted Evidence):
+            text: Дані повинні бути вичерпними, доступними і опублікованими в кількох різних відкритих форматах (наприклад, OCDS, CSV, SPARQL, XML)
+            range: [0,129)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N007
+Text: Портал повинен надавати інтерактивну та детальну інформацію про закупівлі, які оголосила/у яких прийняла участь кожна організація і дозволяти відстежувати закупівлі окремих організацій.
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_COORD_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-002
+          explanation: Candidate fails the closed RESULT-UK-002 graph or source contract.
+          candidate_span (not accepted Evidence):
+            text: Портал повинен надавати інтерактивну та детальну інформацію про закупівлі, які оголосила/у яких прийняла участь кожна організація і дозволяти відстежувати закупівлі окремих організацій
+            range: [0,184)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N008
+Text: Портал повинен забезпечити інтеграцію з усіма комерційними майданчиками електронних закупівель та можливість перейти на сторінку закупівлі на тому чи іншому майданчику.
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_COORD_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-002
+          explanation: Candidate fails the closed RESULT-UK-002 graph or source contract.
+          candidate_span (not accepted Evidence):
+            text: Портал повинен забезпечити інтеграцію з усіма комерційними майданчиками електронних закупівель та можливість перейти на сторінку закупівлі на тому чи іншому майданчику
+            range: [0,167)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N009
+Text: Портал повинен надавати користувачам інструменти візуалізації, які дозволять побудову графіків/діаграм, на основі результатів пошуку/запиту (з використанням SPARQL). Графіки можуть бути статичні і динамічні, вони можуть бути поширені за допомогою соціальних мереж.
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-001
+          explanation: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.
+          candidate_span (not accepted Evidence):
+            text: Портал повинен надавати користувачам інструменти візуалізації, які дозволять побудову графіків/діаграм, на основі результатів пошуку/запиту (з використанням SPARQL)
+            range: [0,164)
+        - diagnostic_index: 1
+          code: RESULT_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-001
+          explanation: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.
+          candidate_span (not accepted Evidence):
+            text: Графіки можуть бути статичні і динамічні, вони можуть бути поширені за допомогою соціальних мереж
+            range: [166,263)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.; RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.; RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N010
+Text: Користувачі повинні мати можливість виконувати пошук по опублікованих даних про закупівлі і стягувати відповідні договори, тендерні документи та іншу пов’язану інформацію.
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_COORD_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-002
+          explanation: Candidate fails the closed RESULT-UK-002 graph or source contract.
+          candidate_span (not accepted Evidence):
+            text: Користувачі повинні мати можливість виконувати пошук по опублікованих даних про закупівлі і стягувати відповідні договори, тендерні документи та іншу пов’язану інформацію
+            range: [0,170)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N011
+Text: Масштабованість. Система повинна забезпечити стабільну роботу при великій кількості відвідувачів.
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 2/3
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: DETECTED
+      effect_code: C_PRESENT_1
+      accepted_observations:
+        - observation_index: 0
+          observation_type: FeatureObservation
+          observation: FeatureObservation(feature_id=condition_context, evidence_refs=[COND-UK-001:E001])
+          resolved_evidence:
+            - evidence_id: COND-UK-001:E001
+              text: при великій кількості відвідувачів
+              range: [62,96)
+              feature_id: condition_context
+              detector_rule_id: COND-UK-001
+      unresolved_diagnostics: none
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: DETECTED
+      effect_code: C_PRESENT_1
+      accepted_observations:
+        - observation_index: 0
+          observation_type: FeatureObservation
+          observation: FeatureObservation(feature_id=expected_result, evidence_refs=[RESULT-UK-001:E001])
+          resolved_evidence:
+            - evidence_id: RESULT-UK-001:E001
+              text: Система повинна забезпечити стабільну роботу
+              range: [17,61)
+              feature_id: expected_result
+              detector_rule_id: RESULT-UK-001
+      unresolved_diagnostics: none
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 2/3 from 2/3 required criteria detected: condition/context=DETECTED; expected result/reaction=DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 2/3 from 2/3 required criteria detected: condition/context=DETECTED; expected result/reaction=DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: observed; contributes exactly 1 to the three-family ratio.
+    - expected_result: observed; contributes exactly 1 to the three-family ratio.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N012
+Text: Вихідний код Порталу повинен бути повністю відкритим, що дозволило б спільну доробку та реалізацію додаткових функцій.
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-001
+          explanation: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.
+          candidate_span (not accepted Evidence):
+            text: Вихідний код Порталу повинен бути повністю відкритим, що дозволило б спільну доробку та реалізацію додаткових функцій
+            range: [0,117)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_UNRESOLVED_CANDIDATE: Approved expected-result candidate cannot be resolved by the RESULT-UK-001 first-production grammar.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N013
+Text: Додати новий модуль openprocurement.framework.rfp (requestForProposal)
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N014
+Text: Створити модуль openprocurement.framework.rfp (requestForProposal) аналогічний до openprocurement.framework.dps (dynamicPurchasingSystem)
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N015
+Text: Створити нову схему конфігурації для openprocurement.framework.rfp requestForProposal https://github.com/ProzorroUKR/standards/tree/master/data_model/schema/FrameworkConfig
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N016
+Text: Додати документацію для openprocurement.framework.rfp (requestForProposal)
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N017
+Text: Перенести логіку стейт класів з модуля openprocurement.tenders.belowthreshold в модуль openprocurement.tenders.core
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N018
+Text: По замовчуванню за допомогою атрибутів стейт класів модуля openprocurement.tender.core перенесена логіка має бути вимкнена і не впливати на функціональність всіх модулів openprocurement.tender що наслідуються від  openprocurement.tender.core модуля
+
+FORMAL RESULT
+
+Completeness:
+  state: UNKNOWN
+  value: UNKNOWN
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_REQUIRED_INPUT_UNRESOLVED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: INCOMPLETE
+      detection_status: UNRESOLVED
+      effect_code: C_REQUIRED_UNRESOLVED
+      accepted_observations: none
+      unresolved_diagnostics (not accepted Evidence):
+        - diagnostic_index: 0
+          code: RESULT_COORD_UNRESOLVED_CANDIDATE
+          rule_id: RESULT-UK-002
+          explanation: Candidate fails the closed RESULT-UK-002 graph or source contract.
+          candidate_span (not accepted Evidence):
+            text: По замовчуванню за допомогою атрибутів стейт класів модуля openprocurement.tender.core перенесена логіка має бути вимкнена і не впливати на функціональність всіх модулів openprocurement.tender що наслідуються від  openprocurement.tender.core модуля
+            range: [0,248)
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: Completeness is UNKNOWN because at least one required feature family is unresolved.
+  approved explanation: Completeness withheld under CALC-C-MVP-001: required detector processing is incomplete for expected result/reaction (unresolved: RESULT_COORD_UNRESOLVED_CANDIDATE: Candidate fails the closed RESULT-UK-002 graph or source contract.).
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: unresolved required input; withholds the result.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N019
+Text: Увімкнути перенесену логіку за допомогою перевизначення атрибутів стейт класів у модулі openprocurement.tender.core.belowthreshold
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N020
+Text: Додати новий модуль openprocurement.tender.rfp (requestForProposal)
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N021
+Text: Налаштувати стейт класи нового модуля openprocurement.tender.rfp (requestForProposal) подібно до openprocurement.tender.belowthreshold (belowThreshold) але з особливостями нового типу процедури
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N022
+Text: Додати документацію для openprocurement.tender.rfp (requestForProposal)
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N023
+Text: Мінімально допустимий термін тривалості - 365 днів.
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Requirement N024
+Text: Максимально допустимий термін тривалості - 1461 день.
+
+FORMAL RESULT
+
+Completeness:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-C-MVP-001
+  governing_rule_id: CALC-C-MVP-001
+  decision_code: C_CRITERION_RATIO_COMPUTED
+  feature_inputs:
+    - feature_id: condition_context
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: expected_result
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: acceptance_criterion
+      applicability: APPLICABLE
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: C_COMPLETED_ABSENCE_0
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  assessment_rule_id: CALC-V-MVP-001
+  governing_rule_id: CALC-V-MVP-001
+  decision_code: V_COMPLETED_NO_EVIDENCE_TIER
+  feature_inputs:
+    - feature_id: acceptance_criterion
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: quantitative_constraint
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+    - feature_id: verification_method
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: V_COMPLETED_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  assessment_rule_id: CALC-U-MVP-001
+  governing_rule_id: CALC-U-MVP-001
+  decision_code: U_COMPLETED_SIGNAL_ABSENCE_TIER
+  feature_inputs:
+    - feature_id: vague_term_occurrence
+      applicability: none
+      processing_status: COMPLETE
+      detection_status: NOT_DETECTED
+      effect_code: U_COMPLETED_SIGNAL_ABSENCE
+      accepted_observations: none
+      unresolved_diagnostics: none
+      completed_absence: no accepted observation; no Evidence was created for absence
+  findings: none
+  assessment_explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+
+HUMAN-READABLE INTERPRETATION
+
+Completeness:
+  decision: The exact Completeness value is the approved ratio of observed required feature families; repeated observations do not add weight.
+  approved explanation: CALC-C-MVP-001 computed 0 from 0/3 required criteria detected: condition/context=NOT_DETECTED; expected result/reaction=NOT_DETECTED; acceptance/fulfilment criterion=NOT_DETECTED.
+  input interpretation:
+    - condition_context: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - expected_result: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - acceptance_criterion: completed absence; contributes exactly 0; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Verifiability:
+  decision: All three Verifiability paths completed without an accepted observation, producing the approved zero tier without creating absence Evidence.
+  approved explanation: CALC-V-MVP-001 computed 0: acceptance criterion, quantitative constraint, and verification method families are all complete with no accepted observation (a completed absence of operationalization evidence, not a Finding).
+  input interpretation:
+    - acceptance_criterion: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - quantitative_constraint: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+    - verification_method: completed absence; supplies no accepted V evidence; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Unambiguity:
+  decision: The supported vague-term scan completed without an accepted occurrence, producing U=1 without creating absence Evidence.
+  approved explanation: CALC-U-MVP-001 computed 1: the approved MVP vague-term detector found no supported signal after complete processing; this is absence of the supported signal class, not universal proof that the requirement has exactly one semantically valid interpretation in every possible context.
+  input interpretation:
+    - vague_term_occurrence: completed absence of the supported signal class; this is no accepted observation under completed implemented rules, not universal semantic absence, and no absence Evidence exists.
+
+Coverage disclosures (MVP-V0.1-BOUNDED-CVU-001):
+  1. Coverage is limited to the implemented bounded six-family extraction and approved C/V/U rules; it is not exhaustive Ukrainian linguistic or semantic analysis.
+  2. NOT_DETECTED and completed absence mean no accepted observation under completed implemented rules; they do not establish universal semantic absence.
+  3. C/V values, including low values or zero, are rule outputs and are not confirmed defects.
+  4. U=1 means absence of the supported signal class, not proof of unique interpretation; U=1/2 means signal presence, not confirmed ambiguity; the current U rule never produces 0.
+  5. FIND-U-VAGUE-001 is SIGNAL only; no current QUALITY_PROBLEM, severity, confidence, risk, or corrective action exists.
+  6. R3 and F1-A are researcher-approved but unimplemented and are not claimed as runtime coverage.
+  7. This is a multidimensional C/V/U profile, not a scalar requirement score or product-quality prediction.
+
+Specification summary
+Analyzed requirements: 23
+
+Completeness:
+  state: COMPUTED
+  value: 2/45
+  computed_count: 15
+  unknown_count: 8
+  not_applicable_count: 0
+  total_count: 23
+  aggregation_rule_id: AGG-MVP-001
+
+Verifiability:
+  state: COMPUTED
+  value: 0
+  computed_count: 23
+  unknown_count: 0
+  not_applicable_count: 0
+  total_count: 23
+  aggregation_rule_id: AGG-MVP-001
+
+Unambiguity:
+  state: COMPUTED
+  value: 1
+  computed_count: 23
+  unknown_count: 0
+  not_applicable_count: 0
+  total_count: 23
+  aggregation_rule_id: AGG-MVP-001

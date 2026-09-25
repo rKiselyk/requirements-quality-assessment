@@ -1,0 +1,81 @@
+{
+  "datasets": {
+    "authored": {
+      "path": "docs\\srm-13-two-stage-results\\authored-requirements.jsonl",
+      "sha256": "6fa9d3fe87747736538543a0f3811853b6878ffcb7c9363e2689e082f5079f8a"
+    },
+    "real": {
+      "path": "docs\\srm-13-two-stage-results\\real-requirements.jsonl",
+      "sha256": "d394d97f545a5cf4d7dd30f9a4f06966b51470bbe7f963642dd07489338d3b78"
+    }
+  },
+  "environment": {
+    "operating_system": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.9",
+    "spacy": "3.8.16",
+    "uk_core_news_sm": "3.8.0"
+  },
+  "implementation_commit": "0bfa03e04be187bc56fdd30dff393eb813b482aa",
+  "stage_1": {
+    "case_status": {
+      "FAIL": 0,
+      "NOT_ASSESSABLE": 0,
+      "PASS": 40
+    },
+    "cases": 40,
+    "characteristics": {
+      "C": {
+        "FAIL": 0,
+        "NOT_ASSESSABLE": 0,
+        "PASS": 40
+      },
+      "U": {
+        "FAIL": 0,
+        "NOT_ASSESSABLE": 0,
+        "PASS": 40
+      },
+      "V": {
+        "FAIL": 0,
+        "NOT_ASSESSABLE": 0,
+        "PASS": 40
+      }
+    },
+    "components": {
+      "Evidence/features": {
+        "FAIL": 0,
+        "PASS": 40
+      },
+      "Findings": {
+        "FAIL": 0,
+        "PASS": 40
+      },
+      "Trace": {
+        "FAIL": 0,
+        "PASS": 40
+      },
+      "states_values": {
+        "FAIL": 0,
+        "PASS": 40
+      }
+    }
+  },
+  "stage_2": {
+    "assessment_distributions": {
+      "C": {
+        "COMPUTED:0/1": 14,
+        "COMPUTED:2/3": 1,
+        "UNKNOWN:None": 8
+      },
+      "U": {
+        "COMPUTED:1/1": 23
+      },
+      "V": {
+        "COMPUTED:0/1": 23
+      }
+    },
+    "cases": 23,
+    "cases_with_diagnostics": 8,
+    "signal_findings": 0
+  },
+  "study": "SRM-13 bounded two-stage verification and demonstration"
+}
