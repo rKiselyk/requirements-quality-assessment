@@ -27,7 +27,11 @@ SRM-05D context-link rule `QUANT-CONTEXT-001` has scientific-contract status
 `RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED` (Section
 7.14.6.9); the exact F1-A/M-A frequency contract is
 `RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED` (Section
-7.14.6.10), while broader `RQD-008` grammar remains open**
+7.14.6.10); the exact QB-v0.1 `LB-M-C0` lower-bound metric/context enrichment
+and diagnostic-materiality contract is
+`RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED /
+EVIDENCE_IDS_NOT_ALLOCATED` (Section 7.14.6.11), while standalone LB-M0 and
+broader `RQD-008` grammar remain unapproved/open**
 
 This document is the prospective authoritative implementation specification for
 MVP v0.1. It formalizes only what can be traced to the supplied research
@@ -180,6 +184,10 @@ existing statuses:
 `RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED`. Their
 scientific approvals are neither revoked nor weakened, but their
 implementation is not a prerequisite for this first complete-model milestone.
+The later exact `LB-M-C0` bridge in Section 7.14.6.11 is likewise
+`RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED /
+EVIDENCE_IDS_NOT_ALLOCATED`; it changes no single-requirement milestone
+semantics and does not approve standalone LB-M0.
 Unimplemented F1-A must not be presented as supported. SRM-03 through SRM-08
 remain bounded detection-depth extension streams and are not unconditional
 milestone predecessors merely because their issues remain open.
@@ -278,9 +286,9 @@ applicability set, or confirmation procedure are not operationally defined.
 | Stateful `CharacteristicAssessment` envelope | Requirement properties; metrics system; assessment method; researcher-approved Section 7.16 | 2.1 paragraphs 18-26; 2.3 paragraphs 37-40; 3.3 paragraphs 9-19 and 29-35 | Characteristic identity, computed/not-applicable/unknown state, nullable value, rule provenance, findings, and explanation are approved; per-requirement numeric derivation is now approved via `CALC-C/V/U-MVP-001`; specification-level aggregation derivation is now likewise approved via `AGG-MVP-001` (Section 12) | Yes | `APPROVED_DATA_CONTRACT / PER-REQUIREMENT_AND_AGGREGATE_CALCULATION_APPROVED` |
 | Per-requirement assessment trace | SRM-02 approval obligations; researcher-approved SRM-10 decision package, Section 7.17 | Sections 7.5, 7.15-7.17, 8-10, and 15 | `RequirementAssessmentRecord` and its companion trace bind characteristic state/value to governing rule, feature outcomes, accepted observations, diagnostics, Findings, exact Evidence, completed absence, and bounded non-claims without a second calculation model | Yes | `RESEARCHER_APPROVED / IMPLEMENTED_AND_ACCEPTED` (scientific approval date 2026-09-23; SRM-11 implementation and SRM-12 integration verified in production code and regression tests) |
 | Specification-level property indicator `x_j = mean_i(a_ij)` | Requirement properties; approved aggregation correction | 2.1 paragraphs 22-24 | Property-level mean is approved for computed/applicable values; exact missing/`UNKNOWN` propagation is now closed under `AGG-MVP-001` (Section 12): `UNKNOWN` values are excluded from the mean and tracked as `unknown_count`, never treated as zero | Yes | `APPROVED_FOR_MVP_V0.1` |
-| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; the named baseline, structural, metric, and context Rule IDs remain allocated. Section 7.14.6.9 additionally approves the exact bounded R3 relationship science, and Section 7.14.6.10 approves exact F1-A in the existing quantitative observation shape; both remain unimplemented with Rule IDs unallocated | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED`; exact R3 and F1-A `RESEARCHER_APPROVED / NOT_IMPLEMENTED` |
+| Per-requirement feature/observation registry | Metrics system; researcher-approved Section 7 contract | 2.3 paragraphs 4 and 6-8; Sections 7.2, 7.14, and 7.15 | Six repeatable feature families and their typed detection wrappers are approved; the named baseline, structural, metric, and context Rule IDs remain allocated. Sections 7.14.6.9-10 approve exact R3 and F1-A science, and Section 7.14.6.11 approves exact `LB-M-C0` enrichment plus QB-specific materiality; all three remain unimplemented with new Rule/Evidence IDs unallocated where required | Yes | `DEFINED` at registry/data level; detectors `PARTIALLY_DEFINED`; exact R3, F1-A, and LB-M-C0 `RESEARCHER_APPROVED / NOT_IMPLEMENTED` |
 | Candidate structural fields `has_actor`, `has_action`, `has_object` | MVP-SPEC issue; researcher-approved Section 7.11 disposition | Candidate list and Section 7.11 | No research definition in supplied references | No; possible optional future observations only | `DEFERRED_FROM_MVP_V0.1` |
-| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; bounded structural, acceptance, verification, metric-link, and C0 context rules retain their existing contracts. Sections 7.14.6.9-7.14.6.10 additionally approve exact R3 relationship science and exact F1-A frequency recognition; both are unimplemented and have no Rule ID. All broader grammar remains open | Yes | `PARTIALLY_APPROVED` |
+| Condition/context, expected result, acceptance criterion, linked quantitative constraint, and explicit verification method | Requirement properties; requirements/product quality; metrics system; static and dynamic methods; researcher-approved Sections 7.14-7.15 | 2.1 Table 2.1 and paragraphs 11-12; 2.2 Tables 2.4-2.5; 2.3 Table 2.7 and paragraphs 17-21; 3.1 paragraph 13; 3.2 Table 3.4; Sections 7.14-7.15 | Semantic features, conservative strategies, backend and data shape approved; bounded structural, acceptance, verification, metric-link, and C0 context rules retain their existing contracts. Sections 7.14.6.9-10 additionally approve exact R3 relationship science and exact F1-A frequency recognition; Section 7.14.6.11 approves only exact `LB-M-C0` enrichment and its QB materiality rule. All three are unimplemented with new identifiers unallocated; standalone LB-M0 and broader grammar remain unapproved/open | Yes | `PARTIALLY_APPROVED` |
 | Vague-term and linguistic-smell evidence | Requirement properties; metrics system; dynamic methods; application example; researcher-approved Sections 7.8 and 7.14 | 2.1 paragraph 10; 2.3 paragraphs 12-16; 3.2 paragraph 10; application Sections 2-3, 7-8, and 13 | `uk_vague_terms_v1` and exact MVP seed-matching mechanics approved; richer linguistic coverage deferred without keeping `RQD-007` open | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Completeness score | Requirement properties supplies only the generic property range | 2.1 `a_ij ∈ [0,1]`; Section 7.16.7 | `CALC-C-MVP-001` approves `C_i = (c_condition + c_result + c_acceptance) / 3` over the three MVP-mandatory criteria, exact value set `{0, 1/3, 2/3, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
 | Per-requirement Verifiability score | Requirement properties and metrics system supply evidence classes and set-level ratios only | 2.1 Table 2.3; 2.3 paragraphs 17-20; Section 7.16.7 | `CALC-V-MVP-001` approves an alternative-evidence-path mapping (acceptance criterion → `1`; quantitative or verification method only → `1/2`; none after complete processing → `0`), exact value set `{0, 1/2, 1}` | Yes | `APPROVED_FOR_MVP_V0.1` |
@@ -1038,10 +1046,11 @@ constructed `RequirementExtractionResult` inputs is not blocked by items 1-2:
    whatever `RequirementExtractionResult` a test or the current extractor
    already supplies;
 2. richer detector coverage — implementation of the exact approved R3
-   relationship and exact F1-A observation plus complex quantitative grammar,
-   ambiguous metric/context attachment, broader nested representation, and
-   deferred numeric/range/frequency forms beyond the exact metric, C0, R3, and
-   F1-A contracts (`RQD-008`). Same non-blocking relationship to isolated
+   relationship, exact F1-A observation, and exact `LB-M-C0` bridge plus
+   complex quantitative grammar, ambiguous metric/context attachment, broader
+   nested representation, and deferred numeric/range/frequency forms beyond
+   the exact metric, upper C0, R3, F1-A, and lower-C0 contracts (`RQD-008`).
+   Standalone LB-M0 remains unapproved. Same non-blocking relationship to isolated
    `CALC-V-MVP-001` implementation/testing as item 1;
 3. **RESOLVED.** specification-level aggregation propagation for
    missing/`UNKNOWN` per-requirement values, empty computed denominators, and
@@ -3174,6 +3183,215 @@ RULE_ID_NOT_ALLOCATED`. Exact R3 remains `RESEARCHER_APPROVED /
 NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED`. F2 remains `NOT_READY`. RQD-008
 remains `PARTIALLY_APPROVED / OPEN`, and SRM-05 issue #73 remains `OPEN`.
 
+##### 7.14.6.11 QB-v0.1 exact lower-bound C0 bridge and diagnostic materiality
+
+**Scientific contract status:** `RESEARCHER_APPROVED`. **Researcher decision
+date:** 2026-09-25. **Production implementation status:** `NOT_IMPLEMENTED`.
+**Production Rule IDs:** `NOT_ALLOCATED`. **New Evidence IDs:**
+`NOT_ALLOCATED`. **Authority:** QB-ER-D002, QB-ER-D005, and QB-ER-D009 in
+`docs/cross-requirement-qb-extraction-readiness.md`, with amended CRA-D067 in
+`docs/cross-requirement-consistency-decision-package.md`.
+
+This approval is prospective science only. It does not authorize production
+implementation, allocate an identifier, change an existing detector, modify a
+test, or begin Cross-Requirement architecture implementation.
+
+###### 7.14.6.11.1 Sole approved input envelope
+
+The only approved lower-bound response-time enrichment envelope is
+`LB-M-C0`:
+
+```text
+<Requirement.text start>Час<U+0020>відгуку<U+0020>не<U+0020>нижче
+<U+0020><approved-value><U+0020><approved-duration-unit>
+<U+0020>при<U+0020>500<U+0020>одночасних<U+0020>користувачах
+<Requirement.text end>
+```
+
+Line wrapping is editorial only. Every displayed separator is exactly one
+U+0020 SPACE. Every condition below is mandatory:
+
+1. the metric is exactly `Час відгуку`, with exact casing, at offset `0`;
+2. the existing scalar is exactly one accepted `QUANT-UK-001` `не нижче`
+   anchor with `GREATER_THAN_OR_EQUAL / INCLUSIVE` semantics;
+3. the scalar value is an already approved ASCII integer or
+   single-decimal-comma form;
+4. the scalar has exactly one approved explicit duration surface: `с`,
+   `секунд`, `хв`, or `хвилин`;
+5. the suffix is exactly `при 500 одночасних користувачах`, with exact casing
+   and spacing, and ends at trimmed `Requirement.text` end;
+6. no final punctuation, intervening material, conjunction, parenthesis, or
+   hard boundary is present;
+7. exactly one metric, one eligible scalar, and one context participate; and
+8. there is no competition, parser fallback, synonym inference, arbitrary
+   metric inference, generic `при` grammar, or proximity selection.
+
+Standalone LB-M0 is explicitly not approved. In particular:
+
+```text
+Час відгуку не нижче <approved-value> <approved-duration-unit>
+```
+
+without the exact C0 suffix receives no metric or context enrichment from this
+contract. The absence of C0 makes the complete envelope ineligible; it does
+not create an ambiguity diagnostic or add an unresolved component.
+
+No generic lower-bound metric grammar is approved. Changed metric/context
+casing or spacing, another metric, another comparator, symbolic `>=`, percent,
+missing unit, unsupported numeric or unit forms, changed `500`, another
+population, another context syntax, extra prose, multiple bounds, multiple
+metrics, multiple contexts, or final punctuation is a deterministic non-match.
+
+###### 7.14.6.11.2 Enrichment and provenance
+
+An exact positive enriches the one existing `QUANT-UK-001` scalar
+observation. It does not create, copy, replace, merge, or reorder a scalar
+observation. Existing comparator, inclusivity, Decimal value, unit, scalar
+Evidence, unresolved components, diagnostic, and observation count remain
+unchanged.
+
+For the canonical 56-code-point input:
+
+```text
+Час відгуку не нижче 5 с при 500 одночасних користувачах
+```
+
+the approved future projection is:
+
+| Role | Exact text | Span | Scientific ownership/status |
+| --- | --- | --- | --- |
+| Metric | `Час відгуку` | `[0,11)` | QB-ER-D002 exact LB-M-C0 enrichment; production Rule/Evidence ID not allocated |
+| Existing scalar | `не нижче 5 с` | `[12,24)` | unchanged `QUANT-UK-001:E001` |
+| Context | `при 500 одночасних користувачах` | `[25,56)` | QB-ER-D005 exact lower-C0 enrichment; production Rule/Evidence ID not allocated |
+| Preserved diagnostic candidate | `500` | `[29,32)` | unchanged `QUANT-001` diagnostic; not Evidence |
+
+The resulting one observation has:
+
+```text
+metric = exact-source TextComponent for "Час відгуку"
+comparator = GREATER_THAN_OR_EQUAL / INCLUSIVE
+value = Decimal("5")
+unit = SECOND
+context = exact-source TextComponent for "при 500 одночасних користувачах"
+unresolved_components = ()
+observation count = 1
+```
+
+The top-level Evidence references are the stable, de-duplicated, source-ordered
+union of future metric Evidence, unchanged scalar Evidence, and future context
+Evidence. Every item retains its own rule ownership. Same-span
+`COND-UK-001` Evidence remains a distinct condition-family item and cannot be
+substituted for quantitative context Evidence. Final Rule IDs and Evidence ID
+formats require a separately authorized implementation contract.
+
+The existing `QUANT-METRIC-001` and `QUANT-CONTEXT-001` Rule IDs must not be
+reused or silently broadened. Their historical symbolic-upper contracts remain
+unchanged. Exact R3 and F1-A also remain unchanged and do not supply this
+bridge.
+
+###### 7.14.6.11.3 Frozen extraction and local-quality invariants
+
+The embedded `500` diagnostic is preserved exactly:
+
+```text
+code = QUANT_UNRESOLVED_NUMERIC_CANDIDATE
+rule_id = QUANT-001
+candidate span = [29,32) "500"
+quantitative processing = INCOMPLETE
+derived quantitative status = DETECTED
+```
+
+The bridge changes neither the global meaning nor reporting of
+`INCOMPLETE`. It changes no `C_i`, `V_i`, or `U_i` formula; no Finding,
+`QUALITY_PROBLEM`, confidence, severity, risk, or corrective action; no
+`RequirementAssessmentRecord` semantics; no `SpecificationQualityProfile`;
+and no `AGG-MVP-001` calculation or presentation rule. The accepted scalar
+already supplies the same lower-tier Verifiability evidence class, so exact
+metric/context enrichment must not create another local numeric contribution.
+
+All current production behavior remains the pre-implementation baseline. The
+canonical lower input currently has only its existing `QUANT-UK-001` scalar,
+no linked metric or quantitative context, the preserved `500` diagnostic, and
+global `INCOMPLETE / DETECTED` processing.
+
+###### 7.14.6.11.4 QB-v0.1-specific diagnostic materiality
+
+Global quantitative extraction state and QB-v0.1 operand materiality are
+separate scientific quantities. Amended CRA-D067 withholds
+`M_cons[QB-v0.1]` when unresolved extraction may change the QB comparison
+universe, an observation-pair assessment, or membership in
+`R_conf[QB-v0.1]`. Global extraction incompleteness remains preserved and
+reported independently.
+
+The current `QB_NON_MATERIAL` allowlist contains exactly two versioned
+scientific context contracts:
+
+1. the existing exact upper-bound C0 contract represented in production by
+   `QUANT-CONTEXT-001`; and
+2. this approved exact lower-bound C0 contract from QB-ER-D005.
+
+Both exact contracts establish that `500` inside
+`при 500 одночасних користувачах` is measurement/load context of one
+response-time constraint and is not an independent count constraint, equality
+assertion, independently judgeable bound, second quantitative observation, or
+nested quantitative relationship.
+
+An unresolved diagnostic may be `QB_NON_MATERIAL` only when all of these gates
+hold:
+
+1. code exactly `QUANT_UNRESOLVED_NUMERIC_CANDIDATE`;
+2. source `rule_id` exactly `QUANT-001`;
+3. candidate text exactly ASCII `500`;
+4. candidate span exactly contained in accepted context Evidence for one of
+   the two allowlisted exact C0 contracts;
+5. context ownership belongs to the same QB-eligible observation;
+6. the applicable contract/version carries the non-independent-role guarantee
+   above;
+7. no other unresolved quantitative diagnostic, component, unlinked candidate,
+   or competing observation could affect QB-v0.1; and
+8. all Evidence and diagnostic ownership, source-span, and integrity checks
+   pass.
+
+Failure of any gate yields `QB_MATERIAL_UNRESOLVED` and aggregate `UNKNOWN`.
+The allowlist does not cover `95`, `600`, R3 `300`, another population,
+another context syntax, missing metric/context, unresolved inclusivity,
+competing observations, or arbitrary future diagnostics. It is not a generic
+ignored-diagnostic mechanism.
+
+Observability must preserve conceptually separate global unresolved
+quantitative extraction, QB-material unresolved quantitative extraction, and
+QB-non-material preserved diagnostic counts. Exact production field names are
+not approved here.
+
+###### 7.14.6.11.5 Future end-to-end validation target
+
+After separately authorized implementation and validation, the approved target
+pair is:
+
+```text
+R001: Час відгуку ≤ 2 с при 500 одночасних користувачах
+R002: Час відгуку не нижче 5 с при 500 одночасних користувачах
+```
+
+Both detector outcomes may remain globally `INCOMPLETE`; both `500`
+diagnostics remain present. Expected counts are global unresolved `2`,
+QB-material unresolved `0`, and QB-non-material preserved diagnostics `2`.
+The normalized metric/context/unit keys are equal, and the approved inclusive
+sets `(-infinity,2]` and `[5,+infinity)` have empty intersection. The expected
+cross result is `CONFIRMED_CONFLICT`,
+`R_conf[QB-v0.1]={R001,R002}`, and
+`M_cons[QB-v0.1]=Fraction(0,1)` with aggregate `COMPUTED`.
+
+This is not a verified current end-to-end fixture. It becomes binding at that
+boundary only after implementation authorization, identifier allocation,
+implementation, regression validation, technical audit, and explicit corpus
+status update. The existing domain-contract conflict cases remain binding.
+
+QB-ER-D002, QB-ER-D005, and QB-ER-D009 complete scientific-model discovery for
+the first bounded QB-v0.1 slice. The next authorized phase is Architecture
+Contract. Broader quantitative grammar and every other explicitly deferred
+conflict class remain outside this approval.
+
 #### 7.14.7 `verification_method`
 
 The semantic contract remains “an explicitly stated reproducible verification
@@ -3892,7 +4110,7 @@ operational rules.
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY_APPROVED / OPEN` | In addition to the original `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` subsets, Section 7.14.16 approves only bounded postposed finite-verbal `COND-UK-002`, binary coordinated active-infinitive `RESULT-UK-002`, and conditioned exact-message `ACCEPT-UK-001`; Section 7.14.17 approves only the closed directive inventory and simple impersonal-passive graph in `RESULT-UK-003`. General attachment, zero-copula/multiple/nested/coordinated conditions, broader nonmodal normative force, passive or finite grammar beyond that graph, greater-than-binary coordination, general negation, other implicit subjects, broader nonnumeric criteria, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, arbitrary method grammar, actor/action/object, and singularity remain open, blocked, or deferred. |
 | `RQD-007` | `APPROVED_FOR_MVP_V0.1 / CLOSED` | NFC plus Unicode `casefold()`, Unicode-aware token boundaries, Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING` are approved without changing the ten-entry seed. Broader vocabulary coverage is future work and does not keep this MVP decision open. |
-| `RQD-008` | `PARTIALLY_APPROVED / OPEN` | The scalar baseline, exact implemented-and-accepted metric/C0 context links, and acceptance containment remain approved. Section 7.14.6.9 approves only the exact bounded R3 relationship science with structural disposition B; Section 7.14.6.10 approves only exact F1-A/M-A frequency recognition and its disclosed Verifiability consequence. Both are `NOT_IMPLEMENTED` and `RULE_ID_NOT_ALLOCATED`. R3's `до 300` member remains non-judgeable `UPPER_BOUND / UNRESOLVED`. Implementation of both exact slices and all broader metric/context/frequency, variable count-noun, nested, ambiguity, written-number, and range grammar remain open. |
+| `RQD-008` | `PARTIALLY_APPROVED / OPEN` | The scalar baseline, exact implemented-and-accepted metric/upper-C0 context links, and acceptance containment remain approved. Sections 7.14.6.9-10 approve only exact R3 and F1-A science; both are `NOT_IMPLEMENTED` and `RULE_ID_NOT_ALLOCATED`. Section 7.14.6.11 additionally approves only exact `LB-M-C0` enrichment and QB diagnostic materiality; production is `NOT_IMPLEMENTED`, new Rule/Evidence IDs are `NOT_ALLOCATED`, and standalone LB-M0 is not approved. R3's `до 300` remains `UPPER_BOUND / UNRESOLVED`. Implementation of these exact slices and all broader metric/context/frequency, variable count-noun, nested, ambiguity, written-number, and range grammar remain open. |
 | `RQD-016` | `FINDING_AND_SIGNAL_CONTRACT_APPROVED / QUALITY_PROBLEM_CONVERSION_OPEN` | One accepted vague-term occurrence produces one Unambiguity `SIGNAL`; Section 7.16 finalizes the minimal Finding representation and allocates `FIND-U-VAGUE-001`. The other five families produce observations/evidence only. Every `QUALITY_PROBLEM` conversion remains open. |
 
 `RQD-005`, `RQD-007`, and `RQD-009` are closed for MVP v0.1. Section 7.16
@@ -4891,7 +5109,7 @@ overall RQD whose remaining research rules are still open:
 | RQD | Status after approval | Approved portion and remaining boundary |
 | --- | --- | --- |
 | `RQD-006` | `PARTIALLY_APPROVED / OPEN` | Backend and parser-neutral operationalization are approved. The original allocation covers `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and the three `VERIFY-UK-001` constructions. Section 7.14.16 later adds only bounded `COND-UK-002`, `RESULT-UK-002`, and `ACCEPT-UK-001`, without changing the parser-neutral/domain contract. General attachment, broader/nonmodal force and coordination, broader nonnumeric criteria, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, actor/action/object, and singularity remain open, blocked, or deferred; no “any verb” fallback is allowed. |
-| `RQD-008` | `PARTIALLY_APPROVED / OPEN` | Quantitative data representation, the conservative scalar baseline, containment/judgeability, exact implemented-and-accepted `QUANT-METRIC-001` and `QUANT-CONTEXT-001`, Section 7.14.6.9's complete exact bounded R3 relationship, and Section 7.14.6.10's exact F1-A/M-A observation and Verifiability consequence are approved. R3 uses a separate relationship record; F1-A uses the existing ordinary observation shape and remains outside `ACCEPT-QUANT-001`. Both are `NOT_IMPLEMENTED` with Rule IDs `NOT_ALLOCATED`. Their implementation and all grammar beyond the four exact contracts—including ambiguity diagnostics, variable roles, broader nested contexts, written-out numbers, generic ranges, and frequency grammar beyond exact F1-A—remain open/deferred. |
+| `RQD-008` | `PARTIALLY_APPROVED / OPEN` | Quantitative data representation, the conservative scalar baseline, containment/judgeability, exact implemented-and-accepted `QUANT-METRIC-001` and `QUANT-CONTEXT-001`, Section 7.14.6.9's exact R3 relationship, Section 7.14.6.10's exact F1-A/M-A observation, and Section 7.14.6.11's exact `LB-M-C0` enrichment plus QB materiality are approved. R3 uses a separate relationship record; F1-A uses the existing ordinary observation shape; LB-M-C0 enriches one existing `QUANT-UK-001` scalar. All three new slices are `NOT_IMPLEMENTED` with new Rule/Evidence IDs `NOT_ALLOCATED` where required. Standalone LB-M0 and all grammar beyond these exact contracts—including ambiguity diagnostics, variable roles, broader nested contexts, written-out numbers, generic ranges, and broader frequency grammar—remain unapproved/open. |
 | `RQD-012` | `PARTIALLY_APPROVED` at the time of this decision; detector-side representation and required-input characteristic propagation resolved here, specification-level aggregation propagation later `APPROVED_FOR_MVP_V0.1` via `AGG-MVP-001` (Section 12) | The four detection cases and mixed state have stable data representation. Section 7.16 later requires assessment `UNKNOWN` with no value when a required input is unresolved and preserves accepted data in mixed outcomes. General insufficient-evidence and characteristic applicability beyond the approved per-characteristic and aggregation rules remain open. |
 | `RQD-020` | `OPEN / UNRESOLVED — NON-BLOCKING WHILE EXCLUDED` | No confidence or evidence-reliability value or field is approved for the current MVP characteristic or Finding contract. Exclusion does not resolve whether such metadata belongs in MVP; proposing inclusion makes this decision blocking and requires a separate scientific contract. |
 
@@ -5769,8 +5987,9 @@ information therefore remain distinct.
    current U rule never produces `0`.
 5. `FIND-U-VAGUE-001` is `SIGNAL` only; no current `QUALITY_PROBLEM`, severity,
    confidence, risk, or corrective action exists.
-6. R3 and F1-A are researcher-approved but unimplemented and are not claimed
-   as runtime coverage.
+6. R3, F1-A, and the exact `LB-M-C0` bridge are researcher-approved but
+   unimplemented and are not claimed as runtime coverage; standalone LB-M0 is
+   not approved.
 7. The record is a multidimensional C/V/U profile, not a scalar requirement
    score or product-quality prediction.
 
@@ -6946,7 +7165,7 @@ approval.
 | `RQD-005` | Approve the complete MVP `RequirementFeatures` registry, types, valid values, and consuming characteristics. | `APPROVED_FOR_MVP_V0.1` | Section 7 defines the six repeatable feature arrays, their singular `feature_id` values, and their primary characteristic consumers. The mapping is traceability only and authorizes no score contribution or double-counting rule by itself; score contribution for the mapped features is separately authorized by `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10). | CLOSED FOR MVP v0.1 | None directly; broader detector grammar remains gated under RQD-006/RQD-008 |
 | `RQD-006` | Define detection rules for actor, action, object, condition, scenario, expected result, acceptance criterion, and verification method. | `PARTIALLY_APPROVED` | Section 7.14 allocates the original `COND-UK-001`, `RESULT-UK-001`, `ACCEPT-QUANT-001`, and `VERIFY-UK-001` subsets and, through the SRM-03 approval in Section 7.14.16, exactly three additional bounded rules: finite-verbal postposed `COND-UK-002`, binary coordinated active-infinitive `RESULT-UK-002`, and conditioned exact-message `ACCEPT-UK-001`. Section 7.14.17 additionally allocates only bounded directive and impersonal-passive `RESULT-UK-003`. Section 7.15 supplies the unchanged spaCy/parser-neutral boundary. These bounded rules are implemented and tested; general condition/subordinate attachment, zero-copula/multiple/nested/coordinated conditions, nonmodal force beyond the closed directive inventory, passive/finite grammar beyond the exact impersonal graph, coordination beyond approved rules, general negation/implicit subjects, broader nonnumeric acceptance, `VERIFY-UK-002`, reusable `ATTACH-UK-001`, arbitrary method grammar, actor/action/object, and singularity remain open, blocked, or deferred. | PARTIALLY APPROVED / OPEN | Sections 7.14.16 and 7.14.17 are `IMPLEMENTED_AND_ACCEPTED`; broader detector coverage remains open. This does not block calculators, which consume `RequirementExtractionResult` independently of remaining detector grammar. |
 | `RQD-007` | Approve vague-term vocabulary, languages, matching/normalization rules, exceptions, and versioning. | `APPROVED_FOR_MVP_V0.1` | The ten-entry `uk_vague_terms_v1` remains unchanged. Section 7.14 approves NFC plus Unicode `casefold()`, Unicode-aware token boundaries, one-or-more-Unicode-whitespace phrase separators, repeated ordering, and `LEFTMOST_LONGEST_NON_OVERLAPPING`. Each selected occurrence produces one Unambiguity `SIGNAL`; broader vocabulary coverage is future work. | CLOSED FOR MVP v0.1 | None for the seed matcher; the automated Unambiguity calculation itself is approved by `CALC-U-MVP-001` (Section 10) |
-| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6-7.14.6.10, and 7.15 approve the conservative scalar baseline, `QUANT-001`/`QUANT-UK-001`, exact implemented-and-accepted `QUANT-METRIC-001` and `QUANT-CONTEXT-001`, the unchanged acceptance containment/judgeability contract, complete exact R3 relationship science, and exact F1-A/M-A frequency recognition. R3 and F1-A are each `RESEARCHER_APPROVED / NOT_IMPLEMENTED / RULE_ID_NOT_ALLOCATED`; R3 uses a dedicated non-consumed relationship record, while F1-A uses the existing ordinary quantitative observation shape and is deliberately consumed by `CALC-V-MVP-001` but excluded from `ACCEPT-QUANT-001`. Both retain unallocated new Evidence IDs. R3's `до 300` remains `UPPER_BOUND / UNRESOLVED`; F1-A fixes `NOT_LESS_FREQUENT / None`, `Decimal("5") / SECOND`, metric Evidence `[0, 62)`, and anchor Evidence `[63, 90)` only for its two exact envelopes. Their implementation and all grammar beyond the metric, C0, R3, and F1-A contracts—including ambiguity diagnostics, variable count-noun and broader nested roles, written-out numbers, generic ranges, and broader frequency grammar—remain open/deferred. | PARTIALLY APPROVED / OPEN | SRM-05 issue #73 remains `OPEN`; R3 and F1-A each require a separately authorized implementation contract and final Rule/Evidence ID allocation. F2 remains `NOT_READY`; broader detector coverage remains open. Existing `VerifiabilityCalculator` needs no formula change, but an implemented F1-A observation can change computed inputs and outputs exactly as approved in Sections 7.14.6.10.7 and 9. |
+| `RQD-008` | Define detection and linkage rules for metric, threshold, comparator, unit, context, acceptance criterion, and expected result. | `PARTIALLY_APPROVED` | Sections 7.14.5.1, 7.14.6.6-7.14.6.11, and 7.15 approve the conservative scalar baseline, `QUANT-001`/`QUANT-UK-001`, exact implemented-and-accepted `QUANT-METRIC-001` and `QUANT-CONTEXT-001`, unchanged acceptance containment/judgeability, exact R3 science, exact F1-A/M-A, and exact `LB-M-C0` enrichment plus QB materiality. R3, F1-A, and LB-M-C0 are `RESEARCHER_APPROVED / NOT_IMPLEMENTED`; new Rule/Evidence IDs are `NOT_ALLOCATED` where required. LB-M-C0 enriches one existing `QUANT-UK-001` scalar and preserves the `500` diagnostic/global `INCOMPLETE`; standalone LB-M0 is not approved. R3's `до 300` remains `UPPER_BOUND / UNRESOLVED`; F1-A retains its exact existing semantics. Implementation of these slices and all grammar beyond the exact metric, upper C0, R3, F1-A, and lower-C0 contracts—including ambiguity diagnostics, variable count-noun and broader nested roles, written-out numbers, generic ranges, and broader frequency grammar—remain open/deferred. | PARTIALLY APPROVED / OPEN | SRM-05 issue #73 remains `OPEN`; R3, F1-A, and LB-M-C0 each require separately authorized implementation contracts and final identifier allocation. F2 remains `NOT_READY`; broader detector coverage remains open. Existing C/V/U formulas remain unchanged. |
 | `RQD-009` | Approve the evidence data structure. | `APPROVED_FOR_MVP_V0.1` | Section 7 approves exact source spans, zero-based Unicode code-point offsets with inclusive start/exclusive end, separate repeated occurrences, multiple evidence references per observation, and one span supporting multiple observations. | CLOSED FOR MVP v0.1 | None directly; detector and finding rules remain gated separately |
 | `RQD-010` | Define exact formulas, contributions, penalties/rewards, coefficients, and thresholds for the three characteristic scores. | `PER-REQUIREMENT_MVP_FORMULAS_APPROVED / FUTURE_REFINEMENT_OPEN` | `CALC-C-MVP-001`, `CALC-V-MVP-001`, and `CALC-U-MVP-001` (Sections 8-10) approve the per-requirement MVP v0.1 formulas, contributions, and unresolved-propagation rules for all three characteristics. This approval is scoped to MVP v0.1: it does not permanently close all future characteristic-formula research, including a future confirmed-material-ambiguity `0` rule or later Completeness/Verifiability refinements. | CLOSED FOR MVP v0.1 PER-REQUIREMENT FORMULAS | None for the approved MVP formulas; future refinements require separate researcher approval |
 | `RQD-011` | Approve score direction and valid range for each characteristic and property-level aggregate. | `PER-REQUIREMENT_SCALE_CLOSED_FOR_MVP_V0.1 / SPECIFICATION_SCALE_CLOSED_FOR_MVP_V0.1` | Chapter 2 and Section 7.16 support `[0,1]` and upward compliance orientation. For MVP v0.1, the per-requirement scale/range is closed with the property-specific permitted value sets defined by each calculation rule: Completeness `{0,1/3,2/3,1}`, Verifiability `{0,1/2,1}`, Unambiguity `{1/2,1}` automated with `0` reserved. Section 12 ("Derivable without a new scientific assumption") now additionally closes the specification-level scale as a direct mathematical consequence of `AGG-MVP-001`: whenever a numeric aggregate exists, `C_file ∈ [0,1]`, `V_file ∈ [0,1]`, `U_file ∈ [1/2,1]` (the automated-MVP lower bound; `U_file = 0` remains impossible while the per-requirement `U_i = 0` rule is deferred under RQD-004), with the same upward compliance orientation as the per-requirement scales. `UNKNOWN`/`NOT_APPLICABLE` aggregates have `value = None` and are not numeric points on these scales. | CLOSED FOR MVP v0.1 — PER-REQUIREMENT AND SPECIFICATION-LEVEL SCALE BOTH CLOSED | None; specification-level aggregation (MVP-09/10) is no longer blocked by an open scale question |
@@ -7017,8 +7236,11 @@ The current decision areas are grouped into four approval gates:
    exact F1-A/M-A frequency science is likewise `RESEARCHER_APPROVED`, while
    production is `NOT_IMPLEMENTED`, its Rule ID and new Evidence IDs are
    `NOT_ALLOCATED`, and its disclosed `CALC-V-MVP-001` consumption is approved.
-   `RQD-008` remains open for implementing both bounded slices and for all
-   grammar beyond the exact metric, C0, R3, and F1-A contracts; F2 remains
+   Section 7.14.6.11's exact `LB-M-C0` bridge and QB materiality science are
+   `RESEARCHER_APPROVED`, while production is `NOT_IMPLEMENTED`, new Rule and
+   Evidence IDs are `NOT_ALLOCATED`, and standalone LB-M0 is not approved.
+   `RQD-008` remains open for implementing these bounded slices and for all
+   grammar beyond the exact metric, upper C0, R3, F1-A, and lower-C0 contracts; F2 remains
    `NOT_READY` and SRM-05 issue #73 remains `OPEN`. Section 7.16 finalizes the Finding contract and
    `FIND-U-VAGUE-001`; `RQD-016` remains open only for `QUALITY_PROBLEM`
    conversions. `RQD-007` is closed for the MVP seed matcher.
