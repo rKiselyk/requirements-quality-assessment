@@ -1,5 +1,21 @@
 """Public immutable domain boundary for cross-requirement analysis."""
 
+from .comparison import (
+    QB_COMPARISON_RULE,
+    QB_COVERAGE_PROFILE,
+    CrossResultFactory,
+    QbApplicabilityDecision,
+    QbApplicabilityEvaluator,
+    QbComparisonKeyBuilder,
+    QbConflictPredicate,
+    QbObservationPairAssessor,
+    QbPairAssessor,
+    QbSupportedBoundValidator,
+    SupportedBoundDirection,
+    SupportedInclusiveBound,
+    direct_bound_conflict,
+    normalize_qb_identity_text,
+)
 from .domain import (
     RESULT_CANONICAL_VERSION,
     SNAPSHOT_CANONICAL_VERSION,
@@ -38,17 +54,17 @@ from .domain import (
     SnapshotObservationManifest,
     SnapshotRequirementManifest,
 )
+from .materiality import (
+    QB_MATERIALITY_RULE,
+    QB_NON_MATERIAL_CONTEXT_ALLOWLIST,
+    QbMaterialityClassifier,
+)
 from .projection import (
     IMP_02_EXTRACTION_CONTRACTS,
     QB_CONTRACT_MANIFEST,
     CrossEvidenceResolver,
     CrossRequirementProjection,
     CrossRequirementProjector,
-)
-from .materiality import (
-    QB_MATERIALITY_RULE,
-    QB_NON_MATERIAL_CONTEXT_ALLOWLIST,
-    QbMaterialityClassifier,
 )
 from .selection import (
     CrossCandidateOrderKey,
@@ -104,4 +120,18 @@ __all__ = [
     "CrossCandidateOrderKey",
     "CrossObservationPairCandidate",
     "ExhaustivePairSelector",
+    "QB_COMPARISON_RULE",
+    "QB_COVERAGE_PROFILE",
+    "CrossResultFactory",
+    "QbApplicabilityDecision",
+    "QbApplicabilityEvaluator",
+    "QbComparisonKeyBuilder",
+    "QbConflictPredicate",
+    "QbObservationPairAssessor",
+    "QbPairAssessor",
+    "QbSupportedBoundValidator",
+    "SupportedBoundDirection",
+    "SupportedInclusiveBound",
+    "direct_bound_conflict",
+    "normalize_qb_identity_text",
 ]
