@@ -463,6 +463,10 @@ class SnapshotObservationManifest:
         for component, refs, name in component_shapes:
             if (component is None) != (not refs):
                 raise ValueError(f"{name} and its Evidence refs must be present together")
+        if self.value is None or (self.comparator is None and self.unit is None):
+            raise ValueError(
+                "snapshot observation requires value and either comparator or unit"
+            )
         _require_tuple(
             self.unresolved_components,
             QuantitativeComponentName,
@@ -970,6 +974,8 @@ class CrossRequirementResult:
             raise ValueError("Evidence refs must be owned by a participant")
         if any(item.requirement_id not in owners for item in self.diagnostic_refs):
             raise ValueError("diagnostic refs must be owned by a participant")
+        if {item.requirement_id for item in self.evidence_refs} != owners:
+            raise ValueError("every cross result requires Evidence from both participants")
         owner_rank = {item.requirement_id: index for index, item in enumerate(self.participants)}
         if tuple(owner_rank[item.requirement_id] for item in self.evidence_refs) != tuple(
             sorted(owner_rank[item.requirement_id] for item in self.evidence_refs)
@@ -1015,10 +1021,6 @@ class CrossRequirementResult:
         if complete:
             if self.comparison_key is None or not self.operands.left.complete or not self.operands.right.complete:
                 raise ValueError("confirmed or compatible results require complete operands and key")
-            if {item.requirement_id for item in self.evidence_refs} != {
-                item.requirement_id for item in self.participants
-            }:
-                raise ValueError("confirmed or compatible results require Evidence from both owners")
             if self.unresolved_reasons or self.outside_reasons:
                 raise ValueError("complete results cannot carry unresolved or outside reasons")
             supported = {
@@ -1044,8 +1046,6 @@ class CrossRequirementResult:
         if self.state is CrossResultState.ASSESSMENT_UNRESOLVED:
             if not self.unresolved_reasons or self.outside_reasons:
                 raise ValueError("unresolved results require only typed unresolved reasons")
-            if not self.evidence_refs and not self.diagnostic_refs:
-                raise ValueError("unresolved results require Evidence or diagnostic provenance")
             if CrossUnresolvedReason.MATERIAL_UNRESOLVED_EXTRACTION in self.unresolved_reasons:
                 raise ValueError(
                     "material unresolved extraction is aggregate-level, not pair-result evidence"

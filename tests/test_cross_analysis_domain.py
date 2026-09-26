@@ -211,6 +211,30 @@ def _confirmed(snapshot: AssessmentSnapshot) -> CrossRequirementResult:
     return CrossRequirementResult.confirmed_conflict(**_result_values(snapshot))
 
 
+def _result_for_state(
+    snapshot: AssessmentSnapshot,
+    state: CrossResultState,
+) -> CrossRequirementResult:
+    values = _result_values(snapshot)
+    if state is CrossResultState.CONFIRMED_CONFLICT:
+        return CrossRequirementResult.confirmed_conflict(**values)
+    if state is CrossResultState.COMPATIBLE_WITHIN_RULE:
+        return CrossRequirementResult.compatible_within_rule(**values)
+    values.pop("comparison_key")
+    if state is CrossResultState.ASSESSMENT_UNRESOLVED:
+        return CrossRequirementResult.assessment_unresolved(
+            unresolved_reasons=(CrossUnresolvedReason.MISSING_METRIC,),
+            diagnostic_refs=(
+                CrossDiagnosticRef("R001", FeatureId.QUANTITATIVE_CONSTRAINT, 0),
+            ),
+            **{key: value for key, value in values.items() if key != "diagnostic_refs"},
+        )
+    return CrossRequirementResult.outside_v0_1_applicability(
+        outside_reasons=(OutsideApplicabilityReason.METRIC_MISMATCH,),
+        **values,
+    )
+
+
 def test_canonical_versions_are_explicit() -> None:
     assert SNAPSHOT_CANONICAL_VERSION == "QB-SNAPSHOT-CANONICAL-001"
     assert RESULT_CANONICAL_VERSION == "QB-RESULT-CANONICAL-001"
@@ -283,6 +307,12 @@ def test_typed_reason_vocabularies_are_exact() -> None:
         "UNRESOLVED_INCLUSIVITY",
         "MATERIAL_UNRESOLVED_EXTRACTION",
     }
+    assert {item.value for item in OutsideApplicabilityReason} == {
+        "METRIC_MISMATCH",
+        "CONTEXT_MISMATCH",
+        "UNIT_MISMATCH",
+        "COMPARATOR_OUTSIDE_PROFILE",
+    }
 
 
 def test_reason_tuples_require_approved_order_and_pair_reasons_exclude_aggregate_reason() -> None:
@@ -314,12 +344,84 @@ def test_supplied_comparator_and_processing_shapes_fail_fast_when_corrupt() -> N
     operand = _operand(snapshot, "R001", ComparatorLabel.LESS_THAN_OR_EQUAL, Decimal("2"))
     with pytest.raises(ValueError, match="inclusivity"):
         replace(operand, inclusivity=BoundaryInclusivity.UNRESOLVED)
-    assert {item.value for item in OutsideApplicabilityReason} == {
-        "METRIC_MISMATCH",
-        "CONTEXT_MISMATCH",
-        "UNIT_MISMATCH",
-        "COMPARATOR_OUTSIDE_PROFILE",
-    }
+
+
+def _anchor_observation(
+    *,
+    metric: bool = False,
+    comparator: bool = False,
+    value: bool = False,
+    unit: bool = False,
+    context: bool = False,
+) -> SnapshotObservationManifest:
+    metric_ref = CrossEvidenceRef("R001", "M:E001")
+    bound_ref = CrossEvidenceRef("R001", "B:E001")
+    context_ref = CrossEvidenceRef("R001", "C:E001")
+    metric_refs = (metric_ref,) if metric else ()
+    comparator_refs = (bound_ref,) if comparator else ()
+    value_refs = (bound_ref,) if value else ()
+    unit_refs = (bound_ref,) if unit else ()
+    context_refs = (context_ref,) if context else ()
+    evidence_refs = tuple(
+        dict.fromkeys(
+            metric_refs + comparator_refs + value_refs + unit_refs + context_refs
+        )
+    )
+    return SnapshotObservationManifest(
+        ref=CrossObservationRef("R001", FeatureId.QUANTITATIVE_CONSTRAINT, 0),
+        metric_evidence_refs=metric_refs,
+        comparator=ComparatorLabel.LESS_THAN_OR_EQUAL if comparator else None,
+        inclusivity=BoundaryInclusivity.INCLUSIVE if comparator else None,
+        comparator_evidence_refs=comparator_refs,
+        value=Decimal("2") if value else None,
+        value_evidence_refs=value_refs,
+        unit=UnitLabel.SECOND if unit else None,
+        unit_evidence_refs=unit_refs,
+        context_evidence_refs=context_refs,
+        unresolved_components=(),
+        evidence_refs=evidence_refs,
+    )
+
+
+@pytest.mark.parametrize(
+    "components",
+    [
+        {"metric": True},
+        {"context": True},
+        {"value": True},
+        {"comparator": True},
+        {"unit": True},
+    ],
+    ids=[
+        "metric-only",
+        "context-only",
+        "value-only",
+        "comparator-without-value",
+        "unit-without-value",
+    ],
+)
+def test_snapshot_observation_rejects_impossible_source_anchor(components) -> None:
+    with pytest.raises(ValueError, match="requires value and either comparator or unit"):
+        _anchor_observation(**components)
+
+
+@pytest.mark.parametrize(
+    "components",
+    [
+        {"comparator": True, "value": True},
+        {"value": True, "unit": True},
+        {
+            "metric": True,
+            "comparator": True,
+            "value": True,
+            "unit": True,
+            "context": True,
+        },
+    ],
+    ids=["comparator-and-value", "value-and-unit", "fully-linked"],
+)
+def test_snapshot_observation_accepts_frozen_source_anchor_forms(components) -> None:
+    assert isinstance(_anchor_observation(**components), SnapshotObservationManifest)
 
 
 def test_manifest_rejects_foreign_and_dangling_ownership() -> None:
@@ -468,6 +570,45 @@ def test_all_four_result_states_have_valid_constructors() -> None:
     assert compatible.conflict_subtype is None
 
 
+@pytest.mark.parametrize("state", list(CrossResultState))
+@pytest.mark.parametrize(
+    "evidence_refs",
+    [
+        (),
+        (CrossEvidenceRef("R001", "B:E001"),),
+        (CrossEvidenceRef("R002", "B:E001"),),
+    ],
+    ids=["empty", "left-only", "right-only"],
+)
+def test_every_result_state_requires_evidence_from_both_participants(
+    state: CrossResultState,
+    evidence_refs: tuple[CrossEvidenceRef, ...],
+) -> None:
+    result = _result_for_state(_snapshot(), state)
+    with pytest.raises(ValueError, match="Evidence from both participants"):
+        replace(result, evidence_refs=evidence_refs)
+
+
+@pytest.mark.parametrize("state", list(CrossResultState))
+def test_every_result_state_rejects_foreign_evidence(state: CrossResultState) -> None:
+    result = _result_for_state(_snapshot(), state)
+    with pytest.raises(ValueError, match="owned by a participant"):
+        replace(
+            result,
+            evidence_refs=result.evidence_refs + (CrossEvidenceRef("R999", "E001"),),
+        )
+
+
+def test_diagnostics_are_supplemental_to_both_participant_evidence() -> None:
+    result = _result_for_state(_snapshot(), CrossResultState.ASSESSMENT_UNRESOLVED)
+    assert result.diagnostic_refs
+    with pytest.raises(ValueError, match="Evidence from both participants"):
+        replace(
+            result,
+            evidence_refs=(CrossEvidenceRef("R001", "B:E001"),),
+        )
+
+
 @pytest.mark.parametrize(
     "changes",
     [
@@ -501,14 +642,14 @@ def test_compatible_rejects_conflict_and_reason_payloads(changes) -> None:
         replace(result, **changes)
 
 
-def test_unresolved_requires_typed_reason_and_provenance() -> None:
+def test_unresolved_requires_typed_reason_and_both_evidence_owners() -> None:
     snapshot = _snapshot()
     values = _result_values(snapshot)
     values.pop("comparison_key")
     with pytest.raises(ValueError, match="typed unresolved reasons"):
         CrossRequirementResult.assessment_unresolved(unresolved_reasons=(), **values)
     values["evidence_refs"] = ()
-    with pytest.raises(ValueError, match="provenance"):
+    with pytest.raises(ValueError, match="Evidence from both participants"):
         CrossRequirementResult.assessment_unresolved(
             unresolved_reasons=(CrossUnresolvedReason.MISSING_METRIC,),
             **values,
@@ -550,6 +691,18 @@ def test_results_reject_cross_snapshot_composition() -> None:
 def test_same_result_inputs_have_same_stable_result_id() -> None:
     snapshot = _snapshot()
     assert _confirmed(snapshot).result_id == _confirmed(snapshot).result_id
+
+
+def test_valid_canonical_identity_remains_stable_after_invariant_tightening() -> None:
+    snapshot = _snapshot()
+    assert snapshot.snapshot_id.value == (
+        "qb-snapshot-sha256:9d0056ed37b9215e6f81c2f1950d0d51"
+        "c1195490561f58a94917724a535e19f7"
+    )
+    assert _confirmed(snapshot).result_id.value == (
+        "qb-result-sha256:d2680f29680df1400b03af14eb301beaf"
+        "723794c31de1c8f47c5d941bba6159f"
+    )
 
 
 def test_result_identity_changes_with_state_and_contract_version() -> None:
