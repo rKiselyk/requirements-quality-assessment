@@ -25,6 +25,11 @@ from .domain import (
     CrossResultState,
     CrossUnresolvedReason,
     OutsideApplicabilityReason,
+    QbMaterialityAllowlistDescriptor,
+    QbMaterialityAuditRecord,
+    QbMaterialityDisposition,
+    QbMaterialityGateOutcomes,
+    QbMaterialityResult,
     RequirementCountManifest,
     RequirementOrderKey,
     SnapshotCountManifest,
@@ -39,6 +44,11 @@ from .projection import (
     CrossEvidenceResolver,
     CrossRequirementProjection,
     CrossRequirementProjector,
+)
+from .materiality import (
+    QB_MATERIALITY_RULE,
+    QB_NON_MATERIAL_CONTEXT_ALLOWLIST,
+    QbMaterialityClassifier,
 )
 
 __all__ = [
@@ -66,6 +76,11 @@ __all__ = [
     "CrossResultState",
     "CrossUnresolvedReason",
     "OutsideApplicabilityReason",
+    "QbMaterialityAllowlistDescriptor",
+    "QbMaterialityAuditRecord",
+    "QbMaterialityDisposition",
+    "QbMaterialityGateOutcomes",
+    "QbMaterialityResult",
     "RequirementCountManifest",
     "RequirementOrderKey",
     "SnapshotCountManifest",
@@ -78,4 +93,7 @@ __all__ = [
     "CrossEvidenceResolver",
     "CrossRequirementProjection",
     "CrossRequirementProjector",
+    "QB_MATERIALITY_RULE",
+    "QB_NON_MATERIAL_CONTEXT_ALLOWLIST",
+    "QbMaterialityClassifier",
 ]
