@@ -4,6 +4,7 @@ import pytest
 
 from requirements_quality_assessment.assessor import RequirementQualityAssessor
 from requirements_quality_assessment.cross_analysis import (
+    CrossCandidateOrderKey,
     CrossObservationPairCandidate,
     CrossRequirementProjector,
     ExhaustivePairSelector,
@@ -249,6 +250,41 @@ def test_candidate_rejects_reversed_or_misowned_participants() -> None:
             later_requirement=valid.later_requirement,
             left=valid.right,
             right=valid.right,
+        )
+
+
+def test_candidate_order_key_rejects_same_requirement_id_at_different_orders() -> None:
+    valid = ExhaustivePairSelector().select(_projection(1, 1))[0]
+    apparent_later = replace(
+        valid.later_requirement,
+        requirement_id=valid.earlier_requirement.requirement_id,
+    )
+
+    with pytest.raises(ValueError, match="distinct requirement IDs"):
+        CrossCandidateOrderKey(
+            earlier_requirement=valid.earlier_requirement,
+            later_requirement=apparent_later,
+            left_observation_index=0,
+            right_observation_index=0,
+        )
+
+
+def test_candidate_rejects_same_requirement_observations_as_apparent_cross_pair() -> None:
+    valid = ExhaustivePairSelector().select(_projection(1, 1))[0]
+    requirement_id = valid.earlier_requirement.requirement_id
+    apparent_later = replace(
+        valid.later_requirement,
+        requirement_id=requirement_id,
+    )
+    apparent_right = replace(valid.right, requirement_id=requirement_id)
+
+    with pytest.raises(ValueError, match="distinct requirement IDs"):
+        CrossObservationPairCandidate(
+            snapshot_id=valid.snapshot_id,
+            earlier_requirement=valid.earlier_requirement,
+            later_requirement=apparent_later,
+            left=valid.left,
+            right=apparent_right,
         )
 
 

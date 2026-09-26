@@ -33,6 +33,11 @@ class CrossCandidateOrderKey:
             raise TypeError("earlier_requirement must be a RequirementOrderKey")
         if not isinstance(self.later_requirement, RequirementOrderKey):
             raise TypeError("later_requirement must be a RequirementOrderKey")
+        if (
+            self.earlier_requirement.requirement_id
+            == self.later_requirement.requirement_id
+        ):
+            raise ValueError("candidate requirements must have distinct requirement IDs")
         if self.earlier_requirement.source_order >= self.later_requirement.source_order:
             raise ValueError("candidate requirements must be distinct and in source order")
         for value, name in (
