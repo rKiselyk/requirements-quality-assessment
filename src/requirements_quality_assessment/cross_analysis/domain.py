@@ -400,6 +400,232 @@ class BoundedNonClaimKey(str, Enum):
     NC_QB_BASE = "NC-QB-BASE"
 
 
+class QbMaterialityDisposition(str, Enum):
+    """QB-only interpretation of one preserved quantitative diagnostic."""
+
+    QB_NON_MATERIAL = "QB_NON_MATERIAL"
+    QB_MATERIAL_UNRESOLVED = "QB_MATERIAL_UNRESOLVED"
+
+
+@dataclass(frozen=True, slots=True)
+class QbMaterialityAllowlistDescriptor:
+    """One exact, versioned C0 contract carrying the approved role proof."""
+
+    contract: ContractVersionDescriptor
+    context_text: str
+    candidate_text: str
+    non_independent_role_guaranteed: bool
+    snapshot_manifest_required: bool
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.contract, ContractVersionDescriptor):
+            raise TypeError("contract must be a ContractVersionDescriptor")
+        if not isinstance(self.context_text, str) or not self.context_text:
+            raise ValueError("context_text must be a non-empty string")
+        if not isinstance(self.candidate_text, str) or not self.candidate_text:
+            raise ValueError("candidate_text must be a non-empty string")
+        if type(self.non_independent_role_guaranteed) is not bool:
+            raise TypeError("non_independent_role_guaranteed must be a boolean")
+        if type(self.snapshot_manifest_required) is not bool:
+            raise TypeError("snapshot_manifest_required must be a boolean")
+
+
+@dataclass(frozen=True, slots=True)
+class QbMaterialityGateOutcomes:
+    """The eight CRA-D067 gates, retained individually for audit."""
+
+    exact_diagnostic_code: bool
+    exact_diagnostic_rule: bool
+    exact_candidate_text: bool
+    candidate_inside_context: bool
+    same_observation: bool
+    allowlisted_contract_guarantee: bool
+    no_qb_competition: bool
+    provenance_integrity: bool
+
+    def __post_init__(self) -> None:
+        if any(type(value) is not bool for value in self.as_tuple()):
+            raise TypeError("materiality gate outcomes must be booleans")
+
+    def as_tuple(self) -> tuple[bool, ...]:
+        return (
+            self.exact_diagnostic_code,
+            self.exact_diagnostic_rule,
+            self.exact_candidate_text,
+            self.candidate_inside_context,
+            self.same_observation,
+            self.allowlisted_contract_guarantee,
+            self.no_qb_competition,
+            self.provenance_integrity,
+        )
+
+    @property
+    def all_passed(self) -> bool:
+        return all(self.as_tuple())
+
+
+@dataclass(frozen=True, slots=True)
+class QbMaterialityAuditRecord:
+    """Immutable disposition and complete gate audit for one diagnostic."""
+
+    snapshot_id: AssessmentSnapshotId
+    requirement_id: str
+    requirement_source_order: int
+    diagnostic_ref: CrossDiagnosticRef
+    diagnostic_code: str
+    diagnostic_rule_id: str
+    candidate_text: str | None
+    diagnostic_start_offset: int | None
+    diagnostic_end_offset: int | None
+    matched_context_evidence_ref: CrossEvidenceRef | None
+    matched_allowlist_contract: ContractVersionDescriptor | None
+    materiality_rule: ContractVersionDescriptor
+    gate_outcomes: QbMaterialityGateOutcomes
+    disposition: QbMaterialityDisposition
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.snapshot_id, AssessmentSnapshotId):
+            raise TypeError("snapshot_id must be an AssessmentSnapshotId")
+        _require_identifier(self.requirement_id, "requirement_id")
+        _require_index(self.requirement_source_order, "requirement_source_order")
+        if not isinstance(self.diagnostic_ref, CrossDiagnosticRef):
+            raise TypeError("diagnostic_ref must be a CrossDiagnosticRef")
+        if self.diagnostic_ref.requirement_id != self.requirement_id:
+            raise ValueError("diagnostic_ref must have the audit requirement owner")
+        _require_identifier(self.diagnostic_code, "diagnostic_code")
+        _require_identifier(self.diagnostic_rule_id, "diagnostic_rule_id")
+        span = (
+            self.candidate_text,
+            self.diagnostic_start_offset,
+            self.diagnostic_end_offset,
+        )
+        if not (all(value is None for value in span) or all(value is not None for value in span)):
+            raise ValueError("audit diagnostic span values are all present or all absent")
+        if self.candidate_text is not None:
+            if not isinstance(self.candidate_text, str):
+                raise TypeError("candidate_text must be a string or None")
+            _require_index(self.diagnostic_start_offset, "diagnostic_start_offset")
+            _require_index(self.diagnostic_end_offset, "diagnostic_end_offset")
+            if (
+                self.diagnostic_end_offset < self.diagnostic_start_offset
+                or len(self.candidate_text)
+                != self.diagnostic_end_offset - self.diagnostic_start_offset
+            ):
+                raise ValueError("audit diagnostic text and offsets must describe one span")
+        if self.matched_context_evidence_ref is not None and not isinstance(
+            self.matched_context_evidence_ref,
+            CrossEvidenceRef,
+        ):
+            raise TypeError("matched_context_evidence_ref must be a CrossEvidenceRef or None")
+        if (
+            self.matched_context_evidence_ref is not None
+            and self.matched_context_evidence_ref.requirement_id != self.requirement_id
+        ):
+            raise ValueError(
+                "matched_context_evidence_ref must have the audit requirement owner"
+            )
+        if self.matched_allowlist_contract is not None and not isinstance(
+            self.matched_allowlist_contract,
+            ContractVersionDescriptor,
+        ):
+            raise TypeError(
+                "matched_allowlist_contract must be a ContractVersionDescriptor or None"
+            )
+        if not isinstance(self.materiality_rule, ContractVersionDescriptor):
+            raise TypeError("materiality_rule must be a ContractVersionDescriptor")
+        if not isinstance(self.gate_outcomes, QbMaterialityGateOutcomes):
+            raise TypeError("gate_outcomes must be QbMaterialityGateOutcomes")
+        if not isinstance(self.disposition, QbMaterialityDisposition):
+            raise TypeError("disposition must be a QbMaterialityDisposition")
+        expected = (
+            QbMaterialityDisposition.QB_NON_MATERIAL
+            if self.gate_outcomes.all_passed
+            else QbMaterialityDisposition.QB_MATERIAL_UNRESOLVED
+        )
+        if self.disposition is not expected:
+            raise ValueError("materiality disposition must follow all eight gates")
+        if self.disposition is QbMaterialityDisposition.QB_NON_MATERIAL:
+            if any(value is None for value in span):
+                raise ValueError("QB_NON_MATERIAL requires a diagnostic candidate span")
+            if self.matched_context_evidence_ref is None:
+                raise ValueError("QB_NON_MATERIAL requires matched context Evidence")
+            if self.matched_allowlist_contract is None:
+                raise ValueError("QB_NON_MATERIAL requires a matched allowlist contract")
+
+    @property
+    def order_key(self) -> tuple[int, int]:
+        return (self.requirement_source_order, self.diagnostic_ref.diagnostic_index)
+
+
+@dataclass(frozen=True, slots=True)
+class QbMaterialityResult:
+    """Ordered diagnostic audits and the three distinct CRA-D067 counts."""
+
+    snapshot_id: AssessmentSnapshotId
+    materiality_rule: ContractVersionDescriptor
+    audit_records: tuple[QbMaterialityAuditRecord, ...]
+    global_unresolved_diagnostic_count: int
+    qb_material_count: int
+    qb_non_material_count: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.snapshot_id, AssessmentSnapshotId):
+            raise TypeError("snapshot_id must be an AssessmentSnapshotId")
+        if not isinstance(self.materiality_rule, ContractVersionDescriptor):
+            raise TypeError("materiality_rule must be a ContractVersionDescriptor")
+        _require_tuple(
+            self.audit_records,
+            QbMaterialityAuditRecord,
+            "audit_records",
+        )
+        for name in (
+            "global_unresolved_diagnostic_count",
+            "qb_material_count",
+            "qb_non_material_count",
+        ):
+            _require_index(getattr(self, name), name)
+        if any(
+            item.snapshot_id != self.snapshot_id
+            or item.materiality_rule != self.materiality_rule
+            for item in self.audit_records
+        ):
+            raise ValueError("all materiality audits must share the result snapshot and rule")
+        refs = tuple(item.diagnostic_ref for item in self.audit_records)
+        _require_unique(refs, "materiality diagnostic refs")
+        if tuple(item.order_key for item in self.audit_records) != tuple(
+            sorted(item.order_key for item in self.audit_records)
+        ):
+            raise ValueError("materiality audits must use deterministic source order")
+        material_count = sum(
+            item.disposition is QbMaterialityDisposition.QB_MATERIAL_UNRESOLVED
+            for item in self.audit_records
+        )
+        non_material_count = sum(
+            item.disposition is QbMaterialityDisposition.QB_NON_MATERIAL
+            for item in self.audit_records
+        )
+        if self.global_unresolved_diagnostic_count != len(self.audit_records):
+            raise ValueError("global unresolved count must equal preserved audit count")
+        if self.qb_material_count != material_count:
+            raise ValueError("qb_material_count must match material audit dispositions")
+        if self.qb_non_material_count != non_material_count:
+            raise ValueError("qb_non_material_count must match non-material audit dispositions")
+        if self.global_unresolved_diagnostic_count != material_count + non_material_count:
+            raise ValueError("global count must equal material plus non-material counts")
+
+    @property
+    def global_unresolved_quantitative_extraction_count(self) -> int:
+        return self.global_unresolved_diagnostic_count
+
+    @property
+    def qb_material_unresolved_quantitative_extraction_count(self) -> int:
+        return self.qb_material_count
+
+    @property
+    def qb_non_material_preserved_diagnostic_count(self) -> int:
+        return self.qb_non_material_count
+
+
 @dataclass(frozen=True, slots=True)
 class SnapshotEvidenceManifest:
     ref: CrossEvidenceRef
