@@ -50,6 +50,11 @@ from .materiality import (
     QB_NON_MATERIAL_CONTEXT_ALLOWLIST,
     QbMaterialityClassifier,
 )
+from .selection import (
+    CrossCandidateOrderKey,
+    CrossObservationPairCandidate,
+    ExhaustivePairSelector,
+)
 
 __all__ = [
     "RESULT_CANONICAL_VERSION",
@@ -96,4 +101,7 @@ __all__ = [
     "QB_MATERIALITY_RULE",
     "QB_NON_MATERIAL_CONTEXT_ALLOWLIST",
     "QbMaterialityClassifier",
+    "CrossCandidateOrderKey",
+    "CrossObservationPairCandidate",
+    "ExhaustivePairSelector",
 ]
