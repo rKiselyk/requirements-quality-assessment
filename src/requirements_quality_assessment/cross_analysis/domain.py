@@ -517,6 +517,13 @@ class QbMaterialityAuditRecord:
             CrossEvidenceRef,
         ):
             raise TypeError("matched_context_evidence_ref must be a CrossEvidenceRef or None")
+        if (
+            self.matched_context_evidence_ref is not None
+            and self.matched_context_evidence_ref.requirement_id != self.requirement_id
+        ):
+            raise ValueError(
+                "matched_context_evidence_ref must have the audit requirement owner"
+            )
         if self.matched_allowlist_contract is not None and not isinstance(
             self.matched_allowlist_contract,
             ContractVersionDescriptor,
@@ -537,6 +544,13 @@ class QbMaterialityAuditRecord:
         )
         if self.disposition is not expected:
             raise ValueError("materiality disposition must follow all eight gates")
+        if self.disposition is QbMaterialityDisposition.QB_NON_MATERIAL:
+            if any(value is None for value in span):
+                raise ValueError("QB_NON_MATERIAL requires a diagnostic candidate span")
+            if self.matched_context_evidence_ref is None:
+                raise ValueError("QB_NON_MATERIAL requires matched context Evidence")
+            if self.matched_allowlist_contract is None:
+                raise ValueError("QB_NON_MATERIAL requires a matched allowlist contract")
 
     @property
     def order_key(self) -> tuple[int, int]:

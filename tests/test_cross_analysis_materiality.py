@@ -8,6 +8,7 @@ from requirements_quality_assessment.cross_analysis import (
     QB_MATERIALITY_RULE,
     QB_NON_MATERIAL_CONTEXT_ALLOWLIST,
     ContractVersionDescriptor,
+    CrossEvidenceRef,
     CrossRequirementProjector,
     QbMaterialityClassifier,
     QbMaterialityDisposition,
@@ -86,6 +87,87 @@ def test_allowlist_is_closed_to_exactly_two_versioned_context_contracts() -> Non
         item.non_independent_role_guaranteed
         for item in QB_NON_MATERIAL_CONTEXT_ALLOWLIST
     )
+
+
+def _valid_non_material_audit():
+    _, result = _classify(_record("R001", 1, UPPER_C0))
+    return result.audit_records[0]
+
+
+def test_non_material_audit_requires_context_evidence_ref() -> None:
+    audit = _valid_non_material_audit()
+
+    with pytest.raises(ValueError, match="requires matched context Evidence"):
+        replace(audit, matched_context_evidence_ref=None)
+
+
+def test_non_material_audit_requires_allowlist_contract() -> None:
+    audit = _valid_non_material_audit()
+
+    with pytest.raises(ValueError, match="requires a matched allowlist contract"):
+        replace(audit, matched_allowlist_contract=None)
+
+
+def test_non_material_audit_requires_candidate_span() -> None:
+    audit = _valid_non_material_audit()
+
+    with pytest.raises(ValueError, match="requires a diagnostic candidate span"):
+        replace(
+            audit,
+            candidate_text=None,
+            diagnostic_start_offset=None,
+            diagnostic_end_offset=None,
+        )
+
+
+@pytest.mark.parametrize("material", [False, True])
+def test_audit_rejects_foreign_owner_context_evidence_for_any_disposition(
+    material: bool,
+) -> None:
+    audit = _valid_non_material_audit()
+    foreign_ref = CrossEvidenceRef(
+        requirement_id="R999",
+        evidence_id=audit.matched_context_evidence_ref.evidence_id,
+    )
+    gates = (
+        replace(audit.gate_outcomes, provenance_integrity=False)
+        if material
+        else audit.gate_outcomes
+    )
+    disposition = (
+        QbMaterialityDisposition.QB_MATERIAL_UNRESOLVED
+        if material
+        else QbMaterialityDisposition.QB_NON_MATERIAL
+    )
+
+    with pytest.raises(ValueError, match="must have the audit requirement owner"):
+        replace(
+            audit,
+            matched_context_evidence_ref=foreign_ref,
+            gate_outcomes=gates,
+            disposition=disposition,
+        )
+
+
+def test_non_material_audit_rejects_any_failed_gate() -> None:
+    audit = _valid_non_material_audit()
+    failed_gates = replace(
+        audit.gate_outcomes,
+        provenance_integrity=False,
+    )
+
+    with pytest.raises(ValueError, match="must follow all eight gates"):
+        replace(audit, gate_outcomes=failed_gates)
+
+
+def test_material_audit_rejects_all_eight_gates_passed() -> None:
+    audit = _valid_non_material_audit()
+
+    with pytest.raises(ValueError, match="must follow all eight gates"):
+        replace(
+            audit,
+            disposition=QbMaterialityDisposition.QB_MATERIAL_UNRESOLVED,
+        )
 
 
 @pytest.mark.parametrize(
