@@ -38,9 +38,17 @@ from .domain import (
 )
 
 
-# These descriptors are the contract slots and versions frozen by IMP-01.  The
-# two IMP-02 Rule IDs enter snapshot identity through SnapshotEvidenceManifest
-# rather than through a second, competing snapshot encoding.
+# The first six descriptors are architecture contract slots and versions frozen
+# by IMP-01.  They are not production scientific Rule IDs.  In particular they
+# do not allocate QB-MATERIALITY-001, QB-COMPARE-001, or QB-CONSISTENCY-001.
+# The ordered extraction dependencies separately preserve the two production
+# contracts allocated by IMP-02, including when neither contract fires.
+IMP_02_EXTRACTION_CONTRACTS = (
+    ContractVersionDescriptor("QUANT-LB-METRIC-001", "1"),
+    ContractVersionDescriptor("QUANT-LB-CONTEXT-001", "1"),
+)
+
+
 QB_CONTRACT_MANIFEST = CrossAnalysisContractManifest(
     projection=ContractVersionDescriptor("QB-PROJECTION", "1"),
     normalization=ContractVersionDescriptor("QB-NORMALIZATION", "1"),
@@ -48,6 +56,7 @@ QB_CONTRACT_MANIFEST = CrossAnalysisContractManifest(
     materiality=ContractVersionDescriptor("QB-MATERIALITY", "1"),
     aggregation=ContractVersionDescriptor("QB-AGGREGATION", "1"),
     coverage_profile=ContractVersionDescriptor("QB-v0.1", "1"),
+    extraction_contracts=IMP_02_EXTRACTION_CONTRACTS,
 )
 
 

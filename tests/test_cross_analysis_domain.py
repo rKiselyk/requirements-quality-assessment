@@ -47,7 +47,7 @@ from requirements_quality_assessment.domain import (
 )
 
 
-GOLDEN = Path(__file__).parent / "fixtures" / "qb_snapshot_canonical_001.json"
+GOLDEN = Path(__file__).parent / "fixtures" / "qb_snapshot_canonical_002.json"
 
 
 def _descriptor(name: str, version: str = "1") -> ContractVersionDescriptor:
@@ -62,6 +62,10 @@ def _contracts(**versions: str) -> CrossAnalysisContractManifest:
         materiality=_descriptor("QB-MATERIALITY", versions.get("materiality", "1")),
         aggregation=_descriptor("QB-AGGREGATION", versions.get("aggregation", "1")),
         coverage_profile=_descriptor("QB-v0.1", versions.get("coverage", "1")),
+        extraction_contracts=(
+            _descriptor("QUANT-LB-METRIC-001", versions.get("lb_metric", "1")),
+            _descriptor("QUANT-LB-CONTEXT-001", versions.get("lb_context", "1")),
+        ),
     )
 
 
@@ -236,7 +240,7 @@ def _result_for_state(
 
 
 def test_canonical_versions_are_explicit() -> None:
-    assert SNAPSHOT_CANONICAL_VERSION == "QB-SNAPSHOT-CANONICAL-001"
+    assert SNAPSHOT_CANONICAL_VERSION == "QB-SNAPSHOT-CANONICAL-002"
     assert RESULT_CANONICAL_VERSION == "QB-RESULT-CANONICAL-001"
 
 
@@ -292,6 +296,7 @@ def test_contract_manifest_is_immutable_and_rejects_duplicate_roles() -> None:
             materiality=_descriptor("M"),
             aggregation=_descriptor("A"),
             coverage_profile=_descriptor("P"),
+            extraction_contracts=(),
         )
 
 
@@ -497,6 +502,12 @@ def test_changed_contract_version_changes_snapshot_identity() -> None:
     assert _snapshot().snapshot_id != _snapshot(contracts=_contracts(comparison="2")).snapshot_id
 
 
+def test_changed_extraction_contract_version_changes_snapshot_identity() -> None:
+    assert _snapshot().snapshot_id != _snapshot(
+        contracts=_contracts(lb_metric="2")
+    ).snapshot_id
+
+
 def test_local_quality_and_reporting_data_are_not_snapshot_inputs() -> None:
     parameters = signature(AssessmentSnapshot).parameters
     assert "quality_profile" not in parameters
@@ -693,15 +704,15 @@ def test_same_result_inputs_have_same_stable_result_id() -> None:
     assert _confirmed(snapshot).result_id == _confirmed(snapshot).result_id
 
 
-def test_valid_canonical_identity_remains_stable_after_invariant_tightening() -> None:
+def test_v2_canonical_identity_is_frozen_after_manifest_extension() -> None:
     snapshot = _snapshot()
     assert snapshot.snapshot_id.value == (
-        "qb-snapshot-sha256:9d0056ed37b9215e6f81c2f1950d0d51"
-        "c1195490561f58a94917724a535e19f7"
+        "qb-snapshot-sha256:fe799606e9c45d1b93fe39d1a47099ff"
+        "55ee8b1b8ed93abe2d59bf3b735c7a61"
     )
     assert _confirmed(snapshot).result_id.value == (
-        "qb-result-sha256:d2680f29680df1400b03af14eb301beaf"
-        "723794c31de1c8f47c5d941bba6159f"
+        "qb-result-sha256:9f827c0c7713fa737d3f93f95252673d"
+        "953f65caccd9d216f7dbdb28b131afb3"
     )
 
 

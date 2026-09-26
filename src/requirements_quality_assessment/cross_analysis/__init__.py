@@ -34,6 +34,7 @@ from .domain import (
     SnapshotRequirementManifest,
 )
 from .projection import (
+    IMP_02_EXTRACTION_CONTRACTS,
     QB_CONTRACT_MANIFEST,
     CrossEvidenceResolver,
     CrossRequirementProjection,
@@ -73,6 +74,7 @@ __all__ = [
     "SnapshotObservationManifest",
     "SnapshotRequirementManifest",
     "QB_CONTRACT_MANIFEST",
+    "IMP_02_EXTRACTION_CONTRACTS",
     "CrossEvidenceResolver",
     "CrossRequirementProjection",
     "CrossRequirementProjector",

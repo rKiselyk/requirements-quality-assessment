@@ -1,10 +1,11 @@
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 from decimal import Decimal
 
 import pytest
 
 from requirements_quality_assessment.assessor import RequirementQualityAssessor
 from requirements_quality_assessment.cross_analysis import (
+    IMP_02_EXTRACTION_CONTRACTS,
     QB_CONTRACT_MANIFEST,
     CrossDiagnosticRef,
     CrossObservationRef,
@@ -276,3 +277,51 @@ def test_contract_manifest_contains_only_current_qb_contract_slots() -> None:
         ("QB-AGGREGATION", "1"),
         ("QB-v0.1", "1"),
     ]
+
+
+def test_manifest_explicitly_versions_both_imp_02_extraction_contracts() -> None:
+    assert QB_CONTRACT_MANIFEST.extraction_contracts == IMP_02_EXTRACTION_CONTRACTS
+    assert [
+        (descriptor.contract_id, descriptor.version)
+        for descriptor in QB_CONTRACT_MANIFEST.extraction_contracts
+    ] == [
+        ("QUANT-LB-METRIC-001", "1"),
+        ("QUANT-LB-CONTEXT-001", "1"),
+    ]
+
+
+def test_extraction_contract_version_affects_identity_without_lower_bridge_evidence() -> None:
+    record = _record("R001", 1, "Система працює")
+    baseline = CrossRequirementProjector().project((record,))
+    changed_dependencies = (
+        replace(IMP_02_EXTRACTION_CONTRACTS[0], version="2"),
+        IMP_02_EXTRACTION_CONTRACTS[1],
+    )
+    changed_manifest = replace(
+        QB_CONTRACT_MANIFEST,
+        extraction_contracts=changed_dependencies,
+    )
+    changed = CrossRequirementProjector().project((record,), changed_manifest)
+
+    assert baseline.requirements[0].evidence == ()
+    assert baseline.snapshot_id != changed.snapshot_id
+    assert baseline.snapshot.canonical_bytes() != changed.snapshot.canonical_bytes()
+
+
+def test_architecture_slots_do_not_allocate_future_production_rule_ids() -> None:
+    manifest_ids = {
+        descriptor.contract_id
+        for descriptor in (
+            QB_CONTRACT_MANIFEST.projection,
+            QB_CONTRACT_MANIFEST.normalization,
+            QB_CONTRACT_MANIFEST.comparison,
+            QB_CONTRACT_MANIFEST.materiality,
+            QB_CONTRACT_MANIFEST.aggregation,
+            QB_CONTRACT_MANIFEST.coverage_profile,
+            *QB_CONTRACT_MANIFEST.extraction_contracts,
+        )
+    }
+
+    assert manifest_ids.isdisjoint(
+        {"QB-MATERIALITY-001", "QB-COMPARE-001", "QB-CONSISTENCY-001"}
+    )

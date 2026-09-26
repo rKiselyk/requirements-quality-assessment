@@ -1,6 +1,6 @@
 """Immutable domain vocabulary for cross-requirement QB-v0.1 analysis.
 
-``QB-SNAPSHOT-CANONICAL-001`` is the snapshot identity encoding.  It is a
+``QB-SNAPSHOT-CANONICAL-002`` is the snapshot identity encoding.  It is a
 UTF-8 JSON byte sequence made only from ordered, explicitly tagged arrays.
 Every value has a type tag; enums use their exact value; and ``Decimal`` uses
 its lossless ``as_tuple()`` sign, digit tuple, and exponent.  JSON is emitted
@@ -38,7 +38,7 @@ from requirements_quality_assessment.domain import (
 )
 
 
-SNAPSHOT_CANONICAL_VERSION = "QB-SNAPSHOT-CANONICAL-001"
+SNAPSHOT_CANONICAL_VERSION = "QB-SNAPSHOT-CANONICAL-002"
 RESULT_CANONICAL_VERSION = "QB-RESULT-CANONICAL-001"
 
 
@@ -201,12 +201,18 @@ class ContractVersionDescriptor:
 
 @dataclass(frozen=True, slots=True)
 class CrossAnalysisContractManifest:
+    # The six named descriptors are architecture contract slots.  Their IDs do
+    # not allocate the future production scientific Rule IDs owned by IMP-04,
+    # IMP-06, and IMP-08.
     projection: ContractVersionDescriptor
     normalization: ContractVersionDescriptor
     comparison: ContractVersionDescriptor
     materiality: ContractVersionDescriptor
     aggregation: ContractVersionDescriptor
     coverage_profile: ContractVersionDescriptor
+    # Ordered, explicit versions of production extraction/source contracts on
+    # which this snapshot contract depends.
+    extraction_contracts: tuple[ContractVersionDescriptor, ...]
 
     def __post_init__(self) -> None:
         values = (
@@ -219,7 +225,13 @@ class CrossAnalysisContractManifest:
         )
         if any(not isinstance(value, ContractVersionDescriptor) for value in values):
             raise TypeError("every contract manifest field must be a ContractVersionDescriptor")
-        if len({value.contract_id for value in values}) != len(values):
+        _require_tuple(
+            self.extraction_contracts,
+            ContractVersionDescriptor,
+            "extraction_contracts",
+        )
+        all_descriptors = (*values, *self.extraction_contracts)
+        if len({value.contract_id for value in all_descriptors}) != len(all_descriptors):
             raise ValueError("contract manifest contract IDs must be unique")
 
     def _canonical_node(self) -> list[Any]:
@@ -231,6 +243,13 @@ class CrossAnalysisContractManifest:
             ("materiality", self.materiality._canonical_node()),
             ("aggregation", self.aggregation._canonical_node()),
             ("coverage_profile", self.coverage_profile._canonical_node()),
+            (
+                "extraction_contracts",
+                _tuple(
+                    self.extraction_contracts,
+                    lambda item: item._canonical_node(),
+                ),
+            ),
         )
 
 
