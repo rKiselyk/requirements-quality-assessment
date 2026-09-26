@@ -28,6 +28,8 @@ QUANT_RULE_ID = "QUANT-001"
 QUANT_UK_RULE_ID = "QUANT-UK-001"
 QUANT_METRIC_RULE_ID = "QUANT-METRIC-001"
 QUANT_CONTEXT_RULE_ID = "QUANT-CONTEXT-001"
+QUANT_LB_METRIC_RULE_ID = "QUANT-LB-METRIC-001"
+QUANT_LB_CONTEXT_RULE_ID = "QUANT-LB-CONTEXT-001"
 UNRESOLVED_NUMERIC_DIAGNOSTIC_CODE = "QUANT_UNRESOLVED_NUMERIC_CANDIDATE"
 
 _NUMERIC_PATTERN = re.compile(r"[0-9]+(?:,[0-9]+)?")
@@ -59,6 +61,12 @@ _METRIC_TEXT = "Час відгуку"
 _METRIC_PREFIX = f"{_METRIC_TEXT} "
 _CONTEXT_SUFFIX = "при 500 одночасних користувачах"
 _HARD_BOUNDARIES = frozenset(".;?!")
+_LOWER_BOUND_ENVELOPE = re.compile(
+    r"Час відгуку не нижче "
+    r"(?P<value>[0-9]+(?:,[0-9]+)?) "
+    r"(?P<unit>с|секунд|хв|хвилин) "
+    r"(?P<context>при 500 одночасних користувачах)"
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -583,6 +591,94 @@ def _enrich_response_time_context(
     return (*evidence, context_evidence), tuple(enriched_observations)
 
 
+def _lower_bound_metric_evidence(requirement: Requirement) -> Evidence:
+    """Construct the separately owned exact lower-bound metric contribution."""
+    return Evidence(
+        evidence_id=f"{QUANT_LB_METRIC_RULE_ID}:E001",
+        requirement_id=requirement.id,
+        feature_id=FeatureId.QUANTITATIVE_CONSTRAINT,
+        text=_METRIC_TEXT,
+        start_offset=0,
+        end_offset=len(_METRIC_TEXT),
+        rule_id=QUANT_LB_METRIC_RULE_ID,
+    )
+
+
+def _lower_bound_context_evidence(
+    requirement: Requirement,
+    context_start: int,
+) -> Evidence:
+    """Construct the separately owned exact lower-C0 context contribution."""
+    return Evidence(
+        evidence_id=f"{QUANT_LB_CONTEXT_RULE_ID}:E001",
+        requirement_id=requirement.id,
+        feature_id=FeatureId.QUANTITATIVE_CONSTRAINT,
+        text=_CONTEXT_SUFFIX,
+        start_offset=context_start,
+        end_offset=len(requirement.text),
+        rule_id=QUANT_LB_CONTEXT_RULE_ID,
+    )
+
+
+def _enrich_exact_lower_bound_envelope(
+    requirement: Requirement,
+    evidence: tuple[Evidence, ...],
+    observations: tuple[QuantitativeConstraintObservation, ...],
+) -> tuple[tuple[Evidence, ...], tuple[QuantitativeConstraintObservation, ...]]:
+    """Atomically attach both approved LB-M-C0 contributions or neither."""
+    envelope = _LOWER_BOUND_ENVELOPE.fullmatch(requirement.text)
+    if envelope is None or len(observations) != 1:
+        return evidence, observations
+
+    observation = observations[0]
+    if len(observation.evidence_refs) != 1:
+        return evidence, observations
+    by_id = {source.evidence_id: source for source in evidence}
+    scalar_source = by_id.get(observation.evidence_refs[0])
+    comparator = observation.comparator
+    expected_scalar = (
+        f"не нижче {envelope.group('value')} {envelope.group('unit')}"
+    )
+    expected_unit = _UNIT_LABELS[envelope.group("unit")]
+    scalar_start = len(_METRIC_PREFIX)
+    context_start = envelope.start("context")
+    if (
+        scalar_source is None
+        or scalar_source.rule_id != QUANT_UK_RULE_ID
+        or scalar_source.text != expected_scalar
+        or scalar_source.start_offset != scalar_start
+        or scalar_source.end_offset != context_start - 1
+        or comparator is None
+        or comparator.label is not ComparatorLabel.GREATER_THAN_OR_EQUAL
+        or comparator.inclusivity is not BoundaryInclusivity.INCLUSIVE
+        or observation.value is None
+        or observation.value.decimal_value
+        != Decimal(envelope.group("value").replace(",", "."))
+        or observation.unit is None
+        or observation.unit.label is not expected_unit
+        or observation.metric is not None
+        or observation.context is not None
+    ):
+        return evidence, observations
+
+    metric_evidence = _lower_bound_metric_evidence(requirement)
+    context_evidence = _lower_bound_context_evidence(requirement, context_start)
+    enriched = replace(
+        observation,
+        metric=TextComponent((metric_evidence.evidence_id,)),
+        context=TextComponent((context_evidence.evidence_id,)),
+        evidence_refs=(
+            metric_evidence.evidence_id,
+            *observation.evidence_refs,
+            context_evidence.evidence_id,
+        ),
+    )
+    return (
+        (metric_evidence, *evidence, context_evidence),
+        (enriched,),
+    )
+
+
 def _diagnostics(
     text: str,
     candidates: tuple[_Candidate, ...],
@@ -625,6 +721,9 @@ class QuantitativeBaselineDetector:
             requirement, evidence, observations,
         )
         evidence, observations = _enrich_response_time_context(
+            requirement, evidence, observations,
+        )
+        evidence, observations = _enrich_exact_lower_bound_envelope(
             requirement, evidence, observations,
         )
         diagnostics = _diagnostics(text, candidates, protected)
