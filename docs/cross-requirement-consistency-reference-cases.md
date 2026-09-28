@@ -767,14 +767,19 @@ Evidence fields without repeating their span table in every case.
 - **Rationale/traceability:** CRA-D020, D025-D026, D057.
 - **Bounded non-claim:** NC-QB-BASE.
 
-## 5. Rejected end-to-end candidate fixtures
+## 5. Historical rejected end-to-end candidate fixtures
 
-These fixtures are not binding cases. Their observed behavior was verified and
-is preserved so later work does not silently reuse them.
+These entries preserve the verified extractor baseline that existed before the
+exact `LB-M-C0` bridge was implemented. They are historical, non-binding
+negative-fixture records, not descriptions of current production behavior.
+Their original observations remain traceability evidence so later work does
+not rewrite the pre-bridge limitation or silently reuse the other rejected
+surfaces. A current binding successor, where one exists, is identified in the
+disposition column.
 
-| Rejected fixture | Intended purpose | Observed frozen-extractor behavior | Disposition/replacement |
+| Historical rejected fixture | Intended purpose | Observed pre-bridge frozen-extractor behavior | Current disposition/replacement |
 | --- | --- | --- | --- |
-| RF-QB-001: Час відгуку не нижче 5 с при 500 одночасних користувачах | End-to-end lower-bound conflict | QUANT-UK-001:E001 = не нижче 5 с [12,24), GREATER_THAN_OR_EQUAL/INCLUSIVE, Decimal("5"), SECOND; metric/context absent; diagnostic 500 [29,32); INCOMPLETE | Remains rejected as a current end-to-end fixture; domain cases RC-QB-001-RC-QB-004 and RC-QB-006-RC-QB-007 remain binding. The exact text is now part of the future post-implementation target in Section 5.1. |
+| RF-QB-001: Час відгуку не нижче 5 с при 500 одночасних користувачах | End-to-end lower-bound conflict | Before the bridge, QUANT-UK-001:E001 = не нижче 5 с [12,24), GREATER_THAN_OR_EQUAL/INCLUSIVE, Decimal("5"), SECOND; metric/context absent; diagnostic 500 [29,32) preserved; INCOMPLETE | Historical negative fixture only. QB-ER-D002 and QB-ER-D005 later approved the exact bridge, IMP-02 implemented it, and IMP-11 validated the exact surface end to end. The exact surface is no longer rejected under current production; its binding current behavior is governed by promoted Section 5.1. Standalone LB-M0 and broader lower-bound grammar remain unapproved. |
 | RF-QB-002: ЧАС  ВІДГУКУ ≤ 2 с при 500 одночасних користувачах | Representation-only metric normalization | Only QUANT-001:E001 = ≤ 2 с [13,18); metric/context absent; diagnostic 500 [23,26); INCOMPLETE | Rejected end-to-end; normalization is bound by RC-QB-008. |
 | RF-QB-003: Час відповіді ≤ 2 с при 500 одночасних користувачах | Semantic-synonym OUTSIDE result | Only QUANT-001:E001 = ≤ 2 с [14,19); metric/context absent; diagnostic 500 [24,27); INCOMPLETE, so the text would be unresolved rather than a resolved metric mismatch | Rejected end-to-end; synonym boundary is bound by RC-QB-009. |
 | RF-QB-004: Час відгуку ≤ 2 с під час пікового навантаження | Resolved different quantitative context | Metric and upper bound are accepted, but quantitative context remains absent; COMPLETE | Rejected as a resolved-context fixture; replaced by RC-QB-010. |
