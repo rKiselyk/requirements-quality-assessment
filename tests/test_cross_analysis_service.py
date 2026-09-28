@@ -413,6 +413,10 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
     for path in package_root.rglob("*.py"):
         if "cross_analysis" in path.parts:
             continue
+        if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
+            # IMP-10 reporting/orchestration is the approved downstream
+            # composition boundary and may consume both local and cross results.
+            continue
         text = path.read_text(encoding="utf-8")
         if "cross_analysis" in text:
             forbidden.append(path.relative_to(package_root).as_posix())

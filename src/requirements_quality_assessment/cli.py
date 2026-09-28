@@ -6,8 +6,8 @@ import argparse
 import sys
 from collections.abc import Sequence
 
-from .aggregator import SpecificationQualityAggregator
 from .assessor import RequirementQualityAssessor
+from .cross_analysis.service import SpecificationAssessmentService
 from .extractor import BaselineFeatureExtractor
 from .reader import RequirementReader
 from .reporter import ConsoleReporter, UserConsoleReporter
@@ -57,10 +57,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         for requirement in requirements
     )
 
-    specification_profile = SpecificationQualityAggregator().aggregate(
-        record.quality_profile for record in requirement_results
-    )
+    assessment_result = SpecificationAssessmentService().assess(requirement_results)
 
     reporter = UserConsoleReporter() if args.view == "user" else ConsoleReporter()
-    print(reporter.render(requirement_results, specification_profile))
+    print(reporter.render_assessment(assessment_result))
     return 0
