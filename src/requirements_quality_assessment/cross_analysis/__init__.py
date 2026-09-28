@@ -1,5 +1,6 @@
 """Public immutable domain boundary for cross-requirement analysis."""
 
+from .aggregation import QbConflictSet, QbConflictSetBuilder
 from .comparison import (
     QB_COMPARISON_RULE,
     QB_COVERAGE_PROFILE,
@@ -104,6 +105,8 @@ __all__ = [
     "QbMaterialityResult",
     "RequirementCountManifest",
     "RequirementOrderKey",
+    "QbConflictSet",
+    "QbConflictSetBuilder",
     "SnapshotCountManifest",
     "SnapshotDiagnosticManifest",
     "SnapshotEvidenceManifest",
