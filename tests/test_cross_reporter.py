@@ -294,7 +294,7 @@ def test_material_and_non_material_diagnostics_remain_visible_in_audit() -> None
         assert f"{gate}:" in material_output
 
 
-def test_bounded_non_claims_are_report_level_and_apply_to_computed_one() -> None:
+def test_complete_cra_d064_non_claim_contract_accompanies_computed_one() -> None:
     result = _result(UPPER_TWO, UPPER_FIVE)
     audit = ConsoleReporter().render_assessment(result)
     user = UserConsoleReporter().render_assessment(result)
@@ -302,12 +302,57 @@ def test_bounded_non_claims_are_report_level_and_apply_to_computed_one() -> None
     assert "non_claim_contract: QB-NON-CLAIMS-001 / 1" in audit
     assert "non_claim_keys: NC-QB-BASE" in audit
     assert "QB-v0.1 does not establish:" in audit
-    assert "product quality" in audit
-    assert "defect probability" in audit
     assert audit.count("Bounded non-claims:") == 1
+    audit_disclosure = audit.partition("Bounded non-claims:")[2]
+    assert sum(
+        line.startswith("    - ") for line in audit_disclosure.splitlines()
+    ) == 14
+    for approved_meaning in (
+        "absence of a detected conflict is not proof of universal semantic consistency",
+        "only the supported bounded quantitative constructions were evaluated",
+        "COMPATIBLE_WITHIN_RULE applies only to the supported observation pair and rule",
+        "unsupported semantic equivalence is not inferred",
+        "synonym, terminology, ontology, embedding, or fuzzy-match equivalence",
+        "no unit conversion or dimensional equivalence is inferred",
+        "no context overlap beyond exact normalized identity is inferred",
+        "no implicit domain knowledge or common-sense knowledge is supplied",
+        "logical consistency outside the supported bounded rule, terminological "
+        "consistency, resource consistency, duplication, coverage, or traceability",
+        "no severity, risk, probability, confidence score, priority, or corrective action",
+        "no software-product quality or defect-probability conclusion is produced",
+        "M_cons[QB-v0.1] is not a combined specification-quality score",
+        "the unqualified full-source M_cons remains non-executable",
+        "UNKNOWN and NOT_APPLICABLE are not numeric values and never mean zero",
+    ):
+        assert approved_meaning in audit_disclosure
+
     assert "Межі QB-v0.1:" in user
-    assert "не визначає якість програмного продукту" in user
-    assert "загальну скалярну оцінку специфікації" in user
+    user_disclosure = user.partition("Межі QB-v0.1:")[2]
+    for approved_meaning in (
+        "Відсутність виявленого конфлікту не доводить універсальної семантичної "
+        "узгодженості",
+        "Оцінено лише підтримувані обмежені кількісні конструкції",
+        "COMPATIBLE_WITHIN_RULE стосується лише підтримуваної пари спостережень і "
+        "правила",
+        "не є загальним твердженням про відсутність конфлікту",
+        "Непідтримувана семантична еквівалентність не виводиться",
+        "синонімами, термінологією, онтологіями, вбудовуваннями (embedding) чи "
+        "нечітким зіставленням",
+        "перетворення одиниць чи розмірнісна еквівалентність",
+        "перетин контекстів поза точною нормалізованою ідентичністю",
+        "неявні предметні знання чи знання здорового глузду",
+        "логічну узгодженість поза підтримуваним обмеженим правилом, "
+        "термінологічну або ресурсну узгодженість, дублювання, покриття чи "
+        "простежуваність",
+        "серйозність, ризик, імовірність, показник упевненості, пріоритет чи "
+        "коригувальна дія",
+        "якість програмного продукту або ймовірність дефекту",
+        "M_cons[QB-v0.1] не є об'єднаною оцінкою якості специфікації",
+        "повний M_cons без кваліфікатора лишається невиконуваним",
+        "UNKNOWN і NOT_APPLICABLE не є числовими значеннями й ніколи не означають "
+        "нуль",
+    ):
+        assert approved_meaning in user_disclosure
 
 
 def test_cross_reporter_has_no_scientific_component_or_fraction_dependency() -> None:

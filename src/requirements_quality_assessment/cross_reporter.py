@@ -28,21 +28,25 @@ from .domain import Evidence, RequirementAssessmentRecord
 
 
 _QB_NON_CLAIMS = (
-    "universal semantic consistency",
-    "complete logical consistency",
-    "terminological consistency",
-    "resource consistency",
-    "duplicate-freedom",
-    "synonym or ontology equivalence",
-    "unit-conversion equivalence",
-    "product quality",
-    "defect probability",
-    "severity",
-    "risk",
-    "priority",
-    "corrective action",
-    "an overall specification-quality score",
-    "the full unqualified source-defined M_cons",
+    "absence of a detected conflict is not proof of universal semantic consistency",
+    "only the supported bounded quantitative constructions were evaluated",
+    "COMPATIBLE_WITHIN_RULE applies only to the supported observation pair and rule; "
+    "it is not a general absence-of-conflict claim",
+    "unsupported semantic equivalence is not inferred",
+    "no synonym, terminology, ontology, embedding, or fuzzy-match equivalence is "
+    "assumed",
+    "no unit conversion or dimensional equivalence is inferred",
+    "no context overlap beyond exact normalized identity is inferred",
+    "no implicit domain knowledge or common-sense knowledge is supplied",
+    "no general claim is made about logical consistency outside the supported bounded "
+    "rule, terminological consistency, resource consistency, duplication, coverage, or "
+    "traceability",
+    "no severity, risk, probability, confidence score, priority, or corrective action "
+    "is inferred",
+    "no software-product quality or defect-probability conclusion is produced",
+    "M_cons[QB-v0.1] is not a combined specification-quality score",
+    "the unqualified full-source M_cons remains non-executable",
+    "UNKNOWN and NOT_APPLICABLE are not numeric values and never mean zero",
 )
 
 _USER_AGGREGATE_REASONS = {
@@ -517,12 +521,26 @@ class UserCrossRequirementReporter:
             (
                 "",
                 "Межі QB-v0.1:",
-                "  Оцінка не встановлює універсальну семантичну, повну логічну, "
-                "термінологічну чи ресурсну узгодженість; відсутність дублікатів; "
-                "еквівалентність синонімів, онтологій або перетворення одиниць.",
-                "  Вона не визначає якість програмного продукту, імовірність дефекту, "
-                "серйозність, ризик, пріоритет, коригувальну дію, загальну скалярну "
-                "оцінку специфікації або повний безумовний M_cons.",
+                "  Оцінено лише підтримувані обмежені кількісні конструкції. "
+                "Відсутність виявленого конфлікту не доводить універсальної "
+                "семантичної узгодженості. COMPATIBLE_WITHIN_RULE стосується лише "
+                "підтримуваної пари спостережень і правила та не є загальним "
+                "твердженням про відсутність конфлікту.",
+                "  Непідтримувана семантична еквівалентність не виводиться; не "
+                "припускається еквівалентність за синонімами, термінологією, "
+                "онтологіями, вбудовуваннями (embedding) чи нечітким зіставленням.",
+                "  Не виводяться перетворення одиниць чи розмірнісна еквівалентність, "
+                "а також перетин контекстів поза точною нормалізованою ідентичністю. "
+                "Не додаються неявні предметні знання чи знання здорового глузду.",
+                "  Не робиться загальних тверджень про логічну узгодженість поза "
+                "підтримуваним обмеженим правилом, термінологічну або ресурсну "
+                "узгодженість, дублювання, покриття чи простежуваність.",
+                "  Не виводяться серйозність, ризик, імовірність, показник упевненості, "
+                "пріоритет чи коригувальна дія; не робляться висновки про якість "
+                "програмного продукту або ймовірність дефекту.",
+                "  M_cons[QB-v0.1] не є об'єднаною оцінкою якості специфікації; "
+                "повний M_cons без кваліфікатора лишається невиконуваним. UNKNOWN і "
+                "NOT_APPLICABLE не є числовими значеннями й ніколи не означають нуль.",
             )
         )
         return "\n".join(lines)
