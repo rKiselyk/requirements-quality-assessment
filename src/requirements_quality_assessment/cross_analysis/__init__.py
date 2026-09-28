@@ -83,6 +83,8 @@ from .selection import (
     CrossObservationPairCandidate,
     ExhaustivePairSelector,
 )
+from .service import SpecificationAssessmentService
+from .specification import SpecificationAssessment, SpecificationAssessmentResult
 
 __all__ = [
     "RESULT_CANONICAL_VERSION",
@@ -156,4 +158,7 @@ __all__ = [
     "SupportedInclusiveBound",
     "direct_bound_conflict",
     "normalize_qb_identity_text",
+    "SpecificationAssessment",
+    "SpecificationAssessmentResult",
+    "SpecificationAssessmentService",
 ]
