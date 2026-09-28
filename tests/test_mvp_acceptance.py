@@ -5,6 +5,7 @@ from fractions import Fraction
 from requirements_quality_assessment.aggregator import SpecificationQualityAggregator
 from requirements_quality_assessment.assessor import RequirementQualityAssessor
 from requirements_quality_assessment.cli import main
+from requirements_quality_assessment.cross_analysis import SpecificationAssessmentService
 from requirements_quality_assessment.domain import (
     CharacteristicAssessmentState, DetectionStatus, FeatureId, FindingKind,
 )
@@ -104,11 +105,15 @@ def test_real_parser_acceptance_pipeline_and_repeatability(tmp_path, capsys) -> 
     assert [report.index(f"Requirement R{i:03d}") for i in range(1, 6)] == sorted(
         report.index(f"Requirement R{i:03d}") for i in range(1, 6)
     )
+    assessment_result = SpecificationAssessmentService().assess(records)
+    assert assessment_result.specification_assessment.quality_profile == specification
+    composed_report = ConsoleReporter().render_assessment(assessment_result)
+    assert composed_report.startswith(report + "\n\nCross-Requirement Consistency\n")
 
     assert main(["--view", "audit", str(path)]) == 0
     first_run = capsys.readouterr()
     assert first_run.err == ""
-    assert first_run.out == report + "\n"
+    assert first_run.out == composed_report + "\n"
     assert main(["--view", "audit", str(path)]) == 0
     second_run = capsys.readouterr()
     assert second_run == first_run

@@ -18,9 +18,9 @@ import sys
 import pytest
 
 import requirements_quality_assessment.cli as cli_module
-from requirements_quality_assessment.aggregator import SpecificationQualityAggregator
 from requirements_quality_assessment.assessor import RequirementQualityAssessor
 from requirements_quality_assessment.cli import main
+from requirements_quality_assessment.cross_analysis import SpecificationAssessmentService
 from requirements_quality_assessment.extractor import BaselineFeatureExtractor
 from requirements_quality_assessment.reader import RequirementReader
 from requirements_quality_assessment.reporter import ConsoleReporter
@@ -202,10 +202,8 @@ def test_explicit_audit_view_matches_existing_console_reporter_exactly(
         assessor.assess_record(extractor.extract(requirement))
         for requirement in requirements
     )
-    specification = SpecificationQualityAggregator().aggregate(
-        record.quality_profile for record in records
-    )
-    expected = ConsoleReporter().render(records, specification)
+    result = SpecificationAssessmentService().assess(records)
+    expected = ConsoleReporter().render_assessment(result)
 
     assert main(["--view", "audit", str(path)]) == 0
     captured = capsys.readouterr()
@@ -220,14 +218,9 @@ def test_each_view_receives_one_completed_record_and_one_aggregate(
 ) -> None:
     requirement = object()
     extraction = object()
-    profile = object()
-    specification = object()
-
-    class Record:
-        quality_profile = profile
-
-    record = Record()
-    calls = {"read": 0, "extract": 0, "assess": 0, "aggregate": 0, "render": 0}
+    record = object()
+    assessment_result = object()
+    calls = {"read": 0, "extract": 0, "assess": 0, "service": 0, "render": 0}
 
     class Reader:
         def read(self, path):
@@ -247,32 +240,30 @@ def test_each_view_receives_one_completed_record_and_one_aggregate(
             assert value is extraction
             return record
 
-    class Aggregator:
-        def aggregate(self, profiles):
-            calls["aggregate"] += 1
-            assert tuple(profiles) == (profile,)
-            return specification
+    class Service:
+        def assess(self, records):
+            calls["service"] += 1
+            assert records == (record,)
+            return assessment_result
 
     class UserReporter:
-        def render(self, records, supplied_specification):
+        def render_assessment(self, supplied_result):
             assert view == "user"
             calls["render"] += 1
-            assert records == (record,)
-            assert supplied_specification is specification
+            assert supplied_result is assessment_result
             return "user"
 
     class AuditReporter:
-        def render(self, records, supplied_specification):
+        def render_assessment(self, supplied_result):
             assert view == "audit"
             calls["render"] += 1
-            assert records == (record,)
-            assert supplied_specification is specification
+            assert supplied_result is assessment_result
             return "audit"
 
     monkeypatch.setattr(cli_module, "RequirementReader", Reader)
     monkeypatch.setattr(cli_module, "BaselineFeatureExtractor", Extractor)
     monkeypatch.setattr(cli_module, "RequirementQualityAssessor", Assessor)
-    monkeypatch.setattr(cli_module, "SpecificationQualityAggregator", Aggregator)
+    monkeypatch.setattr(cli_module, "SpecificationAssessmentService", Service)
     monkeypatch.setattr(cli_module, "UserConsoleReporter", UserReporter)
     monkeypatch.setattr(cli_module, "ConsoleReporter", AuditReporter)
 
@@ -281,4 +272,4 @@ def test_each_view_receives_one_completed_record_and_one_aggregate(
 
     assert captured.out == f"{view}\n"
     assert captured.err == ""
-    assert calls == {"read": 1, "extract": 1, "assess": 1, "aggregate": 1, "render": 1}
+    assert calls == {"read": 1, "extract": 1, "assess": 1, "service": 1, "render": 1}

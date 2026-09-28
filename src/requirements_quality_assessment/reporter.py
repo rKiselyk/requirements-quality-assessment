@@ -4,6 +4,12 @@ from dataclasses import fields, is_dataclass
 from enum import Enum
 from typing import Iterable
 
+from .cross_analysis.specification import SpecificationAssessmentResult
+from .cross_reporter import (
+    AssessmentReportBundle,
+    AuditCrossRequirementReporter,
+    UserCrossRequirementReporter,
+)
 from .domain import (
     CharacteristicAssessment,
     CharacteristicAssessmentState,
@@ -121,6 +127,17 @@ class ConsoleReporter:
             self._render_specification_summary(len(materialized), specification_profile)
         )
         return "\n\n".join(sections)
+
+    def render_assessment(self, result: SpecificationAssessmentResult) -> str:
+        """Append the QB audit section to the unchanged local audit report."""
+
+        bundle = AssessmentReportBundle.from_result(result)
+        local_report = self.render(
+            bundle.records,
+            bundle.specification_assessment.quality_profile,
+        )
+        cross_report = AuditCrossRequirementReporter().render(bundle)
+        return f"{local_report}\n\n{cross_report}"
 
     def _render_requirement(
         self, requirement: Requirement, profile: RequirementQualityProfile
@@ -498,6 +515,17 @@ class UserConsoleReporter:
         )
         sections.append(self._render_disclosures())
         return "\n\n".join(sections)
+
+    def render_assessment(self, result: SpecificationAssessmentResult) -> str:
+        """Append the concise QB section to the unchanged local user report."""
+
+        bundle = AssessmentReportBundle.from_result(result)
+        local_report = self.render(
+            bundle.records,
+            bundle.specification_assessment.quality_profile,
+        )
+        cross_report = UserCrossRequirementReporter().render(bundle)
+        return f"{local_report}\n\n{cross_report}"
 
     def _render_record(self, record: RequirementAssessmentRecord) -> str:
         requirement = record.extraction_result.requirement
