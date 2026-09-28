@@ -24,6 +24,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import Enum
+from fractions import Fraction
 from hashlib import sha256
 import json
 from typing import Any, ClassVar
@@ -400,6 +401,23 @@ class BoundedNonClaimKey(str, Enum):
     NC_QB_BASE = "NC-QB-BASE"
 
 
+class QbConsistencyState(str, Enum):
+    """The three approved observability states for ``M_cons[QB-v0.1]``."""
+
+    COMPUTED = "COMPUTED"
+    UNKNOWN = "UNKNOWN"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class QbConsistencyReason(str, Enum):
+    """Typed reasons for withholding the bounded numeric value."""
+
+    FEWER_THAN_TWO_REQUIREMENTS = "FEWER_THAN_TWO_REQUIREMENTS"
+    QB_MATERIAL_UNRESOLVED_EXTRACTION = "QB_MATERIAL_UNRESOLVED_EXTRACTION"
+    ASSESSMENT_UNRESOLVED_PAIR = "ASSESSMENT_UNRESOLVED_PAIR"
+    NO_APPLICABLE_COMPARISONS = "NO_APPLICABLE_COMPARISONS"
+
+
 class QbMaterialityDisposition(str, Enum):
     """QB-only interpretation of one preserved quantitative diagnostic."""
 
@@ -624,6 +642,352 @@ class QbMaterialityResult:
     @property
     def qb_non_material_preserved_diagnostic_count(self) -> int:
         return self.qb_non_material_count
+
+
+@dataclass(frozen=True, slots=True)
+class QbConsistencyObservability:
+    """Validated counts describing the complete bounded assessment universe."""
+
+    total_requirement_count: int
+    requirements_with_observations_count: int
+    requirements_in_applicable_comparisons_count: int
+    total_requirement_pair_count: int
+    total_observation_pair_count: int
+    confirmed_conflict_count: int
+    compatible_count: int
+    unresolved_count: int
+    outside_applicability_count: int
+    applicable_comparison_count: int
+    global_unresolved_extraction_count: int
+    qb_material_unresolved_count: int
+    qb_non_material_diagnostic_count: int
+    observed_rconf_count: int
+    rconf_complete: bool
+
+    def __post_init__(self) -> None:
+        count_names = (
+            "total_requirement_count",
+            "requirements_with_observations_count",
+            "requirements_in_applicable_comparisons_count",
+            "total_requirement_pair_count",
+            "total_observation_pair_count",
+            "confirmed_conflict_count",
+            "compatible_count",
+            "unresolved_count",
+            "outside_applicability_count",
+            "applicable_comparison_count",
+            "global_unresolved_extraction_count",
+            "qb_material_unresolved_count",
+            "qb_non_material_diagnostic_count",
+            "observed_rconf_count",
+        )
+        for name in count_names:
+            _require_index(getattr(self, name), name)
+        if type(self.rconf_complete) is not bool:
+            raise TypeError("rconf_complete must be a boolean")
+
+        requirement_count = self.total_requirement_count
+        if self.requirements_with_observations_count > requirement_count:
+            raise ValueError(
+                "requirements_with_observations_count cannot exceed total requirements"
+            )
+        if self.requirements_in_applicable_comparisons_count > requirement_count:
+            raise ValueError(
+                "requirements_in_applicable_comparisons_count cannot exceed "
+                "total requirements"
+            )
+        if self.observed_rconf_count > requirement_count:
+            raise ValueError("observed_rconf_count cannot exceed total requirements")
+        if (
+            self.requirements_in_applicable_comparisons_count
+            > self.requirements_with_observations_count
+        ):
+            raise ValueError(
+                "requirements in applicable comparisons must have observations"
+            )
+
+        expected_requirement_pairs = requirement_count * (requirement_count - 1) // 2
+        if self.total_requirement_pair_count != expected_requirement_pairs:
+            raise ValueError(
+                "total_requirement_pair_count must equal N_R * (N_R - 1) / 2"
+            )
+        expected_observation_pairs = (
+            self.confirmed_conflict_count
+            + self.compatible_count
+            + self.unresolved_count
+            + self.outside_applicability_count
+        )
+        if self.total_observation_pair_count != expected_observation_pairs:
+            raise ValueError(
+                "total_observation_pair_count must equal all four result-state counts"
+            )
+        if self.applicable_comparison_count != (
+            self.confirmed_conflict_count + self.compatible_count
+        ):
+            raise ValueError(
+                "applicable_comparison_count must equal conflict plus compatible counts"
+            )
+        if (self.applicable_comparison_count == 0) != (
+            self.requirements_in_applicable_comparisons_count == 0
+        ):
+            raise ValueError(
+                "applicable comparisons and their unique requirement count must be "
+                "jointly empty"
+            )
+        if (
+            self.applicable_comparison_count > 0
+            and self.requirements_in_applicable_comparisons_count < 2
+        ):
+            raise ValueError(
+                "an applicable comparison requires two unique requirements"
+            )
+        if (
+            self.observed_rconf_count
+            > self.requirements_in_applicable_comparisons_count
+        ):
+            raise ValueError(
+                "observed R_conf must be a subset of applicable participants"
+            )
+        if (self.confirmed_conflict_count == 0) != (self.observed_rconf_count == 0):
+            raise ValueError(
+                "observed R_conf is empty exactly when no confirmed conflict exists"
+            )
+        if self.observed_rconf_count > 2 * self.confirmed_conflict_count:
+            raise ValueError(
+                "observed R_conf cannot exceed two participants per confirmed conflict"
+            )
+        if (
+            self.total_observation_pair_count > 0
+            and self.requirements_with_observations_count < 2
+        ):
+            raise ValueError(
+                "an observation-pair result requires two requirements with observations"
+            )
+        if self.global_unresolved_extraction_count != (
+            self.qb_material_unresolved_count
+            + self.qb_non_material_diagnostic_count
+        ):
+            raise ValueError(
+                "global unresolved extraction count must equal material plus "
+                "non-material counts"
+            )
+
+    @property
+    def requirements_with_quantitative_observations_count(self) -> int:
+        """Return the longer approved conceptual name for the same count."""
+
+        return self.requirements_with_observations_count
+
+    @property
+    def requirements_participating_in_applicable_comparisons_count(self) -> int:
+        """Return the longer approved conceptual name for the same count."""
+
+        return self.requirements_in_applicable_comparisons_count
+
+    @property
+    def compatible_within_rule_count(self) -> int:
+        return self.compatible_count
+
+    @property
+    def assessment_unresolved_count(self) -> int:
+        return self.unresolved_count
+
+
+@dataclass(frozen=True, slots=True)
+class QbConsistencyFormulaOperands:
+    """Structured cardinalities used by the bounded formula when computed."""
+
+    total_requirement_count: int
+    observed_rconf_count: int
+
+    def __post_init__(self) -> None:
+        _require_index(self.total_requirement_count, "total_requirement_count")
+        _require_index(self.observed_rconf_count, "observed_rconf_count")
+        if self.observed_rconf_count > self.total_requirement_count:
+            raise ValueError("observed_rconf_count cannot exceed total requirements")
+
+    def exact_value(self) -> Fraction:
+        if self.total_requirement_count == 0:
+            raise ValueError("the bounded formula is undefined for zero requirements")
+        return Fraction(
+            self.total_requirement_count - self.observed_rconf_count,
+            self.total_requirement_count,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class QbConsistencyAssessment:
+    """Immutable bounded specification-level Consistency assessment."""
+
+    snapshot_id: AssessmentSnapshotId
+    state: QbConsistencyState
+    value: Fraction | None
+    rconf_participant_ids: tuple[str, ...]
+    rconf_complete: bool
+    observability: QbConsistencyObservability
+    coverage_profile: ContractVersionDescriptor
+    aggregation_rule: ContractVersionDescriptor
+    cross_result_ids: tuple[CrossResultId, ...]
+    materiality_diagnostic_refs: tuple[CrossDiagnosticRef, ...]
+    reasons: tuple[QbConsistencyReason, ...]
+    formula_operands: QbConsistencyFormulaOperands
+    non_claim_contract: ContractVersionDescriptor
+    non_claim_keys: tuple[BoundedNonClaimKey, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.snapshot_id, AssessmentSnapshotId):
+            raise TypeError("snapshot_id must be an AssessmentSnapshotId")
+        if not isinstance(self.state, QbConsistencyState):
+            raise TypeError("state must be a QbConsistencyState")
+        if self.value is not None and not isinstance(self.value, Fraction):
+            raise TypeError("value must be an exact Fraction or None")
+        if not isinstance(self.rconf_participant_ids, tuple) or any(
+            not isinstance(item, str) for item in self.rconf_participant_ids
+        ):
+            raise TypeError("rconf_participant_ids must be a tuple of strings")
+        if any(not item or item != item.strip() for item in self.rconf_participant_ids):
+            raise ValueError("R_conf participant IDs must be non-empty and trimmed")
+        _require_unique(self.rconf_participant_ids, "R_conf participant IDs")
+        if type(self.rconf_complete) is not bool:
+            raise TypeError("rconf_complete must be a boolean")
+        if not isinstance(self.observability, QbConsistencyObservability):
+            raise TypeError("observability must be QbConsistencyObservability")
+        if not isinstance(self.coverage_profile, ContractVersionDescriptor):
+            raise TypeError("coverage_profile must be a ContractVersionDescriptor")
+        if self.coverage_profile != ContractVersionDescriptor("QB-v0.1", "1"):
+            raise ValueError("QbConsistencyAssessment requires QB-v0.1 / 1 coverage")
+        if not isinstance(self.aggregation_rule, ContractVersionDescriptor):
+            raise TypeError("aggregation_rule must be a ContractVersionDescriptor")
+        if self.aggregation_rule != ContractVersionDescriptor(
+            "QB-CONSISTENCY-001", "1"
+        ):
+            raise ValueError(
+                "QbConsistencyAssessment requires QB-CONSISTENCY-001 / 1"
+            )
+        _require_tuple(self.cross_result_ids, CrossResultId, "cross_result_ids")
+        _require_unique(self.cross_result_ids, "cross_result_ids")
+        _require_tuple(
+            self.materiality_diagnostic_refs,
+            CrossDiagnosticRef,
+            "materiality_diagnostic_refs",
+        )
+        _require_unique(
+            self.materiality_diagnostic_refs,
+            "materiality_diagnostic_refs",
+        )
+        _require_tuple(self.reasons, QbConsistencyReason, "reasons")
+        _require_unique(self.reasons, "reasons")
+        _require_enum_order(self.reasons, QbConsistencyReason, "reasons")
+        if not isinstance(self.formula_operands, QbConsistencyFormulaOperands):
+            raise TypeError("formula_operands must be QbConsistencyFormulaOperands")
+        if not isinstance(self.non_claim_contract, ContractVersionDescriptor):
+            raise TypeError("non_claim_contract must be a ContractVersionDescriptor")
+        if self.non_claim_contract != ContractVersionDescriptor(
+            "QB-NON-CLAIMS-001", "1"
+        ):
+            raise ValueError(
+                "QbConsistencyAssessment requires QB-NON-CLAIMS-001 / 1"
+            )
+        _require_tuple(self.non_claim_keys, BoundedNonClaimKey, "non_claim_keys")
+        if self.non_claim_keys != (BoundedNonClaimKey.NC_QB_BASE,):
+            raise ValueError("QbConsistencyAssessment requires exactly NC-QB-BASE")
+
+        metadata = self.observability
+        if metadata.rconf_complete is not self.rconf_complete:
+            raise ValueError("assessment and observability rconf_complete must match")
+        if metadata.observed_rconf_count != len(self.rconf_participant_ids):
+            raise ValueError(
+                "observed_rconf_count must equal unique ordered R_conf participants"
+            )
+        if len(self.cross_result_ids) != metadata.total_observation_pair_count:
+            raise ValueError(
+                "cross_result_ids must cover every observation-pair result exactly once"
+            )
+        if (
+            len(self.materiality_diagnostic_refs)
+            != metadata.global_unresolved_extraction_count
+        ):
+            raise ValueError(
+                "materiality_diagnostic_refs must cover every classified diagnostic"
+            )
+        if self.formula_operands != QbConsistencyFormulaOperands(
+            total_requirement_count=metadata.total_requirement_count,
+            observed_rconf_count=metadata.observed_rconf_count,
+        ):
+            raise ValueError("formula operands must match observability cardinalities")
+
+        material_uncertainty = (
+            metadata.qb_material_unresolved_count > 0 or metadata.unresolved_count > 0
+        )
+        if self.state is QbConsistencyState.COMPUTED:
+            if self.value is None:
+                raise ValueError("COMPUTED requires an exact Fraction value")
+            if metadata.total_requirement_count < 2:
+                raise ValueError("COMPUTED requires at least two requirements")
+            if metadata.applicable_comparison_count == 0:
+                raise ValueError("COMPUTED requires an applicable comparison")
+            if material_uncertainty:
+                raise ValueError("COMPUTED cannot contain unresolved material inputs")
+            if not self.rconf_complete:
+                raise ValueError("COMPUTED requires complete R_conf")
+            if self.value != self.formula_operands.exact_value():
+                raise ValueError(
+                    "COMPUTED value does not match the exact bounded formula"
+                )
+            if self.reasons:
+                raise ValueError("COMPUTED does not carry a withholding reason")
+        elif self.state is QbConsistencyState.UNKNOWN:
+            if self.value is not None:
+                raise ValueError("UNKNOWN cannot carry a numeric value")
+            if metadata.total_requirement_count < 2:
+                raise ValueError("UNKNOWN is preceded by the fewer-than-two gate")
+            if self.rconf_complete:
+                raise ValueError("UNKNOWN requires incomplete R_conf")
+            if not material_uncertainty:
+                raise ValueError("UNKNOWN requires a material unresolved cause")
+            expected_reasons = tuple(
+                reason
+                for present, reason in (
+                    (
+                        metadata.qb_material_unresolved_count > 0,
+                        QbConsistencyReason.QB_MATERIAL_UNRESOLVED_EXTRACTION,
+                    ),
+                    (
+                        metadata.unresolved_count > 0,
+                        QbConsistencyReason.ASSESSMENT_UNRESOLVED_PAIR,
+                    ),
+                )
+                if present
+            )
+            if self.reasons != expected_reasons:
+                raise ValueError("UNKNOWN reasons must identify every material cause")
+        else:
+            if self.value is not None:
+                raise ValueError("NOT_APPLICABLE cannot carry a numeric value")
+            if not self.rconf_complete or self.rconf_participant_ids:
+                raise ValueError("NOT_APPLICABLE requires a complete empty R_conf")
+            if metadata.applicable_comparison_count != 0:
+                raise ValueError("NOT_APPLICABLE cannot contain applicable comparisons")
+            if metadata.total_requirement_count < 2:
+                expected_reasons = (
+                    QbConsistencyReason.FEWER_THAN_TWO_REQUIREMENTS,
+                )
+            else:
+                if material_uncertainty:
+                    raise ValueError(
+                        "NOT_APPLICABLE cannot bypass the material-uncertainty gate"
+                    )
+                expected_reasons = (
+                    QbConsistencyReason.NO_APPLICABLE_COMPARISONS,
+                )
+            if self.reasons != expected_reasons:
+                raise ValueError(
+                    "NOT_APPLICABLE reason does not match its decision gate"
+                )
+
+    @property
+    def observed_rconf(self) -> tuple[str, ...]:
+        return self.rconf_participant_ids
 
 
 @dataclass(frozen=True, slots=True)
