@@ -1,5 +1,6 @@
 from dataclasses import replace
 from decimal import Decimal
+from fractions import Fraction
 
 import pytest
 
@@ -18,10 +19,16 @@ from requirements_quality_assessment.cross_analysis import (
     CrossUnresolvedReason,
     OutsideApplicabilityReason,
     QB_COMPARISON_RULE,
+    QB_CONSISTENCY_RULE,
     QB_CONTRACT_MANIFEST,
     QB_COVERAGE_PROFILE,
     QB_MATERIALITY_RULE,
+    QB_NON_CLAIMS,
+    QB_NON_MATERIAL_CONTEXT_ALLOWLIST,
     QbConflictSetBuilder,
+    QbConsistencyAggregator,
+    QbConsistencyReason,
+    QbConsistencyState,
     QbMaterialityAuditRecord,
     QbMaterialityDisposition,
     QbMaterialityGateOutcomes,
@@ -514,3 +521,607 @@ def test_non_tuple_results_are_rejected() -> None:
             [],
             _materiality(snapshot),
         )
+
+
+def _snapshot_from_requirements(
+    requirements: tuple[SnapshotRequirementManifest, ...],
+) -> AssessmentSnapshot:
+    return AssessmentSnapshot(
+        requirements=requirements,
+        contracts=QB_CONTRACT_MANIFEST,
+        counts=SnapshotCountManifest.from_requirements(requirements),
+    )
+
+
+def _without_quantitative_observation(
+    requirement_id: str,
+    source_order: int,
+) -> SnapshotRequirementManifest:
+    requirement = _requirement(requirement_id, source_order)
+    return replace(requirement, observations=(), evidence=())
+
+
+def _with_second_observation(
+    requirement_id: str,
+    source_order: int,
+) -> SnapshotRequirementManifest:
+    requirement = _requirement(requirement_id, source_order)
+    second = replace(
+        requirement.observations[0],
+        ref=CrossObservationRef(
+            requirement_id,
+            FeatureId.QUANTITATIVE_CONSTRAINT,
+            1,
+        ),
+    )
+    return replace(
+        requirement,
+        observations=(requirement.observations[0], second),
+    )
+
+
+def _result_for_observations(
+    snapshot: AssessmentSnapshot,
+    left_observation_index: int,
+    right_observation_index: int,
+    state: CrossResultState,
+) -> CrossRequirementResult:
+    base = _result(snapshot, 0, 1, state)
+    left_ref = replace(
+        base.observation_refs[0],
+        observation_index=left_observation_index,
+    )
+    right_ref = replace(
+        base.observation_refs[1],
+        observation_index=right_observation_index,
+    )
+    operands = ComparisonOperands(
+        replace(base.operands.left, observation_ref=left_ref),
+        replace(base.operands.right, observation_ref=right_ref),
+    )
+    return replace(
+        base,
+        observation_refs=(left_ref, right_ref),
+        operands=operands,
+    )
+
+
+def _aggregate(
+    snapshot: AssessmentSnapshot,
+    *results: CrossRequirementResult,
+    materiality: QbMaterialityResult | None = None,
+):
+    return QbConsistencyAggregator().aggregate(
+        snapshot,
+        results,
+        materiality or _materiality(snapshot),
+    )
+
+
+def _non_materiality(snapshot: AssessmentSnapshot) -> QbMaterialityResult:
+    requirement = snapshot.requirements[0]
+    diagnostic = requirement.diagnostics[0]
+    audit = QbMaterialityAuditRecord(
+        snapshot_id=snapshot.snapshot_id,
+        requirement_id=requirement.requirement_id,
+        requirement_source_order=requirement.source_order,
+        diagnostic_ref=diagnostic.ref,
+        diagnostic_code=diagnostic.code,
+        diagnostic_rule_id=diagnostic.rule_id,
+        candidate_text="500",
+        diagnostic_start_offset=0,
+        diagnostic_end_offset=3,
+        matched_context_evidence_ref=requirement.evidence[-1].ref,
+        matched_allowlist_contract=QB_NON_MATERIAL_CONTEXT_ALLOWLIST[0].contract,
+        materiality_rule=QB_MATERIALITY_RULE,
+        gate_outcomes=QbMaterialityGateOutcomes(
+            exact_diagnostic_code=True,
+            exact_diagnostic_rule=True,
+            exact_candidate_text=True,
+            candidate_inside_context=True,
+            same_observation=True,
+            allowlisted_contract_guarantee=True,
+            no_qb_competition=True,
+            provenance_integrity=True,
+        ),
+        disposition=QbMaterialityDisposition.QB_NON_MATERIAL,
+    )
+    return QbMaterialityResult(
+        snapshot_id=snapshot.snapshot_id,
+        materiality_rule=QB_MATERIALITY_RULE,
+        audit_records=(audit,),
+        global_unresolved_diagnostic_count=1,
+        qb_material_count=0,
+        qb_non_material_count=1,
+    )
+
+
+@pytest.mark.parametrize("count", [0, 1])
+def test_imp08_empty_and_single_requirement_are_not_applicable(count: int) -> None:
+    assessment = _aggregate(_snapshot(count))
+
+    assert assessment.state is QbConsistencyState.NOT_APPLICABLE
+    assert assessment.value is None
+    assert assessment.rconf_participant_ids == ()
+    assert assessment.rconf_complete is True
+    assert assessment.reasons == (
+        QbConsistencyReason.FEWER_THAN_TWO_REQUIREMENTS,
+    )
+    assert assessment.observability.total_requirement_count == count
+    assert assessment.observability.total_requirement_pair_count == 0
+
+
+def test_imp08_completed_universe_with_no_applicable_comparison_is_na() -> None:
+    snapshot = _snapshot(3)
+    outside = tuple(
+        _result(snapshot, left, right, CrossResultState.OUTSIDE_V0_1_APPLICABILITY)
+        for left, right in ((0, 1), (0, 2), (1, 2))
+    )
+
+    assessment = _aggregate(snapshot, *outside)
+
+    assert assessment.state is QbConsistencyState.NOT_APPLICABLE
+    assert assessment.value is None
+    assert assessment.rconf_complete is True
+    assert assessment.reasons == (
+        QbConsistencyReason.NO_APPLICABLE_COMPARISONS,
+    )
+    assert assessment.observability.outside_applicability_count == 3
+    assert assessment.observability.applicable_comparison_count == 0
+
+
+def test_imp08_all_compatible_computes_exact_one_with_non_claims() -> None:
+    snapshot = _snapshot(2)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+    )
+
+    assert assessment.state is QbConsistencyState.COMPUTED
+    assert assessment.value == Fraction(1, 1)
+    assert isinstance(assessment.value, Fraction)
+    assert assessment.non_claim_contract == QB_NON_CLAIMS
+    assert assessment.non_claim_keys == (BoundedNonClaimKey.NC_QB_BASE,)
+    assert assessment.aggregation_rule == QB_CONSISTENCY_RULE
+    assert assessment.coverage_profile == QB_COVERAGE_PROFILE
+
+
+def test_imp08_isolated_requirement_remains_in_formula_denominator() -> None:
+    requirements = (
+        _requirement("R001", 0),
+        _requirement("R002", 1),
+        _without_quantitative_observation("R003", 2),
+    )
+    snapshot = _snapshot_from_requirements(requirements)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT),
+    )
+
+    assert assessment.state is QbConsistencyState.COMPUTED
+    assert assessment.rconf_participant_ids == ("R001", "R002")
+    assert assessment.value == Fraction(1, 3)
+    assert assessment.formula_operands.total_requirement_count == 3
+    assert assessment.observability.requirements_with_observations_count == 2
+    assert assessment.observability.requirements_in_applicable_comparisons_count == 2
+    assert assessment.observability.total_requirement_pair_count == 3
+    assert assessment.observability.total_observation_pair_count == 1
+
+
+def test_imp08_fraction_is_reduced_exactly() -> None:
+    requirements = tuple(
+        _requirement(f"R{index + 1:03d}", index)
+        if index < 2
+        else _without_quantitative_observation(f"R{index + 1:03d}", index)
+        for index in range(6)
+    )
+    snapshot = _snapshot_from_requirements(requirements)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT),
+    )
+
+    assert assessment.value == Fraction(2, 3)
+    assert assessment.value.numerator == 2
+    assert assessment.value.denominator == 3
+
+
+def test_imp08_overlapping_conflicts_count_unique_rconf_participants() -> None:
+    snapshot = _snapshot(3)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT),
+        _result(snapshot, 0, 2, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        _result(snapshot, 1, 2, CrossResultState.CONFIRMED_CONFLICT),
+    )
+
+    assert assessment.rconf_participant_ids == ("R001", "R002", "R003")
+    assert assessment.observability.observed_rconf_count == 3
+    assert assessment.observability.confirmed_conflict_count == 2
+    assert assessment.observability.compatible_count == 1
+    assert assessment.observability.applicable_comparison_count == 3
+    assert assessment.observability.requirements_in_applicable_comparisons_count == 3
+    assert assessment.value == Fraction(0, 1)
+
+
+def test_imp08_unresolved_pair_withholds_value_and_retains_partial_rconf() -> None:
+    snapshot = _snapshot(3)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT),
+        _result(snapshot, 0, 2, CrossResultState.ASSESSMENT_UNRESOLVED),
+        _result(snapshot, 1, 2, CrossResultState.OUTSIDE_V0_1_APPLICABILITY),
+    )
+
+    assert assessment.state is QbConsistencyState.UNKNOWN
+    assert assessment.value is None
+    assert assessment.rconf_participant_ids == ("R001", "R002")
+    assert assessment.rconf_complete is False
+    assert assessment.reasons == (
+        QbConsistencyReason.ASSESSMENT_UNRESOLVED_PAIR,
+    )
+    assert assessment.observability.confirmed_conflict_count == 1
+    assert assessment.observability.unresolved_count == 1
+    assert assessment.observability.outside_applicability_count == 1
+
+
+def test_imp08_compatible_plus_unresolved_is_unknown() -> None:
+    snapshot = _snapshot(3)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        _result(snapshot, 0, 2, CrossResultState.ASSESSMENT_UNRESOLVED),
+        _result(snapshot, 1, 2, CrossResultState.OUTSIDE_V0_1_APPLICABILITY),
+    )
+
+    assert assessment.state is QbConsistencyState.UNKNOWN
+    assert assessment.value is None
+    assert assessment.observability.applicable_comparison_count == 1
+
+
+def test_imp08_material_diagnostic_without_pair_result_is_unknown() -> None:
+    requirements = (
+        _requirement("R001", 0, material_diagnostic=True),
+        _without_quantitative_observation("R002", 1),
+    )
+    snapshot = _snapshot_from_requirements(requirements)
+    assessment = _aggregate(
+        snapshot,
+        materiality=_materiality(snapshot, material=True),
+    )
+
+    assert assessment.state is QbConsistencyState.UNKNOWN
+    assert assessment.value is None
+    assert assessment.rconf_complete is False
+    assert assessment.reasons == (
+        QbConsistencyReason.QB_MATERIAL_UNRESOLVED_EXTRACTION,
+    )
+    assert assessment.observability.total_observation_pair_count == 0
+    assert assessment.observability.global_unresolved_extraction_count == 1
+    assert assessment.observability.qb_material_unresolved_count == 1
+
+
+def test_imp08_non_material_diagnostic_does_not_force_unknown() -> None:
+    snapshot = _snapshot(2, material_diagnostic=True)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        materiality=_non_materiality(snapshot),
+    )
+
+    assert assessment.state is QbConsistencyState.COMPUTED
+    assert assessment.value == Fraction(1, 1)
+    assert assessment.observability.global_unresolved_extraction_count == 1
+    assert assessment.observability.qb_material_unresolved_count == 0
+    assert assessment.observability.qb_non_material_diagnostic_count == 1
+
+
+def test_imp08_first_gate_makes_single_requirement_rconf_complete() -> None:
+    snapshot = _snapshot(1, material_diagnostic=True)
+    assessment = _aggregate(
+        snapshot,
+        materiality=_materiality(snapshot, material=True),
+    )
+
+    assert assessment.state is QbConsistencyState.NOT_APPLICABLE
+    assert assessment.rconf_complete is True
+    assert assessment.observability.qb_material_unresolved_count == 1
+
+
+def test_imp08_unknown_preserves_both_distinct_material_causes() -> None:
+    snapshot = _snapshot(2, material_diagnostic=True)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.ASSESSMENT_UNRESOLVED),
+        materiality=_materiality(snapshot, material=True),
+    )
+
+    assert assessment.state is QbConsistencyState.UNKNOWN
+    assert assessment.reasons == (
+        QbConsistencyReason.QB_MATERIAL_UNRESOLVED_EXTRACTION,
+        QbConsistencyReason.ASSESSMENT_UNRESOLVED_PAIR,
+    )
+    assert assessment.observability.qb_material_unresolved_count == 1
+    assert assessment.observability.unresolved_count == 1
+
+
+def test_imp08_four_state_counts_and_applicable_requirement_deduplication() -> None:
+    snapshot = _snapshot(4)
+    states = (
+        (0, 1, CrossResultState.CONFIRMED_CONFLICT),
+        (0, 2, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        (0, 3, CrossResultState.ASSESSMENT_UNRESOLVED),
+        (1, 2, CrossResultState.OUTSIDE_V0_1_APPLICABILITY),
+        (1, 3, CrossResultState.OUTSIDE_V0_1_APPLICABILITY),
+        (2, 3, CrossResultState.COMPATIBLE_WITHIN_RULE),
+    )
+    assessment = _aggregate(
+        snapshot,
+        *(_result(snapshot, left, right, state) for left, right, state in states),
+    )
+    metadata = assessment.observability
+
+    assert metadata.total_requirement_pair_count == 6
+    assert metadata.total_observation_pair_count == 6
+    assert metadata.confirmed_conflict_count == 1
+    assert metadata.compatible_count == 2
+    assert metadata.unresolved_count == 1
+    assert metadata.outside_applicability_count == 2
+    assert metadata.applicable_comparison_count == 3
+    assert metadata.requirements_in_applicable_comparisons_count == 4
+
+
+def test_imp08_multiple_observations_preserve_exhaustive_result_counts() -> None:
+    snapshot = _snapshot_from_requirements(
+        (
+            _with_second_observation("R001", 0),
+            _with_second_observation("R002", 1),
+        )
+    )
+    states = (
+        CrossResultState.CONFIRMED_CONFLICT,
+        CrossResultState.COMPATIBLE_WITHIN_RULE,
+        CrossResultState.ASSESSMENT_UNRESOLVED,
+        CrossResultState.OUTSIDE_V0_1_APPLICABILITY,
+    )
+    observation_indexes = ((0, 0), (0, 1), (1, 0), (1, 1))
+
+    assessment = _aggregate(
+        snapshot,
+        *(
+            _result_for_observations(snapshot, left, right, state)
+            for (left, right), state in zip(observation_indexes, states, strict=True)
+        ),
+    )
+
+    metadata = assessment.observability
+    assert metadata.total_requirement_pair_count == 1
+    assert metadata.total_observation_pair_count == 4
+    assert (
+        metadata.confirmed_conflict_count,
+        metadata.compatible_count,
+        metadata.unresolved_count,
+        metadata.outside_applicability_count,
+    ) == (1, 1, 1, 1)
+
+
+def test_imp08_requires_the_complete_exhaustive_observation_pair_universe() -> None:
+    snapshot = _snapshot(3)
+
+    with pytest.raises(ValueError, match="exhaustive observation-pair universe"):
+        _aggregate(
+            snapshot,
+            _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        )
+
+
+def test_imp08_rejects_duplicate_observation_pair_results() -> None:
+    snapshot = _snapshot(2)
+
+    with pytest.raises(ValueError, match="observation-pair results"):
+        _aggregate(
+            snapshot,
+            _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT),
+            _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        )
+
+
+def test_imp08_rejects_conflict_set_not_produced_by_imp07_semantics() -> None:
+    snapshot = _snapshot(2)
+    result = _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT)
+    wrong = replace(_build(snapshot, result), participant_ids=("R001",))
+
+    with pytest.raises(ValueError, match="IMP-07 builder output"):
+        QbConsistencyAggregator().aggregate(
+            snapshot,
+            (result,),
+            _materiality(snapshot),
+            wrong,
+        )
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        ({"total_requirement_pair_count": 0}, "total_requirement_pair_count"),
+        ({"total_observation_pair_count": 2}, "four result-state counts"),
+        ({"applicable_comparison_count": 0}, "conflict plus compatible"),
+        (
+            {"global_unresolved_extraction_count": 1},
+            "material plus non-material",
+        ),
+        ({"requirements_with_observations_count": 3}, "cannot exceed"),
+        (
+            {"requirements_in_applicable_comparisons_count": 3},
+            "cannot exceed",
+        ),
+        ({"observed_rconf_count": 3}, "cannot exceed"),
+    ],
+)
+def test_imp08_observability_rejects_every_invalid_count_equation(
+    changes: dict[str, int],
+    message: str,
+) -> None:
+    snapshot = _snapshot(2)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+    )
+
+    with pytest.raises(ValueError, match=message):
+        replace(assessment.observability, **changes)
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        ({"value": None}, "COMPUTED requires"),
+        ({"value": Fraction(1, 2)}, "exact bounded formula"),
+        ({"state": QbConsistencyState.UNKNOWN, "value": None}, "incomplete R_conf"),
+        (
+            {"state": QbConsistencyState.NOT_APPLICABLE, "value": None},
+            "applicable comparisons",
+        ),
+        ({"rconf_complete": False}, "observability rconf_complete"),
+        ({"rconf_participant_ids": ("R001",)}, "observed_rconf_count"),
+        ({"cross_result_ids": ()}, "cover every observation-pair"),
+        ({"non_claim_keys": ()}, "NC-QB-BASE"),
+        (
+            {"aggregation_rule": replace(QB_CONSISTENCY_RULE, version="2")},
+            "QB-CONSISTENCY-001 / 1",
+        ),
+        (
+            {"non_claim_contract": replace(QB_NON_CLAIMS, version="2")},
+            "QB-NON-CLAIMS-001 / 1",
+        ),
+    ],
+)
+def test_imp08_assessment_rejects_illegal_state_value_and_contract_combinations(
+    changes: dict[str, object],
+    message: str,
+) -> None:
+    snapshot = _snapshot(2)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+    )
+
+    with pytest.raises(ValueError, match=message):
+        replace(assessment, **changes)
+
+
+def test_imp08_unknown_requires_a_material_unresolved_cause() -> None:
+    snapshot = _snapshot(2)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+    )
+    incomplete_metadata = replace(assessment.observability, rconf_complete=False)
+
+    with pytest.raises(ValueError, match="material unresolved cause"):
+        replace(
+            assessment,
+            state=QbConsistencyState.UNKNOWN,
+            value=None,
+            rconf_complete=False,
+            observability=incomplete_metadata,
+        )
+
+
+def test_imp08_unknown_rejects_a_numeric_value_and_complete_rconf() -> None:
+    snapshot = _snapshot(2)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.ASSESSMENT_UNRESOLVED),
+    )
+
+    with pytest.raises(ValueError, match="numeric value"):
+        replace(assessment, value=Fraction(1, 1))
+
+    complete_metadata = replace(assessment.observability, rconf_complete=True)
+    with pytest.raises(ValueError, match="incomplete R_conf"):
+        replace(
+            assessment,
+            rconf_complete=True,
+            observability=complete_metadata,
+        )
+
+
+def test_imp08_computed_rejects_unresolved_inputs_and_incomplete_rconf() -> None:
+    snapshot = _snapshot(3)
+    unresolved = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        _result(snapshot, 0, 2, CrossResultState.ASSESSMENT_UNRESOLVED),
+        _result(snapshot, 1, 2, CrossResultState.OUTSIDE_V0_1_APPLICABILITY),
+    )
+
+    with pytest.raises(ValueError, match="unresolved material inputs"):
+        replace(
+            unresolved,
+            state=QbConsistencyState.COMPUTED,
+            value=Fraction(1, 1),
+            reasons=(),
+        )
+
+    computed_snapshot = _snapshot(2)
+    computed = _aggregate(
+        computed_snapshot,
+        _result(
+            computed_snapshot,
+            0,
+            1,
+            CrossResultState.COMPATIBLE_WITHIN_RULE,
+        ),
+    )
+    incomplete_metadata = replace(computed.observability, rconf_complete=False)
+    with pytest.raises(ValueError, match="complete R_conf"):
+        replace(
+            computed,
+            rconf_complete=False,
+            observability=incomplete_metadata,
+        )
+
+
+def test_imp08_not_applicable_rejects_numeric_value_and_incomplete_rconf() -> None:
+    assessment = _aggregate(_snapshot(1))
+
+    with pytest.raises(ValueError, match="numeric value"):
+        replace(assessment, value=Fraction(1, 1))
+
+    incomplete_metadata = replace(assessment.observability, rconf_complete=False)
+    with pytest.raises(ValueError, match="complete empty R_conf"):
+        replace(
+            assessment,
+            rconf_complete=False,
+            observability=incomplete_metadata,
+        )
+
+
+def test_imp08_value_rejects_float_arithmetic() -> None:
+    snapshot = _snapshot(2)
+    assessment = _aggregate(
+        snapshot,
+        _result(snapshot, 0, 1, CrossResultState.COMPATIBLE_WITHIN_RULE),
+    )
+
+    with pytest.raises(TypeError, match="exact Fraction"):
+        replace(assessment, value=1.0)
+
+
+def test_imp08_repeated_aggregation_is_deterministic() -> None:
+    snapshot = _snapshot(3)
+    results = (
+        _result(snapshot, 1, 2, CrossResultState.CONFIRMED_CONFLICT),
+        _result(snapshot, 0, 2, CrossResultState.COMPATIBLE_WITHIN_RULE),
+        _result(snapshot, 0, 1, CrossResultState.CONFIRMED_CONFLICT),
+    )
+    aggregator = QbConsistencyAggregator()
+
+    first = aggregator.aggregate(snapshot, results, _materiality(snapshot))
+    second = aggregator.aggregate(snapshot, results, _materiality(snapshot))
+
+    assert first == second
+    assert first.cross_result_ids == tuple(
+        result.result_id for result in sorted(results, key=lambda item: item.order_key)
+    )
