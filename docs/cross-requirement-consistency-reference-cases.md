@@ -5,9 +5,10 @@
 - **Scientific authority:** the researcher-approved
   cross-requirement-consistency-decision-package.md, approval date 2026-09-25
 - **Document status:** RESEARCHER_APPROVED / MIXED END_TO_END +
-  DOMAIN_CONTRACT CORPUS / END_TO_END_IMPLEMENTATION_TARGET_OPEN
+  DOMAIN_CONTRACT CORPUS / IMP-11 EXACT TARGET PROMOTED TO BINDING END_TO_END
 - **Materiality amendment date:** 2026-09-25
-- **Implementation effect:** none
+- **Implementation effect:** IMP-11 acceptance amendment records the already
+  implemented exact `LB-M-C0` bridge and promoted end-to-end target
 - **Production change authorization:** none
 
 ## 1. Purpose and binding boundary
@@ -766,14 +767,19 @@ Evidence fields without repeating their span table in every case.
 - **Rationale/traceability:** CRA-D020, D025-D026, D057.
 - **Bounded non-claim:** NC-QB-BASE.
 
-## 5. Rejected end-to-end candidate fixtures
+## 5. Historical rejected end-to-end candidate fixtures
 
-These fixtures are not binding cases. Their observed behavior was verified and
-is preserved so later work does not silently reuse them.
+These entries preserve the verified extractor baseline that existed before the
+exact `LB-M-C0` bridge was implemented. They are historical, non-binding
+negative-fixture records, not descriptions of current production behavior.
+Their original observations remain traceability evidence so later work does
+not rewrite the pre-bridge limitation or silently reuse the other rejected
+surfaces. A current binding successor, where one exists, is identified in the
+disposition column.
 
-| Rejected fixture | Intended purpose | Observed frozen-extractor behavior | Disposition/replacement |
+| Historical rejected fixture | Intended purpose | Observed pre-bridge frozen-extractor behavior | Current disposition/replacement |
 | --- | --- | --- | --- |
-| RF-QB-001: Час відгуку не нижче 5 с при 500 одночасних користувачах | End-to-end lower-bound conflict | QUANT-UK-001:E001 = не нижче 5 с [12,24), GREATER_THAN_OR_EQUAL/INCLUSIVE, Decimal("5"), SECOND; metric/context absent; diagnostic 500 [29,32); INCOMPLETE | Remains rejected as a current end-to-end fixture; domain cases RC-QB-001-RC-QB-004 and RC-QB-006-RC-QB-007 remain binding. The exact text is now part of the future post-implementation target in Section 5.1. |
+| RF-QB-001: Час відгуку не нижче 5 с при 500 одночасних користувачах | End-to-end lower-bound conflict | Before the bridge, QUANT-UK-001:E001 = не нижче 5 с [12,24), GREATER_THAN_OR_EQUAL/INCLUSIVE, Decimal("5"), SECOND; metric/context absent; diagnostic 500 [29,32) preserved; INCOMPLETE | Historical negative fixture only. QB-ER-D002 and QB-ER-D005 later approved the exact bridge, IMP-02 implemented it, and IMP-11 validated the exact surface end to end. The exact surface is no longer rejected under current production; its binding current behavior is governed by promoted Section 5.1. Standalone LB-M0 and broader lower-bound grammar remain unapproved. |
 | RF-QB-002: ЧАС  ВІДГУКУ ≤ 2 с при 500 одночасних користувачах | Representation-only metric normalization | Only QUANT-001:E001 = ≤ 2 с [13,18); metric/context absent; diagnostic 500 [23,26); INCOMPLETE | Rejected end-to-end; normalization is bound by RC-QB-008. |
 | RF-QB-003: Час відповіді ≤ 2 с при 500 одночасних користувачах | Semantic-synonym OUTSIDE result | Only QUANT-001:E001 = ≤ 2 с [14,19); metric/context absent; diagnostic 500 [24,27); INCOMPLETE, so the text would be unresolved rather than a resolved metric mismatch | Rejected end-to-end; synonym boundary is bound by RC-QB-009. |
 | RF-QB-004: Час відгуку ≤ 2 с під час пікового навантаження | Resolved different quantitative context | Metric and upper bound are accepted, but quantitative context remains absent; COMPLETE | Rejected as a resolved-context fixture; replaced by RC-QB-010. |
@@ -786,19 +792,26 @@ E-U1-M-C may participate in an observable QB aggregate when their exact C0
 materiality gate passes. The diagnostics and `INCOMPLETE` outcomes remain
 unchanged.
 
-### 5.1 Researcher-approved future post-implementation validation target
+### 5.1 IMP-11-promoted exact end-to-end validation target
 
-This target is scientifically approved but is not a
-`BINDING_END_TO_END_REFERENCE_CASE` under the current implementation:
+**Current status:** `BINDING_END_TO_END_REFERENCE_CASE`.
+
+**Historical status:** this target was originally recorded as the
+researcher-approved conditional future post-implementation target. IMP-11
+promoted it only after RC-QB-001 through RC-QB-027, exact extraction,
+provenance, materiality, conflict, `R_conf[QB-v0.1]`, exact aggregation,
+reporting, frozen-local, and full-regression gates all passed. None of the
+original 27 cases was renumbered or redefined.
 
 ```text
 R001: Час відгуку ≤ 2 с при 500 одночасних користувачах
 R002: Час відгуку не нижче 5 с при 500 одночасних користувачах
 ```
 
-The current R002 extraction remains exactly RF-QB-001. After an independently
-authorized and validated implementation of the exact `LB-M-C0` bridge, the
-expected scientific projection is:
+The exact `LB-M-C0` bridge now exists. It enriches the existing R002
+`QUANT-UK-001:E001` observation atomically with
+`QUANT-LB-METRIC-001:E001` and `QUANT-LB-CONTEXT-001:E001`; it does not create
+a second lower observation. The validated production projection is:
 
 - both observations have normalized key
   `(час відгуку, при 500 одночасних користувачах, SECOND)`;
@@ -814,12 +827,35 @@ expected scientific projection is:
 - `R_conf[QB-v0.1]={R001,R002}` and is complete; and
 - `M_cons[QB-v0.1]=Fraction(0,1)`, aggregate `COMPUTED`.
 
-Future implementation must enrich the existing R002 `QUANT-UK-001`
-observation rather than create a duplicate. Production status is
-`NOT_IMPLEMENTED`; new Rule IDs and Evidence IDs are `NOT_ALLOCATED`. The
-target becomes binding end-to-end only after implementation authorization,
-validation against the approved science, technical audit, and an explicit
-corpus status update.
+The verified extraction and provenance are:
+
+- R001 metric `Час відгуку [0,11)` from
+  `QUANT-METRIC-001:E001`, scalar `≤ 2 с [12,17)` from
+  `QUANT-001:E001`, and context
+  `при 500 одночасних користувачах [18,49)` from
+  `QUANT-CONTEXT-001:E001`;
+- R002 metric `Час відгуку [0,11)` from
+  `QUANT-LB-METRIC-001:E001`, the existing scalar
+  `не нижче 5 с [12,24)` from `QUANT-UK-001:E001`, and context
+  `при 500 одночасних користувачах [25,56)` from
+  `QUANT-LB-CONTEXT-001:E001`;
+- the R001 diagnostic `500 [22,25)` and R002 diagnostic `500 [29,32)` remain
+  globally present; both quantitative outcomes remain `INCOMPLETE / DETECTED`;
+- both diagnostics have complete fail-closed materiality audits and disposition
+  `QB_NON_MATERIAL`, giving global/material/non-material counts `2 / 0 / 2`;
+- qualified cross Evidence retains canonical R001-then-R002 owner/source order
+  and resolves back to the exact source spans above;
+- the sole observation-pair result is `CONFIRMED_CONFLICT`, with
+  `LOGICAL_CONFLICT / DIRECT_QUANTITATIVE_BOUND_INCOMPATIBILITY`;
+- `R_conf[QB-v0.1]=(R001,R002)` is complete and the aggregate is
+  `COMPUTED / Fraction(0,1)`; and
+- `NC-QB-BASE` remains mandatory: the result is bounded to QB-v0.1 and makes
+  no universal consistency, severity, risk, corrective-action, or
+  software-product-quality claim.
+
+This promotion is the explicit corpus amendment required by QB-ER-D013 and
+IMP-11. It records implementation and acceptance evidence; it does not add or
+change scientific rules.
 
 ## 6. Traceability matrix
 
@@ -914,8 +950,8 @@ disposition:
 
 | Decision | Coverage classification | Binding coverage or validation target |
 | --- | --- | --- |
-| QB-ER-D002 | FUTURE_POST_IMPLEMENTATION_VALIDATION | Section 5.1 uses only exact `LB-M-C0`; standalone LB-M0 is absent and remains unapproved. |
-| QB-ER-D005 | FUTURE_POST_IMPLEMENTATION_VALIDATION | Section 5.1 preserves one enriched lower scalar observation with exact metric/context provenance; no current end-to-end claim is made. |
+| QB-ER-D002 | COVERED_BY_PROMOTED_BINDING_TARGET | Section 5.1 validates only exact `LB-M-C0`; standalone LB-M0 is absent and remains unapproved. |
+| QB-ER-D005 | COVERED_BY_PROMOTED_BINDING_TARGET | Section 5.1 preserves one enriched lower scalar observation with exact metric/context provenance and binds the accepted end-to-end result. |
 | QB-ER-D009 | COVERED_BY_BINDING_CASE | RC-QB-005 and RC-QB-011 bind the existing upper-C0 allowlist entry; RC-QB-024 preserves the fail-closed material default. Section 5.1 records the approved lower-C0 expectation. |
 
 ### 7.1 Coverage conclusion
@@ -928,14 +964,17 @@ The following composition gap is explicit rather than hidden:
 
 | Gap | Classification | Reason |
 | --- | --- | --- |
-| Full text-to-CONFIRMED_CONFLICT-to-COMPUTED M_cons[QB-v0.1] path | FUTURE_POST_IMPLEMENTATION_TARGET | Amended CRA-D067 now permits current exact upper-C0 cases to reach COMPUTED or NOT_APPLICABLE despite preserved global INCOMPLETE state. The current extractor still cannot enrich the supported lower bound with the approved full `LB-M-C0` identity. Section 5.1 binds the approved future validation target without falsely labeling it current end-to-end behavior. |
+| Full text-to-CONFIRMED_CONFLICT-to-COMPUTED M_cons[QB-v0.1] path | IMPLEMENTED_AND_VALIDATED_BINDING_END_TO_END_TARGET | IMP-11 validates the implemented exact `LB-M-C0` identity, preserved global `INCOMPLETE` diagnostics, fail-closed non-materiality audits, confirmed conflict, complete `R_conf[QB-v0.1]`, and exact `Fraction(0,1)` through the production path recorded in Section 5.1. |
 
-This implementation gap must be carried into Architecture Contract and later
-implementation validation. It must not be solved by changing a fixture,
-suppressing the `500` diagnostic, approving standalone LB-M0, or assuming a
-missing context.
+The former implementation gap is closed only for the exact Section 5.1
+envelope. The acceptance does not change fixtures, suppress the `500`
+diagnostic, approve standalone LB-M0, or assume a missing context.
 
-## 8. End-of-round report
+## 8. Historical pre-implementation end-of-round report
+
+This section preserves the state of the corpus before implementation. The
+IMP-11 promotion and current binding status are recorded in Section 5.1 and
+supersede only the former future-target status statements below.
 
 ### Branch
 
