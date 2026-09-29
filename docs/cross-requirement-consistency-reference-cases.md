@@ -95,9 +95,9 @@ Additional read-only exploratory calls invoked QuantitativeBaselineDetector
 directly with the exact texts catalogued below. No exploratory file was
 committed.
 
-### 2.2 Binding extractor findings
+### 2.2 Historical pre-bridge extractor findings
 
-The frozen baseline has four consequences for this corpus:
+The pre-bridge frozen baseline had four consequences for this corpus:
 
 1. QUANT-METRIC-001 attaches metric Evidence only to the exact prefix
    Час відгуку followed by one eligible symbolic LESS_THAN_OR_EQUAL bound.
@@ -107,20 +107,20 @@ The frozen baseline has four consequences for this corpus:
    QUANT_UNRESOLVED_NUMERIC_CANDIDATE, so the quantitative outcome is
    INCOMPLETE even though the linked observation has metric and context.
 4. GREATER_THAN_OR_EQUAL, UPPER_BOUND, and the protected frequency construction
-   do not receive the required linked metric/context under the current
+   did not receive the required linked metric/context under the pre-bridge
    detector.
 
-Therefore no current text fixture can simultaneously provide:
+At that historical baseline, no text fixture could simultaneously provide:
 
 - a complete resolved metric;
 - a complete resolved context;
 - a supported lower bound; and
 - the approved full `LB-M-C0` identity.
 
-No current text fixture can produce a CONFIRMED_CONFLICT and computed
+No pre-bridge text fixture could produce a CONFIRMED_CONFLICT and computed
 M_cons[QB-v0.1] through the full end-to-end path. This is an implementation
-limitation, not an open scientific decision: exact `LB-M-C0` is approved but
-not implemented. Amended CRA-D067 does allow current exact upper-C0 fixtures
+history record, not an open scientific decision: exact `LB-M-C0` was later
+implemented and promoted by Section 5.1. Amended CRA-D067 also allows exact upper-C0 fixtures
 to produce COMPUTED or NOT_APPLICABLE aggregates when the preserved `500`
 diagnostics are the only unresolved extraction and all allowlist gates pass.
 Conflict, lower-bound composition, normalization, resolved-context inequality,
@@ -1018,32 +1018,25 @@ coverage across the combined corpus. Exact conflict, compatibility,
 applicability, uncertainty, set construction, Fraction arithmetic,
 NOT_APPLICABLE, ordering, provenance, and non-claim branches are covered.
 
-Current exact upper-C0 extraction now binds one COMPUTED case and one
+Exact upper-C0 extraction binds one COMPUTED case and one
 NOT_APPLICABLE case under the amended materiality science while preserving
-global `INCOMPLETE`. The text-to-CONFIRMED_CONFLICT-to-COMPUTED path remains a
-researcher-approved future post-implementation target, not a verified current
-end-to-end case.
+global `INCOMPLETE`. Section 5.1 is the promoted, verified current
+text-to-CONFIRMED_CONFLICT-to-COMPUTED end-to-end case.
 
-### Unresolved blockers
+### Remaining bounded coverage limitations
 
 - Exact C0 continues to produce the preserved `500` diagnostic and global
   INCOMPLETE quantitative extraction; amended CRA-D067 prevents that fact alone
   from forcing QB aggregate UNKNOWN when every allowlist gate passes.
-- The current extractor does not attach the required metric/context to
-  GREATER_THAN_OR_EQUAL.
 - The current extractor does not emit NOT_LESS_FREQUENT observations.
 - Representation-varied and synonym metrics, and alternative quantitative
   contexts, do not become resolved linked components.
-- The approved `LB-M-C0` bridge remains NOT_IMPLEMENTED with new Rule and
-  Evidence IDs NOT_ALLOCATED.
-- Architecture requires its own contract and approval before implementation.
+- Standalone LB-M0 and grammar beyond the exact implemented `LB-M-C0` envelope
+  remain unsupported.
 
 ### Readiness
 
 This mixed binding end-to-end/domain-contract corpus is researcher-approved.
-The first bounded QB-v0.1 scientific slice is complete, with the exact future
-post-implementation target recorded separately from current verified behavior.
-
-The next authorized phase is Architecture Contract. Architecture
-implementation and production implementation remain blocked pending their own
-contracts and approvals.
+The first bounded QB-v0.1 scientific slice is complete, and Section 5.1 records
+the promoted exact production behavior. Broader quantitative extraction and
+conflict classes remain outside QB-v0.1.
