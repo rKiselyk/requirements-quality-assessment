@@ -15,6 +15,7 @@ from ..cross_analysis.domain import (
     BoundedNonClaimKey,
     CrossDiagnosticRef,
     CrossEvidenceRef,
+    CrossObservationRef,
     CrossResultId,
     QbConsistencyFormulaOperands,
     QbConsistencyObservability,
