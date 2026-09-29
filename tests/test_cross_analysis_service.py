@@ -413,6 +413,11 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
     for path in package_root.rglob("*.py"):
         if "cross_analysis" in path.parts:
             continue
+        if "metrics" in path.parts:
+            # M3-02 is an approved downstream composition boundary over the
+            # completed local and QB assessments. It must not move this
+            # dependency into any single-requirement module.
+            continue
         if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
             # IMP-10 reporting/orchestration is the approved downstream
             # composition boundary and may consume both local and cross results.
