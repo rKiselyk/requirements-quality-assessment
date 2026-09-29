@@ -418,6 +418,11 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # completed local and QB assessments. It must not move this
             # dependency into any single-requirement module.
             continue
+        if "performance_efficiency" in path.parts:
+            # M3-04 is the approved downstream M + E_stat + E_dyn composition
+            # boundary. Its target-scoped QB gate consumes completed cross
+            # results without moving cross analysis into upstream modules.
+            continue
         if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
             # IMP-10 reporting/orchestration is the approved downstream
             # composition boundary and may consume both local and cross results.
