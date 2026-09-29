@@ -21,13 +21,24 @@ dissertation model:
 ```text
 M = {M_process, M_quality, M_risk}
 R -> P -> M -> Q
-S -> P -> M -> E -> X_j -> M_quality -> M_risk -> A_corr -> ReEval
+S -> (P, E_stat)
+P -> M
+S + external product observation -> E_dyn
+(M, E_stat, E_dyn) -> X_j -> M_quality
+P -> D -> R_DQ
+(D, R_DQ, M_quality as preserved context) -> M_risk
+M_risk -> A_corr -> S(v+1) -> ReEval -> M_process
 ```
 
 The first line preserves the dissertation's three-model decomposition. The
 second preserves its requirement/property/metric/product-quality path. The
-third is the bounded software execution path defined here; it does not collapse
-requirement quality into `Q`.
+remaining lines form the bounded software dependency graph, not one linear
+calculation. Static evidence is produced or reused with `S -> P`, not
+manufactured by `M`; dynamic evidence binds a requirement criterion to
+independently supplied product behavior; and the defect/risk branch originates
+in `P`, not in the product-quality result. `M_quality` is preserved in the risk
+context but is not an eligibility operand for the bounded risk classification.
+The graph does not collapse requirement quality into `Q`.
 
 The dissertation documents in `docs/reference/` define the theoretical context.
 They are traceability sources, not executable specifications. `docs/model-spec.md`
@@ -91,14 +102,14 @@ The following are non-goals:
 
 | Symbol/term | Dissertation meaning | Full Model v0.1 software meaning |
 | --- | --- | --- |
-| `S` | Specification `S = (R, Attr, L, H)` | A versioned `SpecificationArtifact`. The bounded projection contains the ordered current `Requirement` values plus artifact identity, version, lineage, and optional links. It does not claim full `Attr`, `L`, or `H` coverage. |
+| `S` | Specification `S = (R, Attr, L, H)` | `SpecificationArtifact` is the stable artifact lineage/entity; `SpecificationVersion` is one immutable content snapshot `S(v)` identified by `ArtifactRef`. The bounded snapshot contains the ordered current `Requirement` values plus version, lineage, and optional links. It does not claim full `Attr`, `L`, or `H` coverage. |
 | `R` | Requirements/specification information | The ordered requirements preserved by `RequirementReader`, including stable requirement ID within an artifact version, source line, and trimmed source text. |
 | `P` | Requirement/specification properties | Existing structured C/V/U requirement profiles, C/V/U specification aggregates, and separate QB-v0.1 Consistency assessment. |
 | `M` | Measurable indicators/metrics | A `MetricProfile` that preserves existing values and states without recalculating them. |
 | `E` | Evidence available to the model | Versioned static and dynamic evidence records. |
 | `E_stat` | Static evidence | Existing source-aligned `Evidence`, traces, assessments, QB results, and their provenance. |
 | `E_dyn` | Dynamic evidence | A bounded `Criterion -> Observation -> Conformance` record collected in a controlled context. |
-| `X_j` | Characteristic-specific input features | A typed `ProductQualityFeatureProfile` for exactly one characteristic. It is not a product-quality result. |
+| `X_j` | Characteristic-specific input features | The concrete v0.1 type `PerformanceEfficiencyFeatureProfile` (`X_PE`) for exactly one characteristic. “Product-quality feature profile” names the conceptual family, not an additional software type. It is not a product-quality result. |
 | `M_quality` | Product-quality model | A pure evaluator of `X_j` producing a typed, bounded product-quality result. |
 | `q_j` | One ISO/IEC 25010 product-quality characteristic | `PERFORMANCE_EFFICIENCY`, the sole v0.1 reference characteristic. |
 | `y_hat_j` | Predicted product-quality value | Reserved field for an empirically calibrated prediction. Full Model v0.1 leaves it absent; it must not be synthesized from C/V/U. |
@@ -123,17 +134,18 @@ structured result and does not mutate its input.
 
 | Transition | Responsibility and required output | Status/provenance/version rules | Forbidden or unresolved behavior |
 | --- | --- | --- | --- |
-| `S -> P` | Run the existing extraction, C/V/U calculators, C/V/U aggregator, and QB-v0.1 analysis. Output existing records and `SpecificationAssessment`. | Preserve all current evidence, rules, snapshot identity, values, states, and non-claims. | No changed detector, calculator, aggregation, or QB semantics. |
+| `S -> (P, E_stat)` | Run the existing extraction, C/V/U calculators, C/V/U aggregator, and QB-v0.1 analysis. Output existing records, `SpecificationAssessment`, and their existing static evidence/traces. | Preserve all current evidence, rules, snapshot identity, values, states, and non-claims. | No changed detector, calculator, aggregation, QB, or evidence semantics. |
 | `P -> M` | Adapt supported assessments to typed metric entries. | Each entry cites its source assessment/result, rules, evidence, artifact version, and assessment version. | No new calculation, normalization, rounding, weighting, or zero imputation. |
 | `S -> E_dyn` | Bind a supported explicit response-time criterion to a controlled observation and evaluate exact conformance. | Preserve criterion, observation, unit, exact context, source, collection version, and rule. | No criterion extraction beyond current supported quantitative observations; no unit conversion; no missing-as-failure. |
-| `M + E -> X_j` | Select and package Performance Efficiency features. | Retain feature identity, status, applicability, temporal availability, and every source reference. | No prediction, coefficient, imputation, or global averaging. |
+| `M + E_stat + E_dyn -> X_j` | Select and package Performance Efficiency features. | Retain feature identity, status, applicability, temporal availability, and every source reference. | No prediction, coefficient, imputation, or global averaging. |
 | `X_j -> M_quality` | Produce the bounded observed reference indicator when conformance is available. | Output kind, exact value or absence, explanation, evidence coverage, rule/model/parameter versions, and calibration status. | No static C/V/U-to-product-quality conversion; no full-characteristic or validated-prediction claim. |
 | `P -> D` | Admit only eligible confirmed QB conflicts as problems. | Cite the exact cross result, participants, evidence, subtype, and snapshot. | Never promote a `SIGNAL`, low score, completed absence, UNKNOWN, or NOT_APPLICABLE. |
 | `D -> R_DQ -> q_j` | Link the exact supported response-time conflict to Performance Efficiency. | Record rule, rationale, applicability, and bounded non-claim. | No universal causal relation or cross-characteristic inference. |
-| `D + R_DQ + quality -> M_risk` | Classify `RISK_IDENTIFIED` for the eligible relation. | Quality result may be available or unavailable, but its status is preserved; risk carries provisional calibration status. | No probability, impact, severity, priority, confidence, or scalar risk. |
+| `D + R_DQ + quality context -> M_risk` | Classify `RISK_IDENTIFIED` from the eligible problem/relation; associate the product-quality result only as preserved context. | Quality result may be available or unavailable, but its status is preserved and does not control eligibility; risk carries provisional calibration status. | No circular quality/risk dependency, probability, impact, severity, priority, confidence, or scalar risk. |
 | `risk/problem -> A_corr` | Associate `RECONCILE_QUANTITATIVE_BOUNDS` with the conflicting requirements. | Distinguish proposed from applied; application needs an explicit, externally supplied revision. | No automatic choice of the authoritative bound and no silent mutation. |
 | `S(v1) + applied action -> S(v2)` | Create a new immutable specification version with lineage. | Preserve `S(v1)`, action ID, changed requirement IDs, replacement provenance, and version transition. | No in-place overwrite. |
 | `S(v2) -> ReEval` | Re-run the same approved layers and compare compatible outputs. | Record versions of artifact, assessment, evidence, rules, model, and parameters. | No comparison across incompatible meanings and no causal product-improvement claim. |
+| `ReEval + completed records -> M_process` | Assemble the one-stage `ProcessAssessmentState` and immutable reassessment lineage. | Consume a preallocated process-state context identity; associate typed results and typed absences without recalculation. | No construction cycle, process score, checkpoint decision, or complete-SDLC claim. |
 
 An unsupported or unavailable transition returns a structured non-value result.
 It must not skip a layer, borrow a value from another status, or manufacture a
@@ -440,7 +452,7 @@ The output has no numeric risk value. `likelihood`, `probability`, `impact`,
 `severity`, and `priority` are absent. An unresolved problem/relation yields
 `UNRESOLVED`; an unsupported relation yields `UNSUPPORTED`; an explicitly
 inapplicable subject yields `NOT_APPLICABLE`; unavailable required input yields
-`UNAVAILABLE`. None means zero risk.
+`UNAVAILABLE`. None of these statuses means zero risk.
 
 The result includes status, classification, subject, problem/relation/quality
 references, provenance, explanation, rule/model/parameter versions, and
@@ -516,7 +528,8 @@ associate:
 process_state_id; stage; artifact_id/version; assessment_id/version;
 evidence availability and versions; requirement/specification assessments;
 metric profile; X_PE; product-quality assessment; problem/relation; risk;
-corrective action; predecessor/successor and reassessment lineage
+corrective action; predecessor and reassessment lineage; and a separate
+immutable transition that may name the successor
 ```
 
 The dynamic fixture is valid only at this stage. The state must preserve absent,
@@ -542,6 +555,15 @@ the exact source enum on imported baseline results:
 status. `APPLICABLE`/`UNKNOWN`/`NOT_APPLICABLE` criterion applicability also
 remains orthogonal where the source contract uses it.
 
+`FullModelStatus` is the canonical six-label result-status type.
+`MetricStatus` is a type-local name with exactly the same six labels; it does
+not introduce different meanings. Likewise, `Applicability` is the canonical
+three-label Full Model type and `MetricApplicability` is a type-local name with
+the same labels. Existing `CharacteristicAssessmentState`,
+`CriterionApplicability`, QB states, processing states, and finding kinds
+remain their source types and are mapped explicitly; implementations must not
+collapse these distinct fields or enums merely because some labels coincide.
+
 Compatibility mappings include:
 
 | Existing state | Canonical interpretation |
@@ -564,12 +586,13 @@ and `UNSUPPORTED` is not a pass.
 
 ## 19. Provenance contract
 
-The minimum provenance chain is:
+The minimum provenance graph is:
 
 ```text
-Requirement -> Evidence -> Property -> Metric -> Feature
--> Product Quality -> Problem/Relation -> Risk
--> Corrective Action -> Reassessment
+Requirement -> Evidence -> Property -> Metric -> Feature -> Product Quality
+                         \-> Problem -> D/Q Relation -> Risk
+Product Quality -----------------------------------------> Risk context
+Risk -> Corrective Action -> Artifact successor -> Reassessment -> Process state
 ```
 
 Every node has a stable ID, artifact/assessment version, producing rule/model
@@ -613,6 +636,9 @@ Rules:
 - action application creates artifact versions but does not reassess them;
 - process/reassessment orchestrates typed components without absorbing their
   rules; and
+- orchestration reserves a `ProcessStateRef` before component execution;
+  components bind to that context identity, and only later process-state
+  assembly materializes the immutable state under the same reference;
 - reporters consume completed structured results, never calculate, aggregate,
   infer status, select actions, or mutate state.
 
@@ -624,7 +650,7 @@ on reporting. Circular dependencies are forbidden.
 
 | Construct | Dissertation concept | v0.1 contract | Current foundation | M3 issue | Acceptance evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| `S` | Versioned specification/artifacts | `SpecificationArtifact` and lineage | `Requirement`, reader order/source line | #146, #147, #149 | v1/v2 fixtures and lineage | `BOUNDED_V0.1_DECISION` |
+| `S` | Versioned specification/artifacts | stable `SpecificationArtifact` lineage plus immutable `SpecificationVersion` snapshots | `Requirement`, reader order/source line | #146, #147, #149 | v1/v2 fixtures and lineage | `BOUNDED_V0.1_DECISION` |
 | `P` | Requirement/specification properties | Existing C/V/U plus separate QB | profiles, aggregates, `SpecificationAssessment` | #139, #149 | unchanged source results | `EXISTING_APPROVED` |
 | `M` | Metrics/indicators | exact-value `MetricProfile` adapter | `Fraction` assessments and QB result | #139 | adapter tests and registry | `BOUNDED_V0.1_DECISION` |
 | `E_stat` | Static evidence | reuse existing evidence/traces | `Evidence`, assessment trace, QB resolver | #139, #141 | resolvable provenance | `EXISTING_APPROVED` |

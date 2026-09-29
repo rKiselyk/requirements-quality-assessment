@@ -1,7 +1,12 @@
 # Full Model v0.1 Process and Reassessment Contract
 
-Status: normative design candidate for M3-08 / #145, M3-09 / #146, and
-M3-10 / #147. This document defines future contracts only. It does not
+**Contract ID:** `FULL-MODEL-V0.1-PROCESS-REASSESSMENT`  
+**Contract version:** `1`  
+**Target issues:** M3-08 / #145, M3-09 / #146, and M3-10 / #147  
+**Parent contract:** `FULL-MODEL-V0.1-CONTRACT / 1`  
+**Status:** `NORMATIVE_CANDIDATE / PARENT_CONTRACT_APPROVAL_REQUIRED`
+
+This document defines future contracts only. It does not
 implement production code, change existing assessment semantics, or authorize
 implementation before the inherited approval gate is satisfied.
 
@@ -157,7 +162,7 @@ reevaluate(SpecificationVersion, ReassessmentContext)
 compare(ComparisonRequest)
   -> ResultComparison
 
-assemble_process_state(ProcessStateAssembly)
+assemble_process_state(ProcessStateRef, ProcessStateAssembly)
   -> ProcessAssessmentState
 ```
 
@@ -203,17 +208,17 @@ The following references are reused without changing the focused contracts:
 ```text
 ArtifactRef(artifact_id, artifact_version)
 AssessmentRef(assessment_id, assessment_version, artifact_ref)
-RuleRef(rule_id, rule_version)
+ContractRef(contract_id, version)
+RuleRef(rule_id, explicit_version, version_authority)
 ModelRef(model_id, model_version)
 ParameterSetRef(parameter_set_id, parameter_set_version)
-ProcessStateRef(process_state_id, process_state_version, stage)
 ```
 
 This contract adds:
 
 ```text
-ContractRef(contract_id, contract_version)
 RequirementLineageId
+ProcessStateRef(process_state_id, process_state_version, stage)
 
 RequirementSubjectRef(
   artifact_ref,
@@ -226,6 +231,20 @@ RevisionRef(revision_id, revision_version)
 ReassessmentRef(reassessment_id, reassessment_version)
 ComparisonRef(comparison_id, comparison_version)
 ```
+
+Rule shorthands such as `COMPARE-FULL-MODEL-001 / 1` expand to the canonical
+three-field `RuleRef`, with this contract's exact `ContractRef` as
+`version_authority`. They are not a second reference shape.
+
+`ProcessStateRef` is allocated by orchestration before component execution. It
+is a reserved context identity containing only the three fields shown above;
+it is not derived from, and does not imply the existence of, an assembled
+`ProcessAssessmentState`. Components bind their outputs to that reserved
+identity. After the component records exist, `assemble_process_state`
+materializes the immutable state under the same reference. If assembly fails,
+no process-state record exists, while the component records retain the reserved
+context identity and the failed run records the reason. This two-phase rule
+prevents a construction cycle.
 
 For an initial version in this bounded slice, lineage identity is the structured
 origin tuple:
@@ -506,6 +525,12 @@ a materialized child artifact. No failed application partially edits either
 artifact.
 
 ## 8. Immutable specification versioning and requirement lineage
+
+`SpecificationArtifact` and `SpecificationVersion` are not competing names.
+The artifact is the stable specification lineage/entity named by
+`artifact_id`; `SpecificationVersion` is one immutable content snapshot
+`S(v)` in that lineage. `ArtifactRef` always identifies one such version by
+the pair `(artifact_id, artifact_version)`.
 
 ### 8.1 SpecificationVersion
 
@@ -867,6 +892,7 @@ ProcessAssessmentState
   component_version_set: ComponentVersionSet
 
   evidence_associations: tuple[ProcessEvidenceAssociation, ...]
+  component_associations: tuple[ProcessComponentAssociation, ...]
   requirement_assessment_refs: tuple[RequirementAssessmentRef, ...]
   specification_assessment_ref: SpecificationAssessmentRef
   metric_profile_ref: MetricProfileRef
@@ -883,11 +909,37 @@ ProcessAssessmentState
   provenance: ProcessAssessmentStateProvenance
 ```
 
-Each optional or plural association preserves the owning record's status and
-applicability. An absent reference is accompanied in
-`evidence_associations` or provenance by a typed reason; absence is not a
+Each typed reference is a convenience projection of exactly one matching
+`component_associations` entry (or of its deterministically ordered plural
+entries). Every component role required by the bounded pipeline has an
+association even when no result reference exists. A missing optional result is
+therefore represented by a status, applicability, and typed reason rather than
+by an unexplained `None`. Mandatory baseline records are either present as
+structured results, including structured non-value results, or process-state
+assembly fails and no `ProcessAssessmentState` is created. Absence is not a
 negative assessment. There is no scalar process-quality score and no aggregate
 pass/fail field.
+
+```text
+ProcessComponentAssociation
+  role: REQUIREMENT_ASSESSMENT | SPECIFICATION_ASSESSMENT |
+        METRIC_PROFILE | PE_FEATURE_PROFILE | PRODUCT_QUALITY_ASSESSMENT |
+        DEFECT_POPULATION | CONFIRMED_PROBLEM | DEFECT_QUALITY_RELATION |
+        BOUNDED_RISK_ASSESSMENT | CORRECTIVE_ACTION
+  result_ref: AssessmentResultRef | None
+  status: AVAILABLE | UNAVAILABLE | UNKNOWN | UNRESOLVED |
+          UNSUPPORTED | NOT_APPLICABLE
+  applicability: APPLICABLE | UNKNOWN | NOT_APPLICABLE
+  subject_or_scope_ref
+  producing_contract_or_rule_ref
+  reason_codes
+  provenance
+```
+
+The association indexes an owning record or explains its typed absence. It
+does not replace, synthesize, or reinterpret that record. Every non-`None`
+convenience reference must equal a matching association's `result_ref`; a
+missing convenience reference requires a matching non-available association.
 
 ```text
 ProcessEvidenceAssociation
@@ -907,6 +959,12 @@ ProcessEvidenceAssociation
 
 This association indexes owning evidence; it does not copy, reinterpret, score,
 or combine it.
+
+Process-state assembly consumes the previously reserved `ProcessStateRef`
+defined in Section 5. The assembly record may reference component outputs that
+already carry that identity without making those outputs depend on the
+assembled state object. The materialized state's ID/version/stage must equal
+the reserved reference exactly.
 
 The state is immutable. Successor association is recorded by a separate
 transition so that the predecessor is not edited later:
@@ -1177,6 +1235,8 @@ The future implementation must not:
 | `PR-AC-030` | A separate process transition associates predecessor and successor without mutating v1. |
 | `PR-AC-031` | The process model emits no checkpoint threshold, `proceed` decision, critical-risk status, release decision, or scalar process score. |
 | `PR-AC-032` | The complete Section 12 fixture produces its exact action, lineage, reassessment, and comparison outcomes. |
+| `PR-AC-033` | Orchestration reserves a `ProcessStateRef` before component execution; components bind to that identity and assembly later materializes the state without a construction cycle. |
+| `PR-AC-034` | Every required component role has a `ProcessComponentAssociation`; a missing optional result has a typed state/reason, while a present convenience ref equals the association ref. |
 
 ## 15. Decisions, assumptions, contradictions, and blockers
 
@@ -1196,6 +1256,8 @@ The future implementation must not:
 | `PR-D010` | Risk/problem disappearance is a categorical state change over a stable lineage/key scope. | risk contract has no magnitude or ordered no-risk class | No |
 | `PR-D011` | Successor association is stored in an immutable transition rather than backfilled into v1 state. | immutable-history requirement | No |
 | `PR-D012` | `FM-D015` approval at an exact commit remains required before production implementation. | inherited parent process gate | Yes |
+| `PR-D013` | A process-state reference is reserved before component execution and materialized only after components complete. | removes a construction cycle while preserving the inherited process context identity | No |
+| `PR-D014` | Component presence and typed absence are represented by explicit associations; convenience refs cannot carry unexplained `None`. | inherited status/provenance rules and Chapter 4.1 state semantics | No |
 
 ### 15.2 Theoretical quantities deliberately not operationalized
 

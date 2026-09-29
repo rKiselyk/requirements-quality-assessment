@@ -240,6 +240,12 @@ DefectConstructionContext
 Every identity and version is supplied explicitly. The resolver must not infer
 them from text, file names, timestamps, ordering, or object addresses.
 
+Every `process_state_ref` in this contract is the caller-allocated context
+identity reserved before component execution under the process/reassessment
+contract. It is not a dependency on an already assembled
+`ProcessAssessmentState`; later assembly associates the completed problem,
+relation, and risk records with that same identity.
+
 ### 6.3 ProblemClaimResolution
 
 ```text

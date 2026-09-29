@@ -227,6 +227,11 @@ ProductQualityAssessmentContext
 All identity and version fields are supplied explicitly and must agree with the
 feature profile. No version is inferred.
 
+`process_state_ref` is the caller-allocated context identity reserved before
+component execution under the process/reassessment contract. It does not
+reference an already assembled state as an input dependency; later assembly
+associates this completed assessment with that same identity.
+
 ### 6.2 ParameterSet
 
 ```text

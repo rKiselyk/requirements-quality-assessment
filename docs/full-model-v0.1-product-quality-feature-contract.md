@@ -187,6 +187,11 @@ The caller supplies every versioned identity. The mapper must not infer an
 artifact, assessment, product, process-state, or rule version from text,
 timestamps, file names, object addresses, or ordering.
 
+`process_state_ref` is the caller-allocated context identity reserved before
+component execution under the process/reassessment contract. It does not
+require an already assembled `ProcessAssessmentState`; the completed profile
+is associated with that state during later process-state assembly.
+
 ### 5.2 PerformanceEfficiencyFeatureProfile
 
 ```text
@@ -548,7 +553,8 @@ not converted to a scientific status.
   comparator, unit, or context.
 - `NOT_APPLICABLE`: an approved rule excludes the case.
 
-None means `DOES_NOT_CONFORM`, zero, poor quality, or absence of risk.
+None of these statuses means `DOES_NOT_CONFORM`, zero, poor quality, or
+absence of risk.
 
 ## 11. Temporal availability
 

@@ -247,7 +247,7 @@ ObservationCollectionRef(
   source_kind,
 )
 CriterionContextIdentity(normalization_contract_ref, normalized_text)
-ObservationSlotRef(collection_ref, criterion_id, fixture_sequence)
+ObservationSlotRef(collection_ref, fixture_sequence)
 CriterionBindingId(
   artifact_ref,
   source_assessment_ref,
@@ -445,10 +445,19 @@ DynamicObservationId = (
 )
 ```
 
-`ObservationSlotRef` additionally binds that collection position to the
-expected `CriterionId`. The observation's product, metric, value, unit,
-context, source, environment, or provenance cannot change under the same ID.
-Changing any of them requires a new collection version or collection ID.
+`ObservationSlotRef` names a possibly empty position in one versioned
+collection. It is deliberately criterion-independent. The criterion-to-slot
+binding belongs to `ConformanceAssessment`, whose identity contains both the
+criterion binding and the observation slot. This preserves the dissertation's
+separation between a requirement criterion and observed product behavior and
+allows the same immutable observation to be reconsidered after a specification
+revision when the process contract's exact reuse checks succeed.
+
+The slot remains a separate type from `DynamicObservationId` so that an absent
+observation can be referenced without fabricating an observation. The
+observation's product, metric, value, unit, context, source, environment, or
+provenance cannot change under the same ID. Changing any of them requires a new
+collection version or collection ID.
 
 ### 9.3 Observed value versus criterion bound
 
@@ -821,9 +830,9 @@ another state.
 The evaluator applies this order:
 
 1. reject internally contradictory identities or content as invalid input;
-2. propagate criterion `NOT_APPLICABLE`, `UNAVAILABLE`, `UNRESOLVED`, or
-   `UNSUPPORTED` without inspecting an observation value;
-3. for an available criterion, propagate observation `UNAVAILABLE`,
+2. propagate criterion `NOT_APPLICABLE`, `UNAVAILABLE`, `UNKNOWN`,
+   `UNRESOLVED`, or `UNSUPPORTED` without inspecting an observation value;
+3. for an available criterion, propagate observation `UNAVAILABLE`, `UNKNOWN`,
    `UNRESOLVED`, or `UNSUPPORTED`;
 4. require equal metric identity, exact `SECOND`, and exact context identity;
 5. preserve any resolved but unsupported unit/context case as `UNSUPPORTED`;
@@ -1035,7 +1044,9 @@ The future domain constructors and services must enforce:
 6. the evaluator-ready criterion is exact `<=`, `SECOND`, and exact C0 context;
 7. every available observation has one product, collection, environment,
    sequence, exact Decimal value, UnitLabel, and context identity;
-8. observation and criterion slots agree;
+8. when an observation exists, the conformance assessment's observation slot
+   equals `observation.slot_ref`, and the assessment records the criterion
+   binding separately;
 9. an available conformance result has exactly one outcome;
 10. every other conformance status has `outcome=None`;
 11. all reference collections are deterministic and source ordered; and
@@ -1181,6 +1192,8 @@ dynamic assessment = (ASSESS-DYN-CONFORMANCE, 1,
 | `DE-AC-038` | No type or service exposes unit conversion, normalization, weighting, statistics, prediction, or product-quality scoring. |
 | `DE-AC-039` | Criteria and assessments retain source order; observations retain collection sequence order. |
 | `DE-AC-040` | Identical immutable inputs produce identical structured IDs, reasons, status, applicability, outcome, and ordered provenance. |
+| `DE-AC-041` | An observation slot and observation identity are criterion-independent; a conformance assessment, not the observation, binds the criterion to the slot. |
+| `DE-AC-042` | An approved upstream `UNKNOWN` criterion or observation propagates as `UNKNOWN` with no outcome and no numeric value. |
 
 Acceptance tests must use manually constructed domain values and existing
 quantitative source objects. They must not require CLI orchestration, files,
