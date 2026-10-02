@@ -428,6 +428,11 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # consumes completed QB cross results without moving that
             # dependency into any single-requirement module.
             continue
+        if "risk" in path.parts:
+            # M3-07 is the approved downstream D + R_DQ -> M_risk boundary.
+            # It preserves QB identity/evidence only through the completed
+            # typed M3-06 records and never invokes cross analysis.
+            continue
         if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
             # IMP-10 reporting/orchestration is the approved downstream
             # composition boundary and may consume both local and cross results.
