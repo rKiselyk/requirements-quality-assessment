@@ -8,6 +8,8 @@ from .domain import (
     FEATURE_CONTRACT_REF,
     FEATURE_REGISTRY_REF,
     FeatureEffect,
+    FeatureDiagnosticRef,
+    FeatureEvidenceRef,
     FeatureProfileProvenance,
     FeatureReason,
     MAPPING_RULE_REF,
@@ -26,6 +28,7 @@ from .domain import (
     ProductQualityCharacteristicId,
     QbTargetGateDecision,
     QbTargetGateFeatureValue,
+    QbCrossResultRef,
     RequirementMetricFeatureValue,
 )
 from .service import (
@@ -41,6 +44,8 @@ __all__ = [
     "FEATURE_CONTRACT_REF",
     "FEATURE_REGISTRY_REF",
     "FeatureEffect",
+    "FeatureDiagnosticRef",
+    "FeatureEvidenceRef",
     "FeatureProfileProvenance",
     "FeatureReason",
     "MAPPING_RULE_REF",
@@ -60,6 +65,7 @@ __all__ = [
     "ProductQualityCharacteristicId",
     "QbTargetGateDecision",
     "QbTargetGateFeatureValue",
+    "QbCrossResultRef",
     "RequirementMetricFeatureValue",
     "build_performance_efficiency_feature_profile",
 ]
