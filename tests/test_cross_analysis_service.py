@@ -423,6 +423,11 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # boundary. Its target-scoped QB gate consumes completed cross
             # results without moving cross analysis into upstream modules.
             continue
+        if "defect_quality" in path.parts:
+            # M3-06 is the approved downstream P -> D -> R_DQ boundary. It
+            # consumes completed QB cross results without moving that
+            # dependency into any single-requirement module.
+            continue
         if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
             # IMP-10 reporting/orchestration is the approved downstream
             # composition boundary and may consume both local and cross results.
