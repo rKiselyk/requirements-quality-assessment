@@ -366,6 +366,8 @@ FeatureSourceRef = (
     | ConformanceAssessmentId
 )
 FeatureEvidenceRef = RequirementEvidenceRef | CrossEvidenceRef
+FeatureDiagnosticRef = RequirementDiagnosticRef | CrossDiagnosticRef
+QbCrossResultRef = CrossResultId
 FeatureProvenanceRef = (
     RequirementTraceRef
     | RequirementDiagnosticRef
@@ -630,6 +632,8 @@ __all__ = [
     "FEATURE_CONTRACT_REF",
     "FEATURE_REGISTRY_REF",
     "FeatureEffect",
+    "FeatureDiagnosticRef",
+    "FeatureEvidenceRef",
     "FeatureProfileProvenance",
     "FeatureReason",
     "MAPPING_RULE_REF",
@@ -648,5 +652,6 @@ __all__ = [
     "ProductQualityCharacteristicId",
     "QbTargetGateDecision",
     "QbTargetGateFeatureValue",
+    "QbCrossResultRef",
     "RequirementMetricFeatureValue",
 ]
