@@ -433,6 +433,11 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # It preserves QB identity/evidence only through the completed
             # typed M3-06 records and never invokes cross analysis.
             continue
+        if "reassessment" in path.parts:
+            # M3-09 is the approved downstream ReEval orchestration boundary.
+            # It reruns the completed local and QB services for an immutable
+            # child artifact without moving cross analysis upstream.
+            continue
         if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
             # IMP-10 reporting/orchestration is the approved downstream
             # composition boundary and may consume both local and cross results.
