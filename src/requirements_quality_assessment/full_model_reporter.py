@@ -65,7 +65,6 @@ class FullModelReportBundle:
     conformance: ConformanceAssessment | None = None
     feature_profile: PerformanceEfficiencyFeatureProfile | None = None
     product_quality_assessment: ProductQualityAssessment | None = None
-    predicted_product_quality: PredictedPerformanceEfficiency | None = None
     problem_resolutions: tuple[ProblemClaimResolution, ...] = ()
     defect_population: DefectPopulationSnapshot | None = None
     defect_quality_relations: tuple[DefectQualityRelation, ...] = ()
@@ -79,6 +78,7 @@ class FullModelReportBundle:
     comparisons: tuple[ResultComparison, ...] = ()
     process_states: tuple[ProcessAssessmentState, ...] = ()
     process_transitions: tuple[ProcessStateTransition, ...] = ()
+    predicted_product_quality: PredictedPerformanceEfficiency | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.assessment_result, SpecificationAssessmentResult):

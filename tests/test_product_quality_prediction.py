@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError, replace
+from dataclasses import FrozenInstanceError, fields, replace
 from fractions import Fraction
 
 import pytest
@@ -46,6 +46,7 @@ from requirements_quality_assessment.product_quality_prediction import (
 
 from test_performance_efficiency_features import _build, _bundle, _feature
 from test_product_quality_assessment import _assess
+from test_corrective_action import _positive
 
 
 PREDICTOR_REF = PredictorRef("TC02-CONTROLLED-REFERENCE-PE", "1")
@@ -395,3 +396,52 @@ def test_omitted_prediction_keeps_existing_report_output_byte_for_byte() -> None
     assert AuditFullModelReporter().render(implicit) == AuditFullModelReporter().render(explicit)
     assert "Прогнозована якість продукту" not in UserFullModelReporter().render(implicit)
     assert "Predicted product quality" not in AuditFullModelReporter().render(implicit)
+
+
+def test_prediction_field_is_appended_after_the_complete_legacy_bundle_sequence() -> None:
+    legacy_fields = (
+        "assessment_result",
+        "metric_profile",
+        "criterion_binding",
+        "observation_resolution",
+        "conformance",
+        "feature_profile",
+        "product_quality_assessment",
+        "problem_resolutions",
+        "defect_population",
+        "defect_quality_relations",
+        "risk_assessments",
+        "corrective_action_resolutions",
+        "corrective_actions",
+        "specification_versions",
+        "external_revisions",
+        "action_applications",
+        "reassessment_runs",
+        "comparisons",
+        "process_states",
+        "process_transitions",
+    )
+    assert tuple(item.name for item in fields(FullModelReportBundle)) == (
+        *legacy_fields,
+        "predicted_product_quality",
+    )
+
+    dynamic = _bundle()
+    profile = _build(dynamic)
+    observed = _assess(profile)
+    risk_bundle, _, _ = _positive()
+    problem_resolution = risk_bundle[2]
+
+    historical_positional_bundle = FullModelReportBundle(
+        dynamic[0],
+        None,
+        None,
+        None,
+        None,
+        profile,
+        observed,
+        (problem_resolution,),
+    )
+
+    assert historical_positional_bundle.problem_resolutions == (problem_resolution,)
+    assert historical_positional_bundle.predicted_product_quality is None
