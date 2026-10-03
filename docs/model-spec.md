@@ -7853,3 +7853,58 @@ ranking, threshold, max-risk selection, checkpoint, release decision,
 corrective-action prioritization, automatic estimation, simulation, learned or
 Bayesian model, confidence, uncertainty interval, causal inference, automatic
 calibration, or risk-reduction claim. Empirical validity is not claimed.
+
+## 23. Externally parameterized scalar checkpoint (TC-04)
+
+- **Scientific status:** `ISSUE_166_FIRST_IMPLEMENTATION_PASS`
+- **Executable scope:** one explicitly selected exact scalar result evaluated
+  against one explicitly supplied threshold policy at one process state
+- **Governing contract:** `FULL-MODEL-V1.0-SCALAR-CHECKPOINT / 1`
+- **Rule:** `CHECKPOINT-SCALAR-PREDICATE-001 / 1`
+
+TC-04 makes a bounded checkpoint predicate executable. A request identifies a
+versioned checkpoint, an already completed selected result, its artifact and
+process state, and an external versioned threshold policy. The evaluator does
+not recompute the selected result. The policy explicitly supplies its provider,
+rationale, comparator, exact `Fraction` threshold, and governing contract.
+There is no production default or automatic policy selection, and no universal
+`Qmin` or `Cmin` is defined.
+
+For an `AVAILABLE` / `APPLICABLE` selected result with an exact value, the
+closed comparator set `>=`, `>`, `<=`, `<`, and `==` produces `SATISFIED` when
+the configured predicate is true and `NOT_SATISFIED` otherwise. An upstream
+`NOT_APPLICABLE` result produces `NOT_APPLICABLE`. `UNKNOWN`, `UNAVAILABLE`,
+`UNRESOLVED`, and `UNSUPPORTED` produce neutral `UNRESOLVED`. Their exact
+upstream status, applicability, reasons, references, and provenance remain in
+the selected-result record. Missing values never become zero and never become
+threshold failures.
+
+The selected result is bound to an explicit `ProcessStateRef` and `ArtifactRef`.
+Artifact or process-state disagreement with the checkpoint request fails closed
+as `UNRESOLVED`. The metric adapter additionally verifies that a selected
+metric belongs to the assembled process state's artifact, assessment, and
+metric profile. Evaluation neither mutates `ProcessAssessmentState` nor creates
+or authorizes a state transition.
+
+The controlled v1/v2 reference policy selects the existing
+`SPEC.QB_CONSISTENCY` metric, comparator `>=`, and threshold `Fraction(1,1)`.
+Applied unchanged to the real reassessment records, it produces
+`NOT_SATISFIED` for v1 `QB = 0/1` and `SATISFIED` for v2 `QB = 1/1`. The
+threshold is fixture data that demonstrates evaluator execution and
+reassessment sensitivity only. It is not a universal production rule.
+
+`SATISFIED` means only that the explicitly configured predicate is true.
+`SATISFIED != PROCEED` and `SATISFIED != RELEASE`. TC-04 implements no complete
+`K_k`, complete `Cmin`, complete `Qmin`, `CritRisk_k`, `Decision_j(K_k)`,
+`evidence_required`, corrective-action decision, aggregate `Adm(C)`, release
+approval, or quality gate across all nine characteristics. Full
+`Decision_j(K_k)` remains unimplemented. TC-05, not TC-04, owns any future
+orchestration.
+
+USER and AUDIT reporting is additive and conditional. USER identifies the
+checkpoint, selected result, external predicate and outcome and states the
+non-authorization explicitly. AUDIT preserves the complete typed evaluation,
+source state/value/provenance, policy/provider, process/artifact binding,
+governing contracts and rule, and outcome. Reporters perform no comparison.
+When no checkpoint is supplied, historical output remains byte-for-byte
+unchanged.

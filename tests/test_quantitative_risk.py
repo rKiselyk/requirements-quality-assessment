@@ -440,4 +440,8 @@ def test_omitted_quantitative_risk_is_byte_compatible_and_field_is_appended():
     assert UserFullModelReporter().render(implicit) == UserFullModelReporter().render(explicit)
     assert AuditFullModelReporter().render(implicit) == AuditFullModelReporter().render(explicit)
     names = tuple(item.name for item in fields(FullModelReportBundle))
-    assert names[-2:] == ("predicted_product_quality", "quantitative_risk_assessments")
+    assert names[-3:] == (
+        "predicted_product_quality",
+        "quantitative_risk_assessments",
+        "checkpoint_evaluations",
+    )

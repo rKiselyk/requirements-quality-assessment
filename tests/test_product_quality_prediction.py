@@ -425,6 +425,7 @@ def test_prediction_field_is_appended_after_the_complete_legacy_bundle_sequence(
         *legacy_fields,
         "predicted_product_quality",
         "quantitative_risk_assessments",
+        "checkpoint_evaluations",
     )
 
     dynamic = _bundle()

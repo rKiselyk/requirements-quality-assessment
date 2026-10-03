@@ -15,6 +15,7 @@ from enum import Enum
 from fractions import Fraction
 from pathlib import Path
 
+from .checkpoint import CheckpointEvaluation
 from .corrective_action import (
     ActionApplication,
     CorrectiveAction,
@@ -81,6 +82,7 @@ class FullModelReportBundle:
     process_transitions: tuple[ProcessStateTransition, ...] = ()
     predicted_product_quality: PredictedPerformanceEfficiency | None = None
     quantitative_risk_assessments: tuple[QuantitativeLocalRiskAssessment, ...] = ()
+    checkpoint_evaluations: tuple[CheckpointEvaluation, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.assessment_result, SpecificationAssessmentResult):
@@ -157,6 +159,11 @@ class FullModelReportBundle:
                 "quantitative_risk_assessments",
                 self.quantitative_risk_assessments,
                 QuantitativeLocalRiskAssessment,
+            ),
+            (
+                "checkpoint_evaluations",
+                self.checkpoint_evaluations,
+                CheckpointEvaluation,
             ),
         )
         for name, values, expected_type in tuple_fields:
@@ -247,6 +254,7 @@ _AUDIT_RECORDS = (
     ("process_states", "Process assessment states"),
     ("process_transitions", "Process state transitions"),
     ("quantitative_risk_assessments", "Quantitative local risk r_ij"),
+    ("checkpoint_evaluations", "Parameterized checkpoint evaluations"),
 )
 
 
@@ -354,6 +362,12 @@ class UserFullModelReporter:
         process = self._process(bundle)
         if process:
             sections.append("\n".join(("Перехід стану процесу", *process)))
+
+        checkpoints = self._checkpoints(bundle)
+        if checkpoints:
+            sections.append(
+                "\n".join(("Параметризовані контрольні точки", *checkpoints))
+            )
 
         sections.append(self._limitations(bool(bundle.quantitative_risk_assessments)))
         return "\n\n".join(sections)
@@ -747,6 +761,34 @@ class UserFullModelReporter:
                 f"{before.process_state_id} / {before.process_state_version} → "
                 f"{after.process_state_id} / {after.process_state_version}; "
                 f"stage={after.stage.value}"
+            )
+        return lines
+
+    @staticmethod
+    def _checkpoints(bundle: FullModelReportBundle) -> list[str]:
+        lines: list[str] = []
+        for evaluation in bundle.checkpoint_evaluations:
+            selected = evaluation.selected_result
+            policy = evaluation.threshold_policy
+            value = (
+                _user_exact(selected.exact_value)
+                if selected.exact_value is not None
+                else selected.status.value
+            )
+            lines.extend(
+                (
+                    f"Checkpoint: {evaluation.checkpoint_id} / "
+                    f"{evaluation.checkpoint_version}",
+                    f"Selected result: {selected.result_identity}={value} "
+                    f"(status={selected.status.value}; "
+                    f"applicability={selected.applicability.value})",
+                    f"External policy: {policy.policy_id} / {policy.policy_version}; "
+                    f"predicate={policy.comparator.value} "
+                    f"{_user_exact(policy.threshold)}",
+                    f"Outcome: {evaluation.outcome.value}",
+                    "SATISFIED означає лише істинність налаштованого предиката; "
+                    "це НЕ є дозволом RELEASE або PROCEED.",
+                )
             )
         return lines
 
