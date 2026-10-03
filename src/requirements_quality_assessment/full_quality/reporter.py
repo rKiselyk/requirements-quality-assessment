@@ -115,7 +115,7 @@ class AuditFullRequirementQualityReporter:
         provenance = assessment.provenance
         judgment = assessment.judgment.judgment_id if assessment.judgment else "none"
         rule = provenance.assessment_rule_ref
-        rule_version = rule.explicit_version or rule.version_authority.value
+        explicit_rule_version = rule.explicit_version or "none"
         lines.extend(
             (
                 f"    state: {assessment.state.value}",
@@ -128,7 +128,8 @@ class AuditFullRequirementQualityReporter:
                 f"    assessment_contract_id: {provenance.assessment_contract_ref.contract_id}",
                 f"    assessment_contract_version: {provenance.assessment_contract_ref.version}",
                 f"    assessment_rule_id: {rule.rule_id}",
-                f"    assessment_rule_version: {rule_version}",
+                f"    assessment_rule_explicit_version: {explicit_rule_version}",
+                f"    assessment_rule_version_authority: {rule.version_authority.value}",
                 f"    explanation: {assessment.explanation}",
             )
         )

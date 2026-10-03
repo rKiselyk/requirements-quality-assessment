@@ -7664,9 +7664,12 @@ a numeric scale, ordering, coefficient, probability, or confidence.
 
 External provenance identifies the versioned source or assessor, requirement,
 artifact and artifact version, governing assessment contract and version, and
-assessment rule with deterministic version authority. Composition rejects a
-missing or duplicated external property, a property in the wrong slot, and
-requirement or artifact identities that disagree with the full profile.
+assessment rule with deterministic version authority. AUDIT output preserves
+the rule's optional explicit version separately from its version authority;
+`STABLE_RULE_ID_POLICY` is an authority policy and is never rendered as a rule
+version. Composition rejects a missing or duplicated external property, a
+property in the wrong slot, and requirement or artifact identities that
+disagree with the full profile.
 
 Every projected property declares origin `AUTOMATIC` or `EXTERNAL_EXPERT`.
 USER presentation separates the two groups and renders non-value states

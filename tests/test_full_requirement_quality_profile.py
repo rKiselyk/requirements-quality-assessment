@@ -314,11 +314,53 @@ def test_user_and_audit_reports_show_all_properties_origins_states_and_provenanc
         "provenance_artifact_version: 7",
         "assessment_contract_id: TC01-EXPERT-ASSESSMENT",
         "assessment_contract_version: 1",
-        "assessment_rule_version: 1",
+        "assessment_rule_explicit_version: 1",
+        "assessment_rule_version_authority: EXPLICIT_CONTRACT_VERSION",
     ):
         assert expected in audit
     assert "No integrated scalar requirement-quality score is calculated." in user
     assert "no integrated scalar requirement-quality score is defined" in audit
+
+
+def test_audit_report_preserves_explicit_rule_version_and_authority_separately() -> None:
+    audit = AuditFullRequirementQualityReporter().render(_profile())
+
+    assert "assessment_rule_explicit_version: 1" in audit
+    assert (
+        "assessment_rule_version_authority: EXPLICIT_CONTRACT_VERSION" in audit
+    )
+    assert "assessment_rule_version:" not in audit
+
+
+def test_audit_report_preserves_stable_rule_id_policy_without_inventing_version() -> None:
+    profile = _profile()
+    stable_rule = RuleRef(
+        "RULE-SINGULARITY-STABLE",
+        None,
+        RuleVersionAuthority.STABLE_RULE_ID_POLICY,
+    )
+    stable_singularity = replace(
+        profile.singularity,
+        provenance=replace(
+            profile.singularity.provenance,
+            assessment_rule_ref=stable_rule,
+        ),
+    )
+    audit = AuditFullRequirementQualityReporter().render(
+        replace(profile, singularity=stable_singularity)
+    )
+    singularity_block = audit.split(
+        "  - property_id: SINGULARITY", 1
+    )[1].split("  - property_id:", 1)[0]
+
+    assert "assessment_rule_id: RULE-SINGULARITY-STABLE" in singularity_block
+    assert "assessment_rule_explicit_version: none" in singularity_block
+    assert (
+        "assessment_rule_version_authority: STABLE_RULE_ID_POLICY"
+        in singularity_block
+    )
+    assert "assessment_rule_explicit_version: STABLE_RULE_ID_POLICY" not in audit
+    assert "assessment_rule_version: STABLE_RULE_ID_POLICY" not in audit
 
 
 def test_existing_reporter_boundaries_expose_additive_full_profile_projection() -> None:
