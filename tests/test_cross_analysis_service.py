@@ -438,9 +438,15 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # It reruns the completed local and QB services for an immutable
             # child artifact without moving cross analysis upstream.
             continue
-        if path.name in {"cli.py", "cross_reporter.py", "reporter.py"}:
-            # IMP-10 reporting/orchestration is the approved downstream
-            # composition boundary and may consume both local and cross results.
+        if path.name in {
+            "cli.py",
+            "cross_reporter.py",
+            "full_model_reporter.py",
+            "reporter.py",
+        }:
+            # Reporting/orchestration is an approved downstream composition
+            # boundary and may consume both local and cross results. IMP-10
+            # covers the existing reporters; M3-11 adds the Full Model view.
             continue
         text = path.read_text(encoding="utf-8")
         if "cross_analysis" in text:
