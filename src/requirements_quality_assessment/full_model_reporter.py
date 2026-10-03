@@ -15,6 +15,7 @@ from enum import Enum
 from fractions import Fraction
 from pathlib import Path
 
+from .checkpoint import CheckpointEvaluation
 from .corrective_action import (
     ActionApplication,
     CorrectiveAction,
@@ -37,6 +38,8 @@ from .metrics import ArtifactRef, MetricProfile
 from .performance_efficiency import PerformanceEfficiencyFeatureProfile
 from .process import ProcessAssessmentState, ProcessStateTransition
 from .product_quality import ProductQualityAssessment
+from .product_quality_prediction import PredictedPerformanceEfficiency
+from .quantitative_risk import QuantitativeLocalRiskAssessment
 from .reassessment import (
     CoreReassessmentResults,
     FullModelDownstreamRecords,
@@ -77,6 +80,9 @@ class FullModelReportBundle:
     comparisons: tuple[ResultComparison, ...] = ()
     process_states: tuple[ProcessAssessmentState, ...] = ()
     process_transitions: tuple[ProcessStateTransition, ...] = ()
+    predicted_product_quality: PredictedPerformanceEfficiency | None = None
+    quantitative_risk_assessments: tuple[QuantitativeLocalRiskAssessment, ...] = ()
+    checkpoint_evaluations: tuple[CheckpointEvaluation, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.assessment_result, SpecificationAssessmentResult):
@@ -101,6 +107,11 @@ class FullModelReportBundle:
                 "product_quality_assessment",
                 self.product_quality_assessment,
                 ProductQualityAssessment,
+            ),
+            (
+                "predicted_product_quality",
+                self.predicted_product_quality,
+                PredictedPerformanceEfficiency,
             ),
             (
                 "defect_population",
@@ -143,6 +154,16 @@ class FullModelReportBundle:
                 "process_transitions",
                 self.process_transitions,
                 ProcessStateTransition,
+            ),
+            (
+                "quantitative_risk_assessments",
+                self.quantitative_risk_assessments,
+                QuantitativeLocalRiskAssessment,
+            ),
+            (
+                "checkpoint_evaluations",
+                self.checkpoint_evaluations,
+                CheckpointEvaluation,
             ),
         )
         for name, values, expected_type in tuple_fields:
@@ -218,6 +239,7 @@ _AUDIT_RECORDS = (
     ("conformance", "Criterion conformance"),
     ("feature_profile", "X_PE feature profile"),
     ("product_quality_assessment", "Bounded Performance Efficiency assessment"),
+    ("predicted_product_quality", "Predicted product quality (y_hat_PE)"),
     ("problem_resolutions", "Problem claim resolutions"),
     ("defect_population", "Defect population"),
     ("defect_quality_relations", "R_DQ relations"),
@@ -231,6 +253,8 @@ _AUDIT_RECORDS = (
     ("comparisons", "Before/after comparisons"),
     ("process_states", "Process assessment states"),
     ("process_transitions", "Process state transitions"),
+    ("quantitative_risk_assessments", "Quantitative local risk r_ij"),
+    ("checkpoint_evaluations", "Parameterized checkpoint evaluations"),
 )
 
 
@@ -313,9 +337,19 @@ class UserFullModelReporter:
         if dynamic:
             sections.append("\n".join(("Спостережуваний показник якості продукту", *dynamic)))
 
+        predicted = self._predicted_product_quality(bundle)
+        if predicted:
+            sections.append("\n".join(("Прогнозована якість продукту (ŷ_PE)", *predicted)))
+
         defect = self._defect_and_risk(bundle)
         if defect:
             sections.append("\n".join(("Проблема, R_DQ і обмежений ризик", *defect)))
+
+        quantitative_risk = self._quantitative_risk(bundle)
+        if quantitative_risk:
+            sections.append(
+                "\n".join(("Кількісний локальний ризик r_ij", *quantitative_risk))
+            )
 
         action = self._action_and_revision(bundle)
         if action:
@@ -329,7 +363,13 @@ class UserFullModelReporter:
         if process:
             sections.append("\n".join(("Перехід стану процесу", *process)))
 
-        sections.append(self._limitations())
+        checkpoints = self._checkpoints(bundle)
+        if checkpoints:
+            sections.append(
+                "\n".join(("Параметризовані контрольні точки", *checkpoints))
+            )
+
+        sections.append(self._limitations(bool(bundle.quantitative_risk_assessments)))
         return "\n\n".join(sections)
 
     @staticmethod
@@ -352,6 +392,32 @@ class UserFullModelReporter:
                 f"{state.process_state_version}; stage={state.stage.value}"
             )
         return lines
+
+    @staticmethod
+    def _predicted_product_quality(bundle: FullModelReportBundle) -> list[str]:
+        prediction = bundle.predicted_product_quality
+        if prediction is None:
+            return []
+        value = (
+            _user_exact(prediction.predicted_value)
+            if prediction.predicted_value is not None
+            else prediction.status.value
+        )
+        parameter_identity = prediction.parameter_set_ref.identity
+        return [
+            "Прогноз Performance Efficiency: "
+            f"{value} (kind={prediction.result_kind.value}; "
+            f"status={prediction.status.value}; "
+            f"applicability={prediction.applicability.value})",
+            "F_θ,PE: "
+            f"{prediction.predictor_ref.predictor_id} / "
+            f"{prediction.predictor_ref.predictor_version}; θ="
+            f"{parameter_identity.parameter_set_id} / "
+            f"{parameter_identity.parameter_set_version}; "
+            f"calibration={prediction.calibration_status.value}",
+            "Це прогнозований результат, а не спостережуваний індикатор; "
+            "оцінка впевненості, невизначеність і прогнозна валідність не заявляються.",
+        ]
 
     @staticmethod
     def _requirement_and_specification_quality(
@@ -475,9 +541,13 @@ class UserFullModelReporter:
                 if risk.classification is not None
                 else risk.status.value
             )
+            risk_label = (
+                "Категоріальний обмежений ризик: "
+                if bundle.quantitative_risk_assessments
+                else "Обмежений ризик: "
+            )
             lines.append(
-                "Обмежений ризик: "
-                f"{classification} (status={risk.status.value}; "
+                risk_label + f"{classification} (status={risk.status.value}; "
                 f"applicability={risk.applicability.value}; "
                 f"calibration={risk.calibration_status.value})"
             )
@@ -485,6 +555,31 @@ class UserFullModelReporter:
             lines.append(
                 "Відсутність підтвердженої проблеми в D_v0.1 не означає "
                 "відсутність дефектів."
+            )
+        return lines
+
+    @staticmethod
+    def _quantitative_risk(bundle: FullModelReportBundle) -> list[str]:
+        lines: list[str] = []
+        for assessment in bundle.quantitative_risk_assessments:
+            value = (
+                _user_exact(assessment.local_risk)
+                if assessment.local_risk is not None
+                else assessment.state.value
+            )
+            calibrations = ", ".join(
+                status.value for status in assessment.calibration_statuses
+            )
+            lines.extend(
+                (
+                    "Кількісний r_ij: "
+                    f"{value} (state={assessment.state.value}; "
+                    f"characteristic={assessment.characteristic_id.value})",
+                    f"Scope: {assessment.scope.value}; calibration=[{calibrations}]",
+                    "Усі чотири операнди надано явно із зовнішньою provenance; "
+                    "автоматично вони не оцінюються. Цей окремий розрахунок не є "
+                    "категоріальною класифікацією RISK_IDENTIFIED.",
+                )
             )
         return lines
 
@@ -670,12 +765,46 @@ class UserFullModelReporter:
         return lines
 
     @staticmethod
-    def _limitations() -> str:
+    def _checkpoints(bundle: FullModelReportBundle) -> list[str]:
+        lines: list[str] = []
+        for evaluation in bundle.checkpoint_evaluations:
+            selected = evaluation.selected_result
+            policy = evaluation.threshold_policy
+            value = (
+                _user_exact(selected.exact_value)
+                if selected.exact_value is not None
+                else selected.status.value
+            )
+            lines.extend(
+                (
+                    f"Checkpoint: {evaluation.checkpoint_id} / "
+                    f"{evaluation.checkpoint_version}",
+                    f"Selected result: {selected.result_identity}={value} "
+                    f"(status={selected.status.value}; "
+                    f"applicability={selected.applicability.value})",
+                    f"External policy: {policy.policy_id} / {policy.policy_version}; "
+                    f"predicate={policy.comparator.value} "
+                    f"{_user_exact(policy.threshold)}",
+                    f"Outcome: {evaluation.outcome.value}",
+                    "SATISFIED означає лише істинність налаштованого предиката; "
+                    "це НЕ є дозволом RELEASE або PROCEED.",
+                )
+            )
+        return lines
+
+    @staticmethod
+    def _limitations(has_quantitative_risk: bool = False) -> str:
+        risk_limitation = (
+            "- RISK_IDENTIFIED сам по собі означає лише визначену bounded presence; "
+            "окремий r_ij існує лише як зовнішньо параметризований локальний розрахунок."
+            if has_quantitative_risk
+            else "- RISK_IDENTIFIED означає лише визначену bounded presence; "
+            "величина ризику не обчислюється."
+        )
         return "\n".join(
             (
                 "Важливі межі",
-                "- RISK_IDENTIFIED означає лише визначену bounded presence; "
-                "величина ризику не обчислюється.",
+                risk_limitation,
                 "- NOT_APPLICABLE не є твердженням про безпечність.",
                 "- Відсутність підтвердженої проблеми не означає відсутність дефектів.",
                 "- Спостережуваний PE indicator не є повною Performance Efficiency.",

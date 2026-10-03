@@ -303,7 +303,7 @@ applicability set, or confirmation procedure are not operationally defined.
 | Context-weighted product-quality index `Q_int` | Quality model and application example | 4.2 aggregation; example Section 6 | General weighted form; weights context-dependent | Not directly | `OUT_OF_SCOPE_V0.1` |
 | Non-compensated critical thresholds | Process and quality models | 4.1 checkpoints; 4.2 admissibility | Logical form exists; thresholds unset | Not currently | `OUT_OF_SCOPE_V0.1` |
 | Finding/defect evidence | Requirement properties; metrics system; static methods; risk model; Section 7.16 | 2.1 paragraph 10; 2.3 paragraphs 12-16 and 30; 3.1 paragraphs 10 and 29-31; 4.3 defect tuple | Minimal MVP Finding contract, vague-term signal conversion, and absence provenance are approved; quality-problem conversions absent | Yes for explainability | `APPROVED DATA CONTRACT / QUALITY_PROBLEM RULES BLOCKED` |
-| Local risk `r_ij` and risk aggregation | Risk model | 4.3 local risk and `Psi_j` | Local formula exists; inputs and aggregate operator require calibration | No | `OUT_OF_SCOPE_V0.1` |
+| Local risk `r_ij` and risk aggregation | Risk model | 4.3 local risk and `Psi_j` | TC-03 executes one externally parameterized local formula with exact supplied operands; inputs remain uncalibrated and aggregate `Psi_j` remains undefined/unimplemented | Local calculation only | `TC03_LOCAL_EXECUTABLE / AGGREGATION_BLOCKED` |
 | Corrective actions and iterative reassessment | Process and risk models | 4.1 feedback; 4.3 action tuple and loop | Conceptual structure exists | No | `OUT_OF_SCOPE_V0.1` |
 | Manually approved reference cases for MVP scores | Requirement properties; metrics system; application example | 2.1 Tables 2.1-2.3; 2.3 Tables 2.7-2.8; example Sections 2-12 | Qualitative and aggregate examples exist; approved per-line expected scores absent | Yes | `PARTIALLY_DEFINED` |
 
@@ -7633,3 +7633,278 @@ production status is recorded above. The R002, R004, R008, and
 eight-requirement outputs in Section 5 of the decision package are
 demonstrations of previously observed results, not new reference annotations
 or detector acceptance cases.
+
+## 20. Full nine-property requirement-quality representation (TC-01)
+
+- **Scientific status:** `ISSUE_163_APPROVED_IMPLEMENTATION_SCOPE`
+- **Production scope:** additive requirement-level representation only
+- **Excluded:** product-quality prediction, risk, checkpoint evaluation,
+  Full Model v1.0 orchestration, and scalar requirement-quality scoring
+
+TC-01 represents the complete individual-requirement property inventory in
+this fixed order: Completeness, Verifiability, Unambiguity, Singularity /
+Atomicity, Presentation Conformance, Correctness, Feasibility, Necessity, and
+Relevance. It does not redefine the historical
+`RequirementQualityProfile(C, V, U)` contract.
+
+Completeness, Verifiability, and Unambiguity remain the authoritative automatic
+results produced by `CALC-C/V/U-MVP-001`. A full profile holds the accepted
+`RequirementAssessmentRecord` and exposes those same assessment and trace
+instances. Composition performs no extraction, calculator invocation,
+reconstruction, normalization, or arithmetic. Exact `Fraction` values,
+findings, explanations, and trace decisions therefore remain unchanged.
+
+The other six properties are explicit external/expert assessments. Each such
+assessment contains a property identity, one of `AVAILABLE`, `UNKNOWN`,
+`UNAVAILABLE`, `NOT_APPLICABLE`, or `UNRESOLVED`, an optional contract-defined
+judgment, an explanation, and typed provenance. `AVAILABLE` requires a judgment;
+non-value states require its absence. The judgment is an opaque identifier
+whose meaning belongs to the named external contract. TC-01 does not assign it
+a numeric scale, ordering, coefficient, probability, or confidence.
+
+External provenance identifies the versioned source or assessor, requirement,
+artifact and artifact version, governing assessment contract and version, and
+assessment rule with deterministic version authority. AUDIT output preserves
+the rule's optional explicit version separately from its version authority;
+`STABLE_RULE_ID_POLICY` is an authority policy and is never rendered as a rule
+version. Composition rejects a missing or duplicated external property, a
+property in the wrong slot, and requirement or artifact identities that
+disagree with the full profile.
+
+Every projected property declares origin `AUTOMATIC` or `EXTERNAL_EXPERT`.
+USER presentation separates the two groups and renders non-value states
+literally. AUDIT presentation additionally renders the full external
+provenance and the preserved automatic rule, trace-decision, finding, and
+explanation references. Both are formatting-only projections over a completed
+full profile.
+
+There is no overall `score`, `value`, `mean`, `quality_score`, arithmetic mean,
+or equivalent integrated scalar on the full profile. In particular,
+`UNKNOWN`, `UNAVAILABLE`, `NOT_APPLICABLE`, and `UNRESOLVED` remain typed
+absence states and never become zero. The six external properties do not enter
+historical C/V/U specification aggregation, the QB consistency assessment, or
+the Full Model v0.1 metric registry.
+
+## 21. Bounded executable Performance Efficiency prediction (TC-02)
+
+- **Scientific status:** `ISSUE_164_APPROVED_IMPLEMENTATION_SCOPE`
+- **Executable scope:** one explicitly configured Performance Efficiency path
+- **Governing contract:**
+  `FULL-MODEL-V1.0-PE-PRODUCT-QUALITY-PREDICTION / 1`
+- **Rule:** `F-THETA-PE-001 / 1`
+
+TC-02 makes the following bounded process executable:
+
+```text
+X_PE → F_θ,PE(X_PE, C) → ŷ_PE,  ŷ_PE ∈ [0,1]
+```
+
+`PerformanceEfficiencyFeatureProfile` remains the authoritative `X_PE`. The
+prediction service only projects the evaluator-declared feature entries from
+that completed profile; it does not recompute requirement C/V/U, QB, dynamic
+evidence, observations, conformance, or any accepted feature. Required-feature
+order is the order declared by the versioned evaluator contract and is retained
+in result provenance together with every feature-entry reference, source
+reference, upstream state, applicability, and typed reason.
+
+The evaluator is a typed in-process implementation supplied explicitly by the
+caller. There is no production default, automatic selection, string-based
+dynamic import, or inference of an evaluator from requirement text or observed
+conformance. Its versioned definition declares its identity, supported
+characteristic, invocation contract, exact required `X_PE` inventory, exact
+required context inventory, exact parameter-name inventory, expected parameter
+set identity/version, calibration status, and source or rationale.
+
+Theta is an immutable `PredictionParameterSet` separate from the empty
+observed-indicator parameter set. It contains a versioned identity, the exact
+evaluator identity/version to which it belongs, ordered named entries with
+exact `Fraction` or `Decimal` values, source or rationale, calibration status,
+and governing contract. The invocation fails before evaluation if the evaluator
+identity/version, parameter-set identity/version, calibration status, or exact
+parameter inventory disagrees with the evaluator declaration. No coefficient,
+zero, or other parameter default exists.
+
+Context `C` is a typed `PerformanceEfficiencyPredictionContext`, not a free-form
+dictionary. Its bounded fields are product, artifact, process state,
+environment, observation collection, and response-time criterion context.
+Product, artifact, and process identities must agree with `X_PE`; supplied
+environment, collection, and criterion context must trace to `X_PE` provenance.
+The evaluator explicitly declares which context fields it requires, and the
+selected typed values are preserved in prediction provenance.
+
+If a required `X_PE` entry is not `AVAILABLE`, its upstream `UNKNOWN`,
+`UNAVAILABLE`, `UNRESOLVED`, `UNSUPPORTED`, or `NOT_APPLICABLE` state and
+applicability control the withheld result. Its numeric prediction is absent,
+the upstream reasons and references remain in provenance, and the evaluator is
+not invoked. If a required context field is absent, prediction is
+`UNAVAILABLE`, its numeric value is absent, and the evaluator is likewise not
+invoked. No missing input is represented by `0`, `0/1`, an empty string, or a
+fabricated contextual value.
+
+An available `PredictedPerformanceEfficiency` has result kind
+`PREDICTED_PERFORMANCE_EFFICIENCY`, exact `Fraction` value, evaluator and theta
+references, calibration status, selected `X_PE` references, selected context,
+artifact/product/process identities, governing contracts and rules,
+explanation, and complete invocation provenance. Evaluator output must be an
+exact `Fraction` in `[0,1]`; values outside that range and floats are rejected,
+never clamped, normalized, or rounded. A withheld result has no numeric value.
+
+This type is intentionally distinct from `ProductQualityAssessment`. The latter
+remains result kind `OBSERVED_REFERENCE_INDICATOR`, keeps
+`prediction_value is None`, and continues to represent only observed bounded
+response-time conformance. USER and AUDIT projections add a prediction section
+only when a prediction record is explicitly supplied. With no prediction, the
+existing Full Model v0.1 output remains byte-for-byte unchanged.
+
+The controlled reference evaluator used by TC-02 tests is fixture-scoped. Its
+explicit evaluator identity, theta, required features, context, and exact
+arithmetic demonstrate executable and reproducible contract invocation only.
+It is not a production default and does not establish predictive validity. The
+logistic expression recorded in Section 4.2 remains a candidate baseline only;
+TC-02 does not promote it or the dissertation's demonstration coefficients to
+an approved universal model.
+
+TC-02 makes no claim of experimental calibration, prediction accuracy,
+confidence, reliability, uncertainty, empirical validation, causal influence
+of requirement quality on product quality, generalization beyond the controlled
+configuration, complete Performance Efficiency coverage, a nine-characteristic
+`Y_hat`, or a context-weighted `Q_int`. Risk, checkpoint decisions, integrated
+Full Model v1.0 orchestration, CLI integration, model training, fitting, and
+automatic theta selection remain outside this task.
+
+## 22. Externally parameterized quantitative local risk (TC-03)
+
+- **Scientific status:** `ISSUE_165_FIRST_IMPLEMENTATION_PASS`
+- **Executable scope:** one local Performance Efficiency `r_ij` calculation
+- **Governing contract:**
+  `FULL-MODEL-V0.1-QUANTITATIVE-LOCAL-RISK / 1`
+- **Rule:** `R-IJ-PE-001 / 1`
+
+TC-03 makes only the dissertation's local structure executable:
+
+```text
+r_ij = rho_ij * p_ij * I_ij * kappa_j(C),  r_ij in [0,1]
+```
+
+The existing structural `R_DQ` relation remains nonnumeric and continues to
+carry `RelationNonClaim.NOT_NUMERIC_RHO`. Numeric `rho_ij` is a separate,
+explicitly supplied operand whose provenance references the exact
+`DefectQualityRelationRef` it parameterizes. Relation presence, relation kind,
+a confirmed problem, QB conflict, requirement scores, and observed or
+predicted product quality never create a numeric `rho_ij`.
+
+The four closed operand kinds are `RHO`, `PROBABILITY`, `IMPACT`, and
+`CONTEXT_FACTOR`. Each operand has a stable ID and version, explicit state,
+optional exact value, versioned source and provider, source/rationale,
+calibration status, governing contract, artifact, confirmed-problem,
+structural-relation, characteristic, and process-state identities. The context
+factor additionally names the exact context ID/version. Cross-artifact,
+cross-problem, cross-relation, cross-characteristic, and cross-process bundles
+are rejected.
+
+Only `AVAILABLE` may carry a numeric value, and that value must be a standard
+library `Fraction`; floats are rejected. Every non-value state carries
+`value=None`. Missing, unknown, unavailable, unresolved, unsupported, and
+not-applicable input therefore never becomes zero. Conversely, an explicitly
+supplied `AVAILABLE` `Fraction(0, 1)` is real data and can produce exact zero.
+If any operand is not available, calculation is withheld, `r_ij` is absent,
+and all four states and provenance records are preserved without imposing a
+scientific precedence among heterogeneous missing states.
+
+Calculation is exactly the product of the four operands. There is no addition,
+weight beyond those operands, normalization, rounding, clamping, threshold,
+ranking, transform, or probability inference. The dissertation defines all
+four normalized operands, `rho_ij`, `p_ij`, `I_ij`, and `kappa_j(C)`, in
+`[0,1]`; every available operand therefore enforces that range. This theoretical
+range does not provide, estimate, or calibrate the actual values: every value
+remains explicitly externally supplied, versioned, and provenanced. The final
+exact `r_ij` must independently remain in `[0,1]` as a defensive validation or
+the calculation fails closed without clamping.
+
+Every operand carries conservative calibration metadata. TC-03 production
+contracts do not accept `EXPERIMENTALLY_CALIBRATED`; the implementation claims
+no accepted experimental evidence. Calibration status is neither confidence
+nor an uncertainty interval.
+
+An available `QuantitativeLocalRiskAssessment` is distinct from
+`BoundedRiskAssessment`. It retains the exact confirmed problem, nonnumeric
+relation, Performance Efficiency characteristic, artifact and source
+assessment/snapshot, process state, all four operands and sources, their
+calibration statuses, exact `Fraction` result, numeric representation,
+calculation contract/rule, complete provenance, explanation, and non-claims.
+It contains no `RISK_IDENTIFIED` classification. The categorical assessment
+likewise remains unchanged and gains no numeric field.
+
+The controlled fixture values `1/2`, `1/4`, `3/4`, and `2/3`, producing exact
+`1/16`, are demonstrational test data for executability only. They are not
+production defaults, dissertation-estimated coefficients, recommended risk
+parameters, or empirically calibrated values. A caller must explicitly supply
+every operand.
+
+USER and AUDIT reporting is additive and conditional. When no quantitative
+record is supplied, historical Full Model v0.1 output remains byte-for-byte
+unchanged. When supplied, categorical bounded risk and quantitative local
+`r_ij` are labeled separately; AUDIT exposes every operand state, value/source,
+version, calibration status, governing identity, exact result or absence, and
+non-claim. Reporters do not perform multiplication.
+
+TC-03 implements no `Psi_j`, aggregate `Risk_j`, defect priority `Pi_i`,
+ranking, threshold, max-risk selection, checkpoint, release decision,
+corrective-action prioritization, automatic estimation, simulation, learned or
+Bayesian model, confidence, uncertainty interval, causal inference, automatic
+calibration, or risk-reduction claim. Empirical validity is not claimed.
+
+## 23. Externally parameterized scalar checkpoint (TC-04)
+
+- **Scientific status:** `ISSUE_166_FIRST_IMPLEMENTATION_PASS`
+- **Executable scope:** one explicitly selected exact scalar result evaluated
+  against one explicitly supplied threshold policy at one process state
+- **Governing contract:** `FULL-MODEL-V1.0-SCALAR-CHECKPOINT / 1`
+- **Rule:** `CHECKPOINT-SCALAR-PREDICATE-001 / 1`
+
+TC-04 makes a bounded checkpoint predicate executable. A request identifies a
+versioned checkpoint, an already completed selected result, its artifact and
+process state, and an external versioned threshold policy. The evaluator does
+not recompute the selected result. The policy explicitly supplies its provider,
+rationale, comparator, exact `Fraction` threshold, and governing contract.
+There is no production default or automatic policy selection, and no universal
+`Qmin` or `Cmin` is defined.
+
+For an `AVAILABLE` / `APPLICABLE` selected result with an exact value, the
+closed comparator set `>=`, `>`, `<=`, `<`, and `==` produces `SATISFIED` when
+the configured predicate is true and `NOT_SATISFIED` otherwise. An upstream
+`NOT_APPLICABLE` result produces `NOT_APPLICABLE`. `UNKNOWN`, `UNAVAILABLE`,
+`UNRESOLVED`, and `UNSUPPORTED` produce neutral `UNRESOLVED`. Their exact
+upstream status, applicability, reasons, references, and provenance remain in
+the selected-result record. Missing values never become zero and never become
+threshold failures.
+
+The selected result is bound to an explicit `ProcessStateRef` and `ArtifactRef`.
+Artifact or process-state disagreement with the checkpoint request fails closed
+as `UNRESOLVED`. The metric adapter additionally verifies that a selected
+metric belongs to the assembled process state's artifact, assessment, and
+metric profile. Evaluation neither mutates `ProcessAssessmentState` nor creates
+or authorizes a state transition.
+
+The controlled v1/v2 reference policy selects the existing
+`SPEC.QB_CONSISTENCY` metric, comparator `>=`, and threshold `Fraction(1,1)`.
+Applied unchanged to the real reassessment records, it produces
+`NOT_SATISFIED` for v1 `QB = 0/1` and `SATISFIED` for v2 `QB = 1/1`. The
+threshold is fixture data that demonstrates evaluator execution and
+reassessment sensitivity only. It is not a universal production rule.
+
+`SATISFIED` means only that the explicitly configured predicate is true.
+`SATISFIED != PROCEED` and `SATISFIED != RELEASE`. TC-04 implements no complete
+`K_k`, complete `Cmin`, complete `Qmin`, `CritRisk_k`, `Decision_j(K_k)`,
+`evidence_required`, corrective-action decision, aggregate `Adm(C)`, release
+approval, or quality gate across all nine characteristics. Full
+`Decision_j(K_k)` remains unimplemented. TC-05, not TC-04, owns any future
+orchestration.
+
+USER and AUDIT reporting is additive and conditional. USER identifies the
+checkpoint, selected result, external predicate and outcome and states the
+non-authorization explicitly. AUDIT preserves the complete typed evaluation,
+source state/value/provenance, policy/provider, process/artifact binding,
+governing contracts and rule, and outcome. Reporters perform no comparison.
+When no checkpoint is supplied, historical output remains byte-for-byte
+unchanged.
