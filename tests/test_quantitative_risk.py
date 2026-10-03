@@ -237,19 +237,31 @@ def test_operand_value_binding_and_numeric_contract_fail_closed():
             state=FullModelStatus.UNKNOWN,
             value=Fraction(0, 1),
         )
-    with pytest.raises(ValueError, match=r"\[0,1\]"):
-        _operand(QuantitativeRiskOperandKind.RHO, problem, relation, value=Fraction(2, 1))
 
-    _, _, _, _, request = _request(
-        values={
-            QuantitativeRiskOperandKind.RHO: Fraction(1, 1),
-            QuantitativeRiskOperandKind.PROBABILITY: Fraction(2, 1),
-            QuantitativeRiskOperandKind.IMPACT: Fraction(1, 1),
-            QuantitativeRiskOperandKind.CONTEXT_FACTOR: Fraction(1, 1),
-        }
-    )
-    with pytest.raises(ValueError, match="outside"):
-        calculate_quantitative_local_risk(request)
+
+@pytest.mark.parametrize("kind", tuple(QuantitativeRiskOperandKind))
+@pytest.mark.parametrize("value", (Fraction(-1, 10), Fraction(11, 10)))
+def test_every_available_operand_rejects_values_outside_unit_interval(kind, value):
+    _, _, problem, relation, _ = _graph()
+
+    with pytest.raises(ValueError, match=rf"{kind.value}.*\[0,1\]"):
+        _operand(kind, problem, relation, value=value)
+
+
+@pytest.mark.parametrize("kind", tuple(QuantitativeRiskOperandKind))
+@pytest.mark.parametrize("value", (Fraction(0, 1), Fraction(1, 1)))
+def test_every_available_operand_accepts_closed_unit_interval_boundaries(kind, value):
+    _, _, problem, relation, _ = _graph()
+
+    operand = _operand(kind, problem, relation, value=value)
+
+    assert operand.state is FullModelStatus.AVAILABLE
+    assert operand.value == value
+
+
+def test_probability_above_one_fails_during_operand_construction():
+    with pytest.raises(ValueError, match=r"PROBABILITY.*\[0,1\]"):
+        _request(values={QuantitativeRiskOperandKind.PROBABILITY: Fraction(2, 1)})
 
 
 def test_wrong_duplicate_or_missing_operand_slots_fail_closed():
@@ -294,6 +306,29 @@ def test_cross_graph_and_wrong_characteristic_inputs_fail_closed():
     )
     with pytest.raises(ValueError, match="cross process"):
         replace(request, context=replace(request.context, process_state_ref=other_process))
+
+    same_artifact_assessment = AssessmentRef(
+        "CROSS-RELATION-ASSESSMENT",
+        "1",
+        problem.artifact_ref,
+    )
+    relation_with_other_assessment = replace(
+        relation,
+        source_assessment_ref=same_artifact_assessment,
+    )
+    with pytest.raises(ValueError, match="relation.*source assessments"):
+        replace(request, relation=relation_with_other_assessment)
+
+    other_snapshot = replace(
+        problem.source_snapshot_id,
+        value="qb-snapshot-sha256:" + "2" * 64,
+    )
+    relation_with_other_snapshot = replace(
+        relation,
+        source_snapshot_id=other_snapshot,
+    )
+    with pytest.raises(ValueError, match="relation.*source snapshots"):
+        replace(request, relation=relation_with_other_snapshot)
 
     fake_problem_ref = replace(
         problem.ref,

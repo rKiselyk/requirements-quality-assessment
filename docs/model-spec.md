@@ -7813,10 +7813,13 @@ scientific precedence among heterogeneous missing states.
 
 Calculation is exactly the product of the four operands. There is no addition,
 weight beyond those operands, normalization, rounding, clamping, threshold,
-ranking, transform, or probability inference. The explicit dissertation bound
-`rho_ij in [0,1]` is enforced. No independent universal bounds are asserted for
-`p_ij`, `I_ij`, or `kappa_j(C)`; instead, the final exact `r_ij` must be in
-`[0,1]` or the calculation fails closed without clamping.
+ranking, transform, or probability inference. The dissertation defines all
+four normalized operands, `rho_ij`, `p_ij`, `I_ij`, and `kappa_j(C)`, in
+`[0,1]`; every available operand therefore enforces that range. This theoretical
+range does not provide, estimate, or calibrate the actual values: every value
+remains explicitly externally supplied, versioned, and provenanced. The final
+exact `r_ij` must independently remain in `[0,1]` as a defensive validation or
+the calculation fails closed without clamping.
 
 Every operand carries conservative calibration metadata. TC-03 production
 contracts do not accept `EXPERIMENTALLY_CALIBRATED`; the implementation claims

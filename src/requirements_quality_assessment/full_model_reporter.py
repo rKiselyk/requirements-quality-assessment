@@ -562,8 +562,9 @@ class UserFullModelReporter:
                     f"{value} (state={assessment.state.value}; "
                     f"characteristic={assessment.characteristic_id.value})",
                     f"Scope: {assessment.scope.value}; calibration=[{calibrations}]",
-                    "Усі чотири операнди надано зовнішнім джерелом; цей окремий "
-                    "розрахунок не є категоріальною класифікацією RISK_IDENTIFIED.",
+                    "Усі чотири операнди надано явно із зовнішньою provenance; "
+                    "автоматично вони не оцінюються. Цей окремий розрахунок не є "
+                    "категоріальною класифікацією RISK_IDENTIFIED.",
                 )
             )
         return lines

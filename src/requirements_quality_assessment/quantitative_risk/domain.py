@@ -169,11 +169,12 @@ class QuantitativeRiskOperand:
         if self.state is FullModelStatus.AVAILABLE:
             if type(self.value) is not Fraction:
                 raise TypeError("an AVAILABLE operand requires an exact Fraction value")
+            if not Fraction(0, 1) <= self.value <= Fraction(1, 1):
+                raise ValueError(
+                    f"{self.kind.value} operand value must be within [0,1]"
+                )
         elif self.value is not None:
             raise ValueError("a non-AVAILABLE operand requires value=None")
-        if self.kind is QuantitativeRiskOperandKind.RHO and self.value is not None:
-            if not Fraction(0, 1) <= self.value <= Fraction(1, 1):
-                raise ValueError("rho_ij must be within [0,1]")
         if self.kind is QuantitativeRiskOperandKind.CONTEXT_FACTOR:
             if self.provenance.context_ref is None:
                 raise ValueError("context-factor provenance requires a context reference")
@@ -262,6 +263,10 @@ class QuantitativeRiskCalculationRequest:
             raise ValueError("calculation cannot cross process states")
         if self.relation.artifact_ref != self.context.artifact_ref:
             raise ValueError("relation and calculation cannot cross artifacts")
+        if self.relation.source_assessment_ref != self.context.source_assessment_ref:
+            raise ValueError("relation and calculation cannot cross source assessments")
+        if self.relation.source_snapshot_id != self.context.source_snapshot_id:
+            raise ValueError("relation and calculation cannot cross source snapshots")
         if self.relation.process_state_ref != self.context.process_state_ref:
             raise ValueError("relation and calculation cannot cross process states")
         for operand in self.operands:
