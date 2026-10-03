@@ -36,6 +36,11 @@ from .full_model_reporter import (
     FullModelReportBundle,
     UserFullModelReporter,
 )
+from .full_quality import (
+    AuditFullRequirementQualityReporter,
+    FullRequirementQualityProfile,
+    UserFullRequirementQualityReporter,
+)
 
 _CHARACTERISTIC_FIELDS = ("completeness", "verifiability", "unambiguity")
 
@@ -148,6 +153,13 @@ class ConsoleReporter:
         """Render the existing audit report and the additive Full Model path."""
 
         return AuditFullModelReporter().render(bundle)
+
+    def render_full_requirement_quality(
+        self, profile: FullRequirementQualityProfile
+    ) -> str:
+        """Render the additive TC-01 audit projection."""
+
+        return AuditFullRequirementQualityReporter().render(profile)
 
     def _render_requirement(
         self, requirement: Requirement, profile: RequirementQualityProfile
@@ -541,6 +553,13 @@ class UserConsoleReporter:
         """Render the existing concise report and the additive Full Model path."""
 
         return UserFullModelReporter().render(bundle)
+
+    def render_full_requirement_quality(
+        self, profile: FullRequirementQualityProfile
+    ) -> str:
+        """Render the additive TC-01 user projection."""
+
+        return UserFullRequirementQualityReporter().render(profile)
 
     def _render_record(self, record: RequirementAssessmentRecord) -> str:
         requirement = record.extraction_result.requirement

@@ -7633,3 +7633,51 @@ production status is recorded above. The R002, R004, R008, and
 eight-requirement outputs in Section 5 of the decision package are
 demonstrations of previously observed results, not new reference annotations
 or detector acceptance cases.
+
+## 20. Full nine-property requirement-quality representation (TC-01)
+
+- **Scientific status:** `ISSUE_163_APPROVED_IMPLEMENTATION_SCOPE`
+- **Production scope:** additive requirement-level representation only
+- **Excluded:** product-quality prediction, risk, checkpoint evaluation,
+  Full Model v1.0 orchestration, and scalar requirement-quality scoring
+
+TC-01 represents the complete individual-requirement property inventory in
+this fixed order: Completeness, Verifiability, Unambiguity, Singularity /
+Atomicity, Presentation Conformance, Correctness, Feasibility, Necessity, and
+Relevance. It does not redefine the historical
+`RequirementQualityProfile(C, V, U)` contract.
+
+Completeness, Verifiability, and Unambiguity remain the authoritative automatic
+results produced by `CALC-C/V/U-MVP-001`. A full profile holds the accepted
+`RequirementAssessmentRecord` and exposes those same assessment and trace
+instances. Composition performs no extraction, calculator invocation,
+reconstruction, normalization, or arithmetic. Exact `Fraction` values,
+findings, explanations, and trace decisions therefore remain unchanged.
+
+The other six properties are explicit external/expert assessments. Each such
+assessment contains a property identity, one of `AVAILABLE`, `UNKNOWN`,
+`UNAVAILABLE`, `NOT_APPLICABLE`, or `UNRESOLVED`, an optional contract-defined
+judgment, an explanation, and typed provenance. `AVAILABLE` requires a judgment;
+non-value states require its absence. The judgment is an opaque identifier
+whose meaning belongs to the named external contract. TC-01 does not assign it
+a numeric scale, ordering, coefficient, probability, or confidence.
+
+External provenance identifies the versioned source or assessor, requirement,
+artifact and artifact version, governing assessment contract and version, and
+assessment rule with deterministic version authority. Composition rejects a
+missing or duplicated external property, a property in the wrong slot, and
+requirement or artifact identities that disagree with the full profile.
+
+Every projected property declares origin `AUTOMATIC` or `EXTERNAL_EXPERT`.
+USER presentation separates the two groups and renders non-value states
+literally. AUDIT presentation additionally renders the full external
+provenance and the preserved automatic rule, trace-decision, finding, and
+explanation references. Both are formatting-only projections over a completed
+full profile.
+
+There is no overall `score`, `value`, `mean`, `quality_score`, arithmetic mean,
+or equivalent integrated scalar on the full profile. In particular,
+`UNKNOWN`, `UNAVAILABLE`, `NOT_APPLICABLE`, and `UNRESOLVED` remain typed
+absence states and never become zero. The six external properties do not enter
+historical C/V/U specification aggregation, the QB consistency assessment, or
+the Full Model v0.1 metric registry.
