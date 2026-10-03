@@ -1,0 +1,53 @@
+"""Public M3-10 minimal M_process boundary."""
+
+from .domain import (
+    PROCESS_RULE_REF,
+    ArtifactTransitionRef,
+    ComparisonRef,
+    DefectPopulationRef,
+    DissertationStage,
+    MetricProfileRef,
+    PerformanceEfficiencyFeatureProfileRef,
+    ProcessAssessmentState,
+    ProcessAssessmentStateProvenance,
+    ProcessComponentAssociation,
+    ProcessComponentRole,
+    ProcessEvidenceAssociation,
+    ProcessEvidenceRole,
+    ProcessStateTransition,
+    ProcessStateTransitionId,
+    ProcessStateTransitionProvenance,
+    PROCESS_STAGE_MAPPING,
+    RequirementAssessmentRef,
+    SpecificationAssessmentRef,
+)
+from .service import (
+    ProcessStateAssembly,
+    assemble_process_state,
+    assemble_process_transition,
+)
+
+__all__ = [
+    "PROCESS_RULE_REF",
+    "ArtifactTransitionRef",
+    "ComparisonRef",
+    "DefectPopulationRef",
+    "DissertationStage",
+    "MetricProfileRef",
+    "PerformanceEfficiencyFeatureProfileRef",
+    "ProcessAssessmentState",
+    "ProcessAssessmentStateProvenance",
+    "ProcessComponentAssociation",
+    "ProcessComponentRole",
+    "ProcessEvidenceAssociation",
+    "ProcessEvidenceRole",
+    "ProcessStateAssembly",
+    "ProcessStateTransition",
+    "ProcessStateTransitionId",
+    "ProcessStateTransitionProvenance",
+    "PROCESS_STAGE_MAPPING",
+    "RequirementAssessmentRef",
+    "SpecificationAssessmentRef",
+    "assemble_process_state",
+    "assemble_process_transition",
+]
