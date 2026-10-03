@@ -31,6 +31,11 @@ from .domain import (
     TraceEffectCode,
 )
 from .domain.trace import outcome_for_feature
+from .full_model_reporter import (
+    AuditFullModelReporter,
+    FullModelReportBundle,
+    UserFullModelReporter,
+)
 
 _CHARACTERISTIC_FIELDS = ("completeness", "verifiability", "unambiguity")
 
@@ -138,6 +143,11 @@ class ConsoleReporter:
         )
         cross_report = AuditCrossRequirementReporter().render(bundle)
         return f"{local_report}\n\n{cross_report}"
+
+    def render_full_model(self, bundle: FullModelReportBundle) -> str:
+        """Render the existing audit report and the additive Full Model path."""
+
+        return AuditFullModelReporter().render(bundle)
 
     def _render_requirement(
         self, requirement: Requirement, profile: RequirementQualityProfile
@@ -526,6 +536,11 @@ class UserConsoleReporter:
         )
         cross_report = UserCrossRequirementReporter().render(bundle)
         return f"{local_report}\n\n{cross_report}"
+
+    def render_full_model(self, bundle: FullModelReportBundle) -> str:
+        """Render the existing concise report and the additive Full Model path."""
+
+        return UserFullModelReporter().render(bundle)
 
     def _render_record(self, record: RequirementAssessmentRecord) -> str:
         requirement = record.extraction_result.requirement
