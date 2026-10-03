@@ -1,8 +1,7 @@
 """Immutable domain records for the bounded Full Model v0.1 ``A_corr``.
 
-This module models proposal construction only. It deliberately contains no
-replacement text, selected bound, specification successor, reassessment,
-numeric risk, priority, expected risk reduction, or product-quality claim.
+Proposal records contain no replacement payload.  M3-09 may create a later
+``APPLIED`` record version, but only from an externally supplied revision.
 """
 
 from __future__ import annotations
@@ -286,6 +285,44 @@ class ActionRef:
         _identifier(self.action_record_version, "action_record_version")
 
 
+@dataclass(frozen=True, slots=True, order=True)
+class RevisionRef:
+    revision_id: str
+    revision_version: str
+
+    def __post_init__(self) -> None:
+        _identifier(self.revision_id, "revision_id")
+        _identifier(self.revision_version, "revision_version")
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class ActionApplicationId:
+    application_instance_id: str
+    action_before_ref: ActionRef
+    revision_ref: RevisionRef
+    child_artifact_ref: ArtifactRef
+
+    def __post_init__(self) -> None:
+        _identifier(self.application_instance_id, "application_instance_id")
+        if not isinstance(self.action_before_ref, ActionRef):
+            raise TypeError("action_before_ref must be an ActionRef")
+        if not isinstance(self.revision_ref, RevisionRef):
+            raise TypeError("revision_ref must be a RevisionRef")
+        if not isinstance(self.child_artifact_ref, ArtifactRef):
+            raise TypeError("child_artifact_ref must be an ArtifactRef")
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class ActionApplicationRef:
+    application_id: ActionApplicationId
+    application_version: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.application_id, ActionApplicationId):
+            raise TypeError("application_id must be an ActionApplicationId")
+        _identifier(self.application_version, "application_version")
+
+
 @dataclass(frozen=True, slots=True)
 class CorrectiveActionResolutionId:
     action_instance_id: str
@@ -371,8 +408,8 @@ class CorrectiveAction:
     proposed_change_kind: ProposedChangeKind
     expected_bounded_outcome: CorrectiveActionExpectedOutcome
     verification_rule_ref: RuleRef
-    external_revision_ref: None
-    application_ref: None
+    external_revision_ref: RevisionRef | None
+    application_ref: ActionApplicationRef | None
     rejection_source_ref: None
     creator_source: ActionCreatorSource
     provenance: CorrectiveActionProvenance
@@ -389,12 +426,10 @@ class CorrectiveAction:
         if self.action_id != expected_id:
             raise ValueError("action_id must be the contract-defined structured identity")
         _identifier(self.action_record_version, "action_record_version")
-        if self.predecessor_action_ref is not None:
-            raise ValueError("an initial M3-08 proposal has no predecessor action")
         if self.action_kind is not CorrectiveActionKind.RECONCILE_QUANTITATIVE_BOUNDS:
             raise ValueError("unsupported corrective-action kind")
-        if self.status is not CorrectiveActionStatus.PROPOSED:
-            raise ValueError("the M3-08 proposer can create PROPOSED actions only")
+        if not isinstance(self.status, CorrectiveActionStatus):
+            raise TypeError("status must be a CorrectiveActionStatus")
         if self.rule_ref != ACTION_RULE_REF:
             raise ValueError("corrective action requires ACTION-RECONCILE-QB-001 / 1")
         _typed_tuple(self.target_requirements, ActionTargetRequirement, "target_requirements")
@@ -410,15 +445,46 @@ class CorrectiveAction:
             raise ValueError("corrective action requires the bounded non-promissory outcome")
         if self.verification_rule_ref != VERIFICATION_RULE_REF:
             raise ValueError("corrective action requires REEVAL-FULL-MODEL-001 / 1")
-        if any(
-            item is not None
-            for item in (
-                self.external_revision_ref,
-                self.application_ref,
-                self.rejection_source_ref,
-            )
-        ):
-            raise ValueError("a proposal cannot carry application or rejection references")
+        if self.status is CorrectiveActionStatus.PROPOSED:
+            if self.predecessor_action_ref is not None or any(
+                item is not None
+                for item in (
+                    self.external_revision_ref,
+                    self.application_ref,
+                    self.rejection_source_ref,
+                )
+            ):
+                raise ValueError(
+                    "a proposal cannot carry predecessor, application, or rejection references"
+                )
+        elif self.status is CorrectiveActionStatus.APPLIED:
+            if (
+                self.predecessor_action_ref is None
+                or self.external_revision_ref is None
+                or self.application_ref is None
+                or self.rejection_source_ref is not None
+            ):
+                raise ValueError(
+                    "an APPLIED action requires predecessor, revision, and application references"
+                )
+            if (
+                self.predecessor_action_ref.action_id != self.action_id
+                or self.predecessor_action_ref.action_record_version
+                == self.action_record_version
+            ):
+                raise ValueError(
+                    "an APPLIED action must be a distinct version of the same action"
+                )
+        else:
+            if (
+                self.predecessor_action_ref is None
+                or self.rejection_source_ref is None
+                or self.external_revision_ref is not None
+                or self.application_ref is not None
+            ):
+                raise ValueError(
+                    "a REJECTED action requires only predecessor and rejection references"
+                )
         if self.non_optimality_claim is not CorrectiveActionNonOptimalityClaim.CANDIDATE_NOT_OPTIMALITY_CLAIM:
             raise ValueError("corrective action requires the candidate non-optimality claim")
         if (
@@ -529,6 +595,8 @@ __all__ = [
     "PROCESS_REASSESSMENT_CONTRACT_REF",
     "VERIFICATION_RULE_REF",
     "ActionCreatorSource",
+    "ActionApplicationId",
+    "ActionApplicationRef",
     "ActionRef",
     "ActionTargetRequirement",
     "CorrectiveAction",
@@ -546,4 +614,5 @@ __all__ = [
     "CorrectiveActionStatus",
     "ProposedChangeKind",
     "RequirementLineageId",
+    "RevisionRef",
 ]
