@@ -7684,3 +7684,90 @@ or equivalent integrated scalar on the full profile. In particular,
 absence states and never become zero. The six external properties do not enter
 historical C/V/U specification aggregation, the QB consistency assessment, or
 the Full Model v0.1 metric registry.
+
+## 21. Bounded executable Performance Efficiency prediction (TC-02)
+
+- **Scientific status:** `ISSUE_164_APPROVED_IMPLEMENTATION_SCOPE`
+- **Executable scope:** one explicitly configured Performance Efficiency path
+- **Governing contract:**
+  `FULL-MODEL-V1.0-PE-PRODUCT-QUALITY-PREDICTION / 1`
+- **Rule:** `F-THETA-PE-001 / 1`
+
+TC-02 makes the following bounded process executable:
+
+```text
+X_PE → F_θ,PE(X_PE, C) → ŷ_PE,  ŷ_PE ∈ [0,1]
+```
+
+`PerformanceEfficiencyFeatureProfile` remains the authoritative `X_PE`. The
+prediction service only projects the evaluator-declared feature entries from
+that completed profile; it does not recompute requirement C/V/U, QB, dynamic
+evidence, observations, conformance, or any accepted feature. Required-feature
+order is the order declared by the versioned evaluator contract and is retained
+in result provenance together with every feature-entry reference, source
+reference, upstream state, applicability, and typed reason.
+
+The evaluator is a typed in-process implementation supplied explicitly by the
+caller. There is no production default, automatic selection, string-based
+dynamic import, or inference of an evaluator from requirement text or observed
+conformance. Its versioned definition declares its identity, supported
+characteristic, invocation contract, exact required `X_PE` inventory, exact
+required context inventory, exact parameter-name inventory, expected parameter
+set identity/version, calibration status, and source or rationale.
+
+Theta is an immutable `PredictionParameterSet` separate from the empty
+observed-indicator parameter set. It contains a versioned identity, the exact
+evaluator identity/version to which it belongs, ordered named entries with
+exact `Fraction` or `Decimal` values, source or rationale, calibration status,
+and governing contract. The invocation fails before evaluation if the evaluator
+identity/version, parameter-set identity/version, calibration status, or exact
+parameter inventory disagrees with the evaluator declaration. No coefficient,
+zero, or other parameter default exists.
+
+Context `C` is a typed `PerformanceEfficiencyPredictionContext`, not a free-form
+dictionary. Its bounded fields are product, artifact, process state,
+environment, observation collection, and response-time criterion context.
+Product, artifact, and process identities must agree with `X_PE`; supplied
+environment, collection, and criterion context must trace to `X_PE` provenance.
+The evaluator explicitly declares which context fields it requires, and the
+selected typed values are preserved in prediction provenance.
+
+If a required `X_PE` entry is not `AVAILABLE`, its upstream `UNKNOWN`,
+`UNAVAILABLE`, `UNRESOLVED`, `UNSUPPORTED`, or `NOT_APPLICABLE` state and
+applicability control the withheld result. Its numeric prediction is absent,
+the upstream reasons and references remain in provenance, and the evaluator is
+not invoked. If a required context field is absent, prediction is
+`UNAVAILABLE`, its numeric value is absent, and the evaluator is likewise not
+invoked. No missing input is represented by `0`, `0/1`, an empty string, or a
+fabricated contextual value.
+
+An available `PredictedPerformanceEfficiency` has result kind
+`PREDICTED_PERFORMANCE_EFFICIENCY`, exact `Fraction` value, evaluator and theta
+references, calibration status, selected `X_PE` references, selected context,
+artifact/product/process identities, governing contracts and rules,
+explanation, and complete invocation provenance. Evaluator output must be an
+exact `Fraction` in `[0,1]`; values outside that range and floats are rejected,
+never clamped, normalized, or rounded. A withheld result has no numeric value.
+
+This type is intentionally distinct from `ProductQualityAssessment`. The latter
+remains result kind `OBSERVED_REFERENCE_INDICATOR`, keeps
+`prediction_value is None`, and continues to represent only observed bounded
+response-time conformance. USER and AUDIT projections add a prediction section
+only when a prediction record is explicitly supplied. With no prediction, the
+existing Full Model v0.1 output remains byte-for-byte unchanged.
+
+The controlled reference evaluator used by TC-02 tests is fixture-scoped. Its
+explicit evaluator identity, theta, required features, context, and exact
+arithmetic demonstrate executable and reproducible contract invocation only.
+It is not a production default and does not establish predictive validity. The
+logistic expression recorded in Section 4.2 remains a candidate baseline only;
+TC-02 does not promote it or the dissertation's demonstration coefficients to
+an approved universal model.
+
+TC-02 makes no claim of experimental calibration, prediction accuracy,
+confidence, reliability, uncertainty, empirical validation, causal influence
+of requirement quality on product quality, generalization beyond the controlled
+configuration, complete Performance Efficiency coverage, a nine-characteristic
+`Y_hat`, or a context-weighted `Q_int`. Risk, checkpoint decisions, integrated
+Full Model v1.0 orchestration, CLI integration, model training, fitting, and
+automatic theta selection remain outside this task.

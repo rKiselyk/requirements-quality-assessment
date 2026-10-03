@@ -37,6 +37,7 @@ from .metrics import ArtifactRef, MetricProfile
 from .performance_efficiency import PerformanceEfficiencyFeatureProfile
 from .process import ProcessAssessmentState, ProcessStateTransition
 from .product_quality import ProductQualityAssessment
+from .product_quality_prediction import PredictedPerformanceEfficiency
 from .reassessment import (
     CoreReassessmentResults,
     FullModelDownstreamRecords,
@@ -64,6 +65,7 @@ class FullModelReportBundle:
     conformance: ConformanceAssessment | None = None
     feature_profile: PerformanceEfficiencyFeatureProfile | None = None
     product_quality_assessment: ProductQualityAssessment | None = None
+    predicted_product_quality: PredictedPerformanceEfficiency | None = None
     problem_resolutions: tuple[ProblemClaimResolution, ...] = ()
     defect_population: DefectPopulationSnapshot | None = None
     defect_quality_relations: tuple[DefectQualityRelation, ...] = ()
@@ -101,6 +103,11 @@ class FullModelReportBundle:
                 "product_quality_assessment",
                 self.product_quality_assessment,
                 ProductQualityAssessment,
+            ),
+            (
+                "predicted_product_quality",
+                self.predicted_product_quality,
+                PredictedPerformanceEfficiency,
             ),
             (
                 "defect_population",
@@ -218,6 +225,7 @@ _AUDIT_RECORDS = (
     ("conformance", "Criterion conformance"),
     ("feature_profile", "X_PE feature profile"),
     ("product_quality_assessment", "Bounded Performance Efficiency assessment"),
+    ("predicted_product_quality", "Predicted product quality (y_hat_PE)"),
     ("problem_resolutions", "Problem claim resolutions"),
     ("defect_population", "Defect population"),
     ("defect_quality_relations", "R_DQ relations"),
@@ -313,6 +321,10 @@ class UserFullModelReporter:
         if dynamic:
             sections.append("\n".join(("Спостережуваний показник якості продукту", *dynamic)))
 
+        predicted = self._predicted_product_quality(bundle)
+        if predicted:
+            sections.append("\n".join(("Прогнозована якість продукту (ŷ_PE)", *predicted)))
+
         defect = self._defect_and_risk(bundle)
         if defect:
             sections.append("\n".join(("Проблема, R_DQ і обмежений ризик", *defect)))
@@ -352,6 +364,32 @@ class UserFullModelReporter:
                 f"{state.process_state_version}; stage={state.stage.value}"
             )
         return lines
+
+    @staticmethod
+    def _predicted_product_quality(bundle: FullModelReportBundle) -> list[str]:
+        prediction = bundle.predicted_product_quality
+        if prediction is None:
+            return []
+        value = (
+            _user_exact(prediction.predicted_value)
+            if prediction.predicted_value is not None
+            else prediction.status.value
+        )
+        parameter_identity = prediction.parameter_set_ref.identity
+        return [
+            "Прогноз Performance Efficiency: "
+            f"{value} (kind={prediction.result_kind.value}; "
+            f"status={prediction.status.value}; "
+            f"applicability={prediction.applicability.value})",
+            "F_θ,PE: "
+            f"{prediction.predictor_ref.predictor_id} / "
+            f"{prediction.predictor_ref.predictor_version}; θ="
+            f"{parameter_identity.parameter_set_id} / "
+            f"{parameter_identity.parameter_set_version}; "
+            f"calibration={prediction.calibration_status.value}",
+            "Це прогнозований результат, а не спостережуваний індикатор; "
+            "оцінка впевненості, невизначеність і прогнозна валідність не заявляються.",
+        ]
 
     @staticmethod
     def _requirement_and_specification_quality(
