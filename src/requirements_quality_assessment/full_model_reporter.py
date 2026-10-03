@@ -38,6 +38,7 @@ from .performance_efficiency import PerformanceEfficiencyFeatureProfile
 from .process import ProcessAssessmentState, ProcessStateTransition
 from .product_quality import ProductQualityAssessment
 from .product_quality_prediction import PredictedPerformanceEfficiency
+from .quantitative_risk import QuantitativeLocalRiskAssessment
 from .reassessment import (
     CoreReassessmentResults,
     FullModelDownstreamRecords,
@@ -79,6 +80,7 @@ class FullModelReportBundle:
     process_states: tuple[ProcessAssessmentState, ...] = ()
     process_transitions: tuple[ProcessStateTransition, ...] = ()
     predicted_product_quality: PredictedPerformanceEfficiency | None = None
+    quantitative_risk_assessments: tuple[QuantitativeLocalRiskAssessment, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.assessment_result, SpecificationAssessmentResult):
@@ -150,6 +152,11 @@ class FullModelReportBundle:
                 "process_transitions",
                 self.process_transitions,
                 ProcessStateTransition,
+            ),
+            (
+                "quantitative_risk_assessments",
+                self.quantitative_risk_assessments,
+                QuantitativeLocalRiskAssessment,
             ),
         )
         for name, values, expected_type in tuple_fields:
@@ -239,6 +246,7 @@ _AUDIT_RECORDS = (
     ("comparisons", "Before/after comparisons"),
     ("process_states", "Process assessment states"),
     ("process_transitions", "Process state transitions"),
+    ("quantitative_risk_assessments", "Quantitative local risk r_ij"),
 )
 
 
@@ -329,6 +337,12 @@ class UserFullModelReporter:
         if defect:
             sections.append("\n".join(("Проблема, R_DQ і обмежений ризик", *defect)))
 
+        quantitative_risk = self._quantitative_risk(bundle)
+        if quantitative_risk:
+            sections.append(
+                "\n".join(("Кількісний локальний ризик r_ij", *quantitative_risk))
+            )
+
         action = self._action_and_revision(bundle)
         if action:
             sections.append("\n".join(("Коригувальна дія і зовнішня ревізія", *action)))
@@ -341,7 +355,7 @@ class UserFullModelReporter:
         if process:
             sections.append("\n".join(("Перехід стану процесу", *process)))
 
-        sections.append(self._limitations())
+        sections.append(self._limitations(bool(bundle.quantitative_risk_assessments)))
         return "\n\n".join(sections)
 
     @staticmethod
@@ -513,9 +527,13 @@ class UserFullModelReporter:
                 if risk.classification is not None
                 else risk.status.value
             )
+            risk_label = (
+                "Категоріальний обмежений ризик: "
+                if bundle.quantitative_risk_assessments
+                else "Обмежений ризик: "
+            )
             lines.append(
-                "Обмежений ризик: "
-                f"{classification} (status={risk.status.value}; "
+                risk_label + f"{classification} (status={risk.status.value}; "
                 f"applicability={risk.applicability.value}; "
                 f"calibration={risk.calibration_status.value})"
             )
@@ -523,6 +541,30 @@ class UserFullModelReporter:
             lines.append(
                 "Відсутність підтвердженої проблеми в D_v0.1 не означає "
                 "відсутність дефектів."
+            )
+        return lines
+
+    @staticmethod
+    def _quantitative_risk(bundle: FullModelReportBundle) -> list[str]:
+        lines: list[str] = []
+        for assessment in bundle.quantitative_risk_assessments:
+            value = (
+                _user_exact(assessment.local_risk)
+                if assessment.local_risk is not None
+                else assessment.state.value
+            )
+            calibrations = ", ".join(
+                status.value for status in assessment.calibration_statuses
+            )
+            lines.extend(
+                (
+                    "Кількісний r_ij: "
+                    f"{value} (state={assessment.state.value}; "
+                    f"characteristic={assessment.characteristic_id.value})",
+                    f"Scope: {assessment.scope.value}; calibration=[{calibrations}]",
+                    "Усі чотири операнди надано зовнішнім джерелом; цей окремий "
+                    "розрахунок не є категоріальною класифікацією RISK_IDENTIFIED.",
+                )
             )
         return lines
 
@@ -708,12 +750,18 @@ class UserFullModelReporter:
         return lines
 
     @staticmethod
-    def _limitations() -> str:
+    def _limitations(has_quantitative_risk: bool = False) -> str:
+        risk_limitation = (
+            "- RISK_IDENTIFIED сам по собі означає лише визначену bounded presence; "
+            "окремий r_ij існує лише як зовнішньо параметризований локальний розрахунок."
+            if has_quantitative_risk
+            else "- RISK_IDENTIFIED означає лише визначену bounded presence; "
+            "величина ризику не обчислюється."
+        )
         return "\n".join(
             (
                 "Важливі межі",
-                "- RISK_IDENTIFIED означає лише визначену bounded presence; "
-                "величина ризику не обчислюється.",
+                risk_limitation,
                 "- NOT_APPLICABLE не є твердженням про безпечність.",
                 "- Відсутність підтвердженої проблеми не означає відсутність дефектів.",
                 "- Спостережуваний PE indicator не є повною Performance Efficiency.",

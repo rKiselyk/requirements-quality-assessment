@@ -424,6 +424,7 @@ def test_prediction_field_is_appended_after_the_complete_legacy_bundle_sequence(
     assert tuple(item.name for item in fields(FullModelReportBundle)) == (
         *legacy_fields,
         "predicted_product_quality",
+        "quantitative_risk_assessments",
     )
 
     dynamic = _bundle()
@@ -445,3 +446,4 @@ def test_prediction_field_is_appended_after_the_complete_legacy_bundle_sequence(
 
     assert historical_positional_bundle.problem_resolutions == (problem_resolution,)
     assert historical_positional_bundle.predicted_product_quality is None
+    assert historical_positional_bundle.quantitative_risk_assessments == ()

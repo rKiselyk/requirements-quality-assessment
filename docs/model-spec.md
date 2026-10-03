@@ -303,7 +303,7 @@ applicability set, or confirmation procedure are not operationally defined.
 | Context-weighted product-quality index `Q_int` | Quality model and application example | 4.2 aggregation; example Section 6 | General weighted form; weights context-dependent | Not directly | `OUT_OF_SCOPE_V0.1` |
 | Non-compensated critical thresholds | Process and quality models | 4.1 checkpoints; 4.2 admissibility | Logical form exists; thresholds unset | Not currently | `OUT_OF_SCOPE_V0.1` |
 | Finding/defect evidence | Requirement properties; metrics system; static methods; risk model; Section 7.16 | 2.1 paragraph 10; 2.3 paragraphs 12-16 and 30; 3.1 paragraphs 10 and 29-31; 4.3 defect tuple | Minimal MVP Finding contract, vague-term signal conversion, and absence provenance are approved; quality-problem conversions absent | Yes for explainability | `APPROVED DATA CONTRACT / QUALITY_PROBLEM RULES BLOCKED` |
-| Local risk `r_ij` and risk aggregation | Risk model | 4.3 local risk and `Psi_j` | Local formula exists; inputs and aggregate operator require calibration | No | `OUT_OF_SCOPE_V0.1` |
+| Local risk `r_ij` and risk aggregation | Risk model | 4.3 local risk and `Psi_j` | TC-03 executes one externally parameterized local formula with exact supplied operands; inputs remain uncalibrated and aggregate `Psi_j` remains undefined/unimplemented | Local calculation only | `TC03_LOCAL_EXECUTABLE / AGGREGATION_BLOCKED` |
 | Corrective actions and iterative reassessment | Process and risk models | 4.1 feedback; 4.3 action tuple and loop | Conceptual structure exists | No | `OUT_OF_SCOPE_V0.1` |
 | Manually approved reference cases for MVP scores | Requirement properties; metrics system; application example | 2.1 Tables 2.1-2.3; 2.3 Tables 2.7-2.8; example Sections 2-12 | Qualitative and aggregate examples exist; approved per-line expected scores absent | Yes | `PARTIALLY_DEFINED` |
 
@@ -7771,3 +7771,82 @@ configuration, complete Performance Efficiency coverage, a nine-characteristic
 `Y_hat`, or a context-weighted `Q_int`. Risk, checkpoint decisions, integrated
 Full Model v1.0 orchestration, CLI integration, model training, fitting, and
 automatic theta selection remain outside this task.
+
+## 22. Externally parameterized quantitative local risk (TC-03)
+
+- **Scientific status:** `ISSUE_165_FIRST_IMPLEMENTATION_PASS`
+- **Executable scope:** one local Performance Efficiency `r_ij` calculation
+- **Governing contract:**
+  `FULL-MODEL-V0.1-QUANTITATIVE-LOCAL-RISK / 1`
+- **Rule:** `R-IJ-PE-001 / 1`
+
+TC-03 makes only the dissertation's local structure executable:
+
+```text
+r_ij = rho_ij * p_ij * I_ij * kappa_j(C),  r_ij in [0,1]
+```
+
+The existing structural `R_DQ` relation remains nonnumeric and continues to
+carry `RelationNonClaim.NOT_NUMERIC_RHO`. Numeric `rho_ij` is a separate,
+explicitly supplied operand whose provenance references the exact
+`DefectQualityRelationRef` it parameterizes. Relation presence, relation kind,
+a confirmed problem, QB conflict, requirement scores, and observed or
+predicted product quality never create a numeric `rho_ij`.
+
+The four closed operand kinds are `RHO`, `PROBABILITY`, `IMPACT`, and
+`CONTEXT_FACTOR`. Each operand has a stable ID and version, explicit state,
+optional exact value, versioned source and provider, source/rationale,
+calibration status, governing contract, artifact, confirmed-problem,
+structural-relation, characteristic, and process-state identities. The context
+factor additionally names the exact context ID/version. Cross-artifact,
+cross-problem, cross-relation, cross-characteristic, and cross-process bundles
+are rejected.
+
+Only `AVAILABLE` may carry a numeric value, and that value must be a standard
+library `Fraction`; floats are rejected. Every non-value state carries
+`value=None`. Missing, unknown, unavailable, unresolved, unsupported, and
+not-applicable input therefore never becomes zero. Conversely, an explicitly
+supplied `AVAILABLE` `Fraction(0, 1)` is real data and can produce exact zero.
+If any operand is not available, calculation is withheld, `r_ij` is absent,
+and all four states and provenance records are preserved without imposing a
+scientific precedence among heterogeneous missing states.
+
+Calculation is exactly the product of the four operands. There is no addition,
+weight beyond those operands, normalization, rounding, clamping, threshold,
+ranking, transform, or probability inference. The explicit dissertation bound
+`rho_ij in [0,1]` is enforced. No independent universal bounds are asserted for
+`p_ij`, `I_ij`, or `kappa_j(C)`; instead, the final exact `r_ij` must be in
+`[0,1]` or the calculation fails closed without clamping.
+
+Every operand carries conservative calibration metadata. TC-03 production
+contracts do not accept `EXPERIMENTALLY_CALIBRATED`; the implementation claims
+no accepted experimental evidence. Calibration status is neither confidence
+nor an uncertainty interval.
+
+An available `QuantitativeLocalRiskAssessment` is distinct from
+`BoundedRiskAssessment`. It retains the exact confirmed problem, nonnumeric
+relation, Performance Efficiency characteristic, artifact and source
+assessment/snapshot, process state, all four operands and sources, their
+calibration statuses, exact `Fraction` result, numeric representation,
+calculation contract/rule, complete provenance, explanation, and non-claims.
+It contains no `RISK_IDENTIFIED` classification. The categorical assessment
+likewise remains unchanged and gains no numeric field.
+
+The controlled fixture values `1/2`, `1/4`, `3/4`, and `2/3`, producing exact
+`1/16`, are demonstrational test data for executability only. They are not
+production defaults, dissertation-estimated coefficients, recommended risk
+parameters, or empirically calibrated values. A caller must explicitly supply
+every operand.
+
+USER and AUDIT reporting is additive and conditional. When no quantitative
+record is supplied, historical Full Model v0.1 output remains byte-for-byte
+unchanged. When supplied, categorical bounded risk and quantitative local
+`r_ij` are labeled separately; AUDIT exposes every operand state, value/source,
+version, calibration status, governing identity, exact result or absence, and
+non-claim. Reporters do not perform multiplication.
+
+TC-03 implements no `Psi_j`, aggregate `Risk_j`, defect priority `Pi_i`,
+ranking, threshold, max-risk selection, checkpoint, release decision,
+corrective-action prioritization, automatic estimation, simulation, learned or
+Bayesian model, confidence, uncertainty interval, causal inference, automatic
+calibration, or risk-reduction claim. Empirical validity is not claimed.
