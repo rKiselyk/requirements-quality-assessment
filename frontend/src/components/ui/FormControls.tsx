@@ -1,4 +1,4 @@
-import { useId, useState, type DragEvent, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { useId, useRef, useState, type DragEvent, type InputHTMLAttributes, type KeyboardEvent, type TextareaHTMLAttributes } from "react";
 import { InlineValidation } from "./Feedback";
 
 interface FieldProps {
@@ -63,6 +63,8 @@ export interface FileDropzoneProps {
 
 export function FileDropzone({ label, description, accept = ".txt,text/plain", disabled = false, onFile }: FileDropzoneProps) {
   const id = useId();
+  const descriptionId = `${id}-description`;
+  const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
   const receive = (files: FileList | null) => {
@@ -76,10 +78,23 @@ export function FileDropzone({ label, description, accept = ".txt,text/plain", d
     if (!disabled) receive(event.dataTransfer.files);
   };
 
+  const onKeyDown = (event: KeyboardEvent<HTMLLabelElement>) => {
+    if (disabled || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    inputRef.current?.click();
+  };
+
   return (
     <label
       className={`dropzone ${dragging ? "dropzone--active" : ""} ${disabled ? "dropzone--disabled" : ""}`.trim()}
       htmlFor={id}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-label={label}
+      aria-describedby={description ? descriptionId : undefined}
+      aria-disabled={disabled || undefined}
+      onKeyDown={onKeyDown}
+      onClick={(event) => { if (disabled) event.preventDefault(); }}
       onDragEnter={(event) => { event.preventDefault(); if (!disabled) setDragging(true); }}
       onDragOver={(event) => event.preventDefault()}
       onDragLeave={() => setDragging(false)}
@@ -87,8 +102,18 @@ export function FileDropzone({ label, description, accept = ".txt,text/plain", d
     >
       <span className="dropzone__icon" aria-hidden="true">⇧</span>
       <span className="dropzone__label">{label}</span>
-      {description ? <span className="dropzone__description">{description}</span> : null}
-      <input id={id} className="visually-hidden" type="file" accept={accept} disabled={disabled} onChange={(event) => receive(event.target.files)} />
+      {description ? <span id={descriptionId} className="dropzone__description">{description}</span> : null}
+      <input
+        ref={inputRef}
+        id={id}
+        className="visually-hidden"
+        type="file"
+        accept={accept}
+        disabled={disabled}
+        tabIndex={-1}
+        aria-label={label}
+        onChange={(event) => receive(event.target.files)}
+      />
     </label>
   );
 }

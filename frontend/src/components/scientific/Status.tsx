@@ -11,14 +11,10 @@ export type ScientificCode =
   | (string & {});
 
 export type ApplicabilityCode = "APPLICABLE" | "UNKNOWN" | "NOT_APPLICABLE" | (string & {});
-export type DisplayTone = "accent" | "warning" | "muted" | "critical" | "neutral";
+export type DisplayTone = "neutral";
 
-/** Presentation mapping only. It does not derive or reinterpret a scientific state. */
-export function statusDisplayTone(code: ScientificCode | ApplicabilityCode): DisplayTone {
-  if (code === "COMPUTED" || code === "AVAILABLE" || code === "SATISFIED" || code === "APPLICABLE") return "accent";
-  if (code === "UNKNOWN" || code === "UNRESOLVED" || code === "UNSUPPORTED") return "warning";
-  if (code === "NOT_APPLICABLE" || code === "UNAVAILABLE") return "muted";
-  if (code === "RISK_IDENTIFIED") return "critical";
+/** Raw scientific codes receive no positive, negative, or severity interpretation. */
+export function statusDisplayTone(_code: ScientificCode | ApplicabilityCode): DisplayTone {
   return "neutral";
 }
 
