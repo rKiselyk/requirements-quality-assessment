@@ -210,6 +210,10 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .requirement-navigator button strong { font: 650 0.85rem var(--font-mono); }
 .requirement-navigator button span { color: var(--color-text-muted); font-size: 0.72rem; }
 .requirement-navigator button small { display: -webkit-box; overflow: hidden; color: var(--color-text); font-size: 0.75rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.requirement-navigator__malformed { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); background: var(--color-surface-subtle); color: var(--color-text-muted); }
+.requirement-navigator__malformed strong { font-size: 0.78rem; font-weight: 600; }
+.requirement-navigator__malformed span { font: 0.7rem var(--font-mono); }
+.malformed-requirements-note { margin: 0 0 var(--space-6); }
 .requirement-detail { min-width: 0; }
 .requirement-source-card .card__body { padding: var(--space-6); }
 .requirement-source-card__identity { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }

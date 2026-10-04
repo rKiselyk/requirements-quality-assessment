@@ -98,5 +98,10 @@ export const requirements = {
     title: "Canonical record cannot be safely presented",
     record: "This canonical record is missing required presentation data or contains contradictory values. Nothing was inferred.",
     profile: "The extended property profile is present but cannot be safely matched or presented. No external/expert values were inferred.",
+    requirementsTitle_one: "{{count}} canonical requirement record cannot be safely presented",
+    requirementsTitle_other: "{{count}} canonical requirement records cannot be safely presented",
+    requirementsDescription: "Malformed records remain visible at their response positions and are not selectable. Valid canonical requirements retain server order.",
+    requirementRow: "Malformed canonical requirement record",
+    responsePosition: "Response position {{position}}",
   },
 } as const;

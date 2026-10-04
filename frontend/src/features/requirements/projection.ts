@@ -102,6 +102,10 @@ export interface RequirementProjection {
   trace: RequirementTraceProjection | null;
 }
 
+export type RequirementListEntry =
+  | { kind: "VALID"; position: number; value: RequirementProjection }
+  | { kind: "MALFORMED"; position: number };
+
 export interface ExternalPropertyProjection {
   propertyId: string;
   state: "AVAILABLE" | "UNKNOWN" | "UNAVAILABLE" | "NOT_APPLICABLE" | "UNRESOLVED";
@@ -163,7 +167,7 @@ function exactRational(value: unknown): ExactValueData | null {
     : null;
 }
 
-function finding(value: unknown): FindingProjection | null {
+function finding(value: unknown, parentRequirementId: string, parentCharacteristicId: string): FindingProjection | null {
   const candidate = record(value);
   if (!candidate) return null;
   const findingId = text(candidate.finding_id);
@@ -175,12 +179,12 @@ function finding(value: unknown): FindingProjection | null {
   const criterionId = candidate.criterion_id === null ? null : text(candidate.criterion_id);
   const evidenceRefs = stringArray(candidate.evidence_refs);
   const explanation = stringValue(candidate.explanation);
-  if (!findingId || !requirementId || !characteristicId || !kind || !code || !ruleId
+  if (!findingId || requirementId !== parentRequirementId || characteristicId !== parentCharacteristicId || !kind || !code || !ruleId
     || (candidate.criterion_id !== null && criterionId === null) || evidenceRefs === null || explanation === null) return null;
   return { findingId, requirementId, characteristicId, kind, code, ruleId, criterionId, evidenceRefs, explanation };
 }
 
-function characteristic(value: unknown, expectedId: string): CharacteristicProjection | null {
+function characteristic(value: unknown, expectedId: string, parentRequirementId: string): CharacteristicProjection | null {
   const candidate = record(value);
   if (!candidate || candidate.characteristic_id !== expectedId) return null;
   const state = candidate.state;
@@ -191,6 +195,7 @@ function characteristic(value: unknown, expectedId: string): CharacteristicProje
   const assessmentRuleId = candidate.assessment_rule_id === null ? null : text(candidate.assessment_rule_id);
   const explanation = stringValue(candidate.explanation);
   if ((candidate.assessment_rule_id !== null && assessmentRuleId === null)
+    || (state === "COMPUTED" && assessmentRuleId === null)
     || explanation === null || !Array.isArray(candidate.findings)) return null;
   return {
     characteristicId: expectedId,
@@ -198,11 +203,11 @@ function characteristic(value: unknown, expectedId: string): CharacteristicProje
     value: projectedValue,
     assessmentRuleId,
     explanation,
-    findings: candidate.findings.map(finding),
+    findings: candidate.findings.map((item) => finding(item, parentRequirementId, expectedId)),
   };
 }
 
-function evidence(value: unknown): EvidenceProjection | null {
+function evidence(value: unknown, parentRequirementId: string): EvidenceProjection | null {
   const candidate = record(value);
   if (!candidate) return null;
   const evidenceId = text(candidate.evidence_id);
@@ -212,7 +217,7 @@ function evidence(value: unknown): EvidenceProjection | null {
   const startOffset = nonNegativeInteger(candidate.start_offset);
   const endOffset = nonNegativeInteger(candidate.end_offset);
   const ruleId = text(candidate.rule_id);
-  if (!evidenceId || !requirementId || !featureId || evidenceText === null || startOffset === null
+  if (!evidenceId || requirementId !== parentRequirementId || !featureId || evidenceText === null || startOffset === null
     || endOffset === null || endOffset < startOffset || !ruleId) return null;
   return { evidenceId, requirementId, featureId, text: evidenceText, startOffset, endOffset, ruleId };
 }
@@ -290,11 +295,11 @@ function requirement(value: unknown): RequirementProjection | null {
   return {
     requirement: { id, sourceLine, text: requirementText },
     characteristics: {
-      completeness: characteristic(qualityProfile.completeness, "COMPLETENESS"),
-      verifiability: characteristic(qualityProfile.verifiability, "VERIFIABILITY"),
-      unambiguity: characteristic(qualityProfile.unambiguity, "UNAMBIGUITY"),
+      completeness: characteristic(qualityProfile.completeness, "COMPLETENESS", id),
+      verifiability: characteristic(qualityProfile.verifiability, "VERIFIABILITY", id),
+      unambiguity: characteristic(qualityProfile.unambiguity, "UNAMBIGUITY", id),
     },
-    evidence: candidate.evidence.map(evidence),
+    evidence: candidate.evidence.map((item) => evidence(item, id)),
     features: {
       condition_contexts: feature(features.condition_contexts, "condition_context"),
       expected_results: feature(features.expected_results, "expected_result"),
@@ -307,11 +312,20 @@ function requirement(value: unknown): RequirementProjection | null {
   };
 }
 
-export function selectRequirements(response: CanonicalAnalyzeResponse): RequirementProjection[] {
-  return response.requirements.map(requirement).filter((item): item is RequirementProjection => item !== null);
+export function selectRequirements(response: CanonicalAnalyzeResponse): RequirementListEntry[] {
+  return response.requirements.map((item, index) => {
+    const projected = requirement(item);
+    return projected
+      ? { kind: "VALID" as const, position: index + 1, value: projected }
+      : { kind: "MALFORMED" as const, position: index + 1 };
+  });
 }
 
-function externalProperty(value: unknown, expectedPropertyId: string): ExternalPropertyProjection | null {
+function externalProperty(
+  value: unknown,
+  expectedPropertyId: string,
+  expectedRequirement: RequirementIdentityProjection,
+): ExternalPropertyProjection | null {
   const candidate = record(value);
   if (!candidate || candidate.property_id !== expectedPropertyId) return null;
   const state = candidate.state;
@@ -322,7 +336,11 @@ function externalProperty(value: unknown, expectedPropertyId: string): ExternalP
   if ((state === "AVAILABLE" && !judgmentId) || (state !== "AVAILABLE" && candidate.judgment !== null)) return null;
   const provenance = record(candidate.provenance);
   const explanation = stringValue(candidate.explanation);
-  if (!provenance || explanation === null) return null;
+  const provenanceRequirement = provenance && record(provenance.requirement_ref);
+  if (!provenance || !provenanceRequirement
+    || provenanceRequirement.requirement_id !== expectedRequirement.id
+    || provenanceRequirement.source_line !== expectedRequirement.sourceLine
+    || explanation === null) return null;
   return { propertyId: expectedPropertyId, state, judgmentId: judgmentId ?? null, provenance, explanation };
 }
 
@@ -351,7 +369,7 @@ export function selectFullProfile(response: CanonicalAnalyzeResponse, selected: 
       continue;
     }
 
-    const projected = externalPropertySlots.map(([slot, propertyId]) => externalProperty(candidate[slot], propertyId));
+    const projected = externalPropertySlots.map(([slot, propertyId]) => externalProperty(candidate[slot], propertyId, selected));
     if (projected.some((item) => item === null)) return { kind: "MALFORMED" };
     return { kind: "PRESENT", external: projected as ExternalPropertyProjection[] };
   }

@@ -180,6 +180,29 @@ describe("RUI-08 Requirements page", () => {
     expect(within(completeness).queryByText("COMPUTED")).toBeNull();
   });
 
+  it.each(["null", "missing"])("rejects COMPUTED with a %s assessment rule identity", (variant) => {
+    const payload = result();
+    const first = payload.requirements[0] as Record<string, unknown>;
+    const quality = first.quality_profile as Record<string, unknown>;
+    const completeness = assessment("COMPLETENESS", 13, 17) as Record<string, unknown>;
+    if (variant === "null") completeness.assessment_rule_id = null;
+    else delete completeness.assessment_rule_id;
+    quality.completeness = completeness;
+    renderPage(payload);
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    expect(within(card).getByText(/Nothing was inferred/)).toBeTruthy();
+    expect(within(card).queryByText("COMPUTED")).toBeNull();
+    expect(within(card).queryByLabelText("Exact value: 13/17")).toBeNull();
+  });
+
+  it("keeps valid COMPUTED exact value and canonical assessment rule", () => {
+    renderPage();
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    expect(within(card).getByLabelText("Exact value: 13/17")).toBeTruthy();
+    expect(within(card).getByText("COMPUTED")).toBeTruthy();
+    expect(within(card).getAllByText("RULE-COMPLETENESS").length).toBeGreaterThan(0);
+  });
+
   it("keeps NOT_APPLICABLE separate from zero", () => {
     const payload = result();
     const first = payload.requirements[0] as Record<string, unknown>;
@@ -198,6 +221,22 @@ describe("RUI-08 Requirements page", () => {
     expect(ids).toEqual(["E-EMOJI", "E-NUMBER"]);
   });
 
+  it("does not present cross-requirement Evidence as valid or rewrite its canonical identity", () => {
+    const payload = result();
+    const first = payload.requirements[0] as Record<string, unknown>;
+    const records = first.evidence as Array<Record<string, unknown>>;
+    records[0] = { ...records[0], requirement_id: "R999" };
+    const before = JSON.stringify(records[0]);
+    renderPage(payload);
+    expect(Array.from(document.querySelectorAll(".evidence-list .evidence-badge code"), (node) => node.textContent)).toEqual(["E-NUMBER"]);
+    expect(screen.queryByRole("button", { name: /E-EMOJI/ })).toBeNull();
+    expect(within(document.querySelector(".evidence-list") as HTMLElement).getByText(/Nothing was inferred/)).toBeTruthy();
+    expect(document.querySelector("mark")).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(JSON.stringify(records[0])).toBe(before);
+    expect(records[0].requirement_id).toBe("R999");
+  });
+
   it("highlights Unicode code-point offsets exactly and opens the evidence drawer", () => {
     renderPage();
     fireEvent.click(screen.getAllByRole("button", { name: /E-EMOJI/ })[0]);
@@ -214,7 +253,9 @@ describe("RUI-08 Requirements page", () => {
   });
 
   it("proves the accepted emoji offset is not interpreted as a UTF-16 index", () => {
-    const projected = selectRequirements(result())[0].evidence[0]!;
+    const first = selectRequirements(result())[0];
+    const projected = first.kind === "VALID" ? first.value.evidence[0]! : null;
+    if (!projected) throw new Error("Expected valid projected evidence");
     expect(r1Text.substring(projected.startOffset, projected.endOffset)).not.toBe(projected.text);
     expect(validateEvidenceSpan(r1Text, projected)).toMatchObject({ valid: true, selected: "Швидко" });
   });
@@ -253,6 +294,23 @@ describe("RUI-08 Requirements page", () => {
     expect(screen.getByText(/Referenced evidence is not present/)).toBeTruthy();
   });
 
+  it.each([
+    ["requirement identity", { requirement_id: "R999" }],
+    ["characteristic identity", { characteristic_id: "VERIFIABILITY" }],
+  ])("does not present a Finding with mismatched %s as valid", (_label, mismatch) => {
+    const payload = result();
+    const first = payload.requirements[0] as Record<string, unknown>;
+    const quality = first.quality_profile as Record<string, unknown>;
+    quality.unambiguity = assessment("UNAMBIGUITY", 1, 2, "COMPUTED", [{ ...finding(), ...mismatch }]);
+    renderPage(payload);
+    const findingList = document.querySelector(".finding-list") as HTMLElement;
+    expect(screen.queryByText("Signal")).toBeNull();
+    expect(screen.queryByText("SIGNAL")).toBeNull();
+    expect(within(findingList).queryByText("F-SIGNAL-1")).toBeNull();
+    expect(within(findingList).getByText(/Nothing was inferred/)).toBeTruthy();
+    expect(findingList.querySelector(".evidence-badge")).toBeNull();
+  });
+
   it("keeps diagnostics distinct and never turns a candidate span into Evidence", () => {
     renderPage();
     fireEvent.click(screen.getByRole("tab", { name: "Diagnostics (1)" }));
@@ -281,7 +339,23 @@ describe("RUI-08 Requirements page", () => {
     expect(screen.queryByText("R002-SINGULARITY-JUDGMENT")).toBeNull();
     expect(screen.getAllByText("AUTOMATIC")).toHaveLength(3);
     expect(document.body.textContent).not.toMatch(/overall requirement score/i);
-    expect(selectFullProfile(payload, selectRequirements(payload)[0].requirement).kind).toBe("PRESENT");
+    const selected = selectRequirements(payload)[0];
+    expect(selected.kind).toBe("VALID");
+    if (selected.kind === "VALID") expect(selectFullProfile(payload, selected.value.requirement).kind).toBe("PRESENT");
+  });
+
+  it.each([
+    ["requirement ID", { requirement_id: "R999", source_line: 3 }],
+    ["source line", { requirement_id: "R001", source_line: 99 }],
+  ])("rejects an external property with mismatched provenance %s", (_label, provenanceRequirement) => {
+    const profile = fullProfile("R001", 3);
+    const singularity = profile.singularity as Record<string, unknown>;
+    const provenance = singularity.provenance as Record<string, unknown>;
+    provenance.requirement_ref = provenanceRequirement;
+    renderPage(result({ analysis_case: "CONTROLLED_DEMO", full_model: { full_quality_profiles: [profile] } }));
+    expect(screen.getByText(/extended property profile is present but cannot be safely matched/i)).toBeTruthy();
+    expect(screen.queryByText("EXTERNAL_EXPERT")).toBeNull();
+    expect(screen.queryByText("R001-SINGULARITY-JUDGMENT")).toBeNull();
   });
 
   it("keeps external UNKNOWN, UNAVAILABLE, and NOT_APPLICABLE states non-numeric", () => {
@@ -329,6 +403,25 @@ describe("RUI-08 Requirements page", () => {
     renderPage(result({ requirements: [{ requirement: null }] }));
     expect(screen.getByText("No canonical requirements")).toBeTruthy();
     expect(screen.queryByRole("navigation", { name: "Canonical requirements" })).toBeNull();
+  });
+
+  it("keeps a partially malformed top-level requirement visible at its response position", () => {
+    const payload = result({
+      requirements: [
+        requirement("R001", 3, r1Text, r1Evidence, true),
+        { requirement: { id: "BROKEN" }, quality_profile: null },
+        requirement("R002", 8, r2Text, r2Evidence),
+      ],
+    });
+    renderPage(payload);
+    expect(screen.getByText("3 canonical requirements")).toBeTruthy();
+    expect(screen.getByText("1 canonical requirement record cannot be safely presented")).toBeTruthy();
+    const navigator = screen.getByRole("navigation", { name: "Canonical requirements" });
+    expect(within(navigator).getByText("Malformed canonical requirement record")).toBeTruthy();
+    expect(within(navigator).getByText("Response position 2")).toBeTruthy();
+    expect(within(navigator).getAllByRole("button").map((button) => button.querySelector("strong")?.textContent)).toEqual(["R001", "R002"]);
+    expect(selectRequirements(payload).map((entry) => entry.kind)).toEqual(["VALID", "MALFORMED", "VALID"]);
+    expect(selectRequirements(payload).map((entry) => entry.position)).toEqual([1, 2, 3]);
   });
 
   it("opens Requirements through result navigation without another analysis call", async () => {

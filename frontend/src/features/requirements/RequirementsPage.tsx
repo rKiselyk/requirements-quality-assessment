@@ -186,7 +186,9 @@ function Diagnostics({ requirement }: { requirement: RequirementProjection }) {
 
 export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse }) {
   const { t } = useTranslation("requirements");
-  const requirements = useMemo(() => selectRequirements(result), [result]);
+  const requirementEntries = useMemo(() => selectRequirements(result), [result]);
+  const requirements = requirementEntries.flatMap((entry) => entry.kind === "VALID" ? [entry.value] : []);
+  const malformedRequirementCount = requirementEntries.length - requirements.length;
   const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
   const evidenceTrigger = useRef<HTMLButtonElement | null>(null);
@@ -205,7 +207,8 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
   if (!selected) {
     return (
       <section className="requirements-page">
-        <PageHeader title={t("title")} subtitle={t("subtitle")} />
+        <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={<span>{t("header.count", { count: requirementEntries.length })}</span>} />
+        {malformedRequirementCount ? <div className="neutral-note malformed-requirements-note" role="note"><strong>{t("malformed.requirementsTitle", { count: malformedRequirementCount })}</strong><p>{t("malformed.requirementsDescription")}</p></div> : null}
         <EmptyState title={t("empty.title")} description={t("empty.description")} />
       </section>
     );
@@ -218,22 +221,28 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
 
   return (
     <section className="requirements-page">
-      <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={<><span>{t("header.selected")}: <code>{selected.requirement.id}</code></span><span>{t("header.count", { count: requirements.length })}</span></>} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={<><span>{t("header.selected")}: <code>{selected.requirement.id}</code></span><span>{t("header.count", { count: requirementEntries.length })}</span></>} />
+      {malformedRequirementCount ? <div className="neutral-note malformed-requirements-note" role="note"><strong>{t("malformed.requirementsTitle", { count: malformedRequirementCount })}</strong><p>{t("malformed.requirementsDescription")}</p></div> : null}
       <div className="requirements-master-detail">
         <nav className="requirement-navigator" aria-label={t("navigator.label")}>
-          <div className="requirement-navigator__heading"><h2>{t("navigator.title")}</h2><span>{requirements.length}</span></div>
+          <div className="requirement-navigator__heading"><h2>{t("navigator.title")}</h2><span>{requirementEntries.length}</span></div>
           <ol>
-            {requirements.map((item) => (
-              <li key={`${item.requirement.id}-${item.requirement.sourceLine}`}>
+            {requirementEntries.map((entry) => entry.kind === "VALID" ? (
+              <li key={`${entry.value.requirement.id}-${entry.value.requirement.sourceLine}-${entry.position}`}>
                 <button
                   type="button"
-                  aria-current={item === selected ? "true" : undefined}
-                  onClick={() => { setSelectedRequirementId(item.requirement.id); setSelectedEvidenceId(null); }}
+                  aria-current={entry.value === selected ? "true" : undefined}
+                  onClick={() => { setSelectedRequirementId(entry.value.requirement.id); setSelectedEvidenceId(null); }}
                 >
-                  <strong>{item.requirement.id}</strong>
-                  <span>{t("navigator.sourceLine", { line: item.requirement.sourceLine })}</span>
-                  <small>{item.requirement.text}</small>
+                  <strong>{entry.value.requirement.id}</strong>
+                  <span>{t("navigator.sourceLine", { line: entry.value.requirement.sourceLine })}</span>
+                  <small>{entry.value.requirement.text}</small>
                 </button>
+              </li>
+            ) : (
+              <li className="requirement-navigator__malformed" key={`malformed-${entry.position}`}>
+                <strong>{t("malformed.requirementRow")}</strong>
+                <span>{t("malformed.responsePosition", { position: entry.position })}</span>
               </li>
             ))}
           </ol>
