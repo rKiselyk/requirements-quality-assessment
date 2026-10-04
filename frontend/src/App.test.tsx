@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { App, DEMO_EVIDENCE_SOURCE_TEXT, DEMO_REQUIREMENT_SOURCE_TEXT } from "./App";
-import { i18n, LOCALE_SESSION_KEY } from "./i18n";
+import { i18n, limitationCodes, limitationTranslationKey, LOCALE_SESSION_KEY } from "./i18n";
 
 describe("presentation localization", () => {
   beforeEach(async () => {
@@ -48,5 +48,20 @@ describe("presentation localization", () => {
     expect(result).toBe("⟦missing:rui04.deliberatelyMissing⟧");
     expect(result).not.toBe("rui04.deliberatelyMissing");
     expect(consoleErrorSpy).toHaveBeenCalledWith("[i18n] Missing translation: common:rui04.deliberatelyMissing");
+  });
+
+  it("translates every canonical API limitation code in both locales", async () => {
+    for (const locale of ["uk", "en"] as const) {
+      await i18n.changeLanguage(locale);
+
+      for (const code of limitationCodes) {
+        const key = limitationTranslationKey(code);
+        const translation = i18n.t(key, { ns: "limitations" });
+
+        expect(i18n.exists(key, { lng: locale, ns: "limitations" })).toBe(true);
+        expect(translation).not.toBe(key);
+        expect(translation).not.toContain("⟦missing:");
+      }
+    }
   });
 });

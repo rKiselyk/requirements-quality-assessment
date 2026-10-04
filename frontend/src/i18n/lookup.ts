@@ -6,11 +6,18 @@ export type ApiErrorCode =
   | "ANALYSIS_VALIDATION_FAILED"
   | "ANALYSIS_INTERNAL_FAILURE";
 
-export type LimitationCode =
-  | "NO_VALUE_INFERRED"
-  | "OBSERVED_NOT_PREDICTED"
-  | "CATEGORICAL_NOT_QUANTITATIVE"
-  | "NO_CAUSAL_PROOF";
+export const limitationCodes = [
+  "NO_COMBINED_QUALITY_SCORE",
+  "TEXT_ONLY_INITIAL_ASSESSMENT",
+  "UKRAINIAN_LANGUAGE_PROFILE",
+  "BOUNDED_RESEARCH_MODEL",
+  "CONTROLLED_RESEARCH_FIXTURE_DATA",
+  "PROVISIONAL_NOT_CALIBRATED",
+  "NO_CAUSAL_OR_RELEASE_CLAIM",
+  "NO_ARBITRARY_V1_V2_COMPARISON",
+] as const;
+
+export type LimitationCode = (typeof limitationCodes)[number];
 
 /** Presentation lookup keys only; callers must continue to retain and display canonical codes where relevant. */
 export const apiErrorTranslationKey = (code: ApiErrorCode) => `codes.${code}` as const;
