@@ -433,10 +433,20 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # It preserves QB identity/evidence only through the completed
             # typed M3-06 records and never invokes cross analysis.
             continue
+        if "quantitative_risk" in path.parts:
+            # TC-03 is an additive downstream calculation boundary over the
+            # completed confirmed-problem and R_DQ identities. It preserves
+            # the source snapshot identity but never invokes cross analysis.
+            continue
         if "reassessment" in path.parts:
             # M3-09 is the approved downstream ReEval orchestration boundary.
             # It reruns the completed local and QB services for an immutable
             # child artifact without moving cross analysis upstream.
+            continue
+        if "full_model" in path.parts:
+            # TC-05 is the approved top-level application orchestration boundary.
+            # It invokes completed local and cross-assessment services without
+            # moving cross analysis into any upstream single-requirement module.
             continue
         if path.name in {
             "cli.py",
