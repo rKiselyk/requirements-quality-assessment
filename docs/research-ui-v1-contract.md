@@ -16,7 +16,7 @@ This document is the authoritative application and presentation contract for
 Research UI v1. It defines how a future web application may expose the accepted
 scientific core without becoming a second scientific implementation.
 
-The approved visual/page baseline is defined in [`research-ui-v1-design-spec.md`](research-ui-v1-design-spec.md). That design specification is subordinate to this contract and may not relax any scientific or lifecycle invariant recorded here.
+The approved visual/page baseline is defined by [`research-ui-v1-design-spec.md`](research-ui-v1-design-spec.md), with [`assets/research-ui-v1-design.png`](assets/research-ui-v1-design.png) as its primary visual reference. The design specification and visual reference are subordinate to this contract and may not relax any scientific or lifecycle invariant recorded here.
 
 Scientific rules remain authoritative in [`model-spec.md`](model-spec.md) and
 the accepted Full Model contracts. In particular:
