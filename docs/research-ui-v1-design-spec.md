@@ -10,6 +10,8 @@
 
 **Contract authority:** [`research-ui-v1-contract.md`](research-ui-v1-contract.md)
 
+**Primary visual reference:** [`assets/research-ui-v1-design.png`](assets/research-ui-v1-design.png)
+
 **Status:** `APPROVED_DESIGN_BASELINE_FOR_RUI_V1`
 
 ## 1. Purpose and authority
@@ -36,6 +38,36 @@ one specification -> Analyze -> one assessment result
 
 The design must make that path immediate and simple. It must not expose the
 internal complexity of `FullModelRequest` as a pre-analysis user form.
+
+### 1.1 Primary visual baseline
+
+The approved visual baseline for Research UI v1 is:
+
+![Research UI v1 approved visual baseline](assets/research-ui-v1-design.png)
+
+`docs/assets/research-ui-v1-design.png` is the **primary visual reference** for
+page composition, layout proportions, spacing rhythm, visual hierarchy,
+component placement, and the overall research-workspace appearance.
+
+The image does not replace the normative text in this specification. The
+authority order is:
+
+1. accepted scientific/domain contracts and `model-spec.md`;
+2. `research-ui-v1-contract.md`;
+3. this design specification;
+4. `assets/research-ui-v1-design.png` as the primary visual baseline.
+
+If the image is ambiguous or conflicts with a scientific, lifecycle,
+interaction, accessibility, localization, or responsive rule in the documents
+above it, the higher-authority text wins.
+
+Research UI implementation issues SHOULD use the image as the default visual
+target. For implemented pages, visual acceptance SHOULD compare an actual
+browser screenshot at the desktop design target against this baseline together
+with the structural and semantic rules in this document. Material visual
+deviations require either a corrective implementation change or an explicit
+update of the approved design baseline; they must not emerge silently through
+incremental UI work.
 
 ## 2. Design principles
 
