@@ -112,7 +112,10 @@ export function FileDropzone({ label, description, accept = ".txt,text/plain", d
         disabled={disabled}
         tabIndex={-1}
         aria-label={label}
-        onChange={(event) => receive(event.target.files)}
+        onChange={(event) => {
+          receive(event.currentTarget.files);
+          event.currentTarget.value = "";
+        }}
       />
     </label>
   );
