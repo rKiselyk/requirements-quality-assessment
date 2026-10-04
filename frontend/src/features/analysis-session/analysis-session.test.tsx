@@ -10,9 +10,20 @@ import { useAnalysisSession, type AnalysisSession } from "./useAnalysisSession";
 const canonicalResult = {
   contract_version: "research-api-v1",
   analysis_case: "INITIAL" as const,
+  controlled_scenario: null,
+  requirements: [],
   specification: { quality_profile: { completeness: { value: { numerator: 2, denominator: 3 } } } },
+  section_availability: [],
+  full_model: null,
+  reassessment_context: null,
   limitations: ["TEXT_ONLY_INITIAL_ASSESSMENT"],
 };
+
+function withoutTopLevelField(field: keyof typeof canonicalResult): Record<string, unknown> {
+  const payload: Record<string, unknown> = { ...canonicalResult };
+  delete payload[field];
+  return payload;
+}
 
 function jsonResponse(payload: unknown, ok = true): Response {
   return { ok, json: async () => payload } as Response;
@@ -244,6 +255,25 @@ describe("RUI-06 canonical response ownership", () => {
       { ...canonicalResult, analysis_case: "INITIAL", internal: "do not render" },
     ],
   ])("rejects %s as a safe malformed response", async (_label, request, payload) => {
+    const fetchImplementation = vi.fn().mockResolvedValue(jsonResponse(payload));
+
+    await expect(analyzeSpecification(request, fetchImplementation)).rejects.toMatchObject({
+      safe: { code: null, kind: "MALFORMED_RESPONSE" },
+    });
+  });
+
+  it.each([
+    ["a truncated identity-only object", { contract_version: "research-api-v1", analysis_case: "INITIAL" }],
+    ["a response missing requirements", withoutTopLevelField("requirements")],
+    ["a response missing specification", withoutTopLevelField("specification")],
+    ["a response with non-array section availability", { ...canonicalResult, section_availability: {} }],
+    ["a response with an array full model", { ...canonicalResult, full_model: [] }],
+    ["a response missing limitations", withoutTopLevelField("limitations")],
+  ])("rejects %s despite a successful HTTP status", async (_label, payload) => {
+    const request: Rui05AnalyzeRequest = {
+      case: "INITIAL",
+      requirements: [{ text: "Requirement", source_line: 1 }],
+    };
     const fetchImplementation = vi.fn().mockResolvedValue(jsonResponse(payload));
 
     await expect(analyzeSpecification(request, fetchImplementation)).rejects.toMatchObject({

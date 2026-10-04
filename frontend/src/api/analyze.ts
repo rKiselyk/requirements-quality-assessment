@@ -4,6 +4,13 @@ import { apiErrorCodes, type ApiErrorCode } from "../i18n";
 export interface CanonicalAnalyzeResponse extends Record<string, unknown> {
   contract_version: "research-api-v1";
   analysis_case: "INITIAL" | "CONTROLLED_DEMO" | "REASSESSMENT";
+  controlled_scenario: Record<string, unknown> | null;
+  requirements: unknown[];
+  specification: Record<string, unknown>;
+  section_availability: unknown[];
+  full_model: Record<string, unknown> | null;
+  reassessment_context: Record<string, unknown> | null;
+  limitations: unknown[];
 }
 
 export interface SafeAnalyzeError {
@@ -35,7 +42,14 @@ function isCanonicalResponse(
 ): value is CanonicalAnalyzeResponse {
   return isRecord(value)
     && value.contract_version === "research-api-v1"
-    && value.analysis_case === expectedCase;
+    && value.analysis_case === expectedCase
+    && (value.controlled_scenario === null || isRecord(value.controlled_scenario))
+    && Array.isArray(value.requirements)
+    && isRecord(value.specification)
+    && Array.isArray(value.section_availability)
+    && (value.full_model === null || isRecord(value.full_model))
+    && (value.reassessment_context === null || isRecord(value.reassessment_context))
+    && Array.isArray(value.limitations);
 }
 
 export class AnalyzeRequestError extends Error {
