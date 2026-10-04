@@ -20,8 +20,8 @@ describes the historical subset and limitations.
 A stateless FastAPI adapter now exposes the accepted specification-assessment
 path for the forthcoming Research UI v1. Its frozen boundary is documented in
 [`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md), with the approved page/component baseline in [`docs/research-ui-v1-design-spec.md`](docs/research-ui-v1-design-spec.md). No web UI
-is implemented; the contract prevents the future UI from
-recalculating scientific results or fabricating unavailable Full Model inputs.
+recalculates scientific results or fabricates unavailable Full Model inputs.
+The reusable React frontend foundation lives in [`frontend/`](frontend/).
 
 ## Requirements and installation
 
@@ -35,6 +35,32 @@ python -m pip check
 ```
 
 On POSIX systems, activate with `. .venv/bin/activate`. The same `python -m pip install -e ".[dev,parser]"` command installs the package, tests, parser, and model. The model wheel is pinned in `pyproject.toml` by version and SHA-256. An internet connection or a package cache containing the pinned dependencies is needed for a fresh installation.
+
+## Run the frontend foundation
+
+The RUI-03 React, TypeScript, and Vite foundation is in `frontend/`. It provides
+the shared shell, design tokens, reusable presentation components, and a static
+development showcase. It does not yet implement the specification workflow,
+API analysis integration, localization, or Research UI result pages.
+
+Install and start the independent frontend development server:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Run the TypeScript check and create a production build with:
+
+```powershell
+npm run typecheck
+npm run build
+```
+
+The FastAPI backend remains the stateless scientific application boundary and
+can be run separately as described below. RUI-03 configures TanStack Query for
+later API integration but does not call or duplicate the backend contract.
 
 ## Run the HTTP API
 
