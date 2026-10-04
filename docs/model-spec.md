@@ -7979,7 +7979,11 @@ code-loading boundary.
 
 ## 25. Full Model v1.0 research acceptance integration (TC-06)
 
-- **Scientific status:** `CANDIDATE_PENDING_INDEPENDENT_REVIEW`
+- **Scientific status:** `ACCEPTED`
+- **Acceptance marker:** `TC06_INTEGRATED_RESEARCH_ACCEPTANCE_ACCEPTED`
+- **Accepted integration HEAD:**
+  `2971758f435be44d92d1d99dd68c45c0a56ca4ff`
+- **Merged main SHA:** `994cd473cdb80d71d322ffc8883d9de5d41fc7bc`
 - **Scenario:** `CONTROLLED_RESEARCH_REFERENCE_SCENARIO`
 - **Issue / review:** issue #168 / PR #169
 - **Scope:** acceptance, traceability, and presentation-version reconciliation
@@ -7999,6 +8003,9 @@ identity does not affect scientific behavior.
 
 Acceptance evidence and bounded non-claims are recorded in
 `docs/full-model-v1-research-acceptance.md`; theory mapping is recorded in
-`docs/full-model-v1-theory-traceability.md`. TC-06 is not accepted by this
-implementation pass. The final acceptance marker is reserved for independent
-review and is deliberately not recorded here.
+`docs/full-model-v1-theory-traceability.md`. Independent final acceptance is
+recorded on closed issue #168. It establishes Full Model v1.0 as an accepted
+executable, deterministic, and traceable research realization within the
+declared bounded reference scope. It does not establish exhaustive NLP
+coverage, universal product-quality prediction, universal risk calibration,
+causal effectiveness, universal release decisions, or production readiness.
