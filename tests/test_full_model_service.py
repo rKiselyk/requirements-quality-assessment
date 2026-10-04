@@ -237,7 +237,7 @@ def test_full_model_cli_user_and_audit_use_explicit_config(tmp_path, capsys):
         assert main(["--mode", "full-model", "--config", str(config), "--view", view, str(requirements)]) == 0
         captured = capsys.readouterr()
         assert captured.err == ""
-        assert "Full Model v0.1" in captured.out if view == "audit" else "Повна модель v0.1" in captured.out
+        assert "Full Model v1.0" in captured.out if view == "audit" else "Повна модель v1.0" in captured.out
 
 
 def test_full_model_cli_missing_or_invalid_config_fails_cleanly(tmp_path, capsys):

@@ -1,8 +1,19 @@
 # Requirements Quality Assessment
 
-This research prototype assesses the quality of individual software requirements as information artifacts. MVP v0.1 reads a UTF-8 text file, extracts six approved feature families, computes separate Completeness, Verifiability, and Unambiguity assessments, aggregates each characteristic across the file, and prints an explainable console report. It does not predict software-product quality or produce an overall scalar score.
+This research prototype has two explicitly bounded paths. Historical MVP v0.1
+reads a UTF-8 text file, extracts six approved feature families, computes
+separate Completeness, Verifiability, and Unambiguity assessments, aggregates
+each characteristic across the file, and prints an explainable console report.
+That historical mode does not predict software-product quality or produce an
+overall scalar score. Full Model v1.0 adds a deterministic, traceable research
+path without changing the historical CLI or its contracts.
 
-[`docs/model-spec.md`](docs/model-spec.md) is the authoritative scientific model. Its **executable MVP v0.1 subset** is approved; the broader research specification remains a draft. [`docs/mvp-v0.1-baseline.md`](docs/mvp-v0.1-baseline.md) describes the accepted subset and limitations.
+[`docs/model-spec.md`](docs/model-spec.md) is the authoritative scientific
+model. Its executable MVP v0.1 subset and the bounded TC-01 through TC-05 Full
+Model components carry their recorded acceptance markers; TC-06 remains a
+candidate pending independent review, and constructs outside those boundaries
+remain draft or unimplemented. [`docs/mvp-v0.1-baseline.md`](docs/mvp-v0.1-baseline.md)
+describes the historical subset and limitations.
 
 ## Requirements and installation
 
@@ -46,16 +57,25 @@ The default command is equivalent to explicitly selecting `--view user`:
 python -m requirements_quality_assessment --view user requirements.txt
 ```
 
-The explicit TC-05 full-model facade is available through a separate mode; it
-does not change either historical command:
+The Full Model v1.0 facade is available through a separate mode; it does not
+change either historical command:
 
 ```powershell
 python -m requirements_quality_assessment --mode full-model --config full-model.json --view user requirements.txt
 ```
 
-The config has no built-in scientific fixture values. See
+The config has no built-in scientific fixture values. The public
+`FullModelService` path composes the full nine-property requirement
+representation, specification metrics and QB analysis, dynamic evidence,
+observed Performance Efficiency evidence, explicitly parameterized prediction,
+categorical and quantitative local risk, corrective action and externally
+supplied revision, reassessment and literal comparison, an externally
+parameterized checkpoint, and process-state lineage. USER and AUDIT reports are
+read-only projections of those completed records. See
 [`docs/full-model-config.md`](docs/full-model-config.md) for its strict JSON
-shape and the programmatic-only predictor limitation.
+shape and the programmatic-only predictor limitation, and
+[`docs/full-model-v1-theory-traceability.md`](docs/full-model-v1-theory-traceability.md)
+for the bounded theory-to-implementation mapping.
 
 Leading and trailing whitespace is trimmed. Blank lines are ignored. Each remaining physical line is one requirement, even if it contains multiple sentences or clauses. The reader retains source order and line numbers, assigns IDs `R001`, `R002`, and so on, and retains punctuation in the trimmed text. The CLI reports missing files and invalid UTF-8 as errors with a nonzero exit code. An empty input produces a specification summary with zero requirements and `NOT_APPLICABLE` aggregates.
 
@@ -82,7 +102,24 @@ An accepted vague-term occurrence can create a `SIGNAL` Finding under `FIND-U-VA
 
 ## Scope and limitations
 
-Ukrainian is the supported language for language-dependent detection. The six feature families are condition/context, expected result, acceptance criterion, quantitative constraint, explicit verification method, and vague-term occurrence. Detectors implement only their approved baseline grammars and vocabulary. Complex sentence and metric attachment, written-out numbers, generic ranges, broader vague vocabulary, non-numeric acceptance criteria, and confirmed-ambiguity rules remain research decisions. A score of `1` means the approved MVP evidence check succeeded; it is not proof of universal semantic completeness, verifiability, or unambiguity. The selected parser may leave an input `UNKNOWN` where required analysis is unresolved. The prototype has no English linguistic profile, automatic requirement-type classification, cross-requirement consistency, risk model, or product-quality prediction.
+Ukrainian is the supported language for language-dependent detection. The six
+historical MVP feature families are condition/context, expected result,
+acceptance criterion, quantitative constraint, explicit verification method,
+and vague-term occurrence. Detectors implement only their approved baseline
+grammars and vocabulary. Complex sentence and metric attachment, written-out
+numbers, generic ranges, broader vague vocabulary, non-numeric acceptance
+criteria, and confirmed-ambiguity rules remain research decisions. A score of
+`1` means the approved bounded evidence check succeeded; it is not proof of
+universal semantic completeness, verifiability, or unambiguity. The selected
+parser may leave an input `UNKNOWN` where required analysis is unresolved.
+
+Full Model v1.0 is an executable, deterministic, and traceable research
+realization within a bounded reference scope. It is not exhaustive NLP
+coverage, universal product-quality prediction, universal risk calibration, or
+production readiness. It does not provide an English linguistic profile,
+automatic requirement-type classification, aggregate requirement/specification
+quality, aggregate risk or priority, release authorization, causal inference,
+or automatic rewriting.
 
 ## Tests
 

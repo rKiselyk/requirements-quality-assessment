@@ -7636,7 +7636,7 @@ or detector acceptance cases.
 
 ## 20. Full nine-property requirement-quality representation (TC-01)
 
-- **Scientific status:** `ISSUE_163_APPROVED_IMPLEMENTATION_SCOPE`
+- **Scientific status:** `TC01_FULL_NINE_PROPERTY_PROFILE_ACCEPTED`
 - **Production scope:** additive requirement-level representation only
 - **Excluded:** product-quality prediction, risk, checkpoint evaluation,
   Full Model v1.0 orchestration, and scalar requirement-quality scoring
@@ -7687,7 +7687,7 @@ the Full Model v0.1 metric registry.
 
 ## 21. Bounded executable Performance Efficiency prediction (TC-02)
 
-- **Scientific status:** `ISSUE_164_APPROVED_IMPLEMENTATION_SCOPE`
+- **Scientific status:** `TC02_BOUNDED_PE_PREDICTION_ACCEPTED`
 - **Executable scope:** one explicitly configured Performance Efficiency path
 - **Governing contract:**
   `FULL-MODEL-V1.0-PE-PRODUCT-QUALITY-PREDICTION / 1`
@@ -7774,7 +7774,7 @@ automatic theta selection remain outside this task.
 
 ## 22. Externally parameterized quantitative local risk (TC-03)
 
-- **Scientific status:** `ISSUE_165_FIRST_IMPLEMENTATION_PASS`
+- **Scientific status:** `TC03_QUANTITATIVE_LOCAL_RISK_ACCEPTED`
 - **Executable scope:** one local Performance Efficiency `r_ij` calculation
 - **Governing contract:**
   `FULL-MODEL-V0.1-QUANTITATIVE-LOCAL-RISK / 1`
@@ -7856,7 +7856,7 @@ calibration, or risk-reduction claim. Empirical validity is not claimed.
 
 ## 23. Externally parameterized scalar checkpoint (TC-04)
 
-- **Scientific status:** `ISSUE_166_FIRST_IMPLEMENTATION_PASS`
+- **Scientific status:** `TC04_PARAMETERIZED_CHECKPOINT_ACCEPTED`
 - **Executable scope:** one explicitly selected exact scalar result evaluated
   against one explicitly supplied threshold policy at one process state
 - **Governing contract:** `FULL-MODEL-V1.0-SCALAR-CHECKPOINT / 1`
@@ -7911,7 +7911,7 @@ unchanged.
 
 ## 24. Full Model application orchestration boundary (TC-05)
 
-- **Scientific status:** `ISSUE_167_FIRST_IMPLEMENTATION_PASS`
+- **Scientific status:** `TC05_FULL_MODEL_SERVICE_CLI_ACCEPTED`
 - **Boundary:** `FullModelService.run(FullModelRequest) -> FullModelResult`
 - **Scope:** orchestration of already accepted services only
 
@@ -7976,3 +7976,29 @@ are strings and are parsed as `Decimal`/`Fraction`, never binary floats. The
 format is documented in `docs/full-model-config.md`. TC-02 remains
 programmatic-only because TC-05 defines no predictor registry or safe JSON
 code-loading boundary.
+
+## 25. Full Model v1.0 research acceptance integration (TC-06)
+
+- **Scientific status:** `CANDIDATE_PENDING_INDEPENDENT_REVIEW`
+- **Scenario:** `CONTROLLED_RESEARCH_REFERENCE_SCENARIO`
+- **Issue / review:** issue #168 / PR #169
+- **Scope:** acceptance, traceability, and presentation-version reconciliation
+  over accepted TC-01 through TC-05 behavior
+
+TC-06 adds no scientific rule. Its canonical test supplies all external
+assessments, the fixture-only predictor definition and theta, prediction
+context, four quantitative-risk operands, checkpoint metric and threshold
+policy, dynamic observation, evidence-reuse decision, and external revision.
+It invokes `FullModelService.run(...)` once and checks the complete accepted
+typed path, including both report projections.
+
+The service report bundle presents this integrated path as Full Model v1.0.
+The historical `FullModelReportBundle` presentation and versioned component
+contract IDs such as `FULL-MODEL-V0.1-CONTRACT` remain unchanged. Presentation
+identity does not affect scientific behavior.
+
+Acceptance evidence and bounded non-claims are recorded in
+`docs/full-model-v1-research-acceptance.md`; theory mapping is recorded in
+`docs/full-model-v1-theory-traceability.md`. TC-06 is not accepted by this
+implementation pass. The final acceptance marker is reserved for independent
+review and is deliberately not recorded here.

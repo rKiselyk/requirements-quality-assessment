@@ -271,7 +271,8 @@ class AuditFullModelReporter:
         return f"{base}\n\n{self.render_projection(bundle)}"
 
     def render_projection(self, bundle: FullModelReportBundle) -> str:
-        sections = ["Full Model v0.1 audit path"]
+        version = getattr(bundle, "presentation_version", "v0.1")
+        sections = [f"Full Model {version} audit path"]
         for attribute, heading in _AUDIT_RECORDS:
             value = getattr(bundle, attribute, None)
             if value is None or value == ():
@@ -328,7 +329,8 @@ class UserFullModelReporter:
         return f"{base}\n\n{self.render_projection(bundle)}"
 
     def render_projection(self, bundle: FullModelReportBundle) -> str:
-        sections = ["Повна модель v0.1"]
+        version = getattr(bundle, "presentation_version", "v0.1")
+        sections = [f"Повна модель {version}"]
         context = self._context(bundle)
         if context:
             sections.append("\n".join(("Контекст артефакту і процесу", *context)))

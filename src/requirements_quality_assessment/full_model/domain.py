@@ -116,6 +116,7 @@ class FullModelServiceReportBundle(FullModelReportBundle):
     """Additive TC-05 bundle without mutating the accepted base bundle layout."""
 
     full_requirement_quality_profiles: tuple[FullRequirementQualityProfile, ...] = ()
+    presentation_version: str = "v1.0"
 
     def __post_init__(self) -> None:
         super(FullModelServiceReportBundle, self).__post_init__()
@@ -124,6 +125,8 @@ class FullModelServiceReportBundle(FullModelReportBundle):
             for item in self.full_requirement_quality_profiles
         ):
             raise TypeError("full_requirement_quality_profiles must contain typed profiles")
+        if self.presentation_version != "v1.0":
+            raise ValueError("service report presentation_version must be v1.0")
 
 
 @dataclass(frozen=True, slots=True)
