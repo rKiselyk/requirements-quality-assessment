@@ -19,7 +19,7 @@ describes the historical subset and limitations.
 
 A stateless FastAPI adapter now exposes the accepted specification-assessment
 path for the forthcoming Research UI v1. Its frozen boundary is documented in
-[`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md), with the approved page/component baseline in [`docs/research-ui-v1-design-spec.md`](docs/research-ui-v1-design-spec.md). No web UI
+[`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md), with the approved page/component baseline in [`docs/research-ui-v1-design-spec.md`](docs/research-ui-v1-design-spec.md) and the primary visual reference in [`docs/assets/research-ui-v1-design.png`](docs/assets/research-ui-v1-design.png). No web UI
 recalculates scientific results or fabricates unavailable Full Model inputs.
 The reusable React frontend foundation lives in [`frontend/`](frontend/).
 
