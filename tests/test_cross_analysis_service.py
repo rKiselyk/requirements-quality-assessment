@@ -443,6 +443,11 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # It reruns the completed local and QB services for an immutable
             # child artifact without moving cross analysis upstream.
             continue
+        if "full_model" in path.parts:
+            # TC-05 is the approved top-level application orchestration boundary.
+            # It invokes completed local and cross-assessment services without
+            # moving cross analysis into any upstream single-requirement module.
+            continue
         if path.name in {
             "cli.py",
             "cross_reporter.py",

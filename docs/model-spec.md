@@ -7908,3 +7908,55 @@ source state/value/provenance, policy/provider, process/artifact binding,
 governing contracts and rule, and outcome. Reporters perform no comparison.
 When no checkpoint is supplied, historical output remains byte-for-byte
 unchanged.
+
+## 24. Full Model application orchestration boundary (TC-05)
+
+- **Scientific status:** `ISSUE_167_FIRST_IMPLEMENTATION_PASS`
+- **Boundary:** `FullModelService.run(FullModelRequest) -> FullModelResult`
+- **Scope:** orchestration of already accepted services only
+
+TC-05 exposes the supported path
+`S(v1) -> P -> M -> E -> X_PE -> M_quality -> D -> R_DQ -> M_risk ->
+A_corr -> external revision -> S(v2) -> ReEval -> Compare -> M_process`
+through one application-layer call. The service performs identity and source-
+graph validation, invokes existing scientific services, connects their typed
+records, and assembles the report bundle. It defines no new score, formula,
+coefficient, threshold, observation, revision, predictor, risk operand, defect
+classification, or improvement interpretation.
+
+`FullModelRequest` is immutable and carries the requirements; v1/v2 artifact,
+assessment, process, event, product, environment, and collection identities;
+selected quantitative criterion; exact dynamic observation and context;
+corrective-action creator identity; external revision/provider/replacements;
+explicit evidence-reuse decision and checks; component versions;
+reassessment/comparison/transition identities; and any optional TC-01--TC-04
+inputs. The service has no canonical fixture defaults. Inconsistent identities
+or external graphs fail closed.
+
+`FullModelResult` is immutable typed application data. It exposes the initial
+assessment and metric profile, dynamic evidence and conformance, `X_PE`,
+observed product quality, problem population, `R_DQ`, categorical risk,
+corrective action, revision/application, reassessment, literal comparisons,
+both process states and transition, optional extension results, and the final
+report bundle. Rendered USER/AUDIT text is not its backend contract, so this
+record is the supported Research UI v1 backend boundary.
+
+TC-01 composition occurs only for explicitly supplied sets of six external
+property assessments. TC-02 prediction occurs only when both an explicit
+configuration and an in-process predictor are supplied. TC-03 calculation
+occurs only for an explicitly supplied operand request bound to the exact
+computed problem/relation graph. TC-04 occurs only for an explicit threshold
+policy and selected v1/v2 metric target; selection uses the accepted adapter
+and evaluation uses the accepted evaluator. `SATISFIED` remains a predicate
+result and is not `PROCEED` or `RELEASE`.
+
+The historical CLI remains the default. Full-model CLI mode requires a UTF-8
+JSON config and has no hidden scientific values:
+
+`python -m requirements_quality_assessment --mode full-model --config CONFIG.json --view user REQUIREMENTS.txt`
+
+Use `--view audit` for the typed audit projection. Exact numeric JSON inputs
+are strings and are parsed as `Decimal`/`Fraction`, never binary floats. The
+format is documented in `docs/full-model-config.md`. TC-02 remains
+programmatic-only because TC-05 defines no predictor registry or safe JSON
+code-loading boundary.

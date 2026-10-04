@@ -46,6 +46,17 @@ The default command is equivalent to explicitly selecting `--view user`:
 python -m requirements_quality_assessment --view user requirements.txt
 ```
 
+The explicit TC-05 full-model facade is available through a separate mode; it
+does not change either historical command:
+
+```powershell
+python -m requirements_quality_assessment --mode full-model --config full-model.json --view user requirements.txt
+```
+
+The config has no built-in scientific fixture values. See
+[`docs/full-model-config.md`](docs/full-model-config.md) for its strict JSON
+shape and the programmatic-only predictor limitation.
+
 Leading and trailing whitespace is trimmed. Blank lines are ignored. Each remaining physical line is one requirement, even if it contains multiple sentences or clauses. The reader retains source order and line numbers, assigns IDs `R001`, `R002`, and so on, and retains punctuation in the trimmed text. The CLI reports missing files and invalid UTF-8 as errors with a nonzero exit code. An empty input produces a specification summary with zero requirements and `NOT_APPLICABLE` aggregates.
 
 ## Interpret the results

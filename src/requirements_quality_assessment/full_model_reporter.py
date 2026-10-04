@@ -255,6 +255,7 @@ _AUDIT_RECORDS = (
     ("process_transitions", "Process state transitions"),
     ("quantitative_risk_assessments", "Quantitative local risk r_ij"),
     ("checkpoint_evaluations", "Parameterized checkpoint evaluations"),
+    ("full_requirement_quality_profiles", "Nine-property requirement quality profiles"),
 )
 
 
@@ -272,7 +273,7 @@ class AuditFullModelReporter:
     def render_projection(self, bundle: FullModelReportBundle) -> str:
         sections = ["Full Model v0.1 audit path"]
         for attribute, heading in _AUDIT_RECORDS:
-            value = getattr(bundle, attribute)
+            value = getattr(bundle, attribute, None)
             if value is None or value == ():
                 continue
             sections.append("\n".join(_audit_node(heading, value)))
@@ -332,6 +333,13 @@ class UserFullModelReporter:
         if context:
             sections.append("\n".join(("Контекст артефакту і процесу", *context)))
         sections.append(self._requirement_and_specification_quality(bundle))
+        full_profiles = getattr(bundle, "full_requirement_quality_profiles", ())
+        if full_profiles:
+            from .full_quality import UserFullRequirementQualityReporter
+            sections.append("\n\n".join(
+                UserFullRequirementQualityReporter().render(item)
+                for item in full_profiles
+            ))
 
         dynamic = self._dynamic_and_product_quality(bundle)
         if dynamic:
