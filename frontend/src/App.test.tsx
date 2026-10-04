@@ -96,6 +96,25 @@ describe("RUI-05 specification input", () => {
     expect(await screen.findByText("The file could not be read as UTF-8 plain text. Choose another file.")).toBeTruthy();
   });
 
+  it("rejects invalid UTF-8 bytes without replacing valid input or starting analysis", async () => {
+    const requests: Rui05AnalyzeRequest[] = [];
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const invalidUtf8File = new File([new Uint8Array([0xc3, 0x28])], "invalid.txt", { type: "text/plain" });
+    Object.defineProperty(invalidUtf8File, "arrayBuffer", {
+      value: async () => new Uint8Array([0xc3, 0x28]).buffer,
+    });
+    render(<App onAnalyzeRequest={(request) => requests.push(request)} />);
+    const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: "Existing valid requirement" } });
+
+    selectFile(invalidUtf8File);
+
+    expect(await screen.findByText("The file could not be read as UTF-8 plain text. Choose another file.")).toBeTruthy();
+    expect(editor.value).toBe("Existing valid requirement");
+    expect(requests).toEqual([]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("constructs an INITIAL request with only case and requirements and no client IDs", () => {
     const request = createInitialAnalyzeRequest("First\n\nSecond");
 
