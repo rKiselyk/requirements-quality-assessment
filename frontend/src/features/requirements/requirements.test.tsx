@@ -8,11 +8,11 @@ import { i18n } from "../../i18n";
 import { RequirementsPage } from "./RequirementsPage";
 import { selectFullProfile, selectRequirements } from "./projection";
 
-const feature = (featureId: string, diagnostics: unknown[] = []) => ({
+const feature = (featureId: string, diagnostics: unknown[] = [], observations: unknown[] = []) => ({
   feature_id: featureId,
   status: diagnostics.length ? "UNRESOLVED" : "DETECTED",
   processing_status: diagnostics.length ? "INCOMPLETE" : "COMPLETE",
-  observations: [],
+  observations,
   diagnostics,
 });
 
@@ -49,7 +49,11 @@ function requirement(id: string, sourceLine: number, text: string, evidence: unk
   return {
     requirement: { id, source_line: sourceLine, text },
     features: {
-      condition_contexts: feature("condition_context"),
+      condition_contexts: feature("condition_context", [], [{
+        feature_id: "condition_context",
+        observation_id: `${id}-CONDITION-0`,
+        evidence_refs: [id === "R001" ? "E-EMOJI" : "E-R002"],
+      }]),
       expected_results: feature("expected_result"),
       acceptance_criteria: feature("acceptance_criterion"),
       quantitative_constraints: feature("quantitative_constraint", id === "R001" ? [{
@@ -90,10 +94,10 @@ const externalSlots = [
   ["feasibility", "FEASIBILITY"], ["necessity", "NECESSITY"], ["relevance", "RELEVANCE"],
 ] as const;
 
-function fullProfile(id: string, sourceLine: number) {
+function fullProfile(id: string, sourceLine: number, text = id === "R001" ? r1Text : r2Text) {
   const profile: Record<string, unknown> = {
     requirement_ref: { requirement_id: id, source_line: sourceLine },
-    automatic_record: { extraction_result: { requirement: { id, source_line: sourceLine } } },
+    automatic_record: { extraction_result: { requirement: { id, source_line: sourceLine, text } } },
   };
   for (const [slot, propertyId] of externalSlots) {
     profile[slot] = {
@@ -252,6 +256,55 @@ describe("RUI-08 Requirements page", () => {
     expect(within(drawer).getByText("Швидко")).toBeTruthy();
   });
 
+  it("resolves a trace observation and its explicit Evidence reference", () => {
+    renderPage();
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    fireEvent.click(within(card).getByText("Requirement trace"));
+    expect(within(card).getByText("Observation 0")).toBeTruthy();
+    expect(within(card).getByText("R001-CONDITION-0")).toBeTruthy();
+    expect(within(card).getByRole("button", { name: /E-EMOJI/ })).toBeTruthy();
+  });
+
+  it("uses the same highlight and drawer workflow from Trace Evidence", () => {
+    renderPage();
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    fireEvent.click(within(card).getByText("Requirement trace"));
+    fireEvent.click(within(card).getByRole("button", { name: /E-EMOJI/ }));
+    expect(document.querySelector("mark[data-evidence-id='E-EMOJI']")?.textContent).toBe("Швидко");
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
+  it("degrades an out-of-range trace observation index safely without changing C/V/U", () => {
+    const payload = result();
+    const first = payload.requirements[0] as Record<string, unknown>;
+    const trace = first.trace as Record<string, unknown>;
+    const characteristics = trace.characteristics as Array<Record<string, unknown>>;
+    const inputs = characteristics[0].inputs as Array<Record<string, unknown>>;
+    inputs[0].observation_indexes = [99];
+    renderPage(payload);
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    fireEvent.click(within(card).getByText("Requirement trace"));
+    expect(within(card).getByText(/Observation index 99 does not resolve/)).toBeTruthy();
+    expect(within(card).getByLabelText("Exact value: 13/17")).toBeTruthy();
+    expect(within(card).getByText("COMPUTED")).toBeTruthy();
+  });
+
+  it("degrades a dangling observation Evidence ref without creating Evidence", () => {
+    const payload = result();
+    const first = payload.requirements[0] as Record<string, unknown>;
+    const features = first.features as Record<string, unknown>;
+    const condition = features.condition_contexts as Record<string, unknown>;
+    const observations = condition.observations as Array<Record<string, unknown>>;
+    observations[0].evidence_refs = ["E-DANGLING"];
+    renderPage(payload);
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    fireEvent.click(within(card).getByText("Requirement trace"));
+    expect(within(card).getByText("E-DANGLING")).toBeTruthy();
+    expect(within(card).getByText(/Referenced Evidence is not present/)).toBeTruthy();
+    expect(within(card).queryByRole("button", { name: /E-DANGLING/ })).toBeNull();
+    expect(Array.from(document.querySelectorAll(".evidence-list .evidence-badge code"), (node) => node.textContent)).toEqual(["E-EMOJI", "E-NUMBER"]);
+  });
+
   it("proves the accepted emoji offset is not interpreted as a UTF-16 index", () => {
     const first = selectRequirements(result())[0];
     const projected = first.kind === "VALID" ? first.value.evidence[0]! : null;
@@ -279,6 +332,47 @@ describe("RUI-08 Requirements page", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.querySelector("mark")).toBeNull();
     expect(document.activeElement).toBe(badge);
+  });
+
+  it("traps forward and reverse Tab focus inside the modal drawer", () => {
+    renderPage();
+    fireEvent.click(screen.getAllByRole("button", { name: /E-EMOJI/ })[0]);
+    const close = screen.getByRole("button", { name: "Close evidence drawer" });
+    expect(document.activeElement).toBe(close);
+    fireEvent.keyDown(close, { key: "Tab" });
+    expect(document.activeElement).toBe(close);
+    fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(close);
+  });
+
+  it("closes the drawer with Escape and restores trigger focus", () => {
+    renderPage();
+    const badge = screen.getAllByRole("button", { name: /E-EMOJI/ })[0];
+    fireEvent.click(badge);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(badge);
+  });
+
+  it("explains linked Findings in the drawer without promoting SIGNAL", () => {
+    renderPage();
+    fireEvent.click(screen.getAllByRole("button", { name: /E-EMOJI/ })[0]);
+    const drawer = screen.getByRole("dialog");
+    expect(within(drawer).getByText("F-SIGNAL-1")).toBeTruthy();
+    expect(within(drawer).getByText("SIGNAL")).toBeTruthy();
+    expect(within(drawer).getByText("VAGUE_TERM_SIGNAL")).toBeTruthy();
+    expect(within(drawer).getByText("CALC-U-MVP-001")).toBeTruthy();
+    expect(within(drawer).getByText("A bounded detector supplied a signal; this is not automatically a quality problem.")).toBeTruthy();
+    expect(within(drawer).queryByText("QUALITY_PROBLEM")).toBeNull();
+  });
+
+  it("does not fabricate a linked-Finding reason for unreferenced Evidence", () => {
+    renderPage();
+    const evidenceList = document.querySelector(".evidence-list") as HTMLElement;
+    fireEvent.click(within(evidenceList).getByRole("button", { name: /E-NUMBER/ }));
+    const drawer = screen.getByRole("dialog");
+    expect(within(drawer).queryByText("Explicitly linked findings")).toBeNull();
+    expect(within(drawer).queryByText("F-SIGNAL-1")).toBeNull();
   });
 
   it("keeps SIGNAL explicit and degrades dangling finding evidence safely", () => {
@@ -342,6 +436,34 @@ describe("RUI-08 Requirements page", () => {
     const selected = selectRequirements(payload)[0];
     expect(selected.kind).toBe("VALID");
     if (selected.kind === "VALID") expect(selectFullProfile(payload, selected.value.requirement).kind).toBe("PRESENT");
+  });
+
+  it("does not attach a v1 Full Quality profile to revised v2 text with the same ID and source line", () => {
+    const revisedText = "Система зберігає переглянутий журнал без змін!";
+    const payload = result({
+      analysis_case: "REASSESSMENT",
+      requirements: [
+        requirement("R001", 3, r1Text, r1Evidence, true),
+        requirement("R002", 8, revisedText, [{ evidence_id: "E-R002-V2", requirement_id: "R002", feature_id: "expected_result", text: "переглянутий журнал", start_offset: 18, end_offset: 38, rule_id: "RESULT-002" }]),
+      ],
+      full_model: { full_quality_profiles: [fullProfile("R002", 8, r2Text)] },
+    });
+    renderPage(payload);
+    fireEvent.click(screen.getByRole("button", { name: /R002/ }));
+    expect(screen.getAllByText(revisedText).length).toBeGreaterThan(0);
+    expect(screen.getByText("No canonical extended external/expert profile is present")).toBeTruthy();
+    expect(screen.queryByText("R002-SINGULARITY-JUDGMENT")).toBeNull();
+    expect(screen.queryByText("EXTERNAL_EXPERT")).toBeNull();
+  });
+
+  it("continues to render all six external properties for exact ID, line, and text matches", () => {
+    const payload = result({
+      analysis_case: "CONTROLLED_DEMO",
+      full_model: { full_quality_profiles: [fullProfile("R001", 3, r1Text)] },
+    });
+    renderPage(payload);
+    expect(screen.getAllByText("EXTERNAL_EXPERT")).toHaveLength(6);
+    expect(screen.getByText("R001-SINGULARITY-JUDGMENT")).toBeTruthy();
   });
 
   it.each([

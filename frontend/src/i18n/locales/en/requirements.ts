@@ -48,6 +48,11 @@ export const requirements = {
     coverageProfile: "Coverage profile",
     references: "Observations: {{observations}} · Diagnostics: {{diagnostics}}",
     findingRefs: "Finding references",
+    observation: "Observation {{index}}",
+    observationEvidence: "Explicit Evidence references",
+    noExplicitEvidence: "This observation contains no explicit canonical Evidence references.",
+    malformedObservation: "Observation index {{index}} does not resolve to a safely presentable canonical observation.",
+    danglingEvidence: "Referenced Evidence is not present in this canonical requirement record.",
   },
   evidence: {
     title: "Evidence",
@@ -93,6 +98,11 @@ export const requirements = {
     endOffset: "End offset",
     rule: "Rule ID",
     linkedFindings: "Explicitly linked findings",
+    findingKind: "Finding kind",
+    findingCode: "Finding code",
+    findingRule: "Finding rule",
+    findingCharacteristic: "Characteristic ID",
+    findingExplanation: "Canonical explanation",
   },
   malformed: {
     title: "Canonical record cannot be safely presented",

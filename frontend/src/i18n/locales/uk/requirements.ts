@@ -48,6 +48,11 @@ export const requirements = {
     coverageProfile: "Профіль покриття",
     references: "Спостереження: {{observations}} · Діагностика: {{diagnostics}}",
     findingRefs: "Посилання на знахідки",
+    observation: "Спостереження {{index}}",
+    observationEvidence: "Явні посилання на Evidence",
+    noExplicitEvidence: "Це спостереження не містить явних канонічних посилань на Evidence.",
+    malformedObservation: "Індекс спостереження {{index}} не відповідає канонічному спостереженню, яке можна безпечно представити.",
+    danglingEvidence: "Зазначений Evidence відсутній у цьому канонічному записі вимоги.",
   },
   evidence: {
     title: "Докази",
@@ -93,6 +98,11 @@ export const requirements = {
     endOffset: "Кінцеве зміщення",
     rule: "ID правила",
     linkedFindings: "Явно пов’язані знахідки",
+    findingKind: "Тип знахідки",
+    findingCode: "Код знахідки",
+    findingRule: "Правило знахідки",
+    findingCharacteristic: "ID характеристики",
+    findingExplanation: "Канонічне пояснення",
   },
   malformed: {
     title: "Канонічний запис неможливо безпечно представити",

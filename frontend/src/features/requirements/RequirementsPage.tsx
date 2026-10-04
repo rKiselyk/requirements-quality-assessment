@@ -24,10 +24,19 @@ function technicalValue(value: string | null, absent: string) {
   return value ? <code>{value}</code> : <span className="scientific-boundary">{absent}</span>;
 }
 
-function TraceBlock({ requirement, characteristicKey }: { requirement: RequirementProjection; characteristicKey: CharacteristicKey }) {
+function TraceBlock({
+  requirement,
+  characteristicKey,
+  onSelectEvidence,
+}: {
+  requirement: RequirementProjection;
+  characteristicKey: CharacteristicKey;
+  onSelectEvidence: (evidence: EvidenceProjection, event: MouseEvent<HTMLButtonElement>) => void;
+}) {
   const { t } = useTranslation("requirements");
   const assessment = requirement.characteristics[characteristicKey];
   const trace = assessment && requirement.trace?.characteristics.find((item) => item.characteristicId === assessment.characteristicId);
+  const evidenceById = new Map(requirement.evidence.flatMap((item) => item ? [[item.evidenceId, item] as const] : []));
   if (!requirement.trace || !trace) return <MalformedRecord compact />;
   return (
     <details className="quality-trace">
@@ -40,10 +49,42 @@ function TraceBlock({ requirement, characteristicKey }: { requirement: Requireme
       <ul className="trace-inputs">
         {trace.inputs.map((input, index) => (
           <li key={`${input.featureId}-${index}`}>
-            <code>{input.featureId}</code>
-            <code>{input.effectCode}</code>
-            {input.applicability ? <code>{input.applicability}</code> : null}
+            <div className="trace-input__identity">
+              <code>{input.featureId}</code>
+              <code>{input.effectCode}</code>
+              {input.applicability ? <code>{input.applicability}</code> : null}
+            </div>
             <span>{t("trace.references", { observations: input.observationIndexes.join(", ") || "—", diagnostics: input.diagnosticIndexes.join(", ") || "—" })}</span>
+            {input.observationIndexes.length ? (
+              <ol className="trace-observations">
+                {input.observationIndexes.map((observationIndex) => {
+                  const feature = featureKeys.map((key) => requirement.features[key]).find((item) => item?.featureId === input.featureId);
+                  const observation = feature?.observations[observationIndex];
+                  if (!observation) return <li className="trace-observation--malformed" key={observationIndex}>{t("trace.malformedObservation", { index: observationIndex })}</li>;
+                  return (
+                    <li key={observationIndex}>
+                      <div className="trace-observation__heading">
+                        <strong>{t("trace.observation", { index: observation.index })}</strong>
+                        {observation.observationId ? <code>{observation.observationId}</code> : null}
+                        {observation.featureId ? <code>{observation.featureId}</code> : null}
+                        {observation.kind ? <code>{observation.kind}</code> : null}
+                      </div>
+                      {observation.evidenceRefs.length ? (
+                        <div className="trace-observation__evidence">
+                          <span>{t("trace.observationEvidence")}</span>
+                          {observation.evidenceRefs.map((ref) => {
+                            const linked = evidenceById.get(ref);
+                            return linked
+                              ? <EvidenceBadge key={ref} evidenceId={linked.evidenceId} kind={linked.featureId} sourceText={linked.text} onClick={(event) => onSelectEvidence(linked, event)} />
+                              : <span className="dangling-reference" key={ref}><code>{ref}</code> {t("trace.danglingEvidence")}</span>;
+                          })}
+                        </div>
+                      ) : <span className="trace-observation__no-evidence">{t("trace.noExplicitEvidence")}</span>}
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -52,7 +93,13 @@ function TraceBlock({ requirement, characteristicKey }: { requirement: Requireme
   );
 }
 
-function QualityCards({ requirement }: { requirement: RequirementProjection }) {
+function QualityCards({
+  requirement,
+  onSelectEvidence,
+}: {
+  requirement: RequirementProjection;
+  onSelectEvidence: (evidence: EvidenceProjection, event: MouseEvent<HTMLButtonElement>) => void;
+}) {
   const { t } = useTranslation("requirements");
   return (
     <section className="requirements-section" aria-labelledby="requirement-quality-heading">
@@ -72,7 +119,7 @@ function QualityCards({ requirement }: { requirement: RequirementProjection }) {
                     <div><dt>{t("quality.assessmentRule")}</dt><dd>{technicalValue(assessment.assessmentRuleId, t("quality.noRule"))}</dd></div>
                   </dl>
                   <p className="assessment-explanation">{assessment.explanation}</p>
-                  <TraceBlock requirement={requirement} characteristicKey={key} />
+                  <TraceBlock requirement={requirement} characteristicKey={key} onSelectEvidence={onSelectEvidence} />
                 </>
               ) : <MalformedRecord />}
             </article>
@@ -216,8 +263,8 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
 
   const findingCount = characteristicKeys.reduce((total, key) => total + (selected.characteristics[key]?.findings.length ?? 0), 0);
   const diagnosticCount = featureKeys.reduce((total, key) => total + (selected.features[key]?.diagnostics.length ?? 0), 0);
-  const linkedFindingIds = characteristicKeys.flatMap((key) => selected.characteristics[key]?.findings ?? [])
-    .flatMap((finding: FindingProjection | null) => finding && selectedEvidence && finding.evidenceRefs.includes(selectedEvidence.evidenceId) ? [finding.findingId] : []);
+  const linkedFindings = characteristicKeys.flatMap((key) => selected.characteristics[key]?.findings ?? [])
+    .flatMap((finding: FindingProjection | null) => finding && selectedEvidence && finding.evidenceRefs.includes(selectedEvidence.evidenceId) ? [finding] : []);
 
   return (
     <section className="requirements-page">
@@ -256,7 +303,7 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
             <EvidenceHighlighter requirementText={selected.requirement.text} evidence={selectedEvidence} mismatchMessage={t("evidence.spanMismatch")} />
           </Card>
 
-          <QualityCards requirement={selected} />
+          <QualityCards requirement={selected} onSelectEvidence={selectEvidence} />
           <PropertyProfile result={result} requirement={selected} />
 
           <section className="requirements-section" aria-labelledby="evidence-heading">
@@ -290,11 +337,13 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
       <EvidenceDrawer
         evidence={selectedEvidence}
         sourceLine={selected.requirement.sourceLine}
-        linkedFindingIds={linkedFindingIds}
+        linkedFindings={linkedFindings}
         labels={{
           heading: t("drawer.heading"), close: t("drawer.close"), requirement: t("drawer.requirement"), sourceLine: t("drawer.sourceLine"),
           feature: t("drawer.feature"), exactText: t("drawer.exactText"), startOffset: t("drawer.startOffset"), endOffset: t("drawer.endOffset"),
-          rule: t("drawer.rule"), linkedFindings: t("drawer.linkedFindings"),
+          rule: t("drawer.rule"), linkedFindings: t("drawer.linkedFindings"), findingKind: t("drawer.findingKind"),
+          findingCode: t("drawer.findingCode"), findingRule: t("drawer.findingRule"), findingCharacteristic: t("drawer.findingCharacteristic"),
+          findingExplanation: t("drawer.findingExplanation"),
         }}
         onClose={closeEvidence}
       />

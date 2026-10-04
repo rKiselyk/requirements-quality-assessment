@@ -69,7 +69,16 @@ export interface DiagnosticProjection {
 
 export interface FeatureProjection {
   featureId: string;
+  observations: Array<ObservationProjection | null>;
   diagnostics: Array<DiagnosticProjection | null>;
+}
+
+export interface ObservationProjection {
+  index: number;
+  featureId: string | null;
+  observationId: string | null;
+  kind: string | null;
+  evidenceRefs: string[];
 }
 
 export interface FeatureInputTraceProjection {
@@ -238,11 +247,30 @@ function diagnostic(value: unknown): DiagnosticProjection | null {
   return { code, explanation, ruleId, candidateSpan: { text: spanText, startOffset, endOffset } };
 }
 
+function observation(value: unknown, index: number): ObservationProjection | null {
+  const candidate = record(value);
+  if (!candidate) return null;
+  const featureId = candidate.feature_id === undefined ? null : text(candidate.feature_id);
+  const observationId = candidate.observation_id === undefined ? null : text(candidate.observation_id);
+  const kind = candidate.kind === undefined ? null : text(candidate.kind);
+  const evidenceRefs = candidate.evidence_refs === undefined ? [] : stringArray(candidate.evidence_refs);
+  if ((candidate.feature_id !== undefined && featureId === null)
+    || (candidate.observation_id !== undefined && observationId === null)
+    || (candidate.kind !== undefined && kind === null)
+    || evidenceRefs === null) return null;
+  return { index, featureId, observationId, kind, evidenceRefs };
+}
+
 function feature(value: unknown, expectedFeatureId: string): FeatureProjection | null {
   const candidate = record(value);
   const featureId = candidate && text(candidate.feature_id);
-  if (!candidate || featureId !== expectedFeatureId || !Array.isArray(candidate.diagnostics)) return null;
-  return { featureId, diagnostics: candidate.diagnostics.map(diagnostic) };
+  if (!candidate || featureId !== expectedFeatureId
+    || !Array.isArray(candidate.observations) || !Array.isArray(candidate.diagnostics)) return null;
+  return {
+    featureId,
+    observations: candidate.observations.map(observation),
+    diagnostics: candidate.diagnostics.map(diagnostic),
+  };
 }
 
 function inputTrace(value: unknown): FeatureInputTraceProjection | null {
@@ -368,6 +396,11 @@ export function selectFullProfile(response: CanonicalAnalyzeResponse, selected: 
       malformedIdentityMatch = true;
       continue;
     }
+    if (typeof automaticRequirement.text !== "string") {
+      malformedIdentityMatch = true;
+      continue;
+    }
+    if (automaticRequirement.text !== selected.text) continue;
 
     const projected = externalPropertySlots.map(([slot, propertyId]) => externalProperty(candidate[slot], propertyId, selected));
     if (projected.some((item) => item === null)) return { kind: "MALFORMED" };
