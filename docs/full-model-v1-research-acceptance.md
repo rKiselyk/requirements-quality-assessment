@@ -27,10 +27,12 @@ or production readiness.
 
 ## Bounded scope and public invocation
 
-The canonical fixture lives in `tests/reference_acceptance_data.py`; no
-scientific fixture value is added to production. The dedicated acceptance test
-calls `FullModelService.run(...)` exactly once with that explicit request. It
-does not import or reconstruct the historical M3 `_build_scenario()` pipeline.
+The canonical fixture factory lives in
+`src/requirements_quality_assessment/full_model/controlled_scenario.py` so the
+accepted Research UI controlled-demo boundary can load a fresh immutable
+request graph. The dedicated acceptance test and API reuse that single source
+and call `FullModelService.run(...)`; neither reconstructs the historical M3
+`_build_scenario()` pipeline.
 
 The service-driven report bundle uses presentation identity `v1.0`.
 Historical `FullModelReportBundle` output and historical versioned component

@@ -40,14 +40,15 @@ from requirements_quality_assessment.quantitative_risk import (
 from requirements_quality_assessment.reassessment import ComparisonKind
 from requirements_quality_assessment.risk import RiskClassification
 
-from reference_acceptance_data import (
-    CONTROLLED_RESEARCH_REFERENCE_SCENARIO,
+from requirements_quality_assessment.full_model.controlled_scenario import (
+    CONTROLLED_SCENARIO_ID,
+    CONTROLLED_SCENARIO_VERSION,
     PARAMETER_IDENTITY,
     PREDICTOR_REF,
-    SCENARIO_ID,
     V1_R001,
     V1_R002,
     V2_R002,
+    load_controlled_research_reference_scenario,
 )
 
 
@@ -56,8 +57,11 @@ EXPECTED_AUDIT_SHA256 = "c8f2ed47719207fdbff1f6cfa6b2242b0f3b86692dcbcea72ec711c
 
 
 def test_controlled_research_reference_scenario_covers_full_model_v1() -> None:
-    scenario = CONTROLLED_RESEARCH_REFERENCE_SCENARIO
-    assert scenario.scenario_id == SCENARIO_ID == "CONTROLLED_RESEARCH_REFERENCE_SCENARIO"
+    scenario = load_controlled_research_reference_scenario(
+        CONTROLLED_SCENARIO_ID, CONTROLLED_SCENARIO_VERSION
+    )
+    assert scenario.scenario_id == "CONTROLLED_RESEARCH_REFERENCE_SCENARIO"
+    assert scenario.scenario_version == "1"
 
     # This is the single public application call in the canonical acceptance scenario.
     result = FullModelService().run(scenario.request)

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from ..aggregator import SpecificationQualityAggregator
-from ..domain import RequirementAssessmentRecord
+from ..assessor import RequirementQualityAssessor
+from ..domain import Requirement, RequirementAssessmentRecord
+from ..extractor import BaselineFeatureExtractor
 from .aggregation import QbConsistencyAggregator
 from .comparison import QbObservationPairAssessor
 from .materiality import QbMaterialityClassifier
@@ -113,4 +115,33 @@ class SpecificationAssessmentService:
         )
 
 
-__all__ = ["SpecificationAssessmentService"]
+def assess_specification(
+    requirements: tuple[Requirement, ...],
+    *,
+    extractor=None,
+    assessor=None,
+    specification_service=None,
+) -> SpecificationAssessmentResult:
+    """Run the accepted pipeline while keeping delivery adapters orchestration-only."""
+
+    if not isinstance(requirements, tuple):
+        raise TypeError("requirements must be an immutable ordered tuple")
+    production_types = all(isinstance(item, Requirement) for item in requirements)
+    if not production_types and extractor is None and assessor is None:
+        raise TypeError("requirements must contain Requirement values")
+
+    active_extractor = BaselineFeatureExtractor() if extractor is None else extractor
+    active_assessor = RequirementQualityAssessor() if assessor is None else assessor
+    active_service = (
+        SpecificationAssessmentService()
+        if specification_service is None
+        else specification_service
+    )
+    records = tuple(
+        active_assessor.assess_record(active_extractor.extract(requirement))
+        for requirement in requirements
+    )
+    return active_service.assess(records)
+
+
+__all__ = ["SpecificationAssessmentService", "assess_specification"]

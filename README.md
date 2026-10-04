@@ -17,10 +17,10 @@ within its declared bounded reference scope. Constructs outside those boundaries
 remain draft or unimplemented. [`docs/mvp-v0.1-baseline.md`](docs/mvp-v0.1-baseline.md)
 describes the historical subset and limitations.
 
-A forthcoming Research UI v1 will add a stateless application and presentation
-layer over these accepted typed results. Its frozen boundary is documented in
+A stateless FastAPI adapter now exposes the accepted specification-assessment
+path for the forthcoming Research UI v1. Its frozen boundary is documented in
 [`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md), with the approved page/component baseline in [`docs/research-ui-v1-design-spec.md`](docs/research-ui-v1-design-spec.md). No web UI
-or HTTP endpoint is implemented yet; the contract prevents the future UI from
+is implemented; the contract prevents the future UI from
 recalculating scientific results or fabricating unavailable Full Model inputs.
 
 ## Requirements and installation
@@ -35,6 +35,130 @@ python -m pip check
 ```
 
 On POSIX systems, activate with `. .venv/bin/activate`. The same `python -m pip install -e ".[dev,parser]"` command installs the package, tests, parser, and model. The model wheel is pinned in `pyproject.toml` by version and SHA-256. An internet connection or a package cache containing the pinned dependencies is needed for a fresh installation.
+
+## Run the HTTP API
+
+The Research API is a thin, synchronous, stateless HTTP/JSON adapter over the
+accepted application services. It does not define independent scoring
+semantics or fabricate unavailable scientific inputs. One endpoint supports
+the three frozen Research UI v1 cases: `INITIAL`, `CONTROLLED_DEMO`, and
+`REASSESSMENT`.
+
+Start the local server from the repository root:
+
+```powershell
+python -m uvicorn requirements_quality_assessment.api.app:app --reload
+```
+
+`GET /health` returns `{"status":"ok"}` without running the model. Interactive
+OpenAPI documentation is available at [`http://127.0.0.1:8000/docs`](http://127.0.0.1:8000/docs).
+
+For an ordinary initial assessment, submit one source-ordered specification:
+
+```json
+{
+  "case": "INITIAL",
+  "requirements": [
+    {
+      "text": "Якщо сервіс недоступний, система повинна відповісти не більше ніж за 2 с.",
+      "source_line": 1
+    },
+    {
+      "text": "Система повинна швидко оновити статус.",
+      "source_line": 3
+    }
+  ]
+}
+```
+
+Scientific requirement IDs are always generated deterministically from the
+one-based request position (`R001`, `R002`, ...); arbitrary client IDs are not
+accepted. `source_line` is the positive physical line number in the original
+source. Values must be unique and strictly increasing in request order; the
+backend neither renumbers nor reorders them. Leading and trailing whitespace is
+trimmed and blank requirements are rejected.
+
+The accepted controlled demonstration is selected only by its frozen identity.
+Clients cannot override its observations, parameters, policies, revision, or
+other scientific fixture fields:
+
+```json
+{
+  "case": "CONTROLLED_DEMO",
+  "scenario": {
+    "id": "CONTROLLED_RESEARCH_REFERENCE_SCENARIO",
+    "version": "1"
+  }
+}
+```
+
+That response includes the genuine Full Model, revision, reassessment,
+comparison, checkpoint, and process records produced by the accepted scenario,
+plus a canonical `reassessment_context`. A formal reassessment sends that
+complete context back with the externally revised specification:
+
+```json
+{
+  "case": "REASSESSMENT",
+  "requirements": [
+    {"text": "Час відгуку ≤ 2 с при 500 одночасних користувачах", "source_line": 1},
+    {"text": "Час відгуку ≤ 5 с при 500 одночасних користувачах", "source_line": 2}
+  ],
+  "prior_context": {"...": "canonical reassessment_context from CONTROLLED_DEMO"}
+}
+```
+
+The backend stores no history. It validates the complete supplied context and
+independently reruns the accepted path. An ordinary `INITIAL` response is not
+sufficient prior context, and arbitrary v1/v2 analysis or comparison is not
+supported.
+
+A shortened successful response has this shape (exact rational values are
+never converted to floating point):
+
+```json
+{
+  "contract_version": "research-api-v1",
+  "analysis_case": "INITIAL",
+  "controlled_scenario": null,
+  "requirements": [
+    {
+      "requirement": {"id": "R001", "source_line": 1, "text": "..."},
+      "quality_profile": {
+        "completeness": {
+          "state": "COMPUTED",
+          "value": {"numerator": 1, "denominator": 1},
+          "assessment_rule_id": "CALC-C-MVP-001"
+        }
+      },
+      "evidence": []
+    }
+  ],
+  "specification": {
+    "snapshot_id": "qb-snapshot-sha256:...",
+    "quality_profile": {},
+    "qb_consistency": {}
+  },
+  "section_availability": [],
+  "full_model": null,
+  "reassessment_context": null,
+  "limitations": ["NO_COMBINED_QUALITY_SCORE"]
+}
+```
+
+The complete response preserves requirement text and order, C/V/U states and
+exact values, Findings, accepted Evidence and offsets, diagnostics, assessment
+traces, specification aggregates, and bounded QB records. Optional downstream
+sections that cannot legally be constructed from text alone are explicitly
+marked `UNAVAILABLE` rather than fabricated.
+
+OpenAPI exposes stable Full Model record families—criterion binding,
+observation/conformance, product quality, problem/defect relations, categorical
+and quantitative risk, corrective action, process, checkpoints, reassessment,
+and comparisons. Their nested payloads remain canonical domain projections.
+A reusable transport record documents shared `status`, `applicability`, and
+`provenance` fields while permitting domain-specific fields, avoiding a second
+scientific model in the HTTP layer.
 
 ## Run an assessment
 
