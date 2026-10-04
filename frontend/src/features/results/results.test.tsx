@@ -240,10 +240,10 @@ describe("RUI-07 results workspace", () => {
   });
 
   it.each([
-    ["COMPUTED without value", { state: "COMPUTED", value: null }],
-    ["COMPUTED with malformed value", { state: "COMPUTED", value: { numerator: 1, denominator: 0 } }],
-    ["UNKNOWN with value", { state: "UNKNOWN", value: { numerator: 1, denominator: 2 } }],
-    ["NOT_APPLICABLE with value", { state: "NOT_APPLICABLE", value: { numerator: 1, denominator: 2 } }],
+    ["COMPUTED without value", { state: "COMPUTED", value: null, reasons: [] }],
+    ["COMPUTED with malformed value", { state: "COMPUTED", value: { numerator: 1, denominator: 0 }, reasons: [] }],
+    ["UNKNOWN with value", { state: "UNKNOWN", value: { numerator: 1, denominator: 2 }, reasons: [] }],
+    ["NOT_APPLICABLE with value", { state: "NOT_APPLICABLE", value: { numerator: 1, denominator: 2 }, reasons: [] }],
   ])("rejects contradictory QB presentation: %s", (_label, qb) => {
     const result = withQb(qb);
     expect(selectQbConsistency(result)).toBeNull();
@@ -251,6 +251,68 @@ describe("RUI-07 results workspace", () => {
     const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
     expect(within(qbCard).getByText("Canonical record cannot be safely presented")).toBeTruthy();
     expect(within(qbCard).queryByText(/COMPUTED|UNKNOWN|NOT_APPLICABLE/)).toBeNull();
+  });
+
+  it("preserves and presents NOT_APPLICABLE QB reasons without an unavailable or zero value", () => {
+    const result = withQb({ state: "NOT_APPLICABLE", value: null, reasons: ["NO_APPLICABLE_COMPARISONS"] });
+    expect(selectQbConsistency(result)).toEqual({
+      state: "NOT_APPLICABLE",
+      value: null,
+      reasons: ["NO_APPLICABLE_COMPARISONS"],
+    });
+    render(<OverviewPage result={result} />);
+    const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
+    expect(within(qbCard).getByText("No numeric value")).toBeTruthy();
+    expect(within(qbCard).getByText("NOT_APPLICABLE")).toBeTruthy();
+    expect(within(qbCard).getByText("NO_APPLICABLE_COMPARISONS")).toBeTruthy();
+    expect(within(qbCard).queryByText("Unavailable")).toBeNull();
+    expect(within(qbCard).queryByText("0")).toBeNull();
+  });
+
+  it("preserves supplied UNKNOWN QB reasons in canonical order without an unavailable or zero value", () => {
+    const reasons = ["QB_MATERIAL_UNRESOLVED_EXTRACTION", "ASSESSMENT_UNRESOLVED_PAIR"];
+    const result = withQb({ state: "UNKNOWN", value: null, reasons });
+    expect(selectQbConsistency(result)?.reasons).toEqual(reasons);
+    render(<OverviewPage result={result} />);
+    const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
+    expect(within(qbCard).getByText("No numeric value")).toBeTruthy();
+    expect(within(qbCard).getByText("UNKNOWN")).toBeTruthy();
+    expect(Array.from(qbCard.querySelectorAll(".qb-card__reasons code"), (node) => node.textContent)).toEqual(reasons);
+    expect(within(qbCard).queryByText("Unavailable")).toBeNull();
+    expect(within(qbCard).queryByText("0")).toBeNull();
+  });
+
+  it("continues to render valid COMPUTED QB as an exact fraction", () => {
+    const result = withQb({ state: "COMPUTED", value: { numerator: 7, denominator: 9 }, reasons: [] });
+    render(<OverviewPage result={result} />);
+    const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
+    expect(within(qbCard).getByLabelText("Exact value: 7/9")).toBeTruthy();
+    expect(within(qbCard).getByText("COMPUTED")).toBeTruthy();
+    expect(within(qbCard).queryByText("No numeric value")).toBeNull();
+  });
+
+  it("keeps an unknown future QB reason visible without inventing meaning", () => {
+    const result = withQb({ state: "UNKNOWN", value: null, reasons: ["FUTURE_QB_REASON"] });
+    render(<OverviewPage result={result} />);
+    const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
+    expect(within(qbCard).getByText("FUTURE_QB_REASON")).toBeTruthy();
+    expect(within(qbCard).queryByText(/explanation|conclusion|failure/i)).toBeNull();
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["non-array", "NO_APPLICABLE_COMPARISONS"],
+    ["non-string member", ["NO_APPLICABLE_COMPARISONS", 7]],
+  ])("uses the malformed-presentation boundary for %s QB reasons", (_label, reasons) => {
+    const qb: Record<string, unknown> = { state: "NOT_APPLICABLE", value: null };
+    if (reasons !== undefined) qb.reasons = reasons;
+    const result = withQb(qb);
+    expect(selectQbConsistency(result)).toBeNull();
+    render(<OverviewPage result={result} />);
+    const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
+    expect(within(qbCard).getByText("Canonical record cannot be safely presented")).toBeTruthy();
+    expect(within(qbCard).queryByText("NOT_APPLICABLE")).toBeNull();
+    expect(within(qbCard).queryByText("No numeric value")).toBeNull();
   });
 
   it("presents QB separately from C/V/U", () => {

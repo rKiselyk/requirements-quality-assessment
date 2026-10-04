@@ -35,6 +35,8 @@ export const overview = {
     title: "Specification",
     qb: "QB consistency",
     qbDescription: "Separate bounded specification-level consistency assessment",
+    noNumericValue: "No numeric value",
+    reasons: "Canonical reasons",
   },
   surface: {
     title: "Model surface",

@@ -29,12 +29,18 @@ export interface SectionAvailabilityProjection {
 }
 
 export interface MetricProjection {
-  state: string;
+  state: "COMPUTED" | "UNKNOWN" | "NOT_APPLICABLE";
   value: ExactValueData | null;
   computedCount: number | null;
   unknownCount: number | null;
   notApplicableCount: number | null;
   totalCount: number | null;
+}
+
+export interface QbProjection {
+  state: "COMPUTED" | "UNKNOWN" | "NOT_APPLICABLE";
+  value: ExactValueData | null;
+  reasons: string[];
 }
 
 export interface ScientificRecordProjection {
@@ -103,6 +109,13 @@ function stringArray(value: unknown): string[] {
     : [];
 }
 
+function canonicalCodeArray(value: unknown): string[] | null {
+  return Array.isArray(value)
+    && value.every((item) => typeof item === "string" && item.length > 0)
+    ? [...value]
+    : null;
+}
+
 export function selectSectionAvailability(
   response: CanonicalAnalyzeResponse,
   section: string,
@@ -159,15 +172,13 @@ export function selectSpecificationMetrics(response: CanonicalAnalyzeResponse) {
   };
 }
 
-export function selectQbConsistency(response: CanonicalAnalyzeResponse): MetricProjection | null {
+export function selectQbConsistency(response: CanonicalAnalyzeResponse): QbProjection | null {
+  const candidate = record(response.specification.qb_consistency);
   const stateValue = stateAndValue(response.specification.qb_consistency);
-  return stateValue === null ? null : {
-    ...stateValue,
-    computedCount: null,
-    unknownCount: null,
-    notApplicableCount: null,
-    totalCount: null,
-  };
+  const reasons = candidate && canonicalCodeArray(candidate.reasons);
+  return stateValue === null || reasons === null
+    ? null
+    : { ...stateValue, reasons };
 }
 
 function scientificRecord(value: unknown, valueField: string, kindField: string): ScientificRecordProjection | null {

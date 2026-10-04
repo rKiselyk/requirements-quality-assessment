@@ -144,7 +144,16 @@ export function OverviewPage({ result }: { result: CanonicalAnalyzeResponse }) {
         <h2 id="specification-title">{t("specification.title")}</h2>
         <Card className="qb-card">
           <div><h3>{t("specification.qb")}</h3><p>{t("specification.qbDescription")}</p></div>
-          {qb ? <><ExactValue value={qb.value} /><StatusBadge code={qb.state} /></> : <MalformedPresentationState />}
+          {qb ? <div className="qb-card__result">
+            <div className="qb-card__value-state">
+              {qb.value ? <ExactValue value={qb.value} /> : <span className="qb-card__no-value">{t("specification.noNumericValue")}</span>}
+              <StatusBadge code={qb.state} />
+            </div>
+            {qb.reasons.length ? <div className="qb-card__reasons">
+              <strong>{t("specification.reasons")}</strong>
+              <ul>{qb.reasons.map((reason, index) => <li key={`${reason}-${index}`}><code>{reason}</code></li>)}</ul>
+            </div> : null}
+          </div> : <MalformedPresentationState />}
         </Card>
       </section>
 
