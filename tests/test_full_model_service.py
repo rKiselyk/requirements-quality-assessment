@@ -4,6 +4,7 @@ from dataclasses import fields, replace
 from decimal import Decimal
 from fractions import Fraction
 import json
+import pytest
 
 from requirements_quality_assessment.corrective_action import (
     ActionCreatorSource, ApplicationIdentityContext, ExternalProviderRef,
@@ -169,6 +170,43 @@ def _config_dict():
             ("PROCESS_REASSESSMENT", "FULL-MODEL-V0.1-PROCESS-REASSESSMENT"),
         )
     ]
+    reuse_values = {
+        "product_ref": {"id": "PRODUCT-REF-001", "version": "1"},
+        "observation_source_kind": ObservationSourceKind.DETERMINISTIC_FIXTURE.value,
+        "collection_ref": {
+            "id": "COLLECTION-REF-001", "version": "1",
+            "product_ref": {"id": "PRODUCT-REF-001", "version": "1"},
+            "environment_ref": {"id": "ENV-REF-001", "version": "1"},
+            "source_kind": ObservationSourceKind.DETERMINISTIC_FIXTURE.value,
+        },
+        "metric_ref": {
+            "registry_ref": {
+                "id": RESPONSE_TIME_METRIC_REF.registry_ref.contract_id,
+                "version": RESPONSE_TIME_METRIC_REF.registry_ref.version,
+            },
+            "metric_id": RESPONSE_TIME_METRIC_REF.metric_id,
+            "normalization_contract_ref": {
+                "id": RESPONSE_TIME_METRIC_REF.normalization_contract_ref.contract_id,
+                "version": RESPONSE_TIME_METRIC_REF.normalization_contract_ref.version,
+            },
+            "normalized_source_metric": RESPONSE_TIME_METRIC_REF.normalized_source_metric,
+        },
+        "unit": UnitLabel.SECOND.value,
+        "context_identity": {
+            "normalization_contract_ref": {
+                "id": SUPPORTED_CONTEXT_IDENTITY.normalization_contract_ref.contract_id,
+                "version": SUPPORTED_CONTEXT_IDENTITY.normalization_contract_ref.version,
+            },
+            "normalized_text": SUPPORTED_CONTEXT_IDENTITY.normalized_text,
+        },
+        "applicability": Applicability.APPLICABLE.value,
+        "process_stage": ProcessStage.REFERENCE_VERIFICATION.value,
+        "source_contract_permission": True,
+    }
+    reuse_checks = [
+        {"field_name": name, "expected": value, "actual": value, "matches": True}
+        for name, value in reuse_values.items()
+    ]
     return {
         "artifact_v1": {"id": "SPEC-PROCESS-REF-001", "version": "v1"},
         "artifact_v2": {"id": "SPEC-PROCESS-REF-001", "version": "v2"},
@@ -183,7 +221,7 @@ def _config_dict():
         "events": {"dynamic_id": "DYNAMIC-ASSESSMENT-REF-001", "product_quality_id": "PRODUCT-QUALITY-EVENT-REF-001", "risk_id": "RISK-EVENT-REF-001", "v1_version": "v1", "v2_version": "v2"},
         "action": {"id": "A-REF-001", "creator": {"id": "CORRECTIVE-ACTION-PROPOSER", "version": "1"}},
         "revision": {"identity": {"id": "REV-REF-001", "version": "v1"}, "provider_kind": ExternalRevisionProviderKind.CONTROLLED_REFERENCE_FIXTURE.value, "provider": {"id": "QB-CONFLICT-REFERENCE", "version": "1"}, "replacements": [{"requirement_id": "R002", "text": "Час відгуку ≤ 5 с при 500 одночасних користувачах"}], "reason": "Controlled explicit TC-05 CLI revision", "application": {"id": "APP-REF-001", "version": "v1", "child_version": "v2", "transition_id": "ARTIFACT-TRANSITION-REF-001"}},
-        "evidence_reuse": {"disposition": EvidenceReuseDisposition.REUSE_ALLOWED.value, "reasons": [EvidenceReuseReason.EXACT_IDENTITY_AND_CONTEXT_MATCH.value], "source_contract_permission": True},
+        "evidence_reuse": {"disposition": EvidenceReuseDisposition.REUSE_ALLOWED.value, "reasons": [EvidenceReuseReason.EXACT_IDENTITY_AND_CONTEXT_MATCH.value], "identity_checks": reuse_checks},
         "reassessment": {"id": "REEVAL-REF-001", "version": "v1"},
         "component_versions": component_versions,
         "comparisons": {"ids": ["COMPARE-QB-REF-001", "COMPARE-PROBLEM-REF-001", "COMPARE-RISK-REF-001", "COMPARE-PRODUCT-QUALITY-REF-001"], "version": "v1"},
@@ -215,6 +253,34 @@ def test_full_model_cli_missing_or_invalid_config_fails_cleanly(tmp_path, capsys
     captured = capsys.readouterr()
     assert "invalid full-model config" in captured.err
     assert "Traceback" not in captured.err
+
+
+def test_cli_reuse_checks_are_required_and_cannot_be_promoted_to_true(tmp_path, capsys):
+    requirements = tmp_path / "requirements.txt"
+    requirements.write_text("Час відгуку ≤ 2 с при 500 одночасних користувачах\nЧас відгуку не нижче 5 с при 500 одночасних користувачах\n", encoding="utf-8")
+
+    omitted = _config_dict()
+    del omitted["evidence_reuse"]["identity_checks"]
+    omitted_path = tmp_path / "omitted.json"
+    omitted_path.write_text(json.dumps(omitted, ensure_ascii=False), encoding="utf-8")
+    assert main(["--mode", "full-model", "--config", str(omitted_path), str(requirements)]) != 0
+    assert "identity_checks is required" in capsys.readouterr().err
+
+    false_check = _config_dict()
+    false_check["evidence_reuse"]["identity_checks"][0]["matches"] = False
+    false_path = tmp_path / "false.json"
+    false_path.write_text(json.dumps(false_check, ensure_ascii=False), encoding="utf-8")
+    assert main(["--mode", "full-model", "--config", str(false_path), str(requirements)]) != 0
+    captured = capsys.readouterr()
+    assert "matches contradicts supplied values" in captured.err
+    assert "Traceback" not in captured.err
+
+    mismatched = _config_dict()
+    mismatched["evidence_reuse"]["identity_checks"][0]["actual"] = {"id": "OTHER", "version": "1"}
+    mismatched_path = tmp_path / "mismatched.json"
+    mismatched_path.write_text(json.dumps(mismatched, ensure_ascii=False), encoding="utf-8")
+    assert main(["--mode", "full-model", "--config", str(mismatched_path), str(requirements)]) != 0
+    assert "contradicts the actual request graph" in capsys.readouterr().err
 
 
 def test_explicit_tc01_tc02_tc03_tc04_extensions_are_invoked_and_reported():
@@ -265,11 +331,39 @@ def test_explicit_tc01_tc02_tc03_tc04_extensions_are_invoked_and_reported():
         full_quality=(FullQualityExtensionInput("R001", external),),
         prediction=prediction,
         quantitative_risk=quantitative,
-        checkpoints=(CheckpointExtensionInput("TC05-CHECKPOINT", "1", "v2", policy),),
+        checkpoints=(
+            CheckpointExtensionInput(
+                "TC05-CHECKPOINT", "1", "v2",
+                MetricId.SPEC_QB_CONSISTENCY, policy,
+            ),
+            CheckpointExtensionInput(
+                "TC05-COMPLETENESS-CHECKPOINT", "1", "v2",
+                MetricId.SPEC_MEAN_COMPLETENESS, policy,
+            ),
+        ),
     ))
     assert len(result.full_quality_profiles) == 1
     assert result.prediction is not None
     assert result.quantitative_risk_assessments[0].local_risk == Fraction(1, 16)
     assert result.checkpoint_evaluations[0].outcome is CheckpointOutcome.SATISFIED
+    assert result.checkpoint_evaluations[0].selected_result.result_identity == MetricId.SPEC_QB_CONSISTENCY.value
+    assert result.checkpoint_evaluations[1].selected_result.result_identity == MetricId.SPEC_MEAN_COMPLETENESS.value
     assert "SINGULARITY" in AuditFullModelReporter().render(result.report_bundle)
     assert "Прогнозована якість" in UserFullModelReporter().render(result.report_bundle)
+
+
+def test_checkpoint_target_must_resolve_to_exactly_one_explicit_metric():
+    policy = ThresholdPolicy(
+        "TC05-AMBIGUOUS-POLICY", "1", PolicySourceRef("TC05-SOURCE", "1"),
+        PolicyProviderRef("TC05-PROVIDER", "1"), "Explicit test threshold.",
+        CheckpointComparator.GREATER_THAN_OR_EQUAL, Fraction(1, 1),
+        ContractRef("TC05-POLICY", "1"),
+    )
+    request = replace(
+        _request(),
+        checkpoints=(CheckpointExtensionInput(
+            "TC05-AMBIGUOUS", "1", "v1", MetricId.RQ_COMPLETENESS, policy
+        ),),
+    )
+    with pytest.raises(ValueError, match="resolved to 2 entries"):
+        FullModelService().run(request)

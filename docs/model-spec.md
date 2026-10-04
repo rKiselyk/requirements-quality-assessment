@@ -7950,6 +7950,22 @@ policy and selected v1/v2 metric target; selection uses the accepted adapter
 and evaluation uses the accepted evaluator. `SATISFIED` remains a predicate
 result and is not `PROCEED` or `RELEASE`.
 
+CLI evidence reuse requires an explicit caller declaration for every required
+identity/context check: product, observation source, collection, metric, unit,
+criterion context, applicability, process stage, and source-contract
+permission. Each declaration carries serialized expected and actual values and
+the caller's boolean `matches`. The adapter validates those declarations
+against the typed request graph and never manufactures a successful match.
+Omitted, duplicated, unknown, false, or contradictory checks fail.
+The accepted reassessment rebuilder performs its existing independent typed
+validation unchanged.
+
+Every TC-04 extension also supplies the typed `MetricId` of its selected
+result, in addition to the v1/v2 profile selection and external policy. The
+service requires that identity to resolve to exactly one metric entry. It does
+not default to `SPEC.QB_CONSISTENCY` or infer a target from checkpoint/policy
+names.
+
 The historical CLI remains the default. Full-model CLI mode requires a UTF-8
 JSON config and has no hidden scientific values:
 

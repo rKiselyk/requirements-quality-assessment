@@ -23,7 +23,7 @@ from ..dynamic_evidence import (
 )
 from ..full_model_reporter import FullModelReportBundle
 from ..full_quality import ExternalPropertyAssessment, FullRequirementQualityProfile
-from ..metrics import ArtifactRef, AssessmentRef, MetricProfile
+from ..metrics import ArtifactRef, AssessmentRef, MetricId, MetricProfile
 from ..performance_efficiency import PerformanceEfficiencyFeatureProfile, ProcessStateRef
 from ..process import ProcessAssessmentState, ProcessStateTransition
 from ..product_quality import ProductQualityAssessment, ProductQualityAssessmentEventRef
@@ -107,6 +107,7 @@ class CheckpointExtensionInput:
     checkpoint_id: str
     checkpoint_version: str
     result_version: str
+    metric_id: MetricId
     threshold_policy: ThresholdPolicy
 
 

@@ -443,13 +443,21 @@ class FullModelService:
 
     @staticmethod
     def _checkpoint(item, metric_v1, metric_v2, process_v1, process_v2):
+        if not isinstance(item.metric_id, MetricId):
+            raise TypeError("checkpoint metric_id must be a MetricId")
         if item.result_version == "v1":
             profile, state = metric_v1, process_v1
         elif item.result_version == "v2":
             profile, state = metric_v2, process_v2
         else:
             raise ValueError("checkpoint result_version must be 'v1' or 'v2'")
-        entry = next(x for x in profile.entries if x.metric_id is MetricId.SPEC_QB_CONSISTENCY)
+        matches = tuple(x for x in profile.entries if x.metric_id is item.metric_id)
+        if len(matches) != 1:
+            raise ValueError(
+                "checkpoint selected metric must identify exactly one profile entry: "
+                f"{item.metric_id.value} resolved to {len(matches)} entries"
+            )
+        entry = matches[0]
         selected = select_metric_result(entry, state)
         return evaluate_checkpoint(CheckpointRequest(
             item.checkpoint_id, item.checkpoint_version, selected,
