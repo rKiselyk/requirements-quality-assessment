@@ -13,12 +13,16 @@ import {
 
 export interface SpecificationInputPageProps {
   onAnalyzeRequest: (request: Rui05AnalyzeRequest) => void;
+  onInputIdentityChange?: () => void;
+  apiErrorMessage?: string | null;
+  onRetry?: () => void;
 }
 
 type FileValidation = "unsupported" | "unreadable" | null;
 
-export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputPageProps) {
+export function SpecificationInputPage({ onAnalyzeRequest, onInputIdentityChange, apiErrorMessage, onRetry }: SpecificationInputPageProps) {
   const { t } = useTranslation("input");
+  const { t: lifecycleText } = useTranslation("lifecycle");
   const [sourceText, setSourceText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [pendingFileName, setPendingFileName] = useState<string | null>(null);
@@ -28,6 +32,7 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
   const isEmpty = requirements.length === 0;
 
   const replaceSource = (nextText: string, nextFileName: string | null) => {
+    onInputIdentityChange?.();
     readSequence.current += 1;
     setSourceText(nextText);
     setFileName(nextFileName);
@@ -46,6 +51,7 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
       return;
     }
 
+    onInputIdentityChange?.();
     setPendingFileName(file.name);
     try {
       const text = await readSpecificationFile(file);
@@ -69,6 +75,13 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
   return (
     <div className="input-page">
       <PageHeader title={t("pageTitle")} subtitle={t("pageSubtitle")} />
+
+      {apiErrorMessage ? (
+        <Callout title={lifecycleText("error.title")} tone="critical">
+          <p>{apiErrorMessage}</p>
+          {onRetry ? <Button type="button" variant="secondary" onClick={onRetry}>{lifecycleText("actions.tryAgain")}</Button> : null}
+        </Callout>
+      ) : null}
 
       <Card title={t("ordinary.title")} description={t("ordinary.description")}>
         <div className="input-workflow">

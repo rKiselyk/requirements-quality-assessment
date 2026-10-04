@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { i18n, limitationCodes, limitationTranslationKey } from ".";
+import { apiErrorCodes, apiErrorTranslationKey, i18n, limitationCodes, limitationTranslationKey } from ".";
 
 describe("RUI-04 localization regressions", () => {
   afterEach(() => {
@@ -25,6 +25,21 @@ describe("RUI-04 localization regressions", () => {
         const translation = i18n.t(key, { ns: "limitations" });
 
         expect(i18n.exists(key, { lng: locale, ns: "limitations" })).toBe(true);
+        expect(translation).not.toBe(key);
+        expect(translation).not.toContain("⟦missing:");
+      }
+    }
+  });
+
+  it("translates every canonical API error code in both locales", async () => {
+    for (const locale of ["uk", "en"] as const) {
+      await i18n.changeLanguage(locale);
+
+      for (const code of apiErrorCodes) {
+        const key = apiErrorTranslationKey(code);
+        const translation = i18n.t(key, { ns: "errors" });
+
+        expect(i18n.exists(key, { lng: locale, ns: "errors" })).toBe(true);
         expect(translation).not.toBe(key);
         expect(translation).not.toContain("⟦missing:");
       }
