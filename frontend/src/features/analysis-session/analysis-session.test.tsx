@@ -83,7 +83,7 @@ describe("RUI-06 analysis lifecycle", () => {
     expect(JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))).not.toHaveProperty("locale");
 
     pending.resolve(jsonResponse(canonicalResult));
-    expect(await screen.findByRole("heading", { name: "Analysis result ready" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Overview" })).toBeTruthy();
   });
 
   it("sends exactly one accepted controlled-demo request", async () => {
@@ -95,7 +95,7 @@ describe("RUI-06 analysis lifecycle", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Load demonstration example" }));
 
-    await screen.findByRole("heading", { name: "Analysis result ready" });
+    await screen.findByRole("heading", { name: "Overview" });
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const body = JSON.parse(String(fetchSpy.mock.calls[0][1]?.body));
     expect(body).toEqual({
@@ -121,7 +121,7 @@ describe("RUI-06 analysis lifecycle", () => {
     expect(screen.queryByText(/private|traceback|secret/i)).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    await screen.findByRole("heading", { name: "Analysis result ready" });
+    await screen.findByRole("heading", { name: "Overview" });
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -140,7 +140,7 @@ describe("RUI-06 analysis lifecycle", () => {
     expect(screen.queryByText("The analysis request could not be completed.")).toBeNull();
     expect((screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement).value).toBe("Specification B");
     fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
-    await screen.findByRole("heading", { name: "Analysis result ready" });
+    await screen.findByRole("heading", { name: "Overview" });
 
     expect(fetchSpy).toHaveBeenCalledTimes(2);
     const requestBodies = fetchSpy.mock.calls.map((call) => JSON.parse(String(call[1]?.body)));
@@ -192,7 +192,7 @@ describe("RUI-06 analysis lifecycle", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Ukrainian/ }));
 
-    expect(await screen.findByRole("heading", { name: "Результат аналізу готовий" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Огляд" })).toBeTruthy();
     expect(screen.getByText("research-api-v1")).toBeTruthy();
     expect(screen.getByText("INITIAL")).toBeTruthy();
     expect(fetchSpy).toHaveBeenCalledTimes(1);
@@ -203,9 +203,9 @@ describe("RUI-06 analysis lifecycle", () => {
     renderApp();
     enterRequirement("Requirement");
     fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
-    await screen.findByRole("heading", { name: "Analysis result ready" });
+    await screen.findByRole("heading", { name: "Overview" });
     fireEvent.click(screen.getByRole("button", { name: /Ukrainian/ }));
-    await screen.findByRole("heading", { name: "Результат аналізу готовий" });
+    await screen.findByRole("heading", { name: "Огляд" });
 
     fireEvent.click(screen.getByRole("button", { name: "Нова специфікація" }));
 

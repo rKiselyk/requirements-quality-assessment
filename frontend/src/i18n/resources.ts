@@ -8,6 +8,7 @@ import { audit as enAudit } from "./locales/en/audit";
 import { errors as enErrors } from "./locales/en/errors";
 import { limitations as enLimitations } from "./locales/en/limitations";
 import { lifecycle as enLifecycle } from "./locales/en/lifecycle";
+import { overview as enOverview } from "./locales/en/overview";
 import { common as ukCommon } from "./locales/uk/common";
 import { input as ukInput } from "./locales/uk/input";
 import { assessment as ukAssessment } from "./locales/uk/assessment";
@@ -18,10 +19,11 @@ import { audit as ukAudit } from "./locales/uk/audit";
 import { errors as ukErrors } from "./locales/uk/errors";
 import { limitations as ukLimitations } from "./locales/uk/limitations";
 import { lifecycle as ukLifecycle } from "./locales/uk/lifecycle";
+import { overview as ukOverview } from "./locales/uk/overview";
 
 export const resources = {
-  uk: { common: ukCommon, input: ukInput, assessment: ukAssessment, productQuality: ukProductQuality, risk: ukRisk, process: ukProcess, audit: ukAudit, errors: ukErrors, limitations: ukLimitations, lifecycle: ukLifecycle },
-  en: { common: enCommon, input: enInput, assessment: enAssessment, productQuality: enProductQuality, risk: enRisk, process: enProcess, audit: enAudit, errors: enErrors, limitations: enLimitations, lifecycle: enLifecycle },
+  uk: { common: ukCommon, input: ukInput, assessment: ukAssessment, productQuality: ukProductQuality, risk: ukRisk, process: ukProcess, audit: ukAudit, errors: ukErrors, limitations: ukLimitations, lifecycle: ukLifecycle, overview: ukOverview },
+  en: { common: enCommon, input: enInput, assessment: enAssessment, productQuality: enProductQuality, risk: enRisk, process: enProcess, audit: enAudit, errors: enErrors, limitations: enLimitations, lifecycle: enLifecycle, overview: enOverview },
 } as const;
 
-export const namespaces = ["common", "input", "assessment", "productQuality", "risk", "process", "audit", "errors", "limitations", "lifecycle"] as const;
+export const namespaces = ["common", "input", "assessment", "productQuality", "risk", "process", "audit", "errors", "limitations", "lifecycle", "overview"] as const;

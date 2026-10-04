@@ -3,15 +3,18 @@ import { useTranslation } from "react-i18next";
 import { AppShell } from "./components/shell";
 import { Button } from "./components/ui";
 import { AnalyzingPage } from "./features/analysis-session/AnalyzingPage";
-import { ResultReadyPage } from "./features/analysis-session/ResultReadyPage";
 import { useAnalysisSession } from "./features/analysis-session/useAnalysisSession";
+import { ResultWorkspace } from "./features/results/ResultWorkspace";
+import { resultSectionIds, type ResultSectionId } from "./features/results/projection";
 import { SpecificationInputPage } from "./features/specification-input/SpecificationInputPage";
 import { apiErrorTranslationKey } from "./i18n";
 
 export function App() {
   const { t: lifecycleText } = useTranslation("lifecycle");
   const { t: errorText } = useTranslation("errors");
+  const { t: overviewText } = useTranslation("overview");
   const [inputVersion, setInputVersion] = useState(0);
+  const [selectedResultView, setSelectedResultView] = useState<ResultSectionId>("overview");
   const session = useAnalysisSession();
   const errorMessage = session.error?.code
     ? errorText(apiErrorTranslationKey(session.error.code))
@@ -21,8 +24,13 @@ export function App() {
 
   const reset = () => {
     session.reset();
+    setSelectedResultView("overview");
     setInputVersion((version) => version + 1);
   };
+
+  const navigation = session.phase === "RESULT_READY"
+    ? resultSectionIds.map((id) => ({ id, label: overviewText(`navigation.${id}`) }))
+    : undefined;
 
   return (
     <AppShell
@@ -31,6 +39,11 @@ export function App() {
           {lifecycleText("actions.newSpecification")}
         </Button>
       ) : undefined}
+      navigation={navigation}
+      activeNavigationId={selectedResultView}
+      onNavigate={(id) => {
+        if (resultSectionIds.includes(id as ResultSectionId)) setSelectedResultView(id as ResultSectionId);
+      }}
     >
       <div hidden={session.phase !== "INPUT"}>
         <SpecificationInputPage
@@ -43,7 +56,7 @@ export function App() {
       </div>
       {session.phase === "ANALYZING" ? <AnalyzingPage /> : null}
       {session.phase === "RESULT_READY" && session.latestResult
-        ? <ResultReadyPage result={session.latestResult} />
+        ? <ResultWorkspace result={session.latestResult} activeView={selectedResultView} />
         : null}
     </AppShell>
   );
