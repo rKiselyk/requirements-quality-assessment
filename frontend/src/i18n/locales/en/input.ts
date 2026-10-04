@@ -9,6 +9,7 @@ export const input = {
   file: {
     label: "Drop specification here or choose a file",
     description: "UTF-8 .txt or plain-text files only. The file is read in this browser and is not uploaded when selected.",
+    reading: "Reading selected file: {{fileName}}",
     selected: "Selected file: {{fileName}}",
   },
   editor: {

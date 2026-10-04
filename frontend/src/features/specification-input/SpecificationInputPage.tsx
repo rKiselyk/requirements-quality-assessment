@@ -21,6 +21,7 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
   const { t } = useTranslation("input");
   const [sourceText, setSourceText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [pendingFileName, setPendingFileName] = useState<string | null>(null);
   const [fileValidation, setFileValidation] = useState<FileValidation>(null);
   const readSequence = useRef(0);
   const requirements = useMemo(() => parseSpecificationText(sourceText), [sourceText]);
@@ -30,12 +31,14 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
     readSequence.current += 1;
     setSourceText(nextText);
     setFileName(nextFileName);
+    setPendingFileName(null);
     setFileValidation(null);
   };
 
   const receiveFile = async (file: File) => {
     const sequence = readSequence.current + 1;
     readSequence.current = sequence;
+    setPendingFileName(null);
     setFileValidation(null);
 
     if (!isSupportedSpecificationFile(file)) {
@@ -43,18 +46,23 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
       return;
     }
 
+    setPendingFileName(file.name);
     try {
       const text = await readSpecificationFile(file);
       if (readSequence.current !== sequence) return;
       setSourceText(text);
       setFileName(file.name);
+      setPendingFileName(null);
     } catch {
-      if (readSequence.current === sequence) setFileValidation("unreadable");
+      if (readSequence.current === sequence) {
+        setPendingFileName(null);
+        setFileValidation("unreadable");
+      }
     }
   };
 
   const submitInitial = () => {
-    if (isEmpty) return;
+    if (isEmpty || pendingFileName !== null) return;
     onAnalyzeRequest(createInitialAnalyzeRequest(sourceText));
   };
 
@@ -70,6 +78,7 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
             accept=".txt,text/plain"
             onFile={(file) => { void receiveFile(file); }}
           />
+          {pendingFileName ? <p className="selected-file" role="status" aria-live="polite">{t("file.reading", { fileName: pendingFileName })}</p> : null}
           {fileName ? <p className="selected-file">{t("file.selected", { fileName })}</p> : null}
           {fileValidation ? <InlineValidation>{t(`validation.${fileValidation}`)}</InlineValidation> : null}
 
@@ -108,7 +117,7 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
           </section>
 
           <div className="input-actions">
-            <Button type="button" variant="primary" disabled={isEmpty} onClick={submitInitial}>
+            <Button type="button" variant="primary" disabled={isEmpty || pendingFileName !== null} onClick={submitInitial}>
               {t("actions.analyze")}
             </Button>
           </div>

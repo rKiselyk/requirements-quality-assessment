@@ -25,6 +25,16 @@ function selectFile(file: File) {
   });
 }
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
 describe("RUI-05 specification input", () => {
   beforeEach(async () => {
     window.sessionStorage.clear();
@@ -86,14 +96,85 @@ describe("RUI-05 specification input", () => {
     expect((screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement).value).toBe("");
   });
 
-  it("shows safe validation when a supported file cannot be read", async () => {
+  it("shows safe validation and preserves existing text when a supported file cannot be read", async () => {
     const file = textFile("requirements.txt", "Requirement");
     Object.defineProperty(file, "arrayBuffer", { value: async () => { throw new Error("read failed"); } });
     render(<App />);
+    const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: "Existing valid requirement" } });
 
     selectFile(file);
 
     expect(await screen.findByText("The file could not be read as UTF-8 plain text. Choose another file.")).toBeTruthy();
+    expect(editor.value).toBe("Existing valid requirement");
+    expect((screen.getByRole("button", { name: "Analyze" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("blocks analysis until a replacement file read completes", async () => {
+    const requests: Rui05AnalyzeRequest[] = [];
+    const read = deferred<ArrayBuffer>();
+    const replacement = textFile("replacement.txt", "unused");
+    Object.defineProperty(replacement, "arrayBuffer", { value: () => read.promise });
+    render(<App onAnalyzeRequest={(request) => requests.push(request)} />);
+    const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
+    const analyze = screen.getByRole("button", { name: "Analyze" }) as HTMLButtonElement;
+    fireEvent.change(editor, { target: { value: "Old requirement" } });
+
+    selectFile(replacement);
+
+    expect(await screen.findByText("Reading selected file: replacement.txt")).toBeTruthy();
+    expect(editor.value).toBe("Old requirement");
+    expect(analyze.disabled).toBe(true);
+    fireEvent.click(analyze);
+    expect(requests).toEqual([]);
+
+    read.resolve(new TextEncoder().encode("New file requirement").buffer);
+    await screen.findByText("Selected file: replacement.txt");
+    expect(editor.value).toBe("New file requirement");
+    expect(analyze.disabled).toBe(false);
+    fireEvent.click(analyze);
+    expect(requests).toEqual([{
+      case: "INITIAL",
+      requirements: [{ text: "New file requirement", source_line: 1 }],
+    }]);
+  });
+
+  it("does not let a superseded file read overwrite a newer manual edit", async () => {
+    const staleRead = deferred<ArrayBuffer>();
+    const staleFile = textFile("stale.txt", "unused");
+    Object.defineProperty(staleFile, "arrayBuffer", { value: () => staleRead.promise });
+    render(<App />);
+    const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
+
+    selectFile(staleFile);
+    await screen.findByText("Reading selected file: stale.txt");
+    fireEvent.change(editor, { target: { value: "Newer manual requirement" } });
+    staleRead.resolve(new TextEncoder().encode("Stale file requirement").buffer);
+
+    await waitFor(() => expect(editor.value).toBe("Newer manual requirement"));
+    expect(screen.queryByText("Selected file: stale.txt")).toBeNull();
+    expect((screen.getByRole("button", { name: "Analyze" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("resets the file control so the same file can be selected again", async () => {
+    const file = textFile("same.txt", "First file content");
+    render(<App />);
+    const input = fileInput();
+    const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
+
+    selectFile(file);
+    await screen.findByText("Selected file: same.txt");
+    expect(editor.value).toBe("First file content");
+    expect(input.value).toBe("");
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear specification" }));
+    Object.defineProperty(file, "arrayBuffer", {
+      value: async () => new TextEncoder().encode("Reloaded same file").buffer,
+    });
+    selectFile(file);
+
+    await waitFor(() => expect(editor.value).toBe("Reloaded same file"));
+    expect(input.value).toBe("");
   });
 
   it("rejects invalid UTF-8 bytes without replacing valid input or starting analysis", async () => {
