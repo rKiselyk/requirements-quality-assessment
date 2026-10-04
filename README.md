@@ -19,7 +19,7 @@ describes the historical subset and limitations.
 
 A forthcoming Research UI v1 will add a stateless application and presentation
 layer over these accepted typed results. Its frozen boundary is documented in
-[`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md). No web UI
+[`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md), with the approved page/component baseline in [`docs/research-ui-v1-design-spec.md`](docs/research-ui-v1-design-spec.md). No web UI
 or HTTP endpoint is implemented yet; the contract prevents the future UI from
 recalculating scientific results or fabricating unavailable Full Model inputs.
 
