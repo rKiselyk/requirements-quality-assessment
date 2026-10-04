@@ -2,7 +2,7 @@ import type { Rui05AnalyzeRequest } from "../features/specification-input/model"
 import { apiErrorCodes, type ApiErrorCode } from "../i18n";
 
 export interface CanonicalAnalyzeResponse extends Record<string, unknown> {
-  contract_version: string;
+  contract_version: "research-api-v1";
   analysis_case: "INITIAL" | "CONTROLLED_DEMO" | "REASSESSMENT";
 }
 
@@ -29,11 +29,13 @@ function safeErrorFromPayload(payload: unknown): SafeAnalyzeError {
   };
 }
 
-function isCanonicalResponse(value: unknown): value is CanonicalAnalyzeResponse {
-  if (!isRecord(value) || typeof value.contract_version !== "string") return false;
-  return value.analysis_case === "INITIAL"
-    || value.analysis_case === "CONTROLLED_DEMO"
-    || value.analysis_case === "REASSESSMENT";
+function isCanonicalResponse(
+  value: unknown,
+  expectedCase: Rui05AnalyzeRequest["case"],
+): value is CanonicalAnalyzeResponse {
+  return isRecord(value)
+    && value.contract_version === "research-api-v1"
+    && value.analysis_case === expectedCase;
 }
 
 export class AnalyzeRequestError extends Error {
@@ -71,7 +73,7 @@ export async function analyzeSpecification(
 
   const payload = await readJson(response);
   if (!response.ok) throw new AnalyzeRequestError(safeErrorFromPayload(payload));
-  if (!isCanonicalResponse(payload)) {
+  if (!isCanonicalResponse(payload, request.case)) {
     throw new AnalyzeRequestError({ code: null, kind: "MALFORMED_RESPONSE" });
   }
 

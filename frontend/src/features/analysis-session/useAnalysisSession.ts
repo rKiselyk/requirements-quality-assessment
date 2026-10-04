@@ -12,6 +12,7 @@ export interface AnalysisSession {
   error: SafeAnalyzeError | null;
   submit: (request: Rui05AnalyzeRequest) => void;
   retry: () => void;
+  invalidateFailedAttempt: () => void;
   reset: () => void;
 }
 
@@ -43,6 +44,12 @@ export function useAnalysisSession(): AnalysisSession {
   const retry = () => {
     if (submittedRequest !== null && phase === "INPUT") mutation.mutate(submittedRequest);
   };
+  const invalidateFailedAttempt = () => {
+    if (error === null) return;
+    mutation.reset();
+    setSubmittedRequest(null);
+    setError(null);
+  };
   const reset = () => {
     mutation.reset();
     setSubmittedRequest(null);
@@ -51,5 +58,5 @@ export function useAnalysisSession(): AnalysisSession {
     setPhase("INPUT");
   };
 
-  return { phase, submittedRequest, latestResult, error, submit, retry, reset };
+  return { phase, submittedRequest, latestResult, error, submit, retry, invalidateFailedAttempt, reset };
 }

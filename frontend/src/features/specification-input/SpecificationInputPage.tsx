@@ -13,13 +13,14 @@ import {
 
 export interface SpecificationInputPageProps {
   onAnalyzeRequest: (request: Rui05AnalyzeRequest) => void;
+  onInputIdentityChange?: () => void;
   apiErrorMessage?: string | null;
   onRetry?: () => void;
 }
 
 type FileValidation = "unsupported" | "unreadable" | null;
 
-export function SpecificationInputPage({ onAnalyzeRequest, apiErrorMessage, onRetry }: SpecificationInputPageProps) {
+export function SpecificationInputPage({ onAnalyzeRequest, onInputIdentityChange, apiErrorMessage, onRetry }: SpecificationInputPageProps) {
   const { t } = useTranslation("input");
   const { t: lifecycleText } = useTranslation("lifecycle");
   const [sourceText, setSourceText] = useState("");
@@ -31,6 +32,7 @@ export function SpecificationInputPage({ onAnalyzeRequest, apiErrorMessage, onRe
   const isEmpty = requirements.length === 0;
 
   const replaceSource = (nextText: string, nextFileName: string | null) => {
+    onInputIdentityChange?.();
     readSequence.current += 1;
     setSourceText(nextText);
     setFileName(nextFileName);
@@ -49,6 +51,7 @@ export function SpecificationInputPage({ onAnalyzeRequest, apiErrorMessage, onRe
       return;
     }
 
+    onInputIdentityChange?.();
     setPendingFileName(file.name);
     try {
       const text = await readSpecificationFile(file);

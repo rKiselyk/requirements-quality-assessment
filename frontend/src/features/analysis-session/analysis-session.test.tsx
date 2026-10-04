@@ -114,6 +114,31 @@ describe("RUI-06 analysis lifecycle", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 
+  it("invalidates a failed retry when the ordinary specification changes", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockRejectedValueOnce(new Error("request failed"))
+      .mockResolvedValueOnce(jsonResponse(canonicalResult));
+    renderApp();
+    enterRequirement("Specification A");
+    fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
+    await screen.findByRole("button", { name: "Try again" });
+
+    enterRequirement("Specification B");
+
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    expect(screen.queryByText("The analysis request could not be completed.")).toBeNull();
+    expect((screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement).value).toBe("Specification B");
+    fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
+    await screen.findByRole("heading", { name: "Analysis result ready" });
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    const requestBodies = fetchSpy.mock.calls.map((call) => JSON.parse(String(call[1]?.body)));
+    expect(requestBodies).toEqual([
+      { case: "INITIAL", requirements: [{ text: "Specification A", source_line: 1 }] },
+      { case: "INITIAL", requirements: [{ text: "Specification B", source_line: 1 }] },
+    ]);
+  });
+
   it("localizes known errors without exposing details or rerunning analysis", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({
       error: {
@@ -181,6 +206,11 @@ describe("RUI-06 analysis lifecycle", () => {
 });
 
 describe("RUI-06 canonical response ownership", () => {
+  beforeEach(async () => {
+    window.sessionStorage.clear();
+    await i18n.changeLanguage("en");
+  });
+
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
@@ -195,6 +225,45 @@ describe("RUI-06 canonical response ownership", () => {
 
     expect(response).toBe(payload);
     expect(response).toEqual(payload);
+  });
+
+  it.each([
+    [
+      "an unsupported contract version",
+      { case: "INITIAL", requirements: [{ text: "Requirement", source_line: 1 }] } as Rui05AnalyzeRequest,
+      { ...canonicalResult, contract_version: "research-api-v2", internal: "do not render" },
+    ],
+    [
+      "a CONTROLLED_DEMO response to an INITIAL request",
+      { case: "INITIAL", requirements: [{ text: "Requirement", source_line: 1 }] } as Rui05AnalyzeRequest,
+      { ...canonicalResult, analysis_case: "CONTROLLED_DEMO", internal: "do not render" },
+    ],
+    [
+      "an INITIAL response to a CONTROLLED_DEMO request",
+      { case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } } as Rui05AnalyzeRequest,
+      { ...canonicalResult, analysis_case: "INITIAL", internal: "do not render" },
+    ],
+  ])("rejects %s as a safe malformed response", async (_label, request, payload) => {
+    const fetchImplementation = vi.fn().mockResolvedValue(jsonResponse(payload));
+
+    await expect(analyzeSpecification(request, fetchImplementation)).rejects.toMatchObject({
+      safe: { code: null, kind: "MALFORMED_RESPONSE" },
+    });
+  });
+
+  it("does not render malformed response identity contents", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({
+      ...canonicalResult,
+      contract_version: "research-api-v2",
+      analysis_case: "CONTROLLED_DEMO",
+      internal: "raw malformed payload content",
+    }));
+    renderApp();
+    enterRequirement("Requirement");
+    fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
+
+    expect(await screen.findByText("The analysis request could not be completed.")).toBeTruthy();
+    expect(screen.queryByText(/research-api-v2|CONTROLLED_DEMO|raw malformed/i)).toBeNull();
   });
 
   it("keeps result ownership independent from presentation view selection", async () => {

@@ -36,6 +36,7 @@ export function App() {
         <SpecificationInputPage
           key={inputVersion}
           onAnalyzeRequest={session.submit}
+          onInputIdentityChange={session.invalidateFailedAttempt}
           apiErrorMessage={errorMessage}
           onRetry={session.submittedRequest ? session.retry : undefined}
         />
