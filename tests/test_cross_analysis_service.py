@@ -448,6 +448,12 @@ def test_single_requirement_modules_do_not_import_cross_analysis() -> None:
             # It invokes completed local and cross-assessment services without
             # moving cross analysis into any upstream single-requirement module.
             continue
+        if "api" in path.parts:
+            # The HTTP API is an approved downstream application/transport
+            # adapter over completed local and cross-assessment records. It may
+            # invoke and serialize cross analysis without moving that
+            # dependency into a single-requirement scientific component.
+            continue
         if path.name in {
             "cli.py",
             "cross_reporter.py",

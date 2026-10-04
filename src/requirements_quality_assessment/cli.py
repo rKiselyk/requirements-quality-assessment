@@ -7,7 +7,7 @@ import sys
 from collections.abc import Sequence
 
 from .assessor import RequirementQualityAssessor
-from .cross_analysis.service import SpecificationAssessmentService
+from .cross_analysis.service import SpecificationAssessmentService, assess_specification
 from .extractor import BaselineFeatureExtractor
 from .full_model import FullModelService
 from .full_model.config import load_full_model_request
@@ -80,15 +80,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("error: --config is only valid with --mode full-model", file=sys.stderr)
         return 2
 
-    extractor = BaselineFeatureExtractor()
-    assessor = RequirementQualityAssessor()
-
-    requirement_results = tuple(
-        assessor.assess_record(extractor.extract(requirement))
-        for requirement in requirements
+    assessment_result = assess_specification(
+        requirements,
+        extractor=BaselineFeatureExtractor(),
+        assessor=RequirementQualityAssessor(),
+        specification_service=SpecificationAssessmentService(),
     )
-
-    assessment_result = SpecificationAssessmentService().assess(requirement_results)
 
     reporter = UserConsoleReporter() if args.view == "user" else ConsoleReporter()
     print(reporter.render_assessment(assessment_result))
