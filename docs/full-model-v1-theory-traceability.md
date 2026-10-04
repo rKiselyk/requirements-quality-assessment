@@ -1,15 +1,18 @@
 # Full Model v1.0 theory-to-implementation traceability
 
-Status: `CANDIDATE_PENDING_INDEPENDENT_REVIEW`  
+Status: `ACCEPTED`
+
+Acceptance marker: `TC06_INTEGRATED_RESEARCH_ACCEPTANCE_ACCEPTED`
+
 Canonical evidence: `CONTROLLED_RESEARCH_REFERENCE_SCENARIO` in
 `tests/reference_acceptance_data.py`, executed by
 `tests/test_full_model_v1_research_acceptance.py` through the public
 `FullModelService` boundary.
 
-This matrix identifies only executable, accepted TC-01 through TC-05 behavior.
-Historical `V0.1` contract IDs are retained because they identify versioned
-components; they are not the presentation identity of the integrated v1.0
-research bundle.
+This matrix identifies the accepted integrated TC-06 realization over
+executable, accepted TC-01 through TC-05 behavior. Historical `V0.1` contract
+IDs are retained because they identify versioned components; they are not the
+presentation identity of the integrated v1.0 research bundle.
 
 | Dissertation process | Executable implementation | Contract/rule identity | Acceptance evidence |
 |---|---|---|---|

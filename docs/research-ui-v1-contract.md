@@ -121,8 +121,8 @@ MUST express this logical contract without adding scientific fields:
 | `case` | Canonical discriminator: `INITIAL`, `CONTROLLED_DEMO`, or `REASSESSMENT`. |
 | current specification | For `INITIAL`, uploaded or pasted textual requirements. For `REASSESSMENT`, the explicitly supplied revised specification. Mutually exclusive upload/text encodings MAY exist at the transport boundary. |
 | controlled demo identity | For `CONTROLLED_DEMO`, the identifier and version of an approved predefined scenario. No arbitrary client-supplied substitute values. |
-| prior context | For `REASSESSMENT`, the complete canonical prior result/context required to validate lineage and construct accepted before/after records without server history. |
-| explicit reassessment context | Only identities and external revision/evidence declarations required by the accepted reassessment contract and actually supplied by the user/browser workflow. |
+| prior context | For `REASSESSMENT`, the complete canonical prior Full Model lifecycle result/context required to validate lineage and construct accepted before/after records without server history. A specification-only `INITIAL` response is insufficient. |
+| explicit reassessment context | Only accepted predecessor process state, corrective-action/application, external revision/application lineage, evidence-reuse decisions and identity checks, and other identities required by the existing reassessment contract and actually present in or supplied to the lifecycle workflow. |
 
 Locale is presentation state and SHOULD NOT be part of the scientific analysis
 request. Request fields MUST NOT contain invented observations, parameters,
@@ -142,7 +142,7 @@ corresponding pages MUST NOT appear in first-run navigation.
 ### 4.3 Case B — controlled demonstration scenario
 
 `CONTROLLED_DEMO` is an explicit opt-in research demonstration. It loads the
-already approved, versioned controlled reference scenario, including its
+accepted, versioned `CONTROLLED_RESEARCH_REFERENCE_SCENARIO`, including its
 explicit scientific inputs, and invokes the accepted `FullModelService` path.
 
 The request MUST identify an approved scenario; it MUST NOT permit a purported
@@ -157,12 +157,24 @@ This does not change the ordinary initial workflow.
 
 ### 4.4 Case C — reassessment
 
-`REASSESSMENT` is an optional later lifecycle action. It is legal only after:
+`REASSESSMENT` is an optional formal Full Model lifecycle action. It is legal
+only when:
 
-1. a successful initial assessment exists in the browser session;
-2. the user explicitly chooses the reassessment action;
-3. the user explicitly supplies a revised specification; and
-4. the second analysis is explicitly submitted.
+1. the prior canonical result/context contains every prerequisite required by
+   the accepted process/reassessment contract, including a predecessor process
+   state, accepted corrective-action and action-application context, external
+   revision/application lineage, and required evidence-reuse decisions and
+   identity checks;
+2. the user explicitly chooses an eligible reassessment action;
+3. the user explicitly supplies the externally revised specification; and
+4. the subsequent analysis is explicitly submitted.
+
+A successful ordinary specification-only `INITIAL` assessment does not produce
+those lifecycle prerequisites and MUST NOT by itself enable formal
+reassessment. Neither the application nor the browser may fabricate a
+predecessor process state, `CorrectiveAction`, `ActionApplication`,
+problem/risk/relation record, revision lineage, evidence-reuse identity check,
+or any other required lifecycle record.
 
 The backend remains stateless. The request therefore carries the revised
 specification together with the complete prior canonical context, artifact and
@@ -175,6 +187,11 @@ number is not sufficient prior context.
 No server-side lookup, hidden history, or inferred revision is permitted. The
 system MUST NOT author replacement wording, claim action success, or reuse
 evidence without the accepted explicit identity checks.
+
+A future workflow that independently analyzes specification-only v1 and v2 and
+then produces a formal comparison, without the current corrective-action and
+process prerequisites, requires a separate approved core/application contract
+before implementation. Research UI v1 does not authorize that workflow.
 
 ## 5. Logical `AnalyzeResponse`
 
@@ -332,9 +349,9 @@ The browser session owns:
 - the current `AnalyzeResponse`;
 - selected navigation state;
 - locale preference;
-- the optional v1 response retained while a revised specification is prepared;
-  and
-- optional successful v2/reassessment/comparison lifecycle state.
+- an eligible prior Full Model lifecycle response while an externally revised
+  specification is prepared; and
+- optional successful formal reassessment/comparison lifecycle state.
 
 “New specification” clears this temporary workflow state, including retained
 v1/v2 context and conditional navigation. Production persistence, sharing,
@@ -353,11 +370,17 @@ After an ordinary first assessment, result navigation contains only:
 7. Process
 8. Audit
 
-`Reassessment` and `Comparison` MUST NOT appear as ordinary first-run pages,
-disabled promises, or empty primary tabs. The user may explicitly start a
-reassessment workflow from the initial result. `Reassessment` and `Comparison`
-become result pages only after a genuine second assessment succeeds and the
-accepted model produces the corresponding records.
+These sections may be shown according to section availability. `Reassessment`
+and `Comparison` MUST NOT appear as ordinary first-run pages, disabled
+promises, or empty primary tabs merely because an `INITIAL` result exists. A
+formal reassessment action may be offered only when the canonical prior
+response/context contains every accepted lifecycle prerequisite. The ordinary
+specification-only initial response is not eligible.
+
+`Reassessment` and `Comparison` become result pages only after a valid accepted
+subsequent reassessment succeeds and produces the corresponding compatible
+before/after records. The frontend MUST NOT calculate a scientific comparison
+from two responses independently.
 
 Comparison MUST render model-produced before/after identity, state,
 applicability, exact value, comparison kind, reasons, provenance, and
@@ -445,8 +468,10 @@ contract.
 2. One ordinary specification is sufficient for an initial analysis.
 3. No external scientific input may be synthesized to fill a section.
 4. The controlled demo is explicit, versioned fixture data, never defaults.
-5. Reassessment requires an explicit revised specification and valid prior
-   context; the backend stores no history.
+5. Formal reassessment requires an explicit externally revised specification
+   and prior canonical context containing every accepted corrective-action,
+   application, process, revision-lineage, and evidence-reuse prerequisite; an
+   ordinary initial response is insufficient and the backend stores no history.
 6. Missing record, domain status, applicability, and numeric value are distinct.
 7. Exact values, evidence text, offsets, identities, reasons, rules, versions,
    provenance, and calibration survive transport and presentation.
@@ -456,6 +481,9 @@ contract.
     API schema.
 11. The historical CLI and every accepted scientific behavior remain
     unchanged.
+12. Specification-only v1/v2 formal comparison without the accepted lifecycle
+    prerequisites requires a separate approved contract and is not authorized
+    here.
 
 ## 15. Deferred implementation work
 

@@ -10,8 +10,10 @@ path without changing the historical CLI or its contracts.
 
 [`docs/model-spec.md`](docs/model-spec.md) is the authoritative scientific
 model. Its executable MVP v0.1 subset and the bounded TC-01 through TC-05 Full
-Model components carry their recorded acceptance markers; TC-06 remains a
-candidate pending independent review, and constructs outside those boundaries
+Model components carry their recorded acceptance markers. TC-06 is independently
+accepted under `TC06_INTEGRATED_RESEARCH_ACCEPTANCE_ACCEPTED`, making Full Model
+v1.0 an accepted executable, deterministic, and traceable research realization
+within its declared bounded reference scope. Constructs outside those boundaries
 remain draft or unimplemented. [`docs/mvp-v0.1-baseline.md`](docs/mvp-v0.1-baseline.md)
 describes the historical subset and limitations.
 

@@ -1,21 +1,29 @@
-# Full Model v1.0 research acceptance candidate
+# Full Model v1.0 research acceptance
 
-Status: `CANDIDATE_PENDING_INDEPENDENT_REVIEW`  
-Scenario: `CONTROLLED_RESEARCH_REFERENCE_SCENARIO`  
-Issue: #168  
-Pull request: #169  
-Starting integration HEAD: `fcf880d8fcd3f3a6beed6b06f7f38a33637e5828`  
+Status: `ACCEPTED`
+
+Acceptance marker: `TC06_INTEGRATED_RESEARCH_ACCEPTANCE_ACCEPTED`
+
+Scenario: `CONTROLLED_RESEARCH_REFERENCE_SCENARIO`
+
+Issue: #168
+
+Pull request: #169
+
+Starting integration HEAD: `fcf880d8fcd3f3a6beed6b06f7f38a33637e5828`
+
 Initial TC-06 candidate commit: `0ffb8667c3fcc4f501afe928584ec5cc36d725d4`
-Final reviewed integration HEAD: `PENDING_INDEPENDENT_ACCEPTANCE_RECORD`
-`FINAL_MAIN_SHA: PENDING_FINAL_MERGE`
 
-The exact final integration HEAD and final main SHA are external acceptance
-metadata recorded only after the branch stops changing or the pull request is
-merged, avoiding a self-referential commit-SHA claim.
+Accepted integration HEAD: `2971758f435be44d92d1d99dd68c45c0a56ca4ff`
 
-This artifact records a candidate integration result. It does not accept TC-06,
-Milestone 4, issue #168, or the pull request. Final acceptance and the final
-main SHA require independent review and merge.
+Merged main SHA: `994cd473cdb80d71d322ffc8883d9de5d41fc7bc`
+
+Independent final acceptance is recorded on closed issue #168. Within the
+declared bounded reference scope, TC-06 accepts Full Model v1.0 as an
+executable, deterministic, and traceable research realization. This acceptance
+does not claim exhaustive NLP coverage, universal product-quality prediction,
+universal risk calibration, causal effectiveness, universal release decisions,
+or production readiness.
 
 ## Bounded scope and public invocation
 
