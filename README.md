@@ -38,10 +38,11 @@ On POSIX systems, activate with `. .venv/bin/activate`. The same `python -m pip 
 
 ## Run the HTTP API
 
-The Research API is a thin, synchronous HTTP/JSON adapter over the same
-accepted production specification pipeline used by the CLI. It does not define
-independent scoring semantics and does not construct Full Model records that
-require external scientific inputs.
+The Research API is a thin, synchronous, stateless HTTP/JSON adapter over the
+accepted application services. It does not define independent scoring
+semantics or fabricate unavailable scientific inputs. One endpoint supports
+the three frozen Research UI v1 cases: `INITIAL`, `CONTROLLED_DEMO`, and
+`REASSESSMENT`.
 
 Start the local server from the repository root:
 
@@ -52,13 +53,13 @@ python -m uvicorn requirements_quality_assessment.api.app:app --reload
 `GET /health` returns `{"status":"ok"}` without running the model. Interactive
 OpenAPI documentation is available at [`http://127.0.0.1:8000/docs`](http://127.0.0.1:8000/docs).
 
-Submit one or more requirements to `POST /api/v1/analyze`:
+For an ordinary initial assessment, submit one source-ordered specification:
 
 ```json
 {
+  "case": "INITIAL",
   "requirements": [
     {
-      "id": "R001",
       "text": "Якщо сервіс недоступний, система повинна відповісти не більше ніж за 2 с."
     },
     {
@@ -68,15 +69,54 @@ Submit one or more requirements to `POST /api/v1/analyze`:
 }
 ```
 
-An omitted ID is generated deterministically from its one-based request
-position. Leading and trailing whitespace in requirement text is trimmed;
-blank requirements are rejected. A shortened successful response has this
-shape (exact rational values are never converted to floating point):
+Scientific requirement IDs are always generated deterministically from the
+one-based request position (`R001`, `R002`, ...); arbitrary client IDs are not
+accepted. Leading and trailing whitespace is trimmed and blank requirements
+are rejected.
+
+The accepted controlled demonstration is selected only by its frozen identity.
+Clients cannot override its observations, parameters, policies, revision, or
+other scientific fixture fields:
+
+```json
+{
+  "case": "CONTROLLED_DEMO",
+  "scenario": {
+    "id": "CONTROLLED_RESEARCH_REFERENCE_SCENARIO",
+    "version": "1"
+  }
+}
+```
+
+That response includes the genuine Full Model, revision, reassessment,
+comparison, checkpoint, and process records produced by the accepted scenario,
+plus a canonical `reassessment_context`. A formal reassessment sends that
+complete context back with the externally revised specification:
+
+```json
+{
+  "case": "REASSESSMENT",
+  "requirements": [
+    {"text": "Час відгуку ≤ 2 с при 500 одночасних користувачах"},
+    {"text": "Час відгуку ≤ 5 с при 500 одночасних користувачах"}
+  ],
+  "prior_context": {"...": "canonical reassessment_context from CONTROLLED_DEMO"}
+}
+```
+
+The backend stores no history. It validates the complete supplied context and
+independently reruns the accepted path. An ordinary `INITIAL` response is not
+sufficient prior context, and arbitrary v1/v2 analysis or comparison is not
+supported.
+
+A shortened successful response has this shape (exact rational values are
+never converted to floating point):
 
 ```json
 {
   "contract_version": "research-api-v1",
   "analysis_case": "INITIAL",
+  "controlled_scenario": null,
   "requirements": [
     {
       "requirement": {"id": "R001", "source_line": 1, "text": "..."},
@@ -96,6 +136,8 @@ shape (exact rational values are never converted to floating point):
     "qb_consistency": {}
   },
   "section_availability": [],
+  "full_model": null,
+  "reassessment_context": null,
   "limitations": ["NO_COMBINED_QUALITY_SCORE"]
 }
 ```

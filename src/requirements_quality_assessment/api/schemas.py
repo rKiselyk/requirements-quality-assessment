@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ApiModel(BaseModel):
@@ -12,17 +12,9 @@ class ApiModel(BaseModel):
 
 
 class RequirementInput(ApiModel):
-    id: str | None = Field(default=None, strict=True)
-    text: str = Field(strict=True)
+    """One source-ordered requirement; scientific IDs are server-generated."""
 
-    @field_validator("id")
-    @classmethod
-    def validate_id(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
-        if not value or value != value.strip():
-            raise ValueError("id must be a non-empty, trimmed string")
-        return value
+    text: str = Field(strict=True)
 
     @field_validator("text")
     @classmethod
@@ -33,18 +25,50 @@ class RequirementInput(ApiModel):
         return trimmed
 
 
-class AnalyzeRequest(ApiModel):
+class ControlledScenarioIdentity(ApiModel):
+    id: str = Field(strict=True)
+    version: str = Field(strict=True)
+
+
+class InitialAnalyzeRequest(ApiModel):
+    case: Literal["INITIAL"]
     requirements: list[RequirementInput]
 
-    @model_validator(mode="after")
-    def validate_resolved_ids(self) -> "AnalyzeRequest":
-        resolved = tuple(
-            item.id if item.id is not None else f"R{index:03d}"
-            for index, item in enumerate(self.requirements, start=1)
-        )
-        if len(resolved) != len(set(resolved)):
-            raise ValueError("resolved requirement IDs must be unique")
-        return self
+
+class ControlledDemoAnalyzeRequest(ApiModel):
+    case: Literal["CONTROLLED_DEMO"]
+    scenario: ControlledScenarioIdentity
+
+
+class ReassessmentPriorContext(ApiModel):
+    """Canonical stateless lifecycle prerequisites returned by CONTROLLED_DEMO."""
+
+    scenario: ControlledScenarioIdentity
+    context_digest: str
+    initial_specification: dict[str, Any]
+    initial_specification_assessment: dict[str, Any]
+    predecessor_process_state: dict[str, Any]
+    corrective_action_resolution: dict[str, Any]
+    action_application: dict[str, Any]
+    external_revision: dict[str, Any]
+    revised_specification: dict[str, Any]
+    evidence_reuse_decisions: list[dict[str, Any]]
+    reassessment_identity: dict[str, Any]
+    successor_process_state: dict[str, Any]
+    process_transition: dict[str, Any]
+    comparisons: list[dict[str, Any]]
+
+
+class ReassessmentAnalyzeRequest(ApiModel):
+    case: Literal["REASSESSMENT"]
+    requirements: list[RequirementInput]
+    prior_context: ReassessmentPriorContext
+
+
+AnalyzeRequest = Annotated[
+    InitialAnalyzeRequest | ControlledDemoAnalyzeRequest | ReassessmentAnalyzeRequest,
+    Field(discriminator="case"),
+]
 
 
 class ExactFractionResponse(ApiModel):
@@ -189,10 +213,13 @@ class SectionAvailabilityResponse(ApiModel):
 
 class AnalyzeResponse(ApiModel):
     contract_version: Literal["research-api-v1"]
-    analysis_case: Literal["INITIAL"]
+    analysis_case: Literal["INITIAL", "CONTROLLED_DEMO", "REASSESSMENT"]
+    controlled_scenario: ControlledScenarioIdentity | None
     requirements: list[RequirementResultResponse]
     specification: SpecificationResultResponse
     section_availability: list[SectionAvailabilityResponse]
+    full_model: dict[str, Any] | None
+    reassessment_context: ReassessmentPriorContext | None
     limitations: list[str]
 
 

@@ -8,10 +8,16 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from ..cross_analysis.service import assess_specification
-from ..domain import Requirement
-from .schemas import AnalyzeRequest, AnalyzeResponse, ErrorResponse, HealthResponse
-from .serialization import serialize_analysis
+from .schemas import (
+    AnalyzeRequest, AnalyzeResponse, ControlledDemoAnalyzeRequest, ErrorResponse,
+    HealthResponse, InitialAnalyzeRequest, ReassessmentAnalyzeRequest,
+)
+from .serialization import (
+    serialize_controlled_demo, serialize_initial, serialize_reassessment,
+)
+from .service import (
+    ApiBoundaryError, run_controlled_demo, run_initial, run_reassessment,
+)
 
 
 app = FastAPI(
@@ -51,11 +57,32 @@ async def request_validation_error_handler(
         for error in exc.errors()
     ]
     path = issues[0]["path"] if issues else None
+    case = exc.body.get("case") if isinstance(exc.body, dict) else None
+    code = (
+        "INVALID_CONTROLLED_DEMO_REQUEST"
+        if case == "CONTROLLED_DEMO"
+        else "INVALID_REASSESSMENT_CONTEXT"
+        if case == "REASSESSMENT"
+        else "MALFORMED_REQUIREMENT_INPUT"
+    )
     return _error_response(
         422,
-        "MALFORMED_REQUIREMENT_INPUT",
+        code,
         details={"issues": issues},
         path=path,
+    )
+
+
+@app.exception_handler(ApiBoundaryError)
+async def api_boundary_error_handler(
+    request: Request, exc: ApiBoundaryError
+) -> JSONResponse:
+    del request
+    return _error_response(
+        exc.status_code,
+        exc.code,
+        details=exc.details,
+        path=exc.path,
     )
 
 
@@ -93,21 +120,23 @@ def health() -> HealthResponse:
     ),
 )
 def analyze(request: AnalyzeRequest) -> AnalyzeResponse | JSONResponse:
-    if not request.requirements:
-        return _error_response(
-            422,
-            "EMPTY_SPECIFICATION",
-            details={"requirement_count": 0},
-            path=["body", "requirements"],
-        )
-
-    requirements = tuple(
-        Requirement(
-            item.id if item.id is not None else f"R{index:03d}",
-            index,
-            item.text,
-        )
-        for index, item in enumerate(request.requirements, start=1)
+    try:
+        if isinstance(request, InitialAnalyzeRequest):
+            return serialize_initial(run_initial(request))
+        if isinstance(request, ControlledDemoAnalyzeRequest):
+            result, scenario = run_controlled_demo(request)
+            return serialize_controlled_demo(result, scenario)
+        if isinstance(request, ReassessmentAnalyzeRequest):
+            result, scenario = run_reassessment(request)
+            return serialize_reassessment(result, scenario)
+    except ApiBoundaryError:
+        raise
+    except (TypeError, ValueError):
+        raise ApiBoundaryError(
+            "ANALYSIS_VALIDATION_FAILED",
+            {"reason_code": "ACCEPTED_APPLICATION_PRECONDITION_FAILED"},
+        ) from None
+    raise ApiBoundaryError(
+        "ANALYSIS_VALIDATION_FAILED",
+        {"reason_code": "UNSUPPORTED_ANALYSIS_CASE"},
     )
-    result = assess_specification(requirements)
-    return serialize_analysis(result)
