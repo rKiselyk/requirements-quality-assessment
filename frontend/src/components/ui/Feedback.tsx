@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export type CalloutTone = "information" | "warning" | "critical";
 
@@ -18,10 +19,11 @@ export function Callout({ title, children, tone = "information" }: CalloutProps)
   );
 }
 
-export function LoadingProgress({ label = "Loading" }: { label?: string }) {
+export function LoadingProgress({ label }: { label?: string }) {
+  const { t } = useTranslation("common");
   return (
     <div className="loading" role="status" aria-live="polite">
-      <span>{label}</span>
+      <span>{label ?? t("states.loading")}</span>
       <span className="loading__track" aria-hidden="true"><span className="loading__bar" /></span>
     </div>
   );

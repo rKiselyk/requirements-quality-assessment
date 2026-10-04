@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { ExactValue, type ExactValueData } from "../scientific/ExactValue";
 import { StatusBadge, type ScientificCode } from "../scientific/Status";
 
@@ -25,10 +26,11 @@ export interface MetricCardProps {
 }
 
 export function MetricCard({ label, value, status, detail }: MetricCardProps) {
+  const { t } = useTranslation("common");
   return (
     <article className="metric-card">
       <h3>{label}</h3>
-      <ExactValue value={value} fallback="No value" />
+      <ExactValue value={value} fallback={t("states.noValue")} />
       <StatusBadge code={status} />
       {detail ? <p>{detail}</p> : null}
     </article>

@@ -19,9 +19,16 @@ export function statusDisplayTone(_code: ScientificCode | ApplicabilityCode): Di
 }
 
 export function StatusBadge({ code, label }: { code: ScientificCode; label?: string }) {
-  return <span className={`status-badge status-badge--${statusDisplayTone(code)}`}><span className="status-badge__marker" aria-hidden="true" />{label ?? code}</span>;
+  const { t, i18n } = useTranslation("assessment");
+  const key = `status.${code}`;
+  const localizedLabel = label ?? (i18n.exists(key, { ns: "assessment" }) ? t(key) : code);
+  return <span className={`status-badge status-badge--${statusDisplayTone(code)}`}><span className="status-badge__marker" aria-hidden="true" /><span>{localizedLabel}</span>{localizedLabel !== code ? <code>{code}</code> : null}</span>;
 }
 
 export function ApplicabilityBadge({ code, label }: { code: ApplicabilityCode; label?: string }) {
-  return <span className={`status-badge status-badge--${statusDisplayTone(code)}`}><span className="status-badge__marker" aria-hidden="true" />{label ?? code}</span>;
+  const { t, i18n } = useTranslation("assessment");
+  const key = `applicability.${code}`;
+  const localizedLabel = label ?? (i18n.exists(key, { ns: "assessment" }) ? t(key) : code);
+  return <span className={`status-badge status-badge--${statusDisplayTone(code)}`}><span className="status-badge__marker" aria-hidden="true" /><span>{localizedLabel}</span>{localizedLabel !== code ? <code>{code}</code> : null}</span>;
 }
+import { useTranslation } from "react-i18next";

@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 export type ButtonVariant = "primary" | "secondary" | "quiet";
 
@@ -9,6 +10,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = "secondary", loading = false, children, className = "", disabled, ...props }: ButtonProps) {
+  const { t } = useTranslation("common");
   return (
     <button
       className={`button button--${variant} ${className}`.trim()}
@@ -17,7 +19,7 @@ export function Button({ variant = "secondary", loading = false, children, class
       {...props}
     >
       {loading ? <span className="button__spinner" aria-hidden="true" /> : null}
-      <span>{loading ? "Working…" : children}</span>
+      <span>{loading ? t("actions.working") : children}</span>
     </button>
   );
 }

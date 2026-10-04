@@ -27,10 +27,14 @@ export interface ExactValueProps {
 }
 
 /** Renders canonical exact data as text; it never parses, divides, or rounds it. */
-export function ExactValue({ value, fallback = "Unavailable", label = "Exact value", compact = false }: ExactValueProps) {
+export function ExactValue({ value, fallback, label, compact = false }: ExactValueProps) {
+  const { t } = useTranslation("common");
+  const resolvedFallback = fallback ?? t("states.unavailable");
+  const resolvedLabel = label ?? t("exactValue.label");
   return (
-    <span className={`exact-value ${compact ? "exact-value--compact" : ""}`} aria-label={`${label}: ${value == null ? fallback : exactText(value)}`}>
-      {value == null ? fallback : exactText(value)}
+    <span className={`exact-value ${compact ? "exact-value--compact" : ""}`} aria-label={`${resolvedLabel}: ${value == null ? resolvedFallback : exactText(value)}`}>
+      {value == null ? resolvedFallback : exactText(value)}
     </span>
   );
 }
+import { useTranslation } from "react-i18next";
