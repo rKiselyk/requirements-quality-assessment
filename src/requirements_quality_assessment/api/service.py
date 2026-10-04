@@ -44,7 +44,7 @@ def _requirements(items: list[RequirementInput]) -> tuple[Requirement, ...]:
             ["body", "requirements"],
         )
     return tuple(
-        Requirement(f"R{index:03d}", index, item.text)
+        Requirement(f"R{index:03d}", item.source_line, item.text)
         for index, item in enumerate(items, start=1)
     )
 

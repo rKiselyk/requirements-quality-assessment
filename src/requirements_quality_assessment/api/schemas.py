@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class ApiModel(BaseModel):
@@ -15,6 +15,7 @@ class RequirementInput(ApiModel):
     """One source-ordered requirement; scientific IDs are server-generated."""
 
     text: str = Field(strict=True)
+    source_line: int = Field(strict=True, gt=0)
 
     @field_validator("text")
     @classmethod
@@ -30,9 +31,24 @@ class ControlledScenarioIdentity(ApiModel):
     version: str = Field(strict=True)
 
 
-class InitialAnalyzeRequest(ApiModel):
-    case: Literal["INITIAL"]
+class SpecificationInputRequest(ApiModel):
     requirements: list[RequirementInput]
+
+    @model_validator(mode="after")
+    def validate_source_order(self) -> "SpecificationInputRequest":
+        source_lines = tuple(item.source_line for item in self.requirements)
+        if any(
+            right <= left
+            for left, right in zip(source_lines, source_lines[1:])
+        ):
+            raise ValueError(
+                "requirement source_line values must be unique and strictly increasing"
+            )
+        return self
+
+
+class InitialAnalyzeRequest(SpecificationInputRequest):
+    case: Literal["INITIAL"]
 
 
 class ControlledDemoAnalyzeRequest(ApiModel):
@@ -40,28 +56,42 @@ class ControlledDemoAnalyzeRequest(ApiModel):
     scenario: ControlledScenarioIdentity
 
 
+class CanonicalScientificRecord(BaseModel):
+    """Canonical domain record with documented shared scientific dimensions.
+
+    Domain-specific fields remain unchanged as allowed extra properties. This
+    avoids defining a second scientific model while OpenAPI exposes record
+    boundaries and the shared state/applicability/provenance fields.
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    status: str | None = None
+    applicability: str | None = None
+    provenance: Any | None = None
+
+
 class ReassessmentPriorContext(ApiModel):
     """Canonical stateless lifecycle prerequisites returned by CONTROLLED_DEMO."""
 
     scenario: ControlledScenarioIdentity
     context_digest: str
-    initial_specification: dict[str, Any]
-    initial_specification_assessment: dict[str, Any]
-    predecessor_process_state: dict[str, Any]
-    corrective_action_resolution: dict[str, Any]
-    action_application: dict[str, Any]
-    external_revision: dict[str, Any]
-    revised_specification: dict[str, Any]
-    evidence_reuse_decisions: list[dict[str, Any]]
-    reassessment_identity: dict[str, Any]
-    successor_process_state: dict[str, Any]
-    process_transition: dict[str, Any]
-    comparisons: list[dict[str, Any]]
+    initial_specification: CanonicalScientificRecord
+    initial_specification_assessment: CanonicalScientificRecord
+    predecessor_process_state: CanonicalScientificRecord
+    corrective_action_resolution: CanonicalScientificRecord
+    action_application: CanonicalScientificRecord
+    external_revision: CanonicalScientificRecord
+    revised_specification: CanonicalScientificRecord
+    evidence_reuse_decisions: list[CanonicalScientificRecord]
+    reassessment_identity: CanonicalScientificRecord
+    successor_process_state: CanonicalScientificRecord
+    process_transition: CanonicalScientificRecord
+    comparisons: list[CanonicalScientificRecord]
 
 
-class ReassessmentAnalyzeRequest(ApiModel):
+class ReassessmentAnalyzeRequest(SpecificationInputRequest):
     case: Literal["REASSESSMENT"]
-    requirements: list[RequirementInput]
     prior_context: ReassessmentPriorContext
 
 
@@ -211,6 +241,36 @@ class SectionAvailabilityResponse(ApiModel):
     reason_code: str | None
 
 
+class FullModelRecordsResponse(ApiModel):
+    """Stable top-level Full Model record families for Research UI consumers."""
+
+    initial_specification_assessment: CanonicalScientificRecord
+    metric_profile: CanonicalScientificRecord
+    criterion_binding: CanonicalScientificRecord
+    observation_resolution: CanonicalScientificRecord
+    conformance: CanonicalScientificRecord
+    feature_profile: CanonicalScientificRecord
+    observed_product_quality: CanonicalScientificRecord
+    problem_resolutions: list[CanonicalScientificRecord]
+    defect_population: CanonicalScientificRecord
+    defect_quality_relations: list[CanonicalScientificRecord]
+    risk_assessments: list[CanonicalScientificRecord]
+    corrective_action_resolution: CanonicalScientificRecord
+    initial_specification: CanonicalScientificRecord
+    revised_specification: CanonicalScientificRecord
+    external_revision: CanonicalScientificRecord
+    action_application: CanonicalScientificRecord
+    reassessment: CanonicalScientificRecord
+    comparisons: list[CanonicalScientificRecord]
+    process_v1: CanonicalScientificRecord
+    process_v2: CanonicalScientificRecord
+    process_transition: CanonicalScientificRecord
+    full_quality_profiles: list[CanonicalScientificRecord]
+    prediction: CanonicalScientificRecord | None
+    quantitative_risk_assessments: list[CanonicalScientificRecord]
+    checkpoint_evaluations: list[CanonicalScientificRecord]
+
+
 class AnalyzeResponse(ApiModel):
     contract_version: Literal["research-api-v1"]
     analysis_case: Literal["INITIAL", "CONTROLLED_DEMO", "REASSESSMENT"]
@@ -218,7 +278,7 @@ class AnalyzeResponse(ApiModel):
     requirements: list[RequirementResultResponse]
     specification: SpecificationResultResponse
     section_availability: list[SectionAvailabilityResponse]
-    full_model: dict[str, Any] | None
+    full_model: FullModelRecordsResponse | None
     reassessment_context: ReassessmentPriorContext | None
     limitations: list[str]
 

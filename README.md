@@ -60,10 +60,12 @@ For an ordinary initial assessment, submit one source-ordered specification:
   "case": "INITIAL",
   "requirements": [
     {
-      "text": "Якщо сервіс недоступний, система повинна відповісти не більше ніж за 2 с."
+      "text": "Якщо сервіс недоступний, система повинна відповісти не більше ніж за 2 с.",
+      "source_line": 1
     },
     {
-      "text": "Система повинна швидко оновити статус."
+      "text": "Система повинна швидко оновити статус.",
+      "source_line": 3
     }
   ]
 }
@@ -71,8 +73,10 @@ For an ordinary initial assessment, submit one source-ordered specification:
 
 Scientific requirement IDs are always generated deterministically from the
 one-based request position (`R001`, `R002`, ...); arbitrary client IDs are not
-accepted. Leading and trailing whitespace is trimmed and blank requirements
-are rejected.
+accepted. `source_line` is the positive physical line number in the original
+source. Values must be unique and strictly increasing in request order; the
+backend neither renumbers nor reorders them. Leading and trailing whitespace is
+trimmed and blank requirements are rejected.
 
 The accepted controlled demonstration is selected only by its frozen identity.
 Clients cannot override its observations, parameters, policies, revision, or
@@ -97,8 +101,8 @@ complete context back with the externally revised specification:
 {
   "case": "REASSESSMENT",
   "requirements": [
-    {"text": "Час відгуку ≤ 2 с при 500 одночасних користувачах"},
-    {"text": "Час відгуку ≤ 5 с при 500 одночасних користувачах"}
+    {"text": "Час відгуку ≤ 2 с при 500 одночасних користувачах", "source_line": 1},
+    {"text": "Час відгуку ≤ 5 с при 500 одночасних користувачах", "source_line": 2}
   ],
   "prior_context": {"...": "canonical reassessment_context from CONTROLLED_DEMO"}
 }
@@ -147,6 +151,14 @@ exact values, Findings, accepted Evidence and offsets, diagnostics, assessment
 traces, specification aggregates, and bounded QB records. Optional downstream
 sections that cannot legally be constructed from text alone are explicitly
 marked `UNAVAILABLE` rather than fabricated.
+
+OpenAPI exposes stable Full Model record families—criterion binding,
+observation/conformance, product quality, problem/defect relations, categorical
+and quantitative risk, corrective action, process, checkpoints, reassessment,
+and comparisons. Their nested payloads remain canonical domain projections.
+A reusable transport record documents shared `status`, `applicability`, and
+`provenance` fields while permitting domain-specific fields, avoiding a second
+scientific model in the HTTP layer.
 
 ## Run an assessment
 
