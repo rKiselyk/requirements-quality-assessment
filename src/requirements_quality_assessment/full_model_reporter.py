@@ -1,4 +1,7 @@
-"""Read-only USER and AUDIT projections for the completed Full Model v0.1 path.
+"""Read-only USER and AUDIT projections for supported Full Model bundles.
+
+The reporters support historical Full Model v0.1 bundles and service-driven
+Full Model v1.0 bundles.
 
 The reporters in this module only select and format fields from already-computed
 typed records.  They do not detect evidence, assess a characteristic, aggregate
@@ -51,13 +54,15 @@ from .risk import BoundedRiskAssessment
 
 @dataclass(frozen=True, slots=True)
 class FullModelReportBundle:
-    """Completed records available to one Full Model v0.1 report.
+    """Completed records available to a supported Full Model report.
 
-    The base specification assessment is required so requirement C/V/U,
-    specification aggregates, and QB-v0.1 remain the same records used by the
-    existing reporters.  Every downstream record is optional because the
-    approved model represents unavailable, unresolved, unsupported, and
-    not-applicable paths explicitly.
+    Historical Full Model v0.1 bundles use this base record directly;
+    service-driven Full Model v1.0 bundles extend it with additive records and
+    presentation identity. The base specification assessment is required so
+    requirement C/V/U, specification aggregates, and QB-v0.1 remain the same
+    records used by the existing reporters. Every downstream record is optional
+    because the approved model represents unavailable, unresolved, unsupported,
+    and not-applicable paths explicitly.
     """
 
     assessment_result: SpecificationAssessmentResult

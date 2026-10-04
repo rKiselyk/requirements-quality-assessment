@@ -117,9 +117,11 @@ Full Model v1.0 is an executable, deterministic, and traceable research
 realization within a bounded reference scope. It is not exhaustive NLP
 coverage, universal product-quality prediction, universal risk calibration, or
 production readiness. It does not provide an English linguistic profile,
-automatic requirement-type classification, aggregate requirement/specification
-quality, aggregate risk or priority, release authorization, causal inference,
-or automatic rewriting.
+automatic requirement-type classification, a combined or integrated overall
+scalar requirement or specification quality score, aggregate risk or priority,
+release authorization, causal inference, or automatic rewriting. Separate
+specification-level Completeness, Verifiability, and Unambiguity aggregates
+remain available as documented above.
 
 ## Tests
 
