@@ -39,4 +39,14 @@ describe("presentation localization", () => {
     expect(window.sessionStorage.getItem(LOCALE_SESSION_KEY)).toBe("en");
     expect(fetchSpy).not.toHaveBeenCalled();
   });
+
+  it("makes a missing development translation visibly fail", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const result = i18n.t("rui04.deliberatelyMissing", { ns: "common" });
+
+    expect(result).toBe("⟦missing:rui04.deliberatelyMissing⟧");
+    expect(result).not.toBe("rui04.deliberatelyMissing");
+    expect(consoleErrorSpy).toHaveBeenCalledWith("[i18n] Missing translation: common:rui04.deliberatelyMissing");
+  });
 });
