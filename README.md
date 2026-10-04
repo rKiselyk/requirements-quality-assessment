@@ -15,6 +15,12 @@ candidate pending independent review, and constructs outside those boundaries
 remain draft or unimplemented. [`docs/mvp-v0.1-baseline.md`](docs/mvp-v0.1-baseline.md)
 describes the historical subset and limitations.
 
+A forthcoming Research UI v1 will add a stateless application and presentation
+layer over these accepted typed results. Its frozen boundary is documented in
+[`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md). No web UI
+or HTTP endpoint is implemented yet; the contract prevents the future UI from
+recalculating scientific results or fabricating unavailable Full Model inputs.
+
 ## Requirements and installation
 
 Python 3.11 or newer is required. The parser extra pins spaCy 3.8.16 and the Ukrainian `uk_core_news_sm` model 3.8.0. Install from the repository root in a virtual environment:
