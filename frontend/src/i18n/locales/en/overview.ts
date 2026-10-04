@@ -71,6 +71,7 @@ export const overview = {
   pipeline: {
     title: "Model pipeline",
     description: "Canonical section availability for lineage orientation; this is not execution progress.",
+    availabilityCannotPresent: "Availability cannot be safely presented",
     stages: {
       requirements: "Requirements",
       specification: "Specification",
@@ -83,6 +84,10 @@ export const overview = {
   limitations: { title: "Scientific limitations", malformed: "Unavailable limitation record" },
   noCanonicalValue: "No canonical numeric value",
   malformedProjection: "The canonical record cannot be safely presented. No value was inferred.",
+  malformed: {
+    title: "Canonical record cannot be safely presented",
+    description: "The expected presentation data is missing or malformed. No value or canonical state was inferred.",
+  },
   deferred: {
     title: "Section implementation follows",
     subtitle: "This result section is reserved in the Research UI workspace.",

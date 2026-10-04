@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { CanonicalAnalyzeResponse } from "../../api/analyze";
-import { ExactValue, StatusBadge } from "../../components/scientific";
+import { ApplicabilityBadge, ExactValue, StatusBadge } from "../../components/scientific";
 import { PageHeader } from "../../components/shell";
 import { Callout, Card, MetricCard, UnavailableState } from "../../components/ui";
 import { limitationCodes, limitationTranslationKey, type LimitationCode } from "../../i18n";
@@ -24,7 +24,7 @@ function knownLimitation(code: unknown): code is LimitationCode {
 
 function Metric({ label, metric }: { label: string; metric: MetricProjection | null }) {
   const { t } = useTranslation("overview");
-  if (!metric) return <MetricCard label={label} value={null} status="UNAVAILABLE" detail={t("malformedProjection")} />;
+  if (!metric) return <article className="metric-card"><h3>{label}</h3><MalformedPresentationState /></article>;
   const detail = metric.computedCount === null
     ? undefined
     : t("metrics.counts", {
@@ -34,6 +34,17 @@ function Metric({ label, metric }: { label: string; metric: MetricProjection | n
         total: metric.totalCount ?? "—",
       });
   return <MetricCard label={label} value={metric.value} status={metric.state} detail={detail} />;
+}
+
+function MalformedPresentationState() {
+  const { t } = useTranslation("overview");
+  return (
+    <div className="state-panel state-panel--malformed">
+      <div className="state-panel__symbol" aria-hidden="true">!</div>
+      <h3>{t("malformed.title")}</h3>
+      <p>{t("malformed.description")}</p>
+    </div>
+  );
 }
 
 const availabilityReasonCodes = new Set([
@@ -57,12 +68,11 @@ function reasonText(reasonCode: string | null, t: (key: string, options?: Record
 function SectionUnavailable({ section, result }: { section: string; result: CanonicalAnalyzeResponse }) {
   const { t } = useTranslation("overview");
   const availability = selectSectionAvailability(result, section);
+  if (availability?.availability !== "UNAVAILABLE") return <MalformedPresentationState />;
   return (
     <UnavailableState
       title={t("availability.title")}
-      description={availability?.availability === "UNAVAILABLE"
-        ? reasonText(availability.reasonCode, t)
-        : t("malformedProjection")}
+      description={reasonText(availability.reasonCode, t)}
       action={availability?.reasonCode ? <code>{availability.reasonCode}</code> : undefined}
     />
   );
@@ -77,13 +87,13 @@ function RecordItem({ label, item }: { label: string; item: ScientificRecordProj
         <>
           <div className="record-item__states">
             {item.status ? <StatusBadge code={item.status} /> : null}
-            {item.applicability ? <StatusBadge code={item.applicability} /> : null}
+            {item.applicability ? <ApplicabilityBadge code={item.applicability} /> : null}
           </div>
           {item.value ? <ExactValue value={item.value} /> : <span className="record-item__no-value">{t("noCanonicalValue")}</span>}
           {item.kind ? <code>{item.kind}</code> : null}
           {item.reasonCodes.map((code) => <code key={code}>{code}</code>)}
         </>
-      ) : <UnavailableState title={t("availability.title")} description={t("malformedProjection")} />}
+      ) : <MalformedPresentationState />}
     </div>
   );
 }
@@ -134,7 +144,7 @@ export function OverviewPage({ result }: { result: CanonicalAnalyzeResponse }) {
         <h2 id="specification-title">{t("specification.title")}</h2>
         <Card className="qb-card">
           <div><h3>{t("specification.qb")}</h3><p>{t("specification.qbDescription")}</p></div>
-          {qb ? <><ExactValue value={qb.value} /><StatusBadge code={qb.state} /></> : <UnavailableState title={t("availability.title")} description={t("malformedProjection")} />}
+          {qb ? <><ExactValue value={qb.value} /><StatusBadge code={qb.state} /></> : <MalformedPresentationState />}
         </Card>
       </section>
 

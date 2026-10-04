@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import type { CanonicalAnalyzeResponse } from "../../api/analyze";
 import { i18n } from "../../i18n";
+import { ModelPipeline } from "./ModelPipeline";
 import { OverviewPage } from "./OverviewPage";
 import { exactValue, selectQbConsistency, selectSpecificationMetrics } from "./projection";
 
@@ -84,6 +85,17 @@ function controlledResult(): CanonicalAnalyzeResponse {
     },
     limitations: ["NO_COMBINED_QUALITY_SCORE", "CONTROLLED_RESEARCH_FIXTURE_DATA", "NO_CAUSAL_OR_RELEASE_CLAIM"],
   });
+}
+
+function withCompleteness(value: Record<string, unknown>): CanonicalAnalyzeResponse {
+  const result = initialResult();
+  const qualityProfile = result.specification.quality_profile as Record<string, unknown>;
+  return { ...result, specification: { ...result.specification, quality_profile: { ...qualityProfile, completeness: value } } };
+}
+
+function withQb(value: unknown): CanonicalAnalyzeResponse {
+  const result = initialResult();
+  return { ...result, specification: { ...result.specification, qb_consistency: value } };
 }
 
 function response(payload: unknown): Response {
@@ -171,6 +183,76 @@ describe("RUI-07 results workspace", () => {
     expect(qb?.value).toBeNull();
   });
 
+  it("does not fabricate UNAVAILABLE for missing or malformed pipeline availability", () => {
+    const missing = initialResult({ section_availability: sections.filter((item) => item.section !== "process") });
+    const malformed = initialResult({ section_availability: sections.map((item) => item.section === "risk" ? { ...item, availability: "BROKEN" } : item) });
+    const first = render(<ModelPipeline result={missing} />);
+    const processStage = screen.getByText("Process").closest("li")!;
+    expect(within(processStage).getByText("Availability cannot be safely presented")).toBeTruthy();
+    expect(within(processStage).queryByText("UNAVAILABLE")).toBeNull();
+    first.unmount();
+
+    render(<ModelPipeline result={malformed} />);
+    const riskStage = screen.getByText("Risk").closest("li")!;
+    expect(within(riskStage).getByText("Availability cannot be safely presented")).toBeTruthy();
+    expect(within(riskStage).queryByText("UNAVAILABLE")).toBeNull();
+  });
+
+  it("continues to display valid canonical pipeline UNAVAILABLE", () => {
+    render(<ModelPipeline result={initialResult()} />);
+    const productQualityStage = screen.getByText("Product Quality").closest("li")!;
+    expect(within(productQualityStage).getByText("Unavailable")).toBeTruthy();
+    expect(within(productQualityStage).getByText("UNAVAILABLE")).toBeTruthy();
+  });
+
+  it.each([
+    ["COMPUTED with null", { ...aggregate("COMPLETENESS", 2, 3), state: "COMPUTED", value: null }],
+    ["COMPUTED with malformed rational", { ...aggregate("COMPLETENESS", 2, 3), state: "COMPUTED", value: { numerator: "2", denominator: 3 } }],
+    ["UNKNOWN with numeric value", { ...aggregate("COMPLETENESS", 2, 3), state: "UNKNOWN", value: { numerator: 2, denominator: 3 } }],
+    ["NOT_APPLICABLE with numeric value", { ...aggregate("COMPLETENESS", 2, 3), state: "NOT_APPLICABLE", value: { numerator: 2, denominator: 3 } }],
+  ])("rejects contradictory C/V/U presentation: %s", (_label, completeness) => {
+    const result = withCompleteness(completeness);
+    expect(selectSpecificationMetrics(result).completeness).toBeNull();
+    render(<OverviewPage result={result} />);
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    expect(within(card).getByText("Canonical record cannot be safely presented")).toBeTruthy();
+    expect(within(card).queryByText(/COMPUTED|UNKNOWN|NOT_APPLICABLE/)).toBeNull();
+  });
+
+  it("keeps a valid COMPUTED C/V/U fraction exact", () => {
+    const result = withCompleteness(aggregate("COMPLETENESS", 13, 17));
+    expect(selectSpecificationMetrics(result).completeness?.value).toEqual({ numerator: "13", denominator: "17" });
+    render(<OverviewPage result={result} />);
+    expect(screen.getByLabelText("Exact value: 13/17")).toBeTruthy();
+  });
+
+  it.each([
+    ["negative", { ...aggregate("COMPLETENESS", 2, 3), unknown_count: -1 }],
+    ["malformed", { ...aggregate("COMPLETENESS", 2, 3), total_count: "2" }],
+    ["missing", (() => { const value = { ...aggregate("COMPLETENESS", 2, 3) } as Record<string, unknown>; delete value.computed_count; return value; })()],
+  ])("rejects %s aggregate counts rather than substituting zero", (_label, completeness) => {
+    const result = withCompleteness(completeness);
+    expect(selectSpecificationMetrics(result).completeness).toBeNull();
+    render(<OverviewPage result={result} />);
+    const card = screen.getByRole("heading", { name: "Completeness" }).closest("article")!;
+    expect(within(card).getByText("Canonical record cannot be safely presented")).toBeTruthy();
+    expect(within(card).queryByText(/Computed 0/)).toBeNull();
+  });
+
+  it.each([
+    ["COMPUTED without value", { state: "COMPUTED", value: null }],
+    ["COMPUTED with malformed value", { state: "COMPUTED", value: { numerator: 1, denominator: 0 } }],
+    ["UNKNOWN with value", { state: "UNKNOWN", value: { numerator: 1, denominator: 2 } }],
+    ["NOT_APPLICABLE with value", { state: "NOT_APPLICABLE", value: { numerator: 1, denominator: 2 } }],
+  ])("rejects contradictory QB presentation: %s", (_label, qb) => {
+    const result = withQb(qb);
+    expect(selectQbConsistency(result)).toBeNull();
+    render(<OverviewPage result={result} />);
+    const qbCard = screen.getByRole("heading", { name: "QB consistency" }).closest("section")!;
+    expect(within(qbCard).getByText("Canonical record cannot be safely presented")).toBeTruthy();
+    expect(within(qbCard).queryByText(/COMPUTED|UNKNOWN|NOT_APPLICABLE/)).toBeNull();
+  });
+
   it("presents QB separately from C/V/U", () => {
     render(<OverviewPage result={initialResult()} />);
     const quality = screen.getByRole("heading", { name: "Requirement quality" }).parentElement!;
@@ -198,6 +280,26 @@ describe("RUI-07 results workspace", () => {
     expect(screen.getByRole("heading", { name: "Prediction record" })).toBeTruthy();
     expect(screen.getByText("PREDICTED_PERFORMANCE_EFFICIENCY")).toBeTruthy();
     expect(screen.getByLabelText("Exact value: 5/6")).toBeTruthy();
+  });
+
+  it("presents applicability with localized applicability semantics and its canonical code", async () => {
+    render(<OverviewPage result={controlledResult()} />);
+    const productQuality = screen.getByRole("heading", { name: "Product Quality" }).closest("section")!;
+    expect(within(productQuality).getAllByText("Applicable").length).toBeGreaterThan(0);
+    expect(within(productQuality).getAllByText("APPLICABLE").length).toBeGreaterThan(0);
+
+    await i18n.changeLanguage("uk");
+    expect(within(productQuality).getAllByText("Застосовне").length).toBeGreaterThan(0);
+    expect(within(productQuality).getAllByText("APPLICABLE").length).toBeGreaterThan(0);
+  });
+
+  it("uses malformed-presentation wording for an AVAILABLE section with a malformed nested record", () => {
+    const result = controlledResult();
+    const fullModel = { ...result.full_model, observed_product_quality: null };
+    render(<OverviewPage result={{ ...result, full_model: fullModel }} />);
+    const productQuality = screen.getByRole("heading", { name: "Product Quality" }).closest("section")!;
+    expect(within(productQuality).getByText("Canonical record cannot be safely presented")).toBeTruthy();
+    expect(within(productQuality).queryByText("Not available for this analysis")).toBeNull();
   });
 
   it("distinguishes controlled-demo categorical and quantitative Risk", () => {

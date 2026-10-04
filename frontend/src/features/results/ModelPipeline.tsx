@@ -17,7 +17,9 @@ export function ModelPipeline({ result }: { result: CanonicalAnalyzeResponse }) 
           return (
             <li key={stage}>
               <span>{t(`pipeline.stages.${stage}`)}</span>
-              <StatusBadge code={availability?.availability ?? "UNAVAILABLE"} />
+              {availability
+                ? <StatusBadge code={availability.availability} />
+                : <span className="model-pipeline__malformed">{t("pipeline.availabilityCannotPresent")}</span>}
             </li>
           );
         })}

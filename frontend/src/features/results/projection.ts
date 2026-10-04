@@ -69,6 +69,11 @@ function integer(value: unknown): number | null {
   return typeof value === "number" && Number.isSafeInteger(value) ? value : null;
 }
 
+function nonNegativeInteger(value: unknown): number | null {
+  const projected = integer(value);
+  return projected !== null && projected >= 0 ? projected : null;
+}
+
 export function exactValue(value: unknown): ExactValueData | null {
   if (typeof value === "string" && value.length > 0) return value;
   const candidate = record(value);
@@ -80,6 +85,16 @@ export function exactValue(value: unknown): ExactValueData | null {
   }
   const exact = text(candidate.exact);
   return exact === null ? null : { exact };
+}
+
+function exactRational(value: unknown): ExactValueData | null {
+  const candidate = record(value);
+  if (!candidate) return null;
+  const numerator = integer(candidate.numerator);
+  const denominator = integer(candidate.denominator);
+  return numerator !== null && denominator !== null && denominator !== 0
+    ? { numerator: String(numerator), denominator: String(denominator) }
+    : null;
 }
 
 function stringArray(value: unknown): string[] {
@@ -96,6 +111,7 @@ export function selectSectionAvailability(
     const candidate = record(item);
     if (!candidate || candidate.section !== section) continue;
     if (candidate.availability !== "AVAILABLE" && candidate.availability !== "UNAVAILABLE") return null;
+    if (candidate.reason_code !== null && text(candidate.reason_code) === null) return null;
     return {
       section,
       availability: candidate.availability,
@@ -105,31 +121,53 @@ export function selectSectionAvailability(
   return null;
 }
 
-function metric(value: unknown): MetricProjection | null {
+function stateAndValue(value: unknown): Pick<MetricProjection, "state" | "value"> | null {
   const candidate = record(value);
-  const state = candidate && text(candidate.state);
-  if (!candidate || !state) return null;
+  if (!candidate) return null;
+  const state = candidate.state;
+  if (state !== "COMPUTED" && state !== "UNKNOWN" && state !== "NOT_APPLICABLE") return null;
+  const projectedValue = exactRational(candidate.value);
+  if (state === "COMPUTED" && projectedValue === null) return null;
+  if ((state === "UNKNOWN" || state === "NOT_APPLICABLE") && candidate.value !== null) return null;
+  return { state, value: projectedValue };
+}
+
+function aggregateMetric(value: unknown): MetricProjection | null {
+  const candidate = record(value);
+  const stateValue = stateAndValue(value);
+  if (!candidate || !stateValue) return null;
+  const computedCount = nonNegativeInteger(candidate.computed_count);
+  const unknownCount = nonNegativeInteger(candidate.unknown_count);
+  const notApplicableCount = nonNegativeInteger(candidate.not_applicable_count);
+  const totalCount = nonNegativeInteger(candidate.total_count);
+  if (computedCount === null || unknownCount === null || notApplicableCount === null || totalCount === null) return null;
   return {
-    state,
-    value: exactValue(candidate.value),
-    computedCount: integer(candidate.computed_count),
-    unknownCount: integer(candidate.unknown_count),
-    notApplicableCount: integer(candidate.not_applicable_count),
-    totalCount: integer(candidate.total_count),
+    ...stateValue,
+    computedCount,
+    unknownCount,
+    notApplicableCount,
+    totalCount,
   };
 }
 
 export function selectSpecificationMetrics(response: CanonicalAnalyzeResponse) {
   const qualityProfile = record(response.specification.quality_profile);
   return {
-    completeness: metric(qualityProfile?.completeness),
-    verifiability: metric(qualityProfile?.verifiability),
-    unambiguity: metric(qualityProfile?.unambiguity),
+    completeness: aggregateMetric(qualityProfile?.completeness),
+    verifiability: aggregateMetric(qualityProfile?.verifiability),
+    unambiguity: aggregateMetric(qualityProfile?.unambiguity),
   };
 }
 
 export function selectQbConsistency(response: CanonicalAnalyzeResponse): MetricProjection | null {
-  return metric(response.specification.qb_consistency);
+  const stateValue = stateAndValue(response.specification.qb_consistency);
+  return stateValue === null ? null : {
+    ...stateValue,
+    computedCount: null,
+    unknownCount: null,
+    notApplicableCount: null,
+    totalCount: null,
+  };
 }
 
 function scientificRecord(value: unknown, valueField: string, kindField: string): ScientificRecordProjection | null {
