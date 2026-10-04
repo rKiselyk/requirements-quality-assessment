@@ -13,12 +13,15 @@ import {
 
 export interface SpecificationInputPageProps {
   onAnalyzeRequest: (request: Rui05AnalyzeRequest) => void;
+  apiErrorMessage?: string | null;
+  onRetry?: () => void;
 }
 
 type FileValidation = "unsupported" | "unreadable" | null;
 
-export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputPageProps) {
+export function SpecificationInputPage({ onAnalyzeRequest, apiErrorMessage, onRetry }: SpecificationInputPageProps) {
   const { t } = useTranslation("input");
+  const { t: lifecycleText } = useTranslation("lifecycle");
   const [sourceText, setSourceText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [pendingFileName, setPendingFileName] = useState<string | null>(null);
@@ -69,6 +72,13 @@ export function SpecificationInputPage({ onAnalyzeRequest }: SpecificationInputP
   return (
     <div className="input-page">
       <PageHeader title={t("pageTitle")} subtitle={t("pageSubtitle")} />
+
+      {apiErrorMessage ? (
+        <Callout title={lifecycleText("error.title")} tone="critical">
+          <p>{apiErrorMessage}</p>
+          {onRetry ? <Button type="button" variant="secondary" onClick={onRetry}>{lifecycleText("actions.tryAgain")}</Button> : null}
+        </Callout>
+      ) : null}
 
       <Card title={t("ordinary.title")} description={t("ordinary.description")}>
         <div className="input-workflow">

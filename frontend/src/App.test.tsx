@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { App, type Rui05AnalyzeRequest } from "./App";
+import type { Rui05AnalyzeRequest } from "./App";
+import { AppShell } from "./components/shell";
 import { i18n } from "./i18n";
 import { createInitialAnalyzeRequest, parseSpecificationText } from "./features/specification-input/model";
+import { SpecificationInputPage } from "./features/specification-input/SpecificationInputPage";
+
+function Rui05Harness({ onAnalyzeRequest = () => undefined }: { onAnalyzeRequest?: (request: Rui05AnalyzeRequest) => void }) {
+  return <AppShell><SpecificationInputPage onAnalyzeRequest={onAnalyzeRequest} /></AppShell>;
+}
 
 function textFile(name: string, content: string, type = "text/plain"): File {
   const file = new File([content], name, { type });
@@ -63,7 +69,7 @@ describe("RUI-05 specification input", () => {
   it("produces the same canonical requirements from paste and file input", async () => {
     const source = "  First requirement  \n\n Second requirement ";
     const pastedRequests: Rui05AnalyzeRequest[] = [];
-    const pasted = render(<App onAnalyzeRequest={(request) => pastedRequests.push(request)} />);
+    const pasted = render(<Rui05Harness onAnalyzeRequest={(request) => { pastedRequests.push(request); }} />);
 
     fireEvent.change(screen.getByRole("textbox", { name: "Paste or edit requirements" }), { target: { value: source } });
     fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
@@ -71,7 +77,7 @@ describe("RUI-05 specification input", () => {
     pasted.unmount();
 
     const fileRequests: Rui05AnalyzeRequest[] = [];
-    render(<App onAnalyzeRequest={(request) => fileRequests.push(request)} />);
+    render(<Rui05Harness onAnalyzeRequest={(request) => { fileRequests.push(request); }} />);
     selectFile(textFile("requirements.txt", source));
 
     await screen.findByText("Selected file: requirements.txt");
@@ -81,14 +87,14 @@ describe("RUI-05 specification input", () => {
   });
 
   it("shows empty validation and disables Analyze", () => {
-    render(<App />);
+    render(<Rui05Harness />);
 
     expect(screen.getByText("Enter at least one non-empty requirement.")).toBeTruthy();
     expect((screen.getByRole("button", { name: "Analyze" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("rejects unsupported files without replacing the editor", async () => {
-    render(<App />);
+    render(<Rui05Harness />);
 
     selectFile(textFile("requirements.json", "[]", "application/json"));
 
@@ -99,7 +105,7 @@ describe("RUI-05 specification input", () => {
   it("shows safe validation and preserves existing text when a supported file cannot be read", async () => {
     const file = textFile("requirements.txt", "Requirement");
     Object.defineProperty(file, "arrayBuffer", { value: async () => { throw new Error("read failed"); } });
-    render(<App />);
+    render(<Rui05Harness />);
     const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
     fireEvent.change(editor, { target: { value: "Existing valid requirement" } });
 
@@ -115,7 +121,7 @@ describe("RUI-05 specification input", () => {
     const read = deferred<ArrayBuffer>();
     const replacement = textFile("replacement.txt", "unused");
     Object.defineProperty(replacement, "arrayBuffer", { value: () => read.promise });
-    render(<App onAnalyzeRequest={(request) => requests.push(request)} />);
+    render(<Rui05Harness onAnalyzeRequest={(request) => { requests.push(request); }} />);
     const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
     const analyze = screen.getByRole("button", { name: "Analyze" }) as HTMLButtonElement;
     fireEvent.change(editor, { target: { value: "Old requirement" } });
@@ -143,7 +149,7 @@ describe("RUI-05 specification input", () => {
     const staleRead = deferred<ArrayBuffer>();
     const staleFile = textFile("stale.txt", "unused");
     Object.defineProperty(staleFile, "arrayBuffer", { value: () => staleRead.promise });
-    render(<App />);
+    render(<Rui05Harness />);
     const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
 
     selectFile(staleFile);
@@ -158,7 +164,7 @@ describe("RUI-05 specification input", () => {
 
   it("resets the file control so the same file can be selected again", async () => {
     const file = textFile("same.txt", "First file content");
-    render(<App />);
+    render(<Rui05Harness />);
     const input = fileInput();
     const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
 
@@ -184,7 +190,7 @@ describe("RUI-05 specification input", () => {
     Object.defineProperty(invalidUtf8File, "arrayBuffer", {
       value: async () => new Uint8Array([0xc3, 0x28]).buffer,
     });
-    render(<App onAnalyzeRequest={(request) => requests.push(request)} />);
+    render(<Rui05Harness onAnalyzeRequest={(request) => { requests.push(request); }} />);
     const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
     fireEvent.change(editor, { target: { value: "Existing valid requirement" } });
 
@@ -212,7 +218,7 @@ describe("RUI-05 specification input", () => {
 
   it("keeps the controlled demo opt-in and emits only the approved identity", () => {
     const requests: Rui05AnalyzeRequest[] = [];
-    render(<App onAnalyzeRequest={(request) => requests.push(request)} />);
+    render(<Rui05Harness onAnalyzeRequest={(request) => { requests.push(request); }} />);
 
     expect(requests).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: "Load demonstration example" }));
@@ -224,7 +230,7 @@ describe("RUI-05 specification input", () => {
 
   it("does not perform an HTTP request for ordinary or demonstration actions", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
-    render(<App />);
+    render(<Rui05Harness />);
 
     fireEvent.change(screen.getByRole("textbox", { name: "Paste or edit requirements" }), { target: { value: "Requirement" } });
     fireEvent.click(screen.getByRole("button", { name: "Analyze" }));
@@ -235,7 +241,7 @@ describe("RUI-05 specification input", () => {
 
   it("switches locale without mutating entered requirement text", async () => {
     const source = "  Не змінювати   внутрішній текст!  ";
-    render(<App />);
+    render(<Rui05Harness />);
     const editor = screen.getByRole("textbox", { name: "Paste or edit requirements" }) as HTMLTextAreaElement;
     fireEvent.change(editor, { target: { value: source } });
 
