@@ -7,9 +7,13 @@ import { Button, Callout, Card, DataTable, UnavailableState } from "../../compon
 import {
   canonicalJson,
   selectProductQualityPage,
+  type ConformanceProjection,
   type CriterionProjection,
+  type FeatureProfileProjection,
   type FeatureProjection,
   type ObservationProjection,
+  type ObservedProjection,
+  type PredictionProjection,
 } from "./projection";
 
 function Malformed({ compact = false }: { compact?: boolean }) {
@@ -86,7 +90,7 @@ function ObservationCard({ value }: { value: ObservationProjection | null }) {
   </Card>;
 }
 
-function ConformanceCard({ value }: { value: ReturnType<typeof selectProductQualityPage> extends infer _T ? import("./projection").ConformanceProjection | null : never }) {
+function ConformanceCard({ value }: { value: ConformanceProjection | null }) {
   const { t } = useTranslation("productQuality");
   if (!value) return <Card title={t("conformance.title")}><Malformed /></Card>;
   return <Card title={t("conformance.title")} className="product-quality-record">
@@ -120,7 +124,7 @@ function FeatureTypedValue({ feature }: { feature: FeatureProjection }) {
   </div>;
 }
 
-function FeatureProfile({ value }: { value: import("./projection").FeatureProfileProjection | null }) {
+function FeatureProfile({ value }: { value: FeatureProfileProjection | null }) {
   const { t } = useTranslation("productQuality");
   if (!value) return <section className="product-quality-section"><h2>{t("features.title")}</h2><Card><Malformed /></Card></section>;
   return <section className="product-quality-section" aria-labelledby="pe-profile-heading">
@@ -149,7 +153,7 @@ function FeatureProfile({ value }: { value: import("./projection").FeatureProfil
   </section>;
 }
 
-function ObservedSection({ value }: { value: import("./projection").ObservedProjection | null }) {
+function ObservedSection({ value }: { value: ObservedProjection | null }) {
   const { t } = useTranslation("productQuality");
   return <section className="product-quality-section" aria-labelledby="observed-heading">
     <h2 id="observed-heading">{t("observed.title")}</h2>
@@ -170,7 +174,7 @@ function ObservedSection({ value }: { value: import("./projection").ObservedProj
   </section>;
 }
 
-function PredictionSection({ value, current }: { value: import("./projection").PredictionProjection | null; current: boolean }) {
+function PredictionSection({ value, current }: { value: PredictionProjection | null; current: boolean }) {
   const { t } = useTranslation("productQuality");
   return <section className="product-quality-section" aria-labelledby="prediction-heading">
     <h2 id="prediction-heading">{t("prediction.title")}</h2>
@@ -182,6 +186,7 @@ function PredictionSection({ value, current }: { value: import("./projection").P
         <Metadata>
           <MetadataItem label={t("prediction.predictor")} value={<TechnicalDetails value={value.predictorRef} label={t("technical.reference")} />} />
           <MetadataItem label={t("prediction.parameterSet")} value={<TechnicalDetails value={value.parameterSetRef} label={t("technical.reference")} />} />
+          <MetadataItem label={t("observed.characteristic")} value={<code>{value.characteristicId}</code>} />
           <MetadataItem label={t("prediction.calibration")} value={<code>{value.calibrationStatus}</code>} />
           <MetadataItem label={t("prediction.numericRepresentation")} value={<code>{value.numericRepresentation}</code>} />
         </Metadata>

@@ -120,6 +120,7 @@ export interface ObservedProjection extends ScientificState {
 export interface PredictionProjection extends ScientificState {
   raw: JsonRecord;
   resultKind: string;
+  characteristicId: string;
   predictedValue: ExactValueData | null;
   numericRepresentation: string;
   predictorRef: JsonRecord;
@@ -160,11 +161,11 @@ function strings(value: unknown): string[] | null {
   return Array.isArray(value) && value.every((item) => typeof item === "string" && item.length > 0) ? [...value] : null;
 }
 
-function state(value: JsonRecord): ScientificState | null {
+function state(value: JsonRecord, reasonsRequired = false): ScientificState | null {
   const status = text(value.status);
   const applicability = text(value.applicability);
-  const reasons = strings(value.reasons);
-  return status && statuses.has(status) && applicability && applicabilities.has(applicability) && reasons
+  const reasons = value.reasons === undefined && !reasonsRequired ? [] : strings(value.reasons);
+  return status && statuses.has(status) && applicability && applicabilities.has(applicability) && reasons !== null
     ? { status, applicability, reasons }
     : null;
 }
@@ -204,7 +205,7 @@ function deepEqual(left: unknown, right: unknown): boolean {
 
 function criterionProjection(value: unknown): CriterionProjection | null {
   const candidate = record(value);
-  const currentState = candidate && state(candidate);
+  const currentState = candidate && state(candidate, true);
   const bindingId = candidate && record(candidate.binding_id);
   const sourceObservationRef = candidate && record(candidate.source_observation_ref);
   const provenance = candidate && record(candidate.provenance);
@@ -236,7 +237,7 @@ function criterionProjection(value: unknown): CriterionProjection | null {
 
 function observationProjection(value: unknown): ObservationProjection | null {
   const candidate = record(value);
-  const currentState = candidate && state(candidate);
+  const currentState = candidate && state(candidate, true);
   const slotRef = candidate && record(candidate.slot_ref);
   const provenanceRefs = candidate && strings(candidate.provenance_refs);
   if (!candidate || !currentState || !slotRef || !provenanceRefs) return null;
@@ -264,7 +265,7 @@ function observationProjection(value: unknown): ObservationProjection | null {
 
 function conformanceProjection(value: unknown): ConformanceProjection | null {
   const candidate = record(value);
-  const currentState = candidate && state(candidate);
+  const currentState = candidate && state(candidate, true);
   const conformanceId = candidate && record(candidate.conformance_id);
   const evaluatorRuleRef = candidate && record(candidate.evaluator_rule_ref);
   const evidenceRefs = candidate && array(candidate.evidence_refs);
@@ -281,7 +282,7 @@ function conformanceProjection(value: unknown): ConformanceProjection | null {
 
 function featureProjection(value: unknown, index: number): FeatureProjection | null {
   const candidate = record(value);
-  const currentState = candidate && state(candidate);
+  const currentState = candidate && state(candidate, true);
   const featureId = candidate && text(candidate.feature_id);
   const effect = candidate && text(candidate.effect);
   const availabilityPoint = candidate && text(candidate.availability_point);
@@ -342,6 +343,7 @@ function predictionProjection(value: unknown, featureProfile: FeatureProfileProj
   const candidate = record(value);
   const currentState = candidate && state(candidate);
   const resultKind = candidate && text(candidate.result_kind);
+  const characteristicId = candidate && text(candidate.characteristic_id);
   const numericRepresentation = candidate && text(candidate.numeric_representation);
   const predictorRef = candidate && record(candidate.predictor_ref);
   const parameterSetRef = candidate && record(candidate.parameter_set_ref);
@@ -356,7 +358,7 @@ function predictionProjection(value: unknown, featureProfile: FeatureProfileProj
   const provenanceContext = provenance && array(provenance.context_inputs);
   const provenanceProfile = provenance && record(provenance.feature_profile_ref);
   const withheld = provenance?.withheld_reason_or_none === null ? null : text(provenance?.withheld_reason_or_none);
-  if (!candidate || !currentState || resultKind !== "PREDICTED_PERFORMANCE_EFFICIENCY" || !numericRepresentation || !predictorRef || !parameterSetRef || !calibrationStatus || !explanation || !provenance || !definition || !provenanceParameterSet || !inputTraces || !selectedInputRefs || !contextInputs || !provenanceContext || !provenanceProfile || !featureProfile) return null;
+  if (!candidate || !currentState || resultKind !== "PREDICTED_PERFORMANCE_EFFICIENCY" || characteristicId !== "PERFORMANCE_EFFICIENCY" || !numericRepresentation || !predictorRef || !parameterSetRef || !calibrationStatus || !explanation || !provenance || !definition || !provenanceParameterSet || !inputTraces || !selectedInputRefs || !contextInputs || !provenanceContext || !provenanceProfile || !featureProfile) return null;
   const traceRefs = inputTraces.map((item) => record(item)?.feature_ref);
   if (!deepEqual(predictorRef, definition.predictor_ref) || !deepEqual(parameterSetRef, provenanceParameterSet)
     || calibrationStatus !== definition.calibration_status || !deepEqual(selectedInputRefs, traceRefs)
@@ -364,7 +366,7 @@ function predictionProjection(value: unknown, featureProfile: FeatureProfileProj
   const predictedValue = exactFraction(candidate.predicted_value);
   if (currentState.status === "AVAILABLE" && (currentState.applicability !== "APPLICABLE" || !predictedValue || !fractionInUnitInterval(candidate.predicted_value) || numericRepresentation !== "EXACT_FRACTION" || withheld !== null)) return null;
   if (currentState.status !== "AVAILABLE" && (candidate.predicted_value !== null || numericRepresentation !== "NONE" || withheld === null)) return null;
-  return { ...currentState, raw: candidate, resultKind, predictedValue, numericRepresentation, predictorRef, parameterSetRef, calibrationStatus, explanation, withheldReason: withheld };
+  return { ...currentState, raw: candidate, resultKind, characteristicId, predictedValue, numericRepresentation, predictorRef, parameterSetRef, calibrationStatus, explanation, withheldReason: withheld };
 }
 
 function currentRecords(response: CanonicalAnalyzeResponse): { revision: "CONTROLLED_DEMO_V1" | "REASSESSMENT_V2"; records: JsonRecord; predictionCurrent: boolean } | null {
