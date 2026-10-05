@@ -200,7 +200,8 @@ function response(caseName: CanonicalAnalyzeResponse["analysis_case"] = "CONTROL
 
 function reassessmentResponse(mismatch = false): CanonicalAnalyzeResponse {
   const stale = currentRecords(artifactV1, "STALE");
-  const current = { artifact_ref: artifactV2, ...currentRecords(artifactV2, "CURRENT") };
+  const riskAssessmentId = { assessment: "RISK", artifact_ref: artifactV2 };
+  const current = { artifact_ref: artifactV2, ...currentRecords(artifactV2, "CURRENT"), risk_assessment: { risk_assessment_id: riskAssessmentId } };
   return {
     ...response("REASSESSMENT"),
     full_model: {
@@ -210,7 +211,7 @@ function reassessmentResponse(mismatch = false): CanonicalAnalyzeResponse {
         provenance: { child_artifact_ref: artifactV2 },
         produced_result_refs: [
           { result_family: "CORE_REQUIREMENT_SPECIFICATION_METRIC_PATH", result_id: "CORE", artifact_ref: artifactV2 },
-          { result_family: "FULL_MODEL_DYNAMIC_THROUGH_RISK_PATH", result_id: "RISK", artifact_ref: mismatch ? artifactV1 : artifactV2 },
+          { result_family: "FULL_MODEL_DYNAMIC_THROUGH_RISK_PATH", result_id: riskAssessmentId, artifact_ref: mismatch ? artifactV1 : artifactV2 },
         ],
         produced_results: [{ artifact_ref: artifactV2, core: true }, current],
       },

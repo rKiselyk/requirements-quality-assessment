@@ -1,6 +1,75 @@
 export const risk = {
   title: "Risk",
-  categorical: "Categorical risk",
-  quantitative: "Quantitative local risk",
-  unavailable: "Risk records are unavailable; zero risk was not inferred.",
+  subtitle: "Bounded problem, defect relation, and risk records without semantic substitution",
+  revision: { CONTROLLED_DEMO_V1: "Current controlled result · v1", REASSESSMENT_V2: "Current reassessed result · v2" },
+  unavailable: {
+    title: "Risk records are unavailable", reasonCode: "Canonical reason code",
+    boundary: "No defect absence, safety verdict, zero risk, or quantitative operand was inferred.",
+    unknownReason: "The canonical response did not provide the inputs required for this bounded risk surface.",
+    reasons: { CONFIRMED_PROBLEM_AND_RISK_INPUTS_NOT_AVAILABLE: "Confirmed-problem and risk inputs are not available for this analysis case." },
+  },
+  malformed: {
+    title: "Risk records cannot be safely presented",
+    description: "The canonical current-version or source graph is contradictory. No fallback scientific state was inferred.",
+    record: "Canonical record cannot be safely presented because its consumed source graph is malformed.",
+  },
+  supported: { title: "Supported problem / defect relation", description: "Problem resolution, the bounded defect population, and R_DQ remain separate scientific records." },
+  resolutions: { item: "Problem resolution {{index}}", disposition: "Disposition", reason: "Controlling reason", sourceClaim: "Source claim", identity: "Resolution identity" },
+  problem: {
+    title: "Confirmed supported problem", kind: "Problem kind", defectType: "Defect type", conflictClass: "Conflict class", conflictSubtype: "Conflict subtype",
+    participants: "Participant requirements", openRequirement: "Open {{id}}", trace: "Problem source graph",
+    noConfirmedBoundary: "No confirmed supported problem exists within this resolution rule. This does not establish absence of defects.",
+  },
+  population: {
+    title: "Defect population snapshot", description: "The canonical population under the bounded construction contract", members: "Member refs",
+    complete: "Population complete", unresolved: "Unresolved resolution refs",
+    boundary: "Completeness applies only to this bounded construction contract; an empty member set is not a universal defect-free result.",
+  },
+  relation: {
+    item: "Defect-quality relation R_DQ {{index}}", kind: "Relation kind", characteristic: "Characteristic", reason: "Controlling reason", calibration: "Calibration",
+    calibrationBoundary: "Calibration metadata is not confidence, a percentage, or causal strength.",
+  },
+  categorical: {
+    title: "Categorical bounded risk", description: "A bounded presence classification; it carries no numeric magnitude.", item: "Categorical risk {{index}}",
+    classification: "Classification", characteristic: "Characteristic", calibration: "Calibration", productQualityContext: "Observed Product Quality context",
+    event: "Assessment event", identity: "Risk assessment identity", explanation: "Canonical explanation",
+  },
+  quantitative: {
+    title: "Quantitative local risk", description: "Externally parameterized local r_ij, distinct from the categorical classification.", item: "Quantitative local risk {{index}}",
+    resultKind: "Result kind", localRisk: "Exact local r_ij", noValue: "No numeric local-risk value", scope: "Exact scope",
+    numericRepresentation: "Numeric representation", characteristic: "Characteristic", calculationRuleRef: "Calculation rule ref",
+    noOperandValue: "No numeric operand value", operandTrace: "Operand provenance", formulaTrace: "Canonical calculation-rule trace",
+    formulaBoundary: "Displayed for traceability only. The frontend does not execute or verify this formula.",
+    currentAbsenceTitle: "No current-revision quantitative record",
+    currentAbsence: "No quantitative local-risk record was produced for the current reassessed revision.",
+    noRecordsTitle: "No quantitative records were supplied",
+    noRecords: "The current controlled result contains no quantitative local-risk record; no operands or value were created.",
+  },
+  guardrails: {
+    title: "Scientific boundaries", calloutTitle: "The risk layers are not interchangeable",
+    categoricalQuantitative: "Categorical bounded risk is not quantitative local risk and supplies no probability, impact, severity, priority, or magnitude.",
+    localGlobal: "Local r_ij is not aggregate, global, or product-wide risk.",
+    absence: "Absence of a confirmed supported problem or bounded risk does not establish absence of defects or risk.",
+  },
+  technical: { details: "Technical trace", reference: "Canonical reference", none: "Not supplied" },
+  nonClaims: {
+    title: "Canonical non-claims", canonical: "Canonical limitation retained verbatim by code.", problem: {},
+    relation: {
+      "NC-RDQ-001": "R_DQ does not supply a numeric rho.", "NC-RDQ-002": "R_DQ does not establish causality.",
+      "NC-RDQ-003": "R_DQ does not supply probability or impact.", "NC-RDQ-004": "R_DQ is not proof of poor product performance.",
+      "NC-RDQ-005": "R_DQ does not establish a mapping beyond the exact supported response-time key.",
+    },
+    categorical: {
+      "NC-RISK-001": "The classification identifies bounded risk presence, not risk magnitude.", "NC-RISK-002": "No probability or likelihood is supplied.",
+      "NC-RISK-003": "No impact, severity, or criticality is supplied.", "NC-RISK-004": "No weight, threshold, or aggregate risk is supplied.",
+      "NC-RISK-005": "No priority or rank is supplied.", "NC-RISK-006": "The bounded risk classification is neither a product-failure result nor a product-quality score.",
+      "NC-RISK-007": "No causal claim is established.", "NC-RISK-008": "Absence of this bounded risk classification does not establish absence of risk.",
+      "NC-RISK-009": "The categorical risk model is provisional and not calibrated.",
+    },
+    quantitative: {
+      "NC-Q-RISK-001": "Local quantitative risk is not the categorical classification.", "NC-Q-RISK-002": "Operands were externally supplied, not estimated by this UI.",
+      "NC-Q-RISK-003": "Local r_ij is not aggregate R_j.", "NC-Q-RISK-004": "No priority, ranking, or threshold is supplied.",
+      "NC-Q-RISK-005": "No causal claim is established.", "NC-Q-RISK-006": "Provisional calibration is not empirical proof.",
+    },
+  },
 } as const;

@@ -412,6 +412,48 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .product-quality-limitations .callout p { margin: 0 0 var(--space-2); }
 .product-quality-limitations .callout p:last-child { margin-bottom: 0; }
 
+.risk-page { min-width: 0; }
+.risk-layer, .risk-guardrails { margin-top: var(--space-8); }
+.risk-layer > .section-heading-row { margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+.layer-index { display: grid; place-items: center; min-width: 2.25rem; height: 2.25rem; border: 1px solid var(--color-border-strong); border-radius: 999px; color: var(--color-text-muted); font: 650 0.72rem var(--font-mono); }
+.risk-card-stack { display: grid; gap: var(--space-4); }
+.risk-layer > .card, .risk-layer > .risk-card-stack + .card, .risk-layer > .card + .risk-card-stack { margin-top: var(--space-4); }
+.risk-record { min-width: 0; }
+.confirmed-problem { margin-top: var(--space-5); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.confirmed-problem h3, .confirmed-problem h4 { margin: 0 0 var(--space-3); }
+.risk-code-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.risk-code-grid > div { display: grid; gap: var(--space-1); min-width: 0; }
+.risk-code-grid span, .risk-result-heading span, .quantitative-heading span, .local-risk-value > span, .risk-summary-row span { color: var(--color-text-muted); font-size: 0.72rem; font-weight: 650; }
+.risk-code-grid code { overflow-wrap: anywhere; }
+.participant-links { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.participant-links > code { max-width: 100%; overflow-wrap: anywhere; }
+.risk-summary-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.risk-summary-row > div { display: grid; gap: var(--space-1); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.risk-summary-row strong { font-size: 1.25rem; }
+.risk-relation { border-left: 3px solid var(--color-border-strong); }
+.risk-layer--categorical { padding: var(--space-5); border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface-subtle); }
+.risk-layer--quantitative { padding: var(--space-5); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-card); }
+.categorical-risk-card { border-left: 3px solid var(--color-accent); }
+.quantitative-risk-card { border-left: 3px solid var(--color-border-strong); }
+.risk-result-heading, .quantitative-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+.risk-result-heading > div, .quantitative-heading > div { display: grid; gap: var(--space-2); }
+.risk-statement { padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-accent-subtle); font-weight: 650; }
+.categorical-explanation .record-explanation { max-height: 16rem; overflow: auto; padding: var(--space-3); background: var(--color-surface-subtle); font-size: 0.76rem; }
+.local-risk-value { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-4) 0; }
+.local-risk-value .exact-value { font-size: 1.75rem; font-weight: 700; }
+.operand-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-5); }
+.operand-card { min-width: 0; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.operand-card header { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); }
+.operand-card header > code { overflow-wrap: anywhere; font-weight: 700; }
+.operand-card .exact-value { display: block; min-height: 2rem; font-size: 1.1rem; }
+.operand-card p, .operand-calibration { color: var(--color-text-muted); font-size: 0.72rem; overflow-wrap: anywhere; }
+.formula-trace { margin-top: var(--space-4); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-code-bg); }
+.formula-trace summary { color: var(--color-accent); font-weight: 650; cursor: pointer; }
+.formula-trace > code { display: block; margin-top: var(--space-3); overflow-wrap: anywhere; }
+.formula-trace p { margin-bottom: 0; color: var(--color-text-muted); }
+.risk-guardrails .callout p { margin: 0 0 var(--space-2); }
+.risk-guardrails .callout p:last-child { margin-bottom: 0; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes progress { 0% { left: -35%; } 55%, 100% { left: 100%; } }
 
@@ -452,6 +494,9 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
   .operand-trace-grid, .materiality-proof-metadata, .materiality-gates dl { grid-template-columns: 1fr; }
   .observation-conformance-grid, .product-quality-metadata { grid-template-columns: 1fr; }
   .product-quality-primary-row, .product-quality-result-heading, .section-heading-row { flex-direction: column; }
+  .risk-code-grid, .risk-summary-row, .operand-grid { grid-template-columns: 1fr; }
+  .risk-result-heading, .quantitative-heading { flex-direction: column; }
+  .risk-layer--categorical, .risk-layer--quantitative { padding: var(--space-3); }
   .requirement-navigator { position: static; max-height: 16rem; }
   .evidence-list li { grid-template-columns: 1fr; align-items: start; }
 }
