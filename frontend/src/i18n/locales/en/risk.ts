@@ -55,16 +55,16 @@ export const risk = {
   nonClaims: {
     title: "Canonical non-claims", canonical: "Canonical limitation retained verbatim by code.", problem: {},
     relation: {
-      "NC-RDQ-001": "R_DQ is a bounded relevance relation, not causality.", "NC-RDQ-002": "It does not establish product-quality degradation.",
-      "NC-RDQ-003": "It does not supply numeric rho.", "NC-RDQ-004": "It does not establish magnitude, probability, or impact.",
-      "NC-RDQ-005": "It does not generalize beyond the supported bounded relation.",
+      "NC-RDQ-001": "R_DQ does not supply a numeric rho.", "NC-RDQ-002": "R_DQ does not establish causality.",
+      "NC-RDQ-003": "R_DQ does not supply probability or impact.", "NC-RDQ-004": "R_DQ is not proof of poor product performance.",
+      "NC-RDQ-005": "R_DQ does not establish a mapping beyond the exact supported response-time key.",
     },
     categorical: {
-      "NC-RISK-001": "The classification establishes bounded presence only.", "NC-RISK-002": "No risk magnitude is supplied.",
-      "NC-RISK-003": "No probability is supplied.", "NC-RISK-004": "No impact or severity is supplied.",
-      "NC-RISK-005": "This is not aggregate or global risk.", "NC-RISK-006": "This is not a product-quality score.",
-      "NC-RISK-007": "No causal proof is established.", "NC-RISK-008": "No priority or ranking is supplied.",
-      "NC-RISK-009": "Absence of this bounded classification would not establish absence of risk.",
+      "NC-RISK-001": "The classification identifies bounded risk presence, not risk magnitude.", "NC-RISK-002": "No probability or likelihood is supplied.",
+      "NC-RISK-003": "No impact, severity, or criticality is supplied.", "NC-RISK-004": "No weight, threshold, or aggregate risk is supplied.",
+      "NC-RISK-005": "No priority or rank is supplied.", "NC-RISK-006": "The bounded risk classification is neither a product-failure result nor a product-quality score.",
+      "NC-RISK-007": "No causal claim is established.", "NC-RISK-008": "Absence of this bounded risk classification does not establish absence of risk.",
+      "NC-RISK-009": "The categorical risk model is provisional and not calibrated.",
     },
     quantitative: {
       "NC-Q-RISK-001": "Local quantitative risk is not the categorical classification.", "NC-Q-RISK-002": "Operands were externally supplied, not estimated by this UI.",

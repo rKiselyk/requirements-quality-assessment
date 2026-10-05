@@ -4,6 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import type { CanonicalAnalyzeResponse } from "../../api/analyze";
 import { i18n } from "../../i18n";
+import { risk as enRisk } from "../../i18n/locales/en/risk";
+import { risk as ukRisk } from "../../i18n/locales/uk/risk";
 import { RiskPage } from "./RiskPage";
 import {
   categoricalRiskNonClaims,
@@ -54,6 +56,46 @@ const productQualityContext = {
   assessment_ref: { assessment_id: pqAssessmentId, product_quality_assessment_version: "v1" },
   status: "AVAILABLE", applicability: "APPLICABLE", result_kind: "OBSERVED_REFERENCE_INDICATOR", scope_ref: pqScope, product_ref: productRef,
 };
+
+const expectedEnglishRelationNonClaims = {
+  "NC-RDQ-001": "R_DQ does not supply a numeric rho.",
+  "NC-RDQ-002": "R_DQ does not establish causality.",
+  "NC-RDQ-003": "R_DQ does not supply probability or impact.",
+  "NC-RDQ-004": "R_DQ is not proof of poor product performance.",
+  "NC-RDQ-005": "R_DQ does not establish a mapping beyond the exact supported response-time key.",
+} as const;
+
+const expectedUkrainianRelationNonClaims = {
+  "NC-RDQ-001": "R_DQ не задає числового rho.",
+  "NC-RDQ-002": "R_DQ не встановлює причинного зв’язку.",
+  "NC-RDQ-003": "R_DQ не задає ймовірність або вплив.",
+  "NC-RDQ-004": "R_DQ не є доказом низької продуктивності продукту.",
+  "NC-RDQ-005": "R_DQ не встановлює відображення за межами точного підтримуваного ключа часу відгуку.",
+} as const;
+
+const expectedEnglishCategoricalNonClaims = {
+  "NC-RISK-001": "The classification identifies bounded risk presence, not risk magnitude.",
+  "NC-RISK-002": "No probability or likelihood is supplied.",
+  "NC-RISK-003": "No impact, severity, or criticality is supplied.",
+  "NC-RISK-004": "No weight, threshold, or aggregate risk is supplied.",
+  "NC-RISK-005": "No priority or rank is supplied.",
+  "NC-RISK-006": "The bounded risk classification is neither a product-failure result nor a product-quality score.",
+  "NC-RISK-007": "No causal claim is established.",
+  "NC-RISK-008": "Absence of this bounded risk classification does not establish absence of risk.",
+  "NC-RISK-009": "The categorical risk model is provisional and not calibrated.",
+} as const;
+
+const expectedUkrainianCategoricalNonClaims = {
+  "NC-RISK-001": "Класифікація встановлює обмежену наявність ризику, а не його величину.",
+  "NC-RISK-002": "Ймовірність або правдоподібність не задаються.",
+  "NC-RISK-003": "Вплив, тяжкість або критичність не задаються.",
+  "NC-RISK-004": "Вага, поріг або агрегований ризик не задаються.",
+  "NC-RISK-005": "Пріоритет або ранг не задаються.",
+  "NC-RISK-006": "Обмежена класифікація ризику не є ані результатом відмови продукту, ані оцінкою якості продукту.",
+  "NC-RISK-007": "Причинне твердження не встановлюється.",
+  "NC-RISK-008": "Відсутність цієї обмеженої класифікації ризику не встановлює відсутність ризику.",
+  "NC-RISK-009": "Модель категорійного ризику є попередньою та некаліброваною.",
+} as const;
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -446,6 +488,56 @@ describe("RUI-11 Risk", () => {
     expect(projected.relations[0].kind === "VALID" && projected.relations[0].value.nonClaims).toEqual(relationNonClaims);
     expect(projected.categorical[0].kind === "VALID" && projected.categorical[0].value.nonClaims).toEqual(categoricalRiskNonClaims);
     expect(projected.categorical[0].kind === "VALID" && projected.categorical[0].value.calibrationStatus).toBe("PROVISIONAL_NOT_CALIBRATED");
+  });
+
+  it.each(Object.entries(expectedEnglishRelationNonClaims))("maps English %s to its canonical R_DQ meaning", (code, explanation) => {
+    expect(enRisk.nonClaims.relation[code as keyof typeof enRisk.nonClaims.relation]).toBe(explanation);
+  });
+
+  it.each(Object.entries(expectedUkrainianRelationNonClaims))("maps Ukrainian %s to its canonical R_DQ meaning", (code, explanation) => {
+    expect(ukRisk.nonClaims.relation[code as keyof typeof ukRisk.nonClaims.relation]).toBe(explanation);
+  });
+
+  it.each(Object.entries(expectedEnglishCategoricalNonClaims))("maps English %s to its canonical categorical Risk meaning", (code, explanation) => {
+    expect(enRisk.nonClaims.categorical[code as keyof typeof enRisk.nonClaims.categorical]).toBe(explanation);
+  });
+
+  it.each(Object.entries(expectedUkrainianCategoricalNonClaims))("maps Ukrainian %s to its canonical categorical Risk meaning", (code, explanation) => {
+    expect(ukRisk.nonClaims.categorical[code as keyof typeof ukRisk.nonClaims.categorical]).toBe(explanation);
+  });
+
+  it("keeps localized non-claim codes in canonical order", () => {
+    expect(Object.keys(enRisk.nonClaims.relation)).toEqual(relationNonClaims);
+    expect(Object.keys(ukRisk.nonClaims.relation)).toEqual(relationNonClaims);
+    expect(Object.keys(enRisk.nonClaims.categorical)).toEqual(categoricalRiskNonClaims);
+    expect(Object.keys(ukRisk.nonClaims.categorical)).toEqual(categoricalRiskNonClaims);
+  });
+
+  it("renders canonical R_DQ and categorical Risk codes visibly with their English explanations", () => {
+    render(<RiskPage result={controlledResponse()} onSelectRequirement={vi.fn()} />);
+    const summaries = screen.getAllByText("Canonical non-claims");
+    fireEvent.click(summaries[1]);
+    fireEvent.click(summaries[2]);
+    const relationDetails = within(summaries[1].closest("details")!);
+    const categoricalDetails = within(summaries[2].closest("details")!);
+    relationNonClaims.forEach((code) => expect(relationDetails.getByText(code)).toBeTruthy());
+    categoricalRiskNonClaims.forEach((code) => expect(categoricalDetails.getByText(code)).toBeTruthy());
+    Object.values(expectedEnglishRelationNonClaims).forEach((explanation) => expect(relationDetails.getByText(explanation)).toBeTruthy());
+    Object.values(expectedEnglishCategoricalNonClaims).forEach((explanation) => expect(categoricalDetails.getByText(explanation)).toBeTruthy());
+  });
+
+  it("renders canonical R_DQ and categorical Risk codes visibly with their Ukrainian explanations", async () => {
+    await i18n.changeLanguage("uk");
+    render(<RiskPage result={controlledResponse()} onSelectRequirement={vi.fn()} />);
+    const summaries = screen.getAllByText("Канонічні не-твердження");
+    fireEvent.click(summaries[1]);
+    fireEvent.click(summaries[2]);
+    const relationDetails = within(summaries[1].closest("details")!);
+    const categoricalDetails = within(summaries[2].closest("details")!);
+    relationNonClaims.forEach((code) => expect(relationDetails.getByText(code)).toBeTruthy());
+    categoricalRiskNonClaims.forEach((code) => expect(categoricalDetails.getByText(code)).toBeTruthy());
+    Object.values(expectedUkrainianRelationNonClaims).forEach((explanation) => expect(relationDetails.getByText(explanation)).toBeTruthy());
+    Object.values(expectedUkrainianCategoricalNonClaims).forEach((explanation) => expect(categoricalDetails.getByText(explanation)).toBeTruthy());
   });
 
   it.each([
