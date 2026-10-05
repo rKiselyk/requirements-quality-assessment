@@ -75,43 +75,95 @@ function currentRecords(artifact = artifactV1, marker = "CURRENT") {
   const parameterSetRef = { identity: { parameter_set_id: `THETA-${marker}`, parameter_set_version: "1" }, predictor_ref: predictorRef };
   const selectedInputRefs = profile.features.map((feature) => feature.feature_entry_id);
   const contextInputs = [{ field: "PRODUCT", value_or_none: profile.product_ref }];
+  const requirementSubjectRef = profile.criterion_subject_ref;
+  const sourceObservationRef = { requirement_id: "R001", feature_id: "quantitative_constraint", observation_index: 0 };
+  const sourceSnapshotId = { value: `SNAPSHOT-${artifact.artifact_version}` };
+  const bindingId = {
+    artifact_ref: artifact,
+    source_assessment_ref: profile.source_assessment_ref,
+    requirement_subject_ref: requirementSubjectRef,
+    source_snapshot_id: sourceSnapshotId,
+    source_observation_ref: sourceObservationRef,
+    binding_rule_ref: rule,
+  };
+  const collectionRef = {
+    collection_id: "COLLECTION", collection_version: "1", product_ref: profile.product_ref,
+    environment_ref: { environment_id: "ENV", environment_version: "1" }, source_kind: "DETERMINISTIC_FIXTURE",
+  };
+  const slotRef = { collection_ref: collectionRef, fixture_sequence: 0 };
+  const observationId = { collection_ref: collectionRef, fixture_sequence: 0 };
+  const metricRef = { metric_id: "DYN.RESPONSE_TIME" };
+  const criterionContext = { normalized_text: "500 concurrent users" };
+  const dynamicAssessmentRef = profile.dynamic_assessment_ref;
+  const conformanceId = {
+    dynamic_assessment_ref: dynamicAssessmentRef,
+    criterion_binding_id: bindingId,
+    observation_slot_ref: slotRef,
+    evaluator_rule_ref: rule,
+  };
+  const criterionRef = { criterion_id: bindingId };
+  const observationRef = { observation_id: observationId };
   return {
     criterion_binding: {
-      binding_id: { artifact_ref: artifact, binding_rule_ref: rule }, status: "AVAILABLE", applicability: "APPLICABLE",
-      criterion: { criterion_id: { id: `CRITERION-${marker}` }, requirement_subject_ref: { requirement_id: "R001", artifact_ref: artifact }, artifact_ref: artifact, source_assessment_ref: {}, source_snapshot_id: {}, source_observation_ref: { requirement_id: "R001", observation_index: 0 }, metric_ref: { metric_id: "DYN.RESPONSE_TIME" }, comparator: "LESS_THAN_OR_EQUAL", inclusivity: "INCLUSIVE", bound: marker === "STALE" ? "99" : "2.0", unit: "SECOND", context_identity: { normalized_text: "500 concurrent users" }, provenance: {}, binding_rule_ref: rule },
-      source_observation_ref: { requirement_id: "R001", observation_index: 0 }, reasons: [], provenance: { evidence_refs: [{ requirement_id: "R001", evidence_id: "E003" }] },
+      binding_id: bindingId, status: "AVAILABLE", applicability: "APPLICABLE",
+      criterion: { criterion_id: bindingId, requirement_subject_ref: requirementSubjectRef, artifact_ref: artifact, source_assessment_ref: profile.source_assessment_ref, source_snapshot_id: sourceSnapshotId, source_observation_ref: sourceObservationRef, metric_ref: metricRef, comparator: "LESS_THAN_OR_EQUAL", inclusivity: "INCLUSIVE", bound: marker === "STALE" ? "99" : "2.0", unit: "SECOND", context_identity: criterionContext, provenance: {}, binding_rule_ref: rule },
+      source_observation_ref: sourceObservationRef, reasons: [], provenance: { requirement_subject_ref: requirementSubjectRef, source_observation_ref: sourceObservationRef, binding_rule_ref: rule, evidence_refs: [{ requirement_id: "R001", evidence_id: "E003" }] },
     },
     observation_resolution: {
-      slot_ref: { collection_ref: { collection_id: "COLLECTION" }, fixture_sequence: 0 }, status: "AVAILABLE", applicability: "APPLICABLE",
-      observation: { observation_id: { collection_ref: { collection_id: "COLLECTION" }, fixture_sequence: 0 }, slot_ref: {}, product_ref: profile.product_ref, metric_ref: { metric_id: "DYN.RESPONSE_TIME" }, observed_value: marker === "STALE" ? "88" : "1.80", unit: "SECOND", context_identity: { normalized_text: "500 concurrent users" }, source_kind: "DETERMINISTIC_FIXTURE", collection_ref: { collection_id: "COLLECTION", collection_version: "1", product_ref: profile.product_ref, environment_ref: { environment_id: "ENV", environment_version: "1" }, source_kind: "DETERMINISTIC_FIXTURE" }, fixture_sequence: 0, collected_at: null, provenance: { source_record_ref: `FIXTURE-${marker}` } },
+      slot_ref: slotRef, status: "AVAILABLE", applicability: "APPLICABLE",
+      observation: { observation_id: observationId, slot_ref: slotRef, product_ref: profile.product_ref, metric_ref: metricRef, observed_value: marker === "STALE" ? "88" : "1.80", unit: "SECOND", context_identity: criterionContext, source_kind: "DETERMINISTIC_FIXTURE", collection_ref: collectionRef, fixture_sequence: 0, collected_at: null, provenance: { product_ref: profile.product_ref, collection_ref: collectionRef, fixture_sequence: 0, declared_metric_ref: metricRef, declared_unit: "SECOND", declared_context_identity: criterionContext, source_kind: "DETERMINISTIC_FIXTURE", source_record_ref: `FIXTURE-${marker}` } },
       reasons: [], provenance_refs: [`FIXTURE-${marker}`],
     },
-    conformance: { conformance_id: { artifact_ref: artifact }, dynamic_assessment_ref: { artifact_ref: artifact }, criterion_binding_id: {}, criterion_id: { id: `CRITERION-${marker}` }, observation_slot_ref: {}, observation_id: { id: `OBS-${marker}` }, status: "AVAILABLE", applicability: "APPLICABLE", outcome: "CONFORMS", explanation: "Canonical backend conformance result.", reasons: [], criterion_ref: {}, observation_ref: {}, evidence_refs: [{ evidence_id: "E003" }], provenance: {}, evaluator_rule_ref: rule },
+    conformance: { conformance_id: conformanceId, dynamic_assessment_ref: dynamicAssessmentRef, criterion_binding_id: bindingId, criterion_id: bindingId, observation_slot_ref: slotRef, observation_id: observationId, status: "AVAILABLE", applicability: "APPLICABLE", outcome: "CONFORMS", explanation: "Canonical backend conformance result.", reasons: [], criterion_ref: criterionRef, observation_ref: observationRef, evidence_refs: [{ evidence_id: "E003" }], provenance: { criterion_ref: criterionRef, observation_ref: observationRef, evaluator_rule_ref: rule }, evaluator_rule_ref: rule },
     feature_profile: profile,
-    observed_product_quality: observed(artifact, profile, marker),
-    product_quality_assessment: observed(artifact, profile, marker),
+    observed_product_quality: observed(artifact, profile, marker, bindingId, observationId, conformanceId),
+    product_quality_assessment: observed(artifact, profile, marker, bindingId, observationId, conformanceId),
     prediction: prediction(profile, predictorRef, parameterSetRef, selectedInputRefs, contextInputs, marker),
   };
 }
 
-function observed(artifact: typeof artifactV1, profile: ReturnType<typeof featureProfile>, marker: string) {
+function observed(artifact: typeof artifactV1, profile: ReturnType<typeof featureProfile>, marker: string, criterionId: Record<string, unknown>, observationId: Record<string, unknown>, conformanceId: Record<string, unknown>) {
+  const modelRef = { model_id: "FULL-MODEL-V0.1-M-QUALITY-PE", model_version: "1" };
+  const parameterSetRef = { parameter_set_id: "PE-OBS-CONFORMANCE-001-PARAMETERS", parameter_set_version: "1" };
+  const featureRefs = profile.features.map((feature) => feature.feature_entry_id);
+  const evidenceRefs: unknown[] = [];
+  const assessmentEventRef = { assessment_event_id: `EVENT-${marker}`, assessment_event_version: "1" };
+  const assessmentId = { assessment_event_ref: assessmentEventRef, feature_profile_ref: profile.profile_id, characteristic_id: "PERFORMANCE_EFFICIENCY", result_kind: "OBSERVED_REFERENCE_INDICATOR", model_ref: modelRef, procedure_rule_ref: rule, parameter_set_ref: parameterSetRef };
   return {
-    assessment_id: { id: `PQ-${marker}` }, assessment_event_ref: { assessment_event_id: `EVENT-${marker}`, assessment_event_version: "1" }, characteristic_id: "PERFORMANCE_EFFICIENCY", product_ref: profile.product_ref, artifact_ref: artifact, feature_profile_ref: profile.profile_id,
-    scope: { scope_kind: "SINGLE_CRITERION_SINGLE_OBSERVATION" }, scope_statement: "One response-time criterion and one observation.", result_kind: "OBSERVED_REFERENCE_INDICATOR", status: "AVAILABLE", applicability: "APPLICABLE", source_conformance_outcome: "CONFORMS", value: { numerator: 1, denominator: 1 }, prediction_value: null, observed_value: { numerator: 1, denominator: 1 }, numeric_representation: "EXACT_FRACTION", evidence_coverage: { coverage_kind: "BOUNDED_REQUIRED_CHANNEL_INVENTORY" }, reliability: null, uncertainty: null, explanation: "Bounded observed indicator.", feature_refs: [], evidence_refs: [], provenance: {}, model_ref: { model_id: "FULL-MODEL-V0.1-M-QUALITY-PE", model_version: "1" }, procedure_rule_ref: rule, parameter_set_ref: { parameter_set_id: "PE-OBS-CONFORMANCE-001-PARAMETERS", parameter_set_version: "1" }, calibration_status: "PROVISIONAL_NOT_CALIBRATED", artifact_version: artifact.artifact_version, source_assessment_version: artifact.artifact_version, product_version: "1", product_quality_assessment_version: "1", non_claims: [...productQualityNonClaims],
+    assessment_id: assessmentId, assessment_event_ref: assessmentEventRef, characteristic_id: "PERFORMANCE_EFFICIENCY", product_ref: profile.product_ref, artifact_ref: artifact, feature_profile_ref: profile.profile_id,
+    scope: { scope_kind: "SINGLE_CRITERION_SINGLE_OBSERVATION", characteristic_id: "PERFORMANCE_EFFICIENCY", criterion_ref: { criterion_id: criterionId }, observation_ref: { observation_id: observationId }, conformance_ref: conformanceId, product_ref: profile.product_ref, full_characteristic_coverage: "NOT_ESTABLISHED" }, scope_statement: "One response-time criterion and one observation.", result_kind: "OBSERVED_REFERENCE_INDICATOR", status: "AVAILABLE", applicability: "APPLICABLE", source_conformance_outcome: "CONFORMS", value: { numerator: 1, denominator: 1 }, prediction_value: null, observed_value: { numerator: 1, denominator: 1 }, numeric_representation: "EXACT_FRACTION", evidence_coverage: { coverage_kind: "BOUNDED_REQUIRED_CHANNEL_INVENTORY" }, reliability: null, uncertainty: null, explanation: "Bounded observed indicator.", feature_refs: featureRefs, evidence_refs: evidenceRefs, provenance: { feature_profile_ref: profile.profile_id, product_ref: profile.product_ref, process_state_ref: profile.process_state_ref, model_ref: modelRef, parameter_set_ref: parameterSetRef, ordered_feature_refs: featureRefs, source_evidence_refs: evidenceRefs, rule_refs: [rule] }, model_ref: modelRef, procedure_rule_ref: rule, parameter_set_ref: parameterSetRef, calibration_status: "PROVISIONAL_NOT_CALIBRATED", artifact_version: artifact.artifact_version, source_assessment_version: artifact.artifact_version, product_version: "1", product_quality_assessment_version: "1", non_claims: [...productQualityNonClaims],
   };
 }
 
 function prediction(profile: ReturnType<typeof featureProfile>, predictorRef: Record<string, unknown>, parameterSetRef: Record<string, unknown>, selectedInputRefs: unknown[], contextInputs: unknown[], marker: string) {
   return {
     event_ref: { prediction_event_id: `PREDICTION-${marker}`, prediction_event_version: "1" }, result_kind: "PREDICTED_PERFORMANCE_EFFICIENCY", characteristic_id: "PERFORMANCE_EFFICIENCY", status: "AVAILABLE", applicability: "APPLICABLE", predicted_value: { numerator: 5, denominator: 6 }, numeric_representation: "EXACT_FRACTION", predictor_ref: predictorRef, parameter_set_ref: parameterSetRef, calibration_status: "PROVISIONAL_NOT_CALIBRATED", selected_input_refs: selectedInputRefs, context_inputs: contextInputs, artifact_ref: profile.artifact_ref, product_ref: profile.product_ref, process_state_ref: profile.process_state_ref, governing_contract_ref: {}, rule_refs: [rule], explanation: "Fixture-only bounded prediction.",
-    provenance: { feature_profile_ref: profile.profile_id, input_traces: selectedInputRefs.map((feature_ref) => ({ feature_ref })), context_inputs: contextInputs, predictor_definition: { predictor_ref: predictorRef, calibration_status: "PROVISIONAL_NOT_CALIBRATED", source_or_rationale: "Fixture-only rationale." }, parameter_set_ref: parameterSetRef, parameter_entries: [{ name: "alpha", exact_value: { numerator: 1, denominator: 2 } }], parameter_source_or_rationale: "Controlled fixture parameter source.", contract_refs: [], rule_refs: [rule], withheld_reason_or_none: null },
+    provenance: { feature_profile_ref: profile.profile_id, input_traces: selectedInputRefs.map((feature_ref) => ({ feature_ref })), context_inputs: contextInputs, predictor_definition: { predictor_ref: predictorRef, parameter_set_identity: parameterSetRef.identity, calibration_status: "PROVISIONAL_NOT_CALIBRATED", source_or_rationale: "Fixture-only rationale." }, parameter_set_ref: parameterSetRef, parameter_entries: [{ name: "alpha", exact_value: { numerator: 1, denominator: 2 } }], parameter_source_or_rationale: "Controlled fixture parameter source.", contract_refs: [], rule_refs: [rule], withheld_reason_or_none: null },
+  };
+}
+
+function requirementResult() {
+  const feature = (featureId: string) => ({ feature_id: featureId, observations: [], diagnostics: [] });
+  return {
+    requirement: { id: "R001", source_line: 1, text: "Canonical requirement text." },
+    quality_profile: {},
+    evidence: [],
+    features: {
+      condition_contexts: feature("condition_context"),
+      expected_results: feature("expected_result"),
+      acceptance_criteria: feature("acceptance_criterion"),
+      quantitative_constraints: feature("quantitative_constraint"),
+      verification_methods: feature("verification_method"),
+      vague_term_occurrences: feature("vague_term_occurrence"),
+    },
+    trace: null,
   };
 }
 
 function response(caseName: CanonicalAnalyzeResponse["analysis_case"] = "CONTROLLED_DEMO"): CanonicalAnalyzeResponse {
   return {
     contract_version: "research-api-v1", analysis_case: caseName, controlled_scenario: caseName === "INITIAL" ? null : { id: "SCENARIO", version: "1" },
-    requirements: [{ requirement: { id: "R001", source_line: 1, text: "Canonical requirement text." } }], specification: { snapshot_id: "SNAPSHOT" },
+    requirements: [requirementResult()], specification: { snapshot_id: "SNAPSHOT" },
     section_availability: [{ section: "product_quality", availability: caseName === "INITIAL" ? "UNAVAILABLE" : "AVAILABLE", reason_code: caseName === "INITIAL" ? "EXTERNAL_EVIDENCE_NOT_SUPPLIED" : null }],
     full_model: caseName === "INITIAL" ? null : currentRecords(), reassessment_context: null, limitations: [],
   };
@@ -189,8 +241,8 @@ describe("RUI-10 Product Quality", () => {
     expect(projected.featureProfile?.features.map((item) => item.featureId)).toEqual(peFeatureIds);
     expect(projected.featureProfile?.features.map((item) => item.effect)).toEqual(peFeatureEffects);
     expect(projected.observed?.observedValue).toEqual({ numerator: "1", denominator: "1" });
-    expect(projected.prediction?.predictedValue).toEqual({ numerator: "5", denominator: "6" });
-    expect(projected.prediction?.calibrationStatus).toBe("PROVISIONAL_NOT_CALIBRATED");
+    expect(projected.prediction.kind === "PRESENT" && projected.prediction.value.predictedValue).toEqual({ numerator: "5", denominator: "6" });
+    expect(projected.prediction.kind === "PRESENT" && projected.prediction.value.calibrationStatus).toBe("PROVISIONAL_NOT_CALIBRATED");
   });
 
   it("renders observed and predicted results separately without telemetry, percentage, reliability, or overall-score claims", () => {
@@ -241,7 +293,7 @@ describe("RUI-10 Product Quality", () => {
     const value = response();
     mutate((value.full_model as Record<string, unknown>).prediction as Record<string, unknown>);
     const projected = selectProductQualityPage(value);
-    expect(projected.kind === "AVAILABLE" && projected.prediction).toBeNull();
+    expect(projected.kind === "AVAILABLE" && projected.prediction).toEqual({ kind: "MALFORMED" });
     render(<ProductQualityPage result={value} onSelectRequirement={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "Predicted product quality" }).closest("section")?.textContent).toContain("Canonical record cannot be safely presented");
   });
@@ -267,7 +319,7 @@ describe("RUI-10 Product Quality", () => {
     predictionRecord.numeric_representation = "NONE";
     ((predictionRecord.provenance as Record<string, unknown>)).withheld_reason_or_none = "REQUIRED_CONTEXT_INPUT_NOT_AVAILABLE";
     const projected = selectProductQualityPage(value);
-    expect(projected.kind === "AVAILABLE" && projected.prediction).toBeNull();
+    expect(projected.kind === "AVAILABLE" && projected.prediction).toEqual({ kind: "MALFORMED" });
   });
 
   it("selects the paired reassessment v2 dynamic result and never reuses top-level v1 records or prediction", () => {
@@ -278,10 +330,9 @@ describe("RUI-10 Product Quality", () => {
     expect(projected.criterion?.bound).toBe("2.0");
     expect(projected.criterion?.raw).not.toEqual((reassessmentResponse().full_model as Record<string, unknown>).criterion_binding);
     expect(projected.observed?.raw.artifact_ref).toEqual(artifactV2);
-    expect(projected.predictionCurrent).toBe(false);
-    expect(projected.prediction).toBeNull();
+    expect(projected.prediction).toEqual({ kind: "ABSENT" });
     render(<ProductQualityPage result={reassessmentResponse()} onSelectRequirement={vi.fn()} />);
-    expect(screen.getByText(/No prediction record was produced for the current reassessed revision/)).toBeTruthy();
+    expect(screen.getByText(/No prediction record was produced for this current result/)).toBeTruthy();
     expect(screen.queryByText("PREDICTOR-STALE")).toBeNull();
   });
 
@@ -289,6 +340,207 @@ describe("RUI-10 Product Quality", () => {
     expect(selectProductQualityPage(reassessmentResponse(true))).toEqual({ kind: "MALFORMED" });
     render(<ProductQualityPage result={reassessmentResponse(true)} onSelectRequirement={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "Product Quality cannot be safely presented" })).toBeTruthy();
+  });
+
+  it.each([
+    ["criterion NOT_APPLICABLE + APPLICABLE", "criterion_binding", "NOT_APPLICABLE", "APPLICABLE", "criterion"],
+    ["observation UNAVAILABLE + NOT_APPLICABLE", "observation_resolution", "UNAVAILABLE", "NOT_APPLICABLE", "observation"],
+    ["observed NOT_APPLICABLE + APPLICABLE", "observed_product_quality", "NOT_APPLICABLE", "APPLICABLE", "observed"],
+  ])("rejects invalid status/applicability: %s", (_label, recordName, status, applicability, projectionName) => {
+    const value = response();
+    const scientificRecord = (value.full_model as Record<string, unknown>)[recordName] as Record<string, unknown>;
+    scientificRecord.status = status;
+    scientificRecord.applicability = applicability;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind === "AVAILABLE") expect(projected[projectionName as "criterion" | "observation" | "observed"]).toBeNull();
+  });
+
+  it("rejects an invalid X_PE feature status/applicability pair", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.features[0].status = "UNAVAILABLE";
+    profile.features[0].applicability = "NOT_APPLICABLE";
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects an invalid prediction status/applicability pair", () => {
+    const value = response();
+    const predictionRecord = (value.full_model as Record<string, unknown>).prediction as Record<string, unknown>;
+    predictionRecord.status = "UNAVAILABLE";
+    predictionRecord.applicability = "NOT_APPLICABLE";
+    predictionRecord.predicted_value = null;
+    predictionRecord.numeric_representation = "NONE";
+    (predictionRecord.provenance as Record<string, unknown>).withheld_reason_or_none = "REQUIRED_X_PE_INPUT_NOT_AVAILABLE";
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.prediction).toEqual({ kind: "MALFORMED" });
+  });
+
+  it.each([
+    ["binding requirement subject", (binding: Record<string, unknown>) => {
+      const bindingId = binding.binding_id as Record<string, unknown>;
+      binding.binding_id = { ...bindingId, requirement_subject_ref: { ...(bindingId.requirement_subject_ref as Record<string, unknown>), requirement_id: "R999" } };
+    }],
+    ["criterion source observation", (binding: Record<string, unknown>) => {
+      const criterion = binding.criterion as Record<string, unknown>;
+      criterion.source_observation_ref = { ...(criterion.source_observation_ref as Record<string, unknown>), observation_index: 9 };
+    }],
+  ])("rejects criterion identity mismatch: %s", (_label, mutate) => {
+    const value = response();
+    mutate((value.full_model as Record<string, unknown>).criterion_binding as Record<string, unknown>);
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.criterion).toBeNull();
+  });
+
+  it("rejects a resolved observation slot mismatch", () => {
+    const value = response();
+    const resolution = (value.full_model as Record<string, unknown>).observation_resolution as Record<string, unknown>;
+    ((resolution.observation as Record<string, unknown>).slot_ref as Record<string, unknown>).fixture_sequence = 7;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observation).toBeNull();
+  });
+
+  it.each([
+    ["metric", "declared_metric_ref", { metric_id: "OTHER" }],
+    ["unit", "declared_unit", "MILLISECOND"],
+    ["context", "declared_context_identity", { normalized_text: "other context" }],
+  ])("rejects observation provenance %s mismatch", (_label, field, replacement) => {
+    const value = response();
+    const resolution = (value.full_model as Record<string, unknown>).observation_resolution as Record<string, unknown>;
+    const observationRecord = resolution.observation as Record<string, unknown>;
+    (observationRecord.provenance as Record<string, unknown>)[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observation).toBeNull();
+  });
+
+  it.each([
+    ["binding", "criterion_binding_id", { wrong: "binding" }],
+    ["criterion", "criterion_id", { wrong: "criterion" }],
+    ["observation", "observation_id", { wrong: "observation" }],
+  ])("rejects conformance %s identity mismatch", (_label, field, replacement) => {
+    const value = response();
+    const conformanceRecord = (value.full_model as Record<string, unknown>).conformance as Record<string, unknown>;
+    conformanceRecord[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.conformance).toBeNull();
+  });
+
+  it("rejects an X_PE profile identity mismatch", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.profile_id.product_ref = { product_id: "OTHER", product_version: "1" };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects an X_PE feature entry that names another profile", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.features[2].feature_entry_id.profile_id = { ...profile.profile_id, artifact_ref: artifactV2 };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it.each([
+    ["feature profile", "feature_profile_ref", { stale: "profile" }],
+    ["product", "product_ref", { product_id: "OTHER", product_version: "1" }],
+  ])("rejects observed %s mismatch", (_label, field, replacement) => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    observedRecord[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it("rejects a stale v1 observed artifact inside a valid v2 downstream container", () => {
+    const value = reassessmentResponse();
+    const reassessment = (value.full_model as Record<string, unknown>).reassessment as Record<string, unknown>;
+    const downstream = (reassessment.produced_results as unknown[])[1] as Record<string, unknown>;
+    (downstream.product_quality_assessment as Record<string, unknown>).artifact_ref = artifactV1;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it("rejects a stale v1 X_PE profile inside a valid v2 downstream container", () => {
+    const value = reassessmentResponse();
+    const reassessment = (value.full_model as Record<string, unknown>).reassessment as Record<string, unknown>;
+    const downstream = (reassessment.produced_results as unknown[])[1] as Record<string, unknown>;
+    downstream.feature_profile = (value.full_model as Record<string, unknown>).feature_profile;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it("rejects observed conformance-outcome disagreement without recomputing either result", () => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    observedRecord.source_conformance_outcome = "DOES_NOT_CONFORM";
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.conformance?.outcome).toBe("CONFORMS");
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it.each([
+    ["value differs from observed_value", { numerator: 0, denominator: 1 }],
+    ["fraction exceeds one", { numerator: 2, denominator: 1 }],
+  ])("rejects observed exact-value inconsistency: %s", (_label, replacement) => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    observedRecord.value = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it("renders a null controlled-demo prediction as neutral absence", () => {
+    const value = response();
+    (value.full_model as Record<string, unknown>).prediction = null;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.prediction).toEqual({ kind: "ABSENT" });
+    render(<ProductQualityPage result={value} onSelectRequirement={vi.fn()} />);
+    const section = screen.getByRole("heading", { name: "Predicted product quality" }).closest("section")!;
+    expect(within(section).getByText(/No prediction record was produced for this current result/)).toBeTruthy();
+    expect(within(section).queryByText("Canonical record cannot be safely presented")).toBeNull();
+  });
+
+  it.each([
+    ["artifact", "artifact_ref", artifactV2],
+    ["product", "product_ref", { product_id: "OTHER", product_version: "1" }],
+    ["process", "process_state_ref", { process_state_id: "OTHER", process_state_version: "1", stage: "REFERENCE_VERIFICATION" }],
+  ])("rejects prediction %s mismatch with X_PE", (_label, field, replacement) => {
+    const value = response();
+    const predictionRecord = (value.full_model as Record<string, unknown>).prediction as Record<string, unknown>;
+    predictionRecord[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.prediction).toEqual({ kind: "MALFORMED" });
+  });
+
+  it("rejects a prediction input trace naming another X_PE profile", () => {
+    const value = response();
+    const predictionRecord = (value.full_model as Record<string, unknown>).prediction as Record<string, unknown>;
+    const provenance = predictionRecord.provenance as Record<string, unknown>;
+    const trace = (provenance.input_traces as Array<Record<string, unknown>>)[0];
+    (trace.feature_ref as Record<string, unknown>).profile_id = { wrong: "profile" };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.prediction).toEqual({ kind: "MALFORMED" });
+  });
+
+  it("treats missing withheld_reason_or_none as malformed and explicit null as valid", () => {
+    const missing = response();
+    const missingPrediction = (missing.full_model as Record<string, unknown>).prediction as Record<string, unknown>;
+    delete (missingPrediction.provenance as Record<string, unknown>).withheld_reason_or_none;
+    const missingProjection = selectProductQualityPage(missing);
+    expect(missingProjection.kind === "AVAILABLE" && missingProjection.prediction).toEqual({ kind: "MALFORMED" });
+
+    const validProjection = selectProductQualityPage(response());
+    expect(validProjection.kind === "AVAILABLE" && validProjection.prediction.kind).toBe("PRESENT");
+  });
+
+  it("disables criterion navigation when RUI-08 marks the matching requirement malformed", () => {
+    const value = response();
+    value.requirements = [{ requirement: { id: "R001", source_line: 1, text: "Malformed outer record" } }];
+    render(<ProductQualityPage result={value} onSelectRequirement={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: "Open R001" })).toBeNull();
   });
 
   it("navigates to RUI-08 only when the canonical criterion requirement resolves", () => {

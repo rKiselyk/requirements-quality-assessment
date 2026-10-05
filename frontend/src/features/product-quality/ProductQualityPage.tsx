@@ -4,6 +4,7 @@ import type { CanonicalAnalyzeResponse } from "../../api/analyze";
 import { ApplicabilityBadge, ExactValue, StatusBadge, type ExactValueData } from "../../components/scientific";
 import { PageHeader } from "../../components/shell";
 import { Button, Callout, Card, DataTable, UnavailableState } from "../../components/ui";
+import { selectRequirements } from "../requirements/projection";
 import {
   canonicalJson,
   selectProductQualityPage,
@@ -14,6 +15,7 @@ import {
   type ObservationProjection,
   type ObservedProjection,
   type PredictionProjection,
+  type PredictionPresentation,
 } from "./projection";
 
 function Malformed({ compact = false }: { compact?: boolean }) {
@@ -174,12 +176,13 @@ function ObservedSection({ value }: { value: ObservedProjection | null }) {
   </section>;
 }
 
-function PredictionSection({ value, current }: { value: PredictionProjection | null; current: boolean }) {
+function PredictionSection({ prediction }: { prediction: PredictionPresentation }) {
   const { t } = useTranslation("productQuality");
+  const value: PredictionProjection | null = prediction.kind === "PRESENT" ? prediction.value : null;
   return <section className="product-quality-section" aria-labelledby="prediction-heading">
     <h2 id="prediction-heading">{t("prediction.title")}</h2>
-    {!current ? <Card className="prediction-quality-card"><div className="neutral-note"><strong>{t("prediction.noCurrentTitle")}</strong><p>{t("prediction.noCurrentDescription")}</p></div></Card>
-      : !value ? <Card className="prediction-quality-card"><Malformed /></Card>
+    {prediction.kind === "ABSENT" ? <Card className="prediction-quality-card"><div className="neutral-note"><strong>{t("prediction.noCurrentTitle")}</strong><p>{t("prediction.noCurrentDescription")}</p></div></Card>
+      : prediction.kind === "MALFORMED" || !value ? <Card className="prediction-quality-card"><Malformed /></Card>
       : <Card className="prediction-quality-card product-quality-record">
         <StatePair status={value.status} applicability={value.applicability} />
         <div className="product-quality-result-heading"><div><span className="primitive-label">{t("prediction.resultKind")}</span><code>{value.resultKind}</code></div><div><span className="primitive-label">{t("prediction.exactValue")}</span><ExactValue value={value.predictedValue} fallback={t("technical.noNumericValue")} /></div></div>
@@ -201,11 +204,7 @@ function PredictionSection({ value, current }: { value: PredictionProjection | n
 export function ProductQualityPage({ result, onSelectRequirement }: { result: CanonicalAnalyzeResponse; onSelectRequirement: (requirementId: string) => void }) {
   const { t, i18n } = useTranslation("productQuality");
   const projection = selectProductQualityPage(result);
-  const requirementIds = new Set(result.requirements.flatMap((item) => {
-    const requirement = typeof item === "object" && item !== null && !Array.isArray(item) ? (item as Record<string, unknown>).requirement : null;
-    const id = typeof requirement === "object" && requirement !== null && !Array.isArray(requirement) ? (requirement as Record<string, unknown>).id : null;
-    return typeof id === "string" ? [id] : [];
-  }));
+  const requirementIds = new Set(selectRequirements(result).flatMap((entry) => entry.kind === "VALID" ? [entry.value.requirement.id] : []));
 
   if (projection.kind === "UNAVAILABLE") {
     const reasonKey = `unavailable.reasons.${projection.reasonCode}`;
@@ -221,7 +220,7 @@ export function ProductQualityPage({ result, onSelectRequirement }: { result: Ca
     <section className="product-quality-section" aria-labelledby="observation-conformance-heading"><h2 id="observation-conformance-heading">{t("observationConformance.title")}</h2><div className="observation-conformance-grid"><ObservationCard value={projection.observation} /><ConformanceCard value={projection.conformance} /></div></section>
     <FeatureProfile value={projection.featureProfile} />
     <ObservedSection value={projection.observed} />
-    <PredictionSection value={projection.prediction} current={projection.predictionCurrent} />
+    <PredictionSection prediction={projection.prediction} />
     <section className="product-quality-section product-quality-limitations" aria-labelledby="product-quality-limitations-heading">
       <h2 id="product-quality-limitations-heading">{t("limitations.title")}</h2>
       <Callout title={t("limitations.observedPredictedTitle")}><p>{t("limitations.observedPredicted")}</p><p>{t("limitations.bounded")}</p><p>{t("limitations.prediction")}</p></Callout>
