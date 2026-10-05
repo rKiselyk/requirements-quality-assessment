@@ -248,7 +248,9 @@ export function RequirementsPage({
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
   const evidenceTrigger = useRef<HTMLButtonElement | null>(null);
   const selectedRequirementId = requestedRequirementId ?? localSelectedRequirementId;
-  const selected = requirements.find((item) => item.requirement.id === selectedRequirementId) ?? requirements[0] ?? null;
+  const selected = requestedRequirementId !== null
+    ? requirements.find((item) => item.requirement.id === requestedRequirementId) ?? null
+    : requirements.find((item) => item.requirement.id === selectedRequirementId) ?? requirements[0] ?? null;
   const selectedEvidence = selected?.evidence.find((item) => item?.evidenceId === selectedEvidenceId) ?? null;
 
   const selectEvidence = (evidence: EvidenceProjection, event: MouseEvent<HTMLButtonElement>) => {
@@ -259,6 +261,16 @@ export function RequirementsPage({
     setSelectedEvidenceId(null);
     evidenceTrigger.current?.focus();
   }, []);
+
+  if (requestedRequirementId !== null && !selected) {
+    return (
+      <section className="requirements-page">
+        <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={<><span>{t("header.selected")}: <code>{requestedRequirementId}</code></span><span>{t("header.count", { count: requirementEntries.length })}</span></>} />
+        {malformedRequirementCount ? <div className="neutral-note malformed-requirements-note" role="note"><strong>{t("malformed.requirementsTitle", { count: malformedRequirementCount })}</strong><p>{t("malformed.requirementsDescription")}</p></div> : null}
+        <EmptyState title={t("malformed.requestedSelectionTitle")} description={t("malformed.requestedSelectionDescription", { id: requestedRequirementId })} />
+      </section>
+    );
+  }
 
   if (!selected) {
     return (

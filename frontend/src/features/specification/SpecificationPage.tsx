@@ -8,7 +8,9 @@ import { limitationCodes, limitationTranslationKey, type LimitationCode } from "
 import {
   selectSpecificationPage,
   specificationCharacteristicKeys,
+  materialityGateKeys,
   type AggregateProjection,
+  type ComparisonOperandProjection,
   type ContributionEntry,
   type ContractProjection,
   type CrossResultProjection,
@@ -121,16 +123,34 @@ function ContributionTable({ entries, onSelectRequirement }: { entries: Contribu
     columns={[
       { key: "requirement", header: t("contributions.requirement"), render: (entry) => entry.kind === "VALID" ? <div className="contribution-identity"><code>{entry.value.requirementId}</code><span>{t("contributions.sourceLine", { line: entry.value.sourceLine })}</span></div> : <div><Malformed compact /><span className="malformed-position">{t("malformed.position", { position: entry.position })}</span></div> },
       ...specificationCharacteristicKeys.map((key) => ({ key, header: t(`quality.${key}`), render: (entry: ContributionEntry) => entry.kind === "VALID" ? <div className="contribution-value"><ExactValue compact value={entry.value.characteristics[key].value} fallback={t(`states.${entry.value.characteristics[key].state}`)} /><StatusBadge code={entry.value.characteristics[key].state} /></div> : <span aria-hidden="true">—</span> })),
-      { key: "action", header: t("contributions.action"), render: (entry) => entry.kind === "VALID" ? <Button variant="quiet" type="button" onClick={() => onSelectRequirement(entry.value.requirementId)}>{t("contributions.openRequirement", { id: entry.value.requirementId })}</Button> : <span className="scientific-boundary">{t("contributions.notNavigable")}</span> },
+      { key: "action", header: t("contributions.action"), render: (entry) => entry.kind === "VALID" && entry.navigable ? <Button variant="quiet" type="button" onClick={() => onSelectRequirement(entry.value.requirementId)}>{t("contributions.openRequirement", { id: entry.value.requirementId })}</Button> : <span className="scientific-boundary">{entry.kind === "VALID" ? t("contributions.requirementUnavailable") : t("contributions.notNavigable")}</span> },
     ]}
   />;
 }
 
 function ParticipantButton({ participant, navigableIds, onSelectRequirement }: { participant: CrossResultProjection["participants"][number]; navigableIds: Set<string>; onSelectRequirement: (id: string) => void }) {
   const { t } = useTranslation("specification");
-  return navigableIds.has(participant.requirementId)
+  return participant.matchesCanonicalPopulation && navigableIds.has(participant.requirementId)
     ? <Button type="button" variant="quiet" onClick={() => onSelectRequirement(participant.requirementId)}>{participant.requirementId}</Button>
     : <span className="dangling-reference"><code>{participant.requirementId}</code> {t("crossResults.danglingParticipant")}</span>;
+}
+
+function OperandTrace({ label, operand }: { label: string; operand: ComparisonOperandProjection }) {
+  const { t } = useTranslation("specification");
+  const technical = (value: string | null) => value === null ? <span className="scientific-boundary">{t("none")}</span> : <code>{value}</code>;
+  return <section className="operand-trace">
+    <h4>{label}</h4>
+    <dl className="compact-metadata">
+      <div><dt>{t("crossResults.trace.snapshot")}</dt><dd><code>{operand.snapshotId}</code></dd></div>
+      <div><dt>{t("crossResults.trace.observationRef")}</dt><dd><code>{operand.observationRef.requirementId} / {operand.observationRef.featureId} / {operand.observationRef.observationIndex}</code></dd></div>
+      <div><dt>{t("crossResults.trace.normalizedMetric")}</dt><dd>{technical(operand.normalizedMetric)}</dd></div>
+      <div><dt>{t("crossResults.trace.normalizedContext")}</dt><dd>{technical(operand.normalizedContext)}</dd></div>
+      <div><dt>{t("crossResults.trace.comparator")}</dt><dd>{technical(operand.comparator)}</dd></div>
+      <div><dt>{t("crossResults.trace.inclusivity")}</dt><dd>{technical(operand.inclusivity)}</dd></div>
+      <div><dt>{t("crossResults.trace.exactValue")}</dt><dd>{technical(operand.value)}</dd></div>
+      <div><dt>{t("crossResults.trace.unit")}</dt><dd>{technical(operand.unit)}</dd></div>
+    </dl>
+  </section>;
 }
 
 function CrossResultCard({ item, position, navigableIds, onSelectRequirement }: { item: CrossResultProjection | null; position: number; navigableIds: Set<string>; onSelectRequirement: (id: string) => void }) {
@@ -152,6 +172,16 @@ function CrossResultCard({ item, position, navigableIds, onSelectRequirement }: 
       {item.outsideReasons.length ? <div className="technical-list-block"><strong>{t("crossResults.outsideReasons")}</strong>{item.outsideReasons.map((reason) => <code key={reason}>{reason}</code>)}</div> : null}
       <div className="technical-list-block"><strong>{t("crossResults.evidenceRefs")}</strong>{item.evidenceRefs.length ? item.evidenceRefs.map((ref, index) => ref ? <span key={`${ref.requirementId}-${ref.evidenceId}-${index}`}><code>{ref.requirementId}</code> → <code>{ref.evidenceId}</code></span> : <Malformed key={`malformed-${index}`} compact />) : <span>{t("none")}</span>}</div>
       <p className="scientific-boundary">{t("crossResults.evidenceBoundary")}</p>
+      <details className="cross-comparison-trace">
+        <summary>{t("crossResults.trace.title")}</summary>
+        <dl className="compact-metadata cross-result-metadata">
+          <div><dt>{t("crossResults.trace.snapshot")}</dt><dd><code>{item.snapshotId}</code></dd></div>
+          <div><dt>{t("crossResults.trace.observationRefs")}</dt><dd>{item.observationRefs.map((ref) => <code key={`${ref.requirementId}-${ref.observationIndex}`}>{ref.requirementId} / {ref.featureId} / {ref.observationIndex}</code>)}</dd></div>
+          <div><dt>{t("crossResults.trace.diagnosticRefs")}</dt><dd>{item.diagnosticRefs.length ? item.diagnosticRefs.map((ref) => <code key={`${ref.requirementId}-${ref.diagnosticIndex}`}>{ref.requirementId} / {ref.featureId} / {ref.diagnosticIndex}</code>) : <span className="scientific-boundary">{t("none")}</span>}</dd></div>
+          <div><dt>{t("crossResults.trace.comparisonKey")}</dt><dd>{item.comparisonKey ? <><code>{item.comparisonKey.normalizedMetric}</code><code>{item.comparisonKey.normalizedContext}</code><code>{item.comparisonKey.unit}</code></> : <span className="scientific-boundary">{t("none")}</span>}</dd></div>
+        </dl>
+        <div className="operand-trace-grid"><OperandTrace label={t("crossResults.trace.leftOperand")} operand={item.operands.left} /><OperandTrace label={t("crossResults.trace.rightOperand")} operand={item.operands.right} /></div>
+      </details>
     </Card>
   );
 }
@@ -172,7 +202,16 @@ function MaterialitySection({ value }: { value: MaterialityProjection | null }) 
     {value.auditRecords.length ? <details className="materiality-audits"><summary>{t("materiality.audits", { count: value.auditRecords.length })}</summary><ol>{value.auditRecords.map((audit, index) => audit ? <li key={`${audit.requirementId}-${audit.diagnosticCode}-${index}`}>
       <div className="record-heading"><code>{audit.requirementId}</code><code>{audit.disposition}</code></div>
       <p><code>{audit.diagnosticCode}</code> <code>{audit.diagnosticRuleId}</code></p>
+      <dl className="compact-metadata materiality-proof-metadata">
+        <div><dt>{t("materiality.auditSnapshot")}</dt><dd><code>{audit.snapshotId}</code></dd></div>
+        <div><dt>{t("materiality.sourceOrder")}</dt><dd>{audit.requirementSourceOrder}</dd></div>
+        <div><dt>{t("materiality.diagnosticRef")}</dt><dd><code>{audit.diagnosticRef.requirementId} / {audit.diagnosticRef.featureId} / {audit.diagnosticRef.diagnosticIndex}</code></dd></div>
+        <div><dt>{t("materiality.contextEvidenceRef")}</dt><dd>{audit.matchedContextEvidenceRef ? <><code>{audit.matchedContextEvidenceRef.requirementId}</code> → <code>{audit.matchedContextEvidenceRef.evidenceId}</code></> : <span className="scientific-boundary">{t("none")}</span>}</dd></div>
+        <div><dt>{t("materiality.allowlistContract")}</dt><dd>{audit.matchedAllowlistContract ? <ContractIdentity value={audit.matchedAllowlistContract} /> : <span className="scientific-boundary">{t("none")}</span>}</dd></div>
+        <div><dt>{t("materiality.auditRule")}</dt><dd><ContractIdentity value={audit.materialityRule} /></dd></div>
+      </dl>
       {audit.candidateText !== null ? <div className="candidate-span"><strong>{t("materiality.candidate")}</strong><q>{audit.candidateText}</q><span>{audit.startOffset}–{audit.endOffset}</span><small>{t("materiality.notEvidence")}</small></div> : null}
+      <div className="materiality-gates"><strong>{t("materiality.gates.title")}</strong><dl>{materialityGateKeys.map((key) => <div key={key}><dt>{t(`materiality.gates.${key}`)}</dt><dd><code>{String(audit.gateOutcomes[key])}</code></dd></div>)}</dl></div>
     </li> : <li key={`malformed-${index}`}><Malformed /></li>)}</ol></details> : null}
   </>;
 }
@@ -185,7 +224,7 @@ export function SpecificationPage({ result, onSelectRequirement }: { result: Can
   const { t } = useTranslation("specification");
   const { t: limitationText } = useTranslation("limitations");
   const projection = useMemo(() => selectSpecificationPage(result), [result]);
-  const navigableIds = useMemo(() => new Set(projection.contributions.flatMap((entry) => entry.kind === "VALID" ? [entry.value.requirementId] : [])), [projection.contributions]);
+  const navigableIds = useMemo(() => new Set(projection.contributions.flatMap((entry) => entry.kind === "VALID" && entry.navigable ? [entry.value.requirementId] : [])), [projection.contributions]);
   return (
     <section className="specification-page">
       <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={projection.snapshotId ? <span>{t("snapshot")}: <code>{projection.snapshotId}</code></span> : <Malformed compact />} />

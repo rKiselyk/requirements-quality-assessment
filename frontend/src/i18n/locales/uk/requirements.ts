@@ -115,5 +115,7 @@ export const requirements = {
     requirementsDescription: "Пошкоджені записи залишаються видимими на своїх позиціях у відповіді та недоступні для вибору. Валідні канонічні вимоги зберігають серверний порядок.",
     requirementRow: "Пошкоджений канонічний запис вимоги",
     responsePosition: "Позиція у відповіді {{position}}",
+    requestedSelectionTitle: "Запитану вимогу неможливо безпечно представити",
+    requestedSelectionDescription: "Явно запитана канонічна вимога {{id}} не визначається через прийняту проєкцію Requirements. Іншу вимогу не було підставлено.",
   },
 } as const;
