@@ -361,6 +361,57 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .specification-trace-section { margin-top: var(--space-8); }
 .specification-limitations .callout { margin-bottom: var(--space-3); }
 
+.product-quality-page { min-width: 0; }
+.product-quality-page > .card, .product-quality-section { margin-top: var(--space-6); }
+.product-quality-section > h2 { margin-bottom: var(--space-3); }
+.observation-conformance-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.product-quality-record { min-width: 0; }
+.product-quality-state { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.product-quality-primary-row, .product-quality-result-heading, .section-heading-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.section-heading-row > div:first-child { min-width: 0; }
+.section-heading-row h2 { margin: 0; }
+.section-heading-row p { margin: var(--space-1) 0 0; color: var(--color-text-muted); }
+.technical-primary { display: block; margin-top: var(--space-1); font: 650 1rem var(--font-mono); }
+.criterion-expression { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-4) 0; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.criterion-expression .exact-value { font-size: 1rem; }
+.product-quality-exact { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0; }
+.product-quality-exact > span:first-child, .conformance-outcome > span:first-child, .withheld-reason > span:first-child { color: var(--color-text-muted); font-size: 0.75rem; font-weight: 650; }
+.product-quality-exact .exact-value { font-size: 1.5rem; }
+.conformance-outcome, .withheld-reason { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.conformance-outcome code { font-size: 1rem; font-weight: 650; }
+.record-explanation, .scope-statement, .fixture-boundary { color: var(--color-text-muted); }
+.fixture-boundary { padding: var(--space-3); border-left: 3px solid var(--color-border-strong); background: var(--color-surface-subtle); }
+.product-quality-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.product-quality-metadata dd > details { margin-top: 0; }
+.product-quality-technical { margin-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.product-quality-technical summary { padding-top: var(--space-3); color: var(--color-accent); font-size: 0.75rem; font-weight: 650; cursor: pointer; }
+.product-quality-technical pre { max-height: 20rem; margin: var(--space-2) 0 0; overflow: auto; padding: var(--space-3); border-radius: var(--radius-input); background: var(--color-code-bg); font: 0.68rem/1.5 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.feature-profile-card > .card__body { padding: 0; }
+.feature-profile-card > .card__body > .product-quality-metadata { padding: var(--space-5); }
+.feature-profile-card > .card__body > .product-quality-technical { margin: 0 var(--space-5) var(--space-5); }
+.feature-profile-card .data-table { min-width: 68rem; }
+.feature-profile-card .data-table td { vertical-align: top; }
+.feature-profile-card .product-quality-state { display: grid; margin: 0; }
+.feature-value { min-width: 9rem; }
+.feature-value > .product-quality-technical { margin-top: var(--space-2); }
+.block-code { display: block; margin-top: var(--space-1); }
+.observed-quality-card { border-left: 3px solid var(--color-accent); }
+.prediction-quality-card { border-left: 3px solid var(--color-border-strong); }
+.product-quality-result-heading { margin-bottom: var(--space-4); }
+.product-quality-result-heading > div { display: grid; gap: var(--space-2); min-width: 0; }
+.product-quality-result-heading code { overflow-wrap: anywhere; }
+.null-scientific-fields { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-4); padding: var(--space-3); border-radius: var(--radius-input); background: var(--color-surface-subtle); color: var(--color-text-muted); font-size: 0.75rem; }
+.non-claims { margin-top: var(--space-4); border-top: 1px solid var(--color-border); }
+.non-claims summary { padding-top: var(--space-3); color: var(--color-accent); font-weight: 650; cursor: pointer; }
+.non-claims ol { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.non-claims li { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.non-claims li span { color: var(--color-text-muted); }
+.availability-reason { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.availability-reason > span { color: var(--color-text-muted); font-size: 0.75rem; font-weight: 650; }
+.availability-reason p { margin: 0; }
+.product-quality-limitations .callout p { margin: 0 0 var(--space-2); }
+.product-quality-limitations .callout p:last-child { margin-bottom: 0; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes progress { 0% { left: -35%; } 55%, 100% { left: 100%; } }
 
@@ -399,6 +450,8 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
   .qb-contract-grid, .scope-count-grid, .scope-count-grid--small, .materiality-summary { grid-template-columns: 1fr; }
   .cross-result-metadata { grid-template-columns: 1fr; }
   .operand-trace-grid, .materiality-proof-metadata, .materiality-gates dl { grid-template-columns: 1fr; }
+  .observation-conformance-grid, .product-quality-metadata { grid-template-columns: 1fr; }
+  .product-quality-primary-row, .product-quality-result-heading, .section-heading-row { flex-direction: column; }
   .requirement-navigator { position: static; max-height: 16rem; }
   .evidence-list li { grid-template-columns: 1fr; align-items: start; }
 }
