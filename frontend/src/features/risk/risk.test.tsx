@@ -8,6 +8,7 @@ import { RiskPage } from "./RiskPage";
 import {
   categoricalRiskNonClaims,
   operandKinds,
+  projectCategoricalRisk,
   projectPopulation,
   projectQuantitativeRisk,
   projectRelation,
@@ -65,6 +66,7 @@ vi.mock("../product-quality/projection", () => ({
       artifactRef: { artifact_id: "SPEC-RISK", artifact_version: "v1" },
       productRef: { product_id: "PRODUCT", product_version: "1" },
       profileId: { profile_id: "PQ-PROFILE" },
+      processStateRef: { process_state_id: "PROCESS-RISK", process_state_version: "v1", stage: "REFERENCE_VERIFICATION" },
     },
     observed: { raw: {
       assessment_id: { identity: "PQ-ASSESSMENT", artifact_ref: { artifact_id: "SPEC-RISK", artifact_version: "v1" } },
@@ -91,7 +93,7 @@ function confirmedResolution(marker = "CURRENT") {
   };
   return clone({
     resolution_id: resolutionId, source_claim_ref: sourceClaim, status: "AVAILABLE", applicability: "APPLICABLE",
-    disposition: "CONFIRMED_SUPPORTED_PROBLEM", problem, explanation: `Resolution ${marker}.`, reasons: [`REASON-${marker}`],
+    disposition: "CONFIRMED_SUPPORTED_PROBLEM", problem, explanation: `Resolution ${marker}.`, reasons: ["CONFIRMED_QB_CONFLICT"],
     evidence_refs: evidence, provenance_refs: [sourceClaim], artifact_ref: artifact, source_assessment_ref: assessment, source_snapshot_id: snapshot, rule_ref: problemRule,
   });
 }
@@ -109,11 +111,11 @@ function relation() {
   return clone({
     relation_id: relationId, problem_resolution_ref: resolutionRef, problem_ref: problemRef, characteristic_id: "PERFORMANCE_EFFICIENCY",
     relation_kind: "BOUNDED_RISK_RELEVANCE", status: "AVAILABLE", applicability: "APPLICABLE", rationale: "Bounded relevance only.",
-    reasons: ["CONFIRMED_PROBLEM_RELEVANT_TO_PERFORMANCE_EFFICIENCY"], source_result_refs: [sourceClaim], evidence_refs: evidence,
+    reasons: ["EXACT_RESPONSE_TIME_KEY"], source_result_refs: [sourceClaim], evidence_refs: evidence,
     provenance: {
       problem_resolution_ref: resolutionRef, problem_ref: problemRef, source_cross_result_ref: crossResult, comparison_key: comparisonKey,
       characteristic_id: "PERFORMANCE_EFFICIENCY", relation_rule_ref: relationRule,
-      rationale_code: "CONFIRMED_PROBLEM_RELEVANT_TO_PERFORMANCE_EFFICIENCY", evidence_refs: evidence, source_contract_refs: [],
+      rationale_code: "EXACT_RESPONSE_TIME_KEY", evidence_refs: evidence, source_contract_refs: [],
     },
     artifact_ref: artifact, source_assessment_ref: assessment, source_snapshot_id: snapshot, process_state_ref: processState,
     rule_ref: relationRule, calibration_status: "PROVISIONAL_NOT_CALIBRATED", non_claims: [...relationNonClaims],
@@ -123,8 +125,8 @@ function relation() {
 function categoricalRisk() {
   const event = { event_id: "RISK-EVENT", event_version: "v1", artifact_ref: artifact, process_state_ref: processState };
   const subject = { artifact_ref: artifact, participant_refs: participants, affected_characteristic_id: "PERFORMANCE_EFFICIENCY" };
-  const modelRef = { model_id: "M-RISK", model_version: "1" };
-  const parameterSetRef = { parameter_set_id: "RISK-PARAMETERS", parameter_set_version: "1" };
+  const modelRef = { model_id: "FULL-MODEL-V0.1-M-RISK-PE-QB", model_version: "1" };
+  const parameterSetRef = { parameter_set_id: "RISK-PE-QB-001-PARAMETERS", parameter_set_version: "1" };
   const riskId = { assessment_event_ref: event, subject, problem_resolution_ref: resolutionRef, defect_population_ref: populationRef, relation_ref: relationRef, product_quality_assessment_ref: productQualityContext.assessment_ref, model_ref: modelRef, rule_ref: riskRule, parameter_set_ref: parameterSetRef };
   return clone({
     risk_assessment_id: riskId, assessment_event_ref: event, subject, characteristic_id: "PERFORMANCE_EFFICIENCY",
@@ -134,7 +136,10 @@ function categoricalRisk() {
     provenance: {
       problem_resolution_ref: resolutionRef, problem_ref_or_none: problemRef, defect_population_ref: populationRef, defect_population_status: "AVAILABLE",
       relation_ref: relationRef, product_quality_context: productQualityContext, participant_refs: participants, ordered_evidence_refs: evidence,
+      source_cross_result_ref_or_none: crossResult, source_assessment_refs: [assessment, productQualityContext.assessment_ref],
       artifact_ref: artifact, source_snapshot_id: snapshot, process_state_ref: processState, model_ref: modelRef, rule_ref: riskRule, parameter_set_ref: parameterSetRef,
+      full_model_contract_ref: { contract_id: "FULL-MODEL-V0.1-CONTRACT", version: "1" },
+      defect_risk_contract_ref: { contract_id: "FULL-MODEL-V0.1-DEFECT-QUALITY-RISK", version: "1" },
     },
     model_ref: modelRef, rule_ref: riskRule, parameter_set_ref: parameterSetRef, calibration_status: "PROVISIONAL_NOT_CALIBRATED",
     artifact_ref: artifact, source_assessment_ref: assessment, source_snapshot_id: snapshot, process_state_ref: processState, non_claims: [...categoricalRiskNonClaims],
@@ -147,7 +152,7 @@ function quantitativeRisk() {
   const operands = operandKinds.map((kind, index) => ({
     operand_id: { kind, operand_id: `OPERAND-${kind}`, operand_version: "1" }, kind, state: "AVAILABLE", value: values[index],
     provenance: {
-      source_ref: { source_id: `SOURCE-${kind}`, source_version: "1" }, source_or_rationale: `Externally supplied ${kind}.`,
+      source_ref: { source_id: `SOURCE-${kind}`, source_version: "1", provider_id: "CONTROLLED-PROVIDER", provider_version: "1" }, source_or_rationale: `Externally supplied ${kind}.`,
       calibration_status: "PROVISIONAL_NOT_CALIBRATED", governing_contract_ref: contract, artifact_ref: artifact,
       problem_ref: problemRef, relation_ref: relationRef, characteristic_id: "PERFORMANCE_EFFICIENCY", process_state_ref: processState,
       context_ref: kind === "CONTEXT_FACTOR" ? { context_id: "CONTEXT", context_version: "1" } : null,
@@ -192,7 +197,7 @@ function initialResponse(): CanonicalAnalyzeResponse {
 
 function reassessmentResponse(options: { mismatch?: boolean; duplicate?: boolean; missing?: boolean } = {}): CanonicalAnalyzeResponse {
   const current = { artifact_ref: artifact, product_quality_assessment: (controlledResponse().full_model as Record<string, unknown>).observed_product_quality, problem_resolutions: [confirmedResolution("V2")], defect_population: population(), target_problem_resolution: confirmedResolution("V2"), defect_quality_relation: relation(), risk_assessment: categoricalRisk() };
-  const dynamicRef = { result_family: "FULL_MODEL_DYNAMIC_THROUGH_RISK_PATH", result_id: "RISK-V2", artifact_ref: options.mismatch ? { ...artifact, artifact_version: "wrong" } : artifact };
+  const dynamicRef = { result_family: "FULL_MODEL_DYNAMIC_THROUGH_RISK_PATH", result_id: (current.risk_assessment as Record<string, unknown>).risk_assessment_id, artifact_ref: options.mismatch ? { ...artifact, artifact_version: "wrong" } : artifact };
   const refs = [{ result_family: "CORE_REQUIREMENT_SPECIFICATION_METRIC_PATH", result_id: "CORE", artifact_ref: artifact }, ...(options.missing ? [] : [dynamicRef]), ...(options.duplicate ? [dynamicRef] : [])];
   const results = [{ artifact_ref: artifact, core: true }, ...(options.missing ? [] : [current]), ...(options.duplicate ? [current] : [])];
   const stale = controlledResponse().full_model as Record<string, unknown>;
@@ -204,6 +209,42 @@ function validGraph() {
   const projectedPopulation = projectPopulation(population(), [projectedResolution])!;
   const projectedRelation = projectRelation(relation(), [projectedResolution], projectedPopulation)!;
   return { projectedResolution, projectedPopulation, projectedRelation, problem: projectedResolution.problem! };
+}
+
+function identifiedResolution(marker: string, suffix: string) {
+  const value = confirmedResolution(marker) as Record<string, unknown>;
+  const claim = { ...sourceClaim, source_id: `CROSS-${suffix}` };
+  const cross = { value: `CROSS-${suffix}` };
+  value.source_claim_ref = claim;
+  (value.resolution_id as Record<string, unknown>).source_claim_ref = claim;
+  const problem = value.problem as Record<string, unknown>;
+  problem.source_cross_result_ref = cross;
+  (problem.problem_id as Record<string, unknown>).source_cross_result_ref = cross;
+  (problem.operand_refs as Record<string, unknown>[]).forEach((item) => { item.source_cross_result_ref = cross; });
+  const provenance = problem.provenance as Record<string, unknown>;
+  provenance.source_cross_result_ref = cross;
+  provenance.exact_operand_refs = problem.operand_refs;
+  return value;
+}
+
+function unresolvedResolution(status: "UNKNOWN" | "UNRESOLVED" | "NOT_APPLICABLE" | "UNAVAILABLE" | "UNSUPPORTED", suffix: string) {
+  const value = identifiedResolution(status, suffix);
+  value.status = status;
+  value.applicability = status === "NOT_APPLICABLE" ? "NOT_APPLICABLE" : "UNKNOWN";
+  value.disposition = null;
+  value.problem = null;
+  value.reasons = [status === "NOT_APPLICABLE" ? "QB_OUTSIDE_V0_1_APPLICABILITY" : status === "UNAVAILABLE" ? "SUPPORTED_SOURCE_UNAVAILABLE" : status === "UNSUPPORTED" ? "SOURCE_KIND_UNSUPPORTED" : status === "UNKNOWN" ? "SOURCE_STATE_UNKNOWN" : "QB_ASSESSMENT_UNRESOLVED"];
+  return value;
+}
+
+function categoricalRecord(value = controlledResponse()) {
+  return ((value.full_model as Record<string, unknown>).risk_assessments as Record<string, unknown>[])[0];
+}
+
+function setRiskProcess(risk: Record<string, unknown>, process: Record<string, unknown>) {
+  risk.process_state_ref = process;
+  (risk.assessment_event_ref as Record<string, unknown>).process_state_ref = process;
+  (risk.provenance as Record<string, unknown>).process_state_ref = process;
 }
 
 describe("RUI-11 Risk", () => {
@@ -248,11 +289,12 @@ describe("RUI-11 Risk", () => {
     first.push(second);
     const pop = (value.full_model as Record<string, unknown>).defect_population as Record<string, unknown>;
     (pop.problem_resolution_refs as unknown[]).push({ resolution_id: second.resolution_id });
+    (pop.members as unknown[]).push({ problem_id: (second.problem as Record<string, unknown>).problem_id });
     const projected = selectRiskPage(value);
     expect(projected.kind).toBe("AVAILABLE");
     if (projected.kind !== "AVAILABLE") return;
     expect(projected.revision).toBe("CONTROLLED_DEMO_V1");
-    expect(projected.resolutions.map((entry) => entry.kind === "VALID" ? entry.value.reason : "MALFORMED")).toEqual(["REASON-CURRENT", "REASON-SECOND"]);
+    expect(projected.resolutions.map((entry) => entry.kind === "VALID" ? entry.value.explanation : "MALFORMED")).toEqual(["Resolution CURRENT.", "Resolution SECOND."]);
     expect(projected.quantitative.kind).toBe("RECORDS");
     render(<RiskPage result={value} onSelectRequirement={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "Categorical bounded risk" })).toBeTruthy();
@@ -280,12 +322,36 @@ describe("RUI-11 Risk", () => {
     expect(selectRiskPage(reassessmentResponse(options as never))).toEqual({ kind: "MALFORMED" });
   });
 
+  it("rejects a dynamic-through-risk ref whose result_id differs from the nested risk assessment identity", () => {
+    const value = reassessmentResponse();
+    const reassessment = ((value.full_model as Record<string, unknown>).reassessment as Record<string, unknown>);
+    const refs = reassessment.produced_result_refs as Record<string, unknown>[];
+    refs[1].result_id = { mismatched: true };
+    expect(selectRiskPage(value)).toEqual({ kind: "MALFORMED" });
+  });
+
+  it("accepts structurally equal current-result identities regardless of object key order", () => {
+    const value = reassessmentResponse();
+    const reassessment = ((value.full_model as Record<string, unknown>).reassessment as Record<string, unknown>);
+    const refs = reassessment.produced_result_refs as Record<string, unknown>[];
+    const resultId = refs[1].result_id as Record<string, unknown>;
+    refs[1].result_id = Object.fromEntries(Object.entries(resultId).reverse());
+    expect(selectRiskPage(value).kind).toBe("AVAILABLE");
+  });
+
   it.each([
     ["confirmed without problem", (value: Record<string, unknown>) => { value.problem = null; }],
     ["no-confirmed with problem", (value: Record<string, unknown>) => { value.disposition = "NO_CONFIRMED_SUPPORTED_PROBLEM_WITHIN_RULE"; }],
     ["non-available with disposition", (value: Record<string, unknown>) => { value.status = "UNKNOWN"; value.applicability = "UNKNOWN"; }],
     ["multiple reasons", (value: Record<string, unknown>) => { value.reasons = ["ONE", "TWO"]; }],
   ])("rejects malformed problem resolution: %s", (_label, mutate) => {
+    const value = confirmedResolution() as Record<string, unknown>; mutate(value); expect(projectResolution(value)).toBeNull();
+  });
+
+  it.each([
+    ["fabricated problem rule", (value: Record<string, unknown>) => { value.rule_ref = { ...problemRule, rule_id: "FABRICATED" }; }],
+    ["fabricated resolution reason", (value: Record<string, unknown>) => { value.reasons = ["REASON-CURRENT"]; }],
+  ])("rejects non-canonical problem-resolution contract data: %s", (_label, mutate) => {
     const value = confirmedResolution() as Record<string, unknown>; mutate(value); expect(projectResolution(value)).toBeNull();
   });
 
@@ -318,6 +384,43 @@ describe("RUI-11 Risk", () => {
     expect(projectPopulation(value, [resolution])).toBeNull();
   });
 
+  it("requires the exact ordered confirmed-problem member population", () => {
+    const first = projectResolution(identifiedResolution("FIRST", "A"))!;
+    const second = projectResolution(identifiedResolution("SECOND", "B"))!;
+    const value = population() as Record<string, unknown>;
+    value.problem_resolution_refs = [{ resolution_id: first.resolutionId }, { resolution_id: second.resolutionId }];
+    value.members = [{ problem_id: first.problem!.problemId }];
+    expect(projectPopulation(value, [first, second])).toBeNull();
+    value.members = [{ problem_id: second.problem!.problemId }, { problem_id: first.problem!.problemId }];
+    expect(projectPopulation(value, [first, second])).toBeNull();
+  });
+
+  it("requires the exact ordered UNKNOWN/UNRESOLVED resolution population", () => {
+    const unknown = projectResolution(unresolvedResolution("UNKNOWN", "UNKNOWN"))!;
+    const unresolved = projectResolution(unresolvedResolution("UNRESOLVED", "UNRESOLVED"))!;
+    const value = population() as Record<string, unknown>;
+    value.status = "UNRESOLVED"; value.applicability = "UNKNOWN"; value.population_complete = false;
+    value.members = []; value.problem_resolution_refs = [{ resolution_id: unknown.resolutionId }, { resolution_id: unresolved.resolutionId }];
+    value.unresolved_resolution_refs = [{ resolution_id: unknown.resolutionId }];
+    expect(projectPopulation(value, [unknown, unresolved])).toBeNull();
+  });
+
+  it.each(["NOT_APPLICABLE", "UNAVAILABLE", "UNSUPPORTED"] as const)("does not classify %s resolutions as unresolved", (status) => {
+    const resolution = projectResolution(unresolvedResolution(status, status))!;
+    const value = population() as Record<string, unknown>;
+    value.status = "UNKNOWN"; value.applicability = "UNKNOWN"; value.population_complete = false;
+    value.members = []; value.problem_resolution_refs = [{ resolution_id: resolution.resolutionId }]; value.unresolved_resolution_refs = [];
+    expect(projectPopulation(value, [resolution])).not.toBeNull();
+  });
+
+  it("rejects a NOT_APPLICABLE population with a contradictory resolution universe", () => {
+    const resolution = projectResolution(unresolvedResolution("NOT_APPLICABLE", "NA"))!;
+    const value = population() as Record<string, unknown>;
+    value.status = "NOT_APPLICABLE"; value.applicability = "NOT_APPLICABLE"; value.members = [];
+    value.problem_resolution_refs = [{ resolution_id: resolution.resolutionId }]; value.unresolved_resolution_refs = [];
+    expect(projectPopulation(value, [resolution])).toBeNull();
+  });
+
   it.each([
     ["available wrong kind", (value: Record<string, unknown>) => { value.relation_kind = "OTHER"; }],
     ["available no problem", (value: Record<string, unknown>) => { value.problem_ref = null; }],
@@ -325,6 +428,15 @@ describe("RUI-11 Risk", () => {
     ["wrong characteristic", (value: Record<string, unknown>) => { value.characteristic_id = "OTHER"; }],
     ["provenance mismatch", (value: Record<string, unknown>) => { (value.provenance as Record<string, unknown>).rationale_code = "OTHER"; }],
   ])("rejects malformed R_DQ relation: %s", (_label, mutate) => {
+    const graph = validGraph(); const value = relation() as Record<string, unknown>; mutate(value);
+    expect(projectRelation(value, [graph.projectedResolution], graph.projectedPopulation)).toBeNull();
+  });
+
+  it.each([
+    ["fabricated relation rule", (value: Record<string, unknown>) => { value.rule_ref = { ...relationRule, rule_id: "FABRICATED" }; }],
+    ["fabricated relation reason", (value: Record<string, unknown>) => { value.reasons = ["CONFIRMED_PROBLEM_RELEVANT_TO_PERFORMANCE_EFFICIENCY"]; }],
+    ["problem process mismatch", (value: Record<string, unknown>) => { value.process_state_ref = { ...processState, process_state_version: "v2" }; }],
+  ])("rejects non-canonical R_DQ contract data: %s", (_label, mutate) => {
     const graph = validGraph(); const value = relation() as Record<string, unknown>; mutate(value);
     expect(projectRelation(value, [graph.projectedResolution], graph.projectedPopulation)).toBeNull();
   });
@@ -346,6 +458,87 @@ describe("RUI-11 Risk", () => {
   ])("fails categorical risk closed: %s", (_label, mutate) => {
     const value = controlledResponse(); const risk = ((value.full_model as Record<string, unknown>).risk_assessments as Record<string, unknown>[])[0]; mutate(risk);
     const projected = selectRiskPage(value); expect(projected.kind === "AVAILABLE" && projected.categorical[0].kind).toBe("MALFORMED");
+  });
+
+  it.each([
+    ["legacy model", "model_ref", { model_id: "M-RISK", model_version: "1" }],
+    ["legacy parameter set", "parameter_set_ref", { parameter_set_id: "RISK-PARAMETERS", parameter_set_version: "1" }],
+  ])("rejects a self-consistent non-canonical categorical %s", (_label, field, replacement) => {
+    const value = controlledResponse(); const risk = categoricalRecord(value);
+    risk[field] = replacement;
+    (risk.provenance as Record<string, unknown>)[field] = replacement;
+    (risk.risk_assessment_id as Record<string, unknown>)[field] = replacement;
+    const projected = selectRiskPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.categorical[0].kind).toBe("MALFORMED");
+  });
+
+  it("accepts the canonical categorical model, rule, parameter set, and calibration identities", () => {
+    const projected = selectRiskPage(controlledResponse());
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.categorical[0].kind).toBe("VALID");
+  });
+
+  it("rejects categorical risk whose relation belongs to another selected resolution", () => {
+    const value = controlledResponse(); const fm = value.full_model as Record<string, unknown>;
+    const secondRaw = identifiedResolution("SECOND", "SECOND");
+    const second = projectResolution(secondRaw)!;
+    (fm.problem_resolutions as unknown[]).push(secondRaw);
+    const pop = fm.defect_population as Record<string, unknown>;
+    (pop.problem_resolution_refs as unknown[]).push({ resolution_id: second.resolutionId });
+    (pop.members as unknown[]).push({ problem_id: second.problem!.problemId });
+    const risk = categoricalRecord(value); const riskId = risk.risk_assessment_id as Record<string, unknown>;
+    const provenance = risk.provenance as Record<string, unknown>;
+    risk.problem_resolution_ref = { resolution_id: second.resolutionId };
+    risk.problem_ref = { problem_id: second.problem!.problemId };
+    riskId.problem_resolution_ref = risk.problem_resolution_ref;
+    provenance.problem_resolution_ref = risk.problem_resolution_ref;
+    provenance.problem_ref_or_none = risk.problem_ref;
+    provenance.source_cross_result_ref_or_none = second.problem!.raw.source_cross_result_ref;
+    const projected = selectRiskPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.categorical[0].kind).toBe("MALFORMED");
+  });
+
+  it.each([
+    ["relation problem", (risk: Record<string, unknown>) => {
+      const other = { problem_id: { ...problemId, source_cross_result_ref: { value: "OTHER" } } };
+      risk.problem_ref = other; (risk.provenance as Record<string, unknown>).problem_ref_or_none = other;
+    }],
+    ["confirmed-problem evidence", (risk: Record<string, unknown>) => {
+      risk.evidence_refs = [{ evidence_id: "OTHER" }]; (risk.provenance as Record<string, unknown>).ordered_evidence_refs = risk.evidence_refs;
+    }],
+    ["source cross result", (risk: Record<string, unknown>) => { (risk.provenance as Record<string, unknown>).source_cross_result_ref_or_none = { value: "OTHER" }; }],
+    ["source assessment order", (risk: Record<string, unknown>) => { (risk.provenance as Record<string, unknown>).source_assessment_refs = [productQualityContext.assessment_ref, assessment]; }],
+    ["Full Model provenance contract", (risk: Record<string, unknown>) => { (risk.provenance as Record<string, unknown>).full_model_contract_ref = { contract_id: "OTHER", version: "1" }; }],
+    ["defect/risk provenance contract", (risk: Record<string, unknown>) => { (risk.provenance as Record<string, unknown>).defect_risk_contract_ref = { contract_id: "OTHER", version: "1" }; }],
+  ])("rejects categorical risk with a mismatched exact source graph: %s", (_label, mutate) => {
+    const value = controlledResponse(); mutate(categoricalRecord(value));
+    const projected = selectRiskPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.categorical[0].kind).toBe("MALFORMED");
+  });
+
+  it("rejects categorical risk whose process differs from the R_DQ relation", () => {
+    const value = controlledResponse();
+    setRiskProcess(categoricalRecord(value), { ...processState, process_state_version: "v2" });
+    const projected = selectRiskPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.categorical[0].kind).toBe("MALFORMED");
+  });
+
+  it("rejects categorical risk whose process differs from its confirmed problem", () => {
+    const graph = validGraph(); const risk = categoricalRisk() as Record<string, unknown>;
+    const nextProcess = { ...processState, process_state_version: "v2" };
+    setRiskProcess(risk, nextProcess);
+    graph.projectedRelation.raw.process_state_ref = nextProcess;
+    expect(projectCategoricalRisk(risk, [graph.projectedResolution], graph.projectedPopulation, [graph.projectedRelation], {
+      context: productQualityContext, processStateRef: nextProcess,
+    } as never)).toBeNull();
+  });
+
+  it("rejects current risk tied to a stale Product Quality process state", () => {
+    const graph = validGraph();
+    expect(projectCategoricalRisk(categoricalRisk(), [graph.projectedResolution], graph.projectedPopulation, [graph.projectedRelation], {
+      context: productQualityContext, processStateRef: { ...processState, process_state_version: "stale-v1" },
+    } as never)).toBeNull();
   });
 
   it("never maps RISK_IDENTIFIED to severity or a numeric magnitude", () => {
@@ -381,6 +574,83 @@ describe("RUI-11 Risk", () => {
     ["available none representation", (value: Record<string, unknown>) => { value.numeric_representation = "NONE"; }],
   ])("rejects malformed quantitative local risk: %s", (_label, mutate) => {
     const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>; mutate(value);
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
+  });
+
+  it("rejects quantitative risk whose selected R_DQ relation is not AVAILABLE/APPLICABLE", () => {
+    const graph = validGraph(); const unavailable = { ...graph.projectedRelation, status: "UNKNOWN", applicability: "UNKNOWN", relationKind: null };
+    expect(projectQuantitativeRisk(quantitativeRisk(), [graph.problem], [unavailable], graph.projectedPopulation)).toBeNull();
+  });
+
+  it("rejects quantitative risk whose relation names a different problem", () => {
+    const graph = validGraph(); const mismatched = { ...graph.projectedRelation, problemRef: { problem_id: { other: true } } };
+    expect(projectQuantitativeRisk(quantitativeRisk(), [graph.problem], [mismatched], graph.projectedPopulation)).toBeNull();
+  });
+
+  it("rejects quantitative risk crossing the relation/problem process version", () => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>;
+    const other = { ...processState, process_state_version: "v2" };
+    value.process_state_ref = other;
+    (value.provenance as Record<string, unknown>).process_state_ref = other;
+    (value.operands as Record<string, unknown>[]).forEach((operand) => { (operand.provenance as Record<string, unknown>).process_state_ref = other; });
+    ((value.provenance as Record<string, unknown>).operands as Record<string, unknown>[]).forEach((operand) => { (operand.provenance as Record<string, unknown>).process_state_ref = other; });
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
+  });
+
+  it.each([
+    ["governing contract", (value: Record<string, unknown>) => {
+      const wrong = { contract_id: "OTHER", version: "1" }; value.governing_contract_ref = wrong;
+      (value.provenance as Record<string, unknown>).governing_contract_ref = wrong;
+      (value.operands as Record<string, unknown>[]).forEach((operand) => { (operand.provenance as Record<string, unknown>).governing_contract_ref = wrong; });
+      ((value.provenance as Record<string, unknown>).operands as Record<string, unknown>[]).forEach((operand) => { (operand.provenance as Record<string, unknown>).governing_contract_ref = wrong; });
+    }],
+    ["calculation rule ref", (value: Record<string, unknown>) => {
+      const wrong = { ...calculationRule, rule_id: "OTHER" }; value.calculation_rule_ref = wrong;
+      (value.provenance as Record<string, unknown>).calculation_rule_ref = wrong;
+      (value.assessment_id as Record<string, unknown>).rule_ref = wrong;
+    }],
+    ["calculation rule text", (value: Record<string, unknown>) => {
+      value.calculation_rule = "modified trace text"; (value.provenance as Record<string, unknown>).calculation_rule = "modified trace text";
+    }],
+  ])("rejects a non-canonical quantitative %s", (_label, mutate) => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>; mutate(value);
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
+  });
+
+  it.each(["operand_id", "operand_version"])("rejects an operand ID missing %s", (field) => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>;
+    delete (((value.operands as Record<string, unknown>[])[0].operand_id as Record<string, unknown>)[field]);
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
+  });
+
+  it.each(["provider_id", "provider_version"])("rejects an operand source ref missing %s", (field) => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>;
+    const provenance = (value.operands as Record<string, unknown>[])[0].provenance as Record<string, unknown>;
+    delete ((provenance.source_ref as Record<string, unknown>)[field]);
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
+  });
+
+  it("rejects arbitrary operand calibration even when result ordering agrees", () => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>;
+    const operands = value.operands as Record<string, unknown>[];
+    (operands[0].provenance as Record<string, unknown>).calibration_status = "HIGH_CONFIDENCE";
+    (((value.provenance as Record<string, unknown>).operands as Record<string, unknown>[])[0].provenance as Record<string, unknown>).calibration_status = "HIGH_CONFIDENCE";
+    (value.calibration_statuses as unknown[])[0] = "HIGH_CONFIDENCE";
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
+  });
+
+  it.each(["PROVISIONAL_NOT_CALIBRATED", "EXPERIMENTAL_CALIBRATION_REQUIRED"])("accepts canonical operand calibration %s", (calibration) => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>;
+    const operands = value.operands as Record<string, unknown>[];
+    (operands[0].provenance as Record<string, unknown>).calibration_status = calibration;
+    (((value.provenance as Record<string, unknown>).operands as Record<string, unknown>[])[0].provenance as Record<string, unknown>).calibration_status = calibration;
+    (value.calibration_statuses as unknown[])[0] = calibration;
+    expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).not.toBeNull();
+  });
+
+  it.each(["calculation_id", "calculation_version"])("rejects a quantitative assessment ID missing %s", (field) => {
+    const graph = validGraph(); const value = quantitativeRisk() as Record<string, unknown>;
+    delete ((value.assessment_id as Record<string, unknown>)[field]);
     expect(projectQuantitativeRisk(value, [graph.problem], [graph.projectedRelation], graph.projectedPopulation)).toBeNull();
   });
 

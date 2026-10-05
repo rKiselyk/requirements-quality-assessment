@@ -1,4 +1,5 @@
 import type { CanonicalAnalyzeResponse } from "../../api/analyze";
+import { structuralEqual } from "./structuralIdentity";
 
 export type JsonRecord = Record<string, unknown>;
 
@@ -15,10 +16,6 @@ function record(value: unknown): JsonRecord | null {
 
 function array(value: unknown): unknown[] | null {
   return Array.isArray(value) ? value : null;
-}
-
-function deepEqual(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 /**
@@ -42,7 +39,7 @@ export function selectCurrentResultRecords(response: CanonicalAnalyzeResponse): 
   const childArtifact = context && record(context.child_artifact_ref);
   const provenanceChild = provenance && record(provenance.child_artifact_ref);
   if (!reassessment || !refs || !results || refs.length !== results.length || !childArtifact || !provenanceChild
-    || !deepEqual(childArtifact, provenanceChild)) return null;
+    || !structuralEqual(childArtifact, provenanceChild)) return null;
 
   const indexes = refs.flatMap((item, index) =>
     record(item)?.result_family === "FULL_MODEL_DYNAMIC_THROUGH_RISK_PATH" ? [index] : []);
@@ -52,8 +49,13 @@ export function selectCurrentResultRecords(response: CanonicalAnalyzeResponse): 
   const result = record(results[indexes[0]]);
   const refArtifact = ref && record(ref.artifact_ref);
   const resultArtifact = result && record(result.artifact_ref);
+  const riskAssessment = result && record(result.risk_assessment);
+  const refResultId = ref && record(ref.result_id);
+  const riskAssessmentId = riskAssessment && record(riskAssessment.risk_assessment_id);
   if (!ref || !result || !refArtifact || !resultArtifact
-    || !deepEqual(refArtifact, resultArtifact)
-    || !deepEqual(resultArtifact, childArtifact)) return null;
+    || !riskAssessment || !refResultId || !riskAssessmentId
+    || !structuralEqual(refResultId, riskAssessmentId)
+    || !structuralEqual(refArtifact, resultArtifact)
+    || !structuralEqual(resultArtifact, childArtifact)) return null;
   return { revision: "REASSESSMENT_V2", records: result };
 }

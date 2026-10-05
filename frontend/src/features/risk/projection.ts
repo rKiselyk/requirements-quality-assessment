@@ -3,11 +3,32 @@ import type { ExactValueData } from "../../components/scientific";
 import { selectProductQualityPage } from "../product-quality/projection";
 import { selectCurrentResultRecords, type JsonRecord } from "../results/currentVersion";
 import { selectSectionAvailability } from "../results/projection";
+import { structuralEqual } from "../results/structuralIdentity";
 
 const fullModelStatuses = new Set([
   "AVAILABLE", "NOT_APPLICABLE", "UNAVAILABLE", "UNKNOWN", "UNRESOLVED", "UNSUPPORTED",
 ]);
 const problemNonClaims = ["NC-D-001", "NC-D-002", "NC-D-003", "NC-D-004", "NC-D-005", "NC-D-006"];
+const canonicalProblemRule = { rule_id: "D-QB-CONFLICT-001", explicit_version: "1", version_authority: "EXPLICIT_CONTRACT_VERSION" };
+const canonicalRelationRule = { rule_id: "R_DQ-PE-QB-001", explicit_version: "1", version_authority: "EXPLICIT_CONTRACT_VERSION" };
+const canonicalRiskModel = { model_id: "FULL-MODEL-V0.1-M-RISK-PE-QB", model_version: "1" };
+const canonicalRiskRule = { rule_id: "RISK-PE-QB-001", explicit_version: "1", version_authority: "EXPLICIT_CONTRACT_VERSION" };
+const canonicalRiskParameterSet = { parameter_set_id: "RISK-PE-QB-001-PARAMETERS", parameter_set_version: "1" };
+const canonicalFullModelContract = { contract_id: "FULL-MODEL-V0.1-CONTRACT", version: "1" };
+const canonicalDefectRiskContract = { contract_id: "FULL-MODEL-V0.1-DEFECT-QUALITY-RISK", version: "1" };
+const canonicalQuantitativeContract = { contract_id: "FULL-MODEL-V0.1-QUANTITATIVE-LOCAL-RISK", version: "1" };
+const canonicalQuantitativeRule = { rule_id: "R-IJ-PE-001", explicit_version: "1", version_authority: "EXPLICIT_CONTRACT_VERSION" };
+const canonicalCalculationRule = "r_ij = rho_ij * p_ij * I_ij * kappa_j(C)";
+const problemReasons = new Set([
+  "CONFIRMED_QB_CONFLICT", "QB_COMPATIBLE_WITHIN_RULE", "QB_ASSESSMENT_UNRESOLVED",
+  "QB_OUTSIDE_V0_1_APPLICABILITY", "SUPPORTED_SOURCE_UNAVAILABLE", "SOURCE_STATE_UNKNOWN", "SOURCE_KIND_UNSUPPORTED",
+]);
+const relationReasons = new Set([
+  "EXACT_RESPONSE_TIME_KEY", "NO_CONFIRMED_SUPPORTED_PROBLEM", "DIFFERENT_RESOLVED_METRIC",
+  "UNSUPPORTED_RESPONSE_TIME_CONTEXT_OR_UNIT", "PROBLEM_CLAIM_UNRESOLVED", "PROBLEM_CLAIM_UNSUPPORTED",
+  "PROBLEM_CLAIM_UNAVAILABLE", "PROBLEM_CLAIM_UNKNOWN", "PROBLEM_CLAIM_NOT_APPLICABLE",
+]);
+const operandCalibrationStatuses = new Set(["PROVISIONAL_NOT_CALIBRATED", "EXPERIMENTAL_CALIBRATION_REQUIRED"]);
 export const relationNonClaims = ["NC-RDQ-001", "NC-RDQ-002", "NC-RDQ-003", "NC-RDQ-004", "NC-RDQ-005"] as const;
 export const categoricalRiskNonClaims = [
   "NC-RISK-001", "NC-RISK-002", "NC-RISK-003", "NC-RISK-004", "NC-RISK-005",
@@ -154,8 +175,10 @@ function strings(value: unknown): string[] | null {
   return Array.isArray(value) && value.every((item) => typeof item === "string") ? value : null;
 }
 
-function deepEqual(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
+const deepEqual = structuralEqual;
+
+function identifiers(value: JsonRecord, ...keys: string[]): boolean {
+  return keys.every((key) => text(value[key]) !== null);
 }
 
 function hasOwn(value: JsonRecord, key: string): boolean {
@@ -211,6 +234,7 @@ function projectProblem(value: unknown): ProblemProjection | null {
     || raw.defect_type !== "SPECIFICATION_INCONSISTENCY"
     || raw.conflict_class !== "LOGICAL_CONFLICT"
     || raw.conflict_subtype !== "DIRECT_QUANTITATIVE_BOUND_INCOMPATIBILITY"
+    || !deepEqual(raw.rule_ref, canonicalProblemRule)
     || !deepEqual(nonClaims, problemNonClaims)) return null;
   const participantRecords = participants as JsonRecord[];
   const observationRecords = observations as JsonRecord[];
@@ -258,6 +282,7 @@ export function projectResolution(value: unknown): ResolutionProjection | null {
   const explanation = raw && text(raw.explanation);
   if (!raw || !currentState || !resolutionId || !sourceClaimRef || !reasons || reasons.length !== 1
     || !evidenceRefs || !provenanceRefs || !explanation || !hasOwn(raw, "disposition") || !hasOwn(raw, "problem")
+    || !problemReasons.has(reasons[0]) || !deepEqual(raw.rule_ref, canonicalProblemRule)
     || !deepEqual(resolutionId.artifact_ref, raw.artifact_ref)
     || !deepEqual(resolutionId.source_assessment_ref, raw.source_assessment_ref)
     || !deepEqual(resolutionId.source_snapshot_id, raw.source_snapshot_id)
@@ -289,6 +314,7 @@ export function projectPopulation(value: unknown, resolutions: ResolutionProject
   const sourceQb = raw && record(raw.source_qb_assessment_ref);
   if (!raw || !currentState || !populationId || !members || !resolutionRefs || !unresolvedRefs || !sourceQb
     || typeof raw.population_complete !== "boolean"
+    || !deepEqual(raw.rule_ref, canonicalProblemRule)
     || !contextMatches(raw, raw.artifact_ref, raw.source_assessment_ref, raw.source_snapshot_id)
     || !deepEqual(populationId.artifact_ref, raw.artifact_ref)
     || !deepEqual(populationId.source_assessment_ref, raw.source_assessment_ref)
@@ -297,15 +323,18 @@ export function projectPopulation(value: unknown, resolutions: ResolutionProject
     || !deepEqual(sourceQb.artifact_ref, raw.artifact_ref)
     || !deepEqual(sourceQb.assessment_ref, raw.source_assessment_ref)
     || !deepEqual(sourceQb.snapshot_id, raw.source_snapshot_id)) return null;
-  if (currentState.status === "AVAILABLE" && raw.population_complete !== true) return null;
-  if (currentState.status === "NOT_APPLICABLE" && (raw.population_complete !== true || members.length !== 0)) return null;
+  if (currentState.status === "AVAILABLE" && (raw.population_complete !== true || unresolvedRefs.length !== 0)) return null;
+  if (currentState.status === "NOT_APPLICABLE"
+    && (raw.population_complete !== true || members.length !== 0 || resolutions.length !== 0)) return null;
   if (["UNKNOWN", "UNRESOLVED"].includes(currentState.status) && raw.population_complete !== false) return null;
   const expectedResolutionRefs = resolutions.map((item) => ({ resolution_id: item.resolutionId }));
   if (!deepEqual(resolutionRefs, expectedResolutionRefs)) return null;
-  const confirmedRefs = resolutions.flatMap((item) => item.problem ? [{ problem_id: item.problem.problemId }] : []);
-  if (members.some((item) => !confirmedRefs.some((candidate) => deepEqual(candidate, item)))) return null;
-  const unresolvedCandidates = resolutions.filter((item) => item.status !== "AVAILABLE").map((item) => ({ resolution_id: item.resolutionId }));
-  if (unresolvedRefs.some((item) => !unresolvedCandidates.some((candidate) => deepEqual(candidate, item)))) return null;
+  const confirmedRefs = resolutions.flatMap((item) => item.disposition === "CONFIRMED_SUPPORTED_PROBLEM" && item.problem
+    ? [{ problem_id: item.problem.problemId }] : []);
+  if (!deepEqual(members, confirmedRefs)) return null;
+  const unresolvedCandidates = resolutions.filter((item) => ["UNKNOWN", "UNRESOLVED"].includes(item.status))
+    .map((item) => ({ resolution_id: item.resolutionId }));
+  if (!deepEqual(unresolvedRefs, unresolvedCandidates)) return null;
   return { ...currentState, raw, populationId, members, populationComplete: raw.population_complete, problemResolutionRefs: resolutionRefs, unresolvedResolutionRefs: unresolvedRefs };
 }
 
@@ -323,6 +352,7 @@ export function projectRelation(value: unknown, resolutions: ResolutionProjectio
   const resolution = resolutionRef && resolutions.find((item) => deepEqual(resolutionRef, { resolution_id: item.resolutionId }));
   if (!raw || !currentState || !relationId || !resolutionRef || raw.problem_ref !== null && !problemRef || !provenance
     || !reasons || reasons.length !== 1 || !rationale || !calibration || !nonClaims || !resolution
+    || !relationReasons.has(reasons[0]) || !deepEqual(raw.rule_ref, canonicalRelationRule)
     || raw.characteristic_id !== "PERFORMANCE_EFFICIENCY"
     || calibration !== "PROVISIONAL_NOT_CALIBRATED" || !deepEqual(nonClaims, relationNonClaims)
     || !contextMatches(raw, population.raw.artifact_ref, population.raw.source_assessment_ref, population.raw.source_snapshot_id)
@@ -330,6 +360,9 @@ export function projectRelation(value: unknown, resolutions: ResolutionProjectio
     || !deepEqual(relationId.problem_ref, problemRef)
     || relationId.characteristic_id !== raw.characteristic_id
     || !deepEqual(relationId.relation_rule_ref, raw.rule_ref)) return null;
+  const expectedProblemRef = resolution.problem ? { problem_id: resolution.problem.problemId } : null;
+  if (!deepEqual(problemRef, expectedProblemRef)
+    || resolution.problem && !deepEqual(raw.process_state_ref, resolution.problem.raw.process_state_ref)) return null;
   const relationKind = raw.relation_kind === null ? null : text(raw.relation_kind);
   if (currentState.status === "AVAILABLE") {
     if (currentState.applicability !== "APPLICABLE" || relationKind !== "BOUNDED_RISK_RELEVANCE" || !problemRef
@@ -344,7 +377,15 @@ export function projectRelation(value: unknown, resolutions: ResolutionProjectio
   return { ...currentState, raw, relationId, problemResolutionRef: resolutionRef, problemRef, characteristicId: raw.characteristic_id, relationKind, rationale, reason: reasons[0], calibrationStatus: calibration, nonClaims };
 }
 
-function expectedProductQualityContext(response: CanonicalAnalyzeResponse, selected: ReturnType<typeof selectCurrentResultRecords>): JsonRecord | null {
+interface ExpectedProductQualityContext {
+  context: JsonRecord;
+  processStateRef: JsonRecord;
+}
+
+function expectedProductQualityContext(
+  response: CanonicalAnalyzeResponse,
+  selected: ReturnType<typeof selectCurrentResultRecords>,
+): ExpectedProductQualityContext | null {
   const productQuality = selectProductQualityPage(response);
   if (!selected || productQuality.kind !== "AVAILABLE" || !productQuality.featureProfile) return null;
   const raw = record(selected.revision === "REASSESSMENT_V2"
@@ -362,12 +403,15 @@ function expectedProductQualityContext(response: CanonicalAnalyzeResponse, selec
     || !deepEqual(productRef, productQuality.featureProfile.productRef)
     || !deepEqual(raw.feature_profile_ref, productQuality.featureProfile.profileId)) return null;
   return {
-    assessment_ref: { assessment_id: assessmentId, product_quality_assessment_version: raw.product_quality_assessment_version },
-    status: currentState.status,
-    applicability: currentState.applicability,
-    result_kind: raw.result_kind,
-    scope_ref: scope,
-    product_ref: productRef,
+    context: {
+      assessment_ref: { assessment_id: assessmentId, product_quality_assessment_version: raw.product_quality_assessment_version },
+      status: currentState.status,
+      applicability: currentState.applicability,
+      result_kind: raw.result_kind,
+      scope_ref: scope,
+      product_ref: productRef,
+    },
+    processStateRef: productQuality.featureProfile.processStateRef,
   };
 }
 
@@ -376,7 +420,7 @@ export function projectCategoricalRisk(
   resolutions: ResolutionProjection[],
   population: PopulationProjection,
   relations: RelationProjection[],
-  productQualityContext: JsonRecord | null,
+  productQuality: ExpectedProductQualityContext | null,
 ): CategoricalRiskProjection | null {
   const raw = record(value);
   const currentState = raw && state(raw);
@@ -391,29 +435,48 @@ export function projectCategoricalRisk(
   const resolution = raw && resolutions.find((item) => deepEqual(raw.problem_resolution_ref, { resolution_id: item.resolutionId }));
   const relation = raw && relations.find((item) => deepEqual(raw.relation_ref, { relation_id: item.relationId }));
   if (!raw || !currentState || !riskId || !event || !subject || !provenance || !riskStatement || !explanation || !calibration || !nonClaims
-    || !resolution || !relation || !productQualityContext
+    || !resolution || !relation || !productQuality
     || raw.characteristic_id !== "PERFORMANCE_EFFICIENCY"
     || subject.affected_characteristic_id !== raw.characteristic_id
     || !deepEqual(subject.artifact_ref, raw.artifact_ref)
     || !deepEqual(raw.defect_population_ref, { population_id: population.populationId })
     || raw.defect_population_status !== population.status
-    || !deepEqual(raw.product_quality_context, productQualityContext)
+    || !deepEqual(raw.product_quality_context, productQuality.context)
     || calibration !== "PROVISIONAL_NOT_CALIBRATED" || !deepEqual(nonClaims, categoricalRiskNonClaims)
+    || !deepEqual(raw.model_ref, canonicalRiskModel) || !deepEqual(raw.rule_ref, canonicalRiskRule)
+    || !deepEqual(raw.parameter_set_ref, canonicalRiskParameterSet)
     || !contextMatches(raw, population.raw.artifact_ref, population.raw.source_assessment_ref, population.raw.source_snapshot_id)
-    || !deepEqual(event.artifact_ref, raw.artifact_ref) || !deepEqual(event.process_state_ref, raw.process_state_ref)) return null;
+    || !deepEqual(event.artifact_ref, raw.artifact_ref) || !deepEqual(event.process_state_ref, raw.process_state_ref)
+    || !deepEqual(raw.process_state_ref, relation.raw.process_state_ref)
+    || !deepEqual(raw.process_state_ref, productQuality.processStateRef)
+    || !deepEqual(relation.problemResolutionRef, raw.problem_resolution_ref)
+    || !deepEqual(relation.problemRef, raw.problem_ref)) return null;
   const classification = raw.classification === null ? null : text(raw.classification);
+  const evidenceRefs = array(raw.evidence_refs);
+  if (!evidenceRefs) return null;
   if (currentState.status === "AVAILABLE") {
     if (currentState.applicability !== "APPLICABLE" || classification !== "RISK_IDENTIFIED" || raw.problem_ref === null
       || !resolution.problem || !deepEqual(raw.problem_ref, { problem_id: resolution.problem.problemId })
-      || !deepEqual(subject.participant_refs, resolution.problem.participantRefs)) return null;
-  } else if (raw.classification !== null) return null;
+      || !deepEqual(subject.participant_refs, resolution.problem.participantRefs)
+      || !deepEqual(evidenceRefs, resolution.problem.evidenceRefs)
+      || !deepEqual(raw.process_state_ref, resolution.problem.raw.process_state_ref)) return null;
+  } else {
+    if (raw.classification !== null) return null;
+    if (resolution.problem) {
+      if (!deepEqual(raw.problem_ref, { problem_id: resolution.problem.problemId })
+        || !deepEqual(subject.participant_refs, resolution.problem.participantRefs)
+        || !deepEqual(evidenceRefs, resolution.problem.evidenceRefs)
+        || !deepEqual(raw.process_state_ref, resolution.problem.raw.process_state_ref)) return null;
+    } else if (raw.problem_ref !== null || !deepEqual(subject.participant_refs, []) || !deepEqual(evidenceRefs, [])) return null;
+  }
   const expectedId: JsonRecord = {
     assessment_event_ref: event, subject, problem_resolution_ref: raw.problem_resolution_ref,
     defect_population_ref: raw.defect_population_ref, relation_ref: raw.relation_ref,
-    product_quality_assessment_ref: productQualityContext.assessment_ref,
+    product_quality_assessment_ref: productQuality.context.assessment_ref,
     model_ref: raw.model_ref, rule_ref: raw.rule_ref, parameter_set_ref: raw.parameter_set_ref,
   };
   if (!deepEqual(riskId, expectedId)) return null;
+  const expectedCrossResult = resolution.problem ? resolution.problem.raw.source_cross_result_ref : null;
   const provenancePairs: Array<[unknown, unknown]> = [
     [provenance.problem_resolution_ref, raw.problem_resolution_ref], [provenance.problem_ref_or_none, raw.problem_ref],
     [provenance.defect_population_ref, raw.defect_population_ref], [provenance.defect_population_status, raw.defect_population_status],
@@ -422,9 +485,13 @@ export function projectCategoricalRisk(
     [provenance.artifact_ref, raw.artifact_ref], [provenance.source_snapshot_id, raw.source_snapshot_id],
     [provenance.process_state_ref, raw.process_state_ref], [provenance.model_ref, raw.model_ref],
     [provenance.rule_ref, raw.rule_ref], [provenance.parameter_set_ref, raw.parameter_set_ref],
+    [provenance.source_cross_result_ref_or_none, expectedCrossResult],
+    [provenance.source_assessment_refs, [raw.source_assessment_ref, productQuality.context.assessment_ref]],
   ];
+  if (hasOwn(provenance, "full_model_contract_ref")) provenancePairs.push([provenance.full_model_contract_ref, canonicalFullModelContract]);
+  if (hasOwn(provenance, "defect_risk_contract_ref")) provenancePairs.push([provenance.defect_risk_contract_ref, canonicalDefectRiskContract]);
   if (provenancePairs.some(([left, right]) => !deepEqual(left, right))) return null;
-  return { ...currentState, raw, riskAssessmentId: riskId, assessmentEventRef: event, subject, characteristicId: raw.characteristic_id, classification, riskStatement, explanation, productQualityContext, calibrationStatus: calibration, nonClaims };
+  return { ...currentState, raw, riskAssessmentId: riskId, assessmentEventRef: event, subject, characteristicId: raw.characteristic_id, classification, riskStatement, explanation, productQualityContext: productQuality.context, calibrationStatus: calibration, nonClaims };
 }
 
 function projectOperand(value: unknown, index: number, result: JsonRecord): OperandProjection | null {
@@ -440,6 +507,10 @@ function projectOperand(value: unknown, index: number, result: JsonRecord): Oper
   const contextRef = provenance?.context_ref === null ? null : record(provenance?.context_ref);
   if (!raw || !operandId || !provenance || !sourceRef || !stateCode || !fullModelStatuses.has(stateCode)
     || !kind || kind !== operandKinds[index] || operandId.kind !== kind || !sourceOrRationale || !calibration || !governing
+    || !identifiers(operandId, "operand_id", "operand_version")
+    || !identifiers(sourceRef, "source_id", "source_version", "provider_id", "provider_version")
+    || !operandCalibrationStatuses.has(calibration)
+    || !deepEqual(governing, canonicalQuantitativeContract)
     || provenance.context_ref !== null && !contextRef
     || !deepEqual(provenance.problem_ref, result.problem_ref)
     || !deepEqual(provenance.relation_ref, result.relation_ref)
@@ -472,6 +543,14 @@ export function projectQuantitativeRisk(value: unknown, problems: ProblemProject
     || !problem || !relation || raw.result_kind !== "LOCAL_RISK_R_IJ"
     || raw.scope !== "EXTERNALLY_PARAMETERIZED_BOUNDED_PE_REFERENCE"
     || raw.characteristic_id !== "PERFORMANCE_EFFICIENCY" || !deepEqual(nonClaims, quantitativeRiskNonClaims)
+    || relation.status !== "AVAILABLE" || relation.applicability !== "APPLICABLE" || relation.relationKind !== "BOUNDED_RISK_RELEVANCE"
+    || !deepEqual(relation.problemRef, raw.problem_ref)
+    || !deepEqual(raw.process_state_ref, relation.raw.process_state_ref)
+    || !deepEqual(raw.process_state_ref, problem.raw.process_state_ref)
+    || !contextMatches(relation.raw, raw.artifact_ref, raw.source_assessment_ref, raw.source_snapshot_id)
+    || !contextMatches(problem.raw, raw.artifact_ref, raw.source_assessment_ref, raw.source_snapshot_id)
+    || !deepEqual(governing, canonicalQuantitativeContract)
+    || !deepEqual(ruleRef, canonicalQuantitativeRule) || ruleText !== canonicalCalculationRule
     || !contextMatches(raw, context.raw.artifact_ref, context.raw.source_assessment_ref, context.raw.source_snapshot_id)
     || !deepEqual(provenance.problem_ref, raw.problem_ref) || !deepEqual(provenance.relation_ref, raw.relation_ref)
     || !deepEqual(provenance.artifact_ref, raw.artifact_ref) || !deepEqual(provenance.source_assessment_ref, raw.source_assessment_ref)
@@ -482,7 +561,8 @@ export function projectQuantitativeRisk(value: unknown, problems: ProblemProject
   const operands = rawOperands.map((item, index) => projectOperand(item, index, raw));
   if (operands.some((item) => item === null)) return null;
   const validOperands = operands as OperandProjection[];
-  if (!deepEqual(assessmentId.problem_ref, raw.problem_ref) || !deepEqual(assessmentId.relation_ref, raw.relation_ref)
+  if (!identifiers(assessmentId, "calculation_id", "calculation_version")
+    || !deepEqual(assessmentId.problem_ref, raw.problem_ref) || !deepEqual(assessmentId.relation_ref, raw.relation_ref)
     || !deepEqual(assessmentId.operand_refs, validOperands.map((item) => item.operandId))
     || !deepEqual(assessmentId.rule_ref, ruleRef)
     || !deepEqual(calibrationStatuses, validOperands.map((item) => item.calibrationStatus))) return null;
