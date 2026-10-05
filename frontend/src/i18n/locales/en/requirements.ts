@@ -113,5 +113,7 @@ export const requirements = {
     requirementsDescription: "Malformed records remain visible at their response positions and are not selectable. Valid canonical requirements retain server order.",
     requirementRow: "Malformed canonical requirement record",
     responsePosition: "Response position {{position}}",
+    requestedSelectionTitle: "Requested requirement cannot be safely presented",
+    requestedSelectionDescription: "The explicitly requested canonical requirement {{id}} does not resolve through the accepted Requirements projection. No other requirement was substituted.",
   },
 } as const;

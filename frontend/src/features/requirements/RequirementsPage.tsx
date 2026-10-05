@@ -231,15 +231,26 @@ function Diagnostics({ requirement }: { requirement: RequirementProjection }) {
   );
 }
 
-export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse }) {
+export function RequirementsPage({
+  result,
+  selectedRequirementId: requestedRequirementId = null,
+  onSelectRequirement,
+}: {
+  result: CanonicalAnalyzeResponse;
+  selectedRequirementId?: string | null;
+  onSelectRequirement?: (requirementId: string) => void;
+}) {
   const { t } = useTranslation("requirements");
   const requirementEntries = useMemo(() => selectRequirements(result), [result]);
   const requirements = requirementEntries.flatMap((entry) => entry.kind === "VALID" ? [entry.value] : []);
   const malformedRequirementCount = requirementEntries.length - requirements.length;
-  const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
+  const [localSelectedRequirementId, setLocalSelectedRequirementId] = useState<string | null>(null);
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
   const evidenceTrigger = useRef<HTMLButtonElement | null>(null);
-  const selected = requirements.find((item) => item.requirement.id === selectedRequirementId) ?? requirements[0] ?? null;
+  const selectedRequirementId = requestedRequirementId ?? localSelectedRequirementId;
+  const selected = requestedRequirementId !== null
+    ? requirements.find((item) => item.requirement.id === requestedRequirementId) ?? null
+    : requirements.find((item) => item.requirement.id === selectedRequirementId) ?? requirements[0] ?? null;
   const selectedEvidence = selected?.evidence.find((item) => item?.evidenceId === selectedEvidenceId) ?? null;
 
   const selectEvidence = (evidence: EvidenceProjection, event: MouseEvent<HTMLButtonElement>) => {
@@ -250,6 +261,16 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
     setSelectedEvidenceId(null);
     evidenceTrigger.current?.focus();
   }, []);
+
+  if (requestedRequirementId !== null && !selected) {
+    return (
+      <section className="requirements-page">
+        <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={<><span>{t("header.selected")}: <code>{requestedRequirementId}</code></span><span>{t("header.count", { count: requirementEntries.length })}</span></>} />
+        {malformedRequirementCount ? <div className="neutral-note malformed-requirements-note" role="note"><strong>{t("malformed.requirementsTitle", { count: malformedRequirementCount })}</strong><p>{t("malformed.requirementsDescription")}</p></div> : null}
+        <EmptyState title={t("malformed.requestedSelectionTitle")} description={t("malformed.requestedSelectionDescription", { id: requestedRequirementId })} />
+      </section>
+    );
+  }
 
   if (!selected) {
     return (
@@ -279,7 +300,11 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
                 <button
                   type="button"
                   aria-current={entry.value === selected ? "true" : undefined}
-                  onClick={() => { setSelectedRequirementId(entry.value.requirement.id); setSelectedEvidenceId(null); }}
+                  onClick={() => {
+                    setLocalSelectedRequirementId(entry.value.requirement.id);
+                    onSelectRequirement?.(entry.value.requirement.id);
+                    setSelectedEvidenceId(null);
+                  }}
                 >
                   <strong>{entry.value.requirement.id}</strong>
                   <span>{t("navigator.sourceLine", { line: entry.value.requirement.sourceLine })}</span>
