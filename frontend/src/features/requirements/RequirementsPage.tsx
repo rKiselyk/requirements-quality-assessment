@@ -231,14 +231,23 @@ function Diagnostics({ requirement }: { requirement: RequirementProjection }) {
   );
 }
 
-export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse }) {
+export function RequirementsPage({
+  result,
+  selectedRequirementId: requestedRequirementId = null,
+  onSelectRequirement,
+}: {
+  result: CanonicalAnalyzeResponse;
+  selectedRequirementId?: string | null;
+  onSelectRequirement?: (requirementId: string) => void;
+}) {
   const { t } = useTranslation("requirements");
   const requirementEntries = useMemo(() => selectRequirements(result), [result]);
   const requirements = requirementEntries.flatMap((entry) => entry.kind === "VALID" ? [entry.value] : []);
   const malformedRequirementCount = requirementEntries.length - requirements.length;
-  const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
+  const [localSelectedRequirementId, setLocalSelectedRequirementId] = useState<string | null>(null);
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
   const evidenceTrigger = useRef<HTMLButtonElement | null>(null);
+  const selectedRequirementId = requestedRequirementId ?? localSelectedRequirementId;
   const selected = requirements.find((item) => item.requirement.id === selectedRequirementId) ?? requirements[0] ?? null;
   const selectedEvidence = selected?.evidence.find((item) => item?.evidenceId === selectedEvidenceId) ?? null;
 
@@ -279,7 +288,11 @@ export function RequirementsPage({ result }: { result: CanonicalAnalyzeResponse 
                 <button
                   type="button"
                   aria-current={entry.value === selected ? "true" : undefined}
-                  onClick={() => { setSelectedRequirementId(entry.value.requirement.id); setSelectedEvidenceId(null); }}
+                  onClick={() => {
+                    setLocalSelectedRequirementId(entry.value.requirement.id);
+                    onSelectRequirement?.(entry.value.requirement.id);
+                    setSelectedEvidenceId(null);
+                  }}
                 >
                   <strong>{entry.value.requirement.id}</strong>
                   <span>{t("navigator.sourceLine", { line: entry.value.requirement.sourceLine })}</span>

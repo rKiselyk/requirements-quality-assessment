@@ -15,6 +15,7 @@ export function App() {
   const { t: overviewText } = useTranslation("overview");
   const [inputVersion, setInputVersion] = useState(0);
   const [selectedResultView, setSelectedResultView] = useState<ResultSectionId>("overview");
+  const [selectedRequirementId, setSelectedRequirementId] = useState<string | null>(null);
   const session = useAnalysisSession();
   const errorMessage = session.error?.code
     ? errorText(apiErrorTranslationKey(session.error.code))
@@ -25,6 +26,7 @@ export function App() {
   const reset = () => {
     session.reset();
     setSelectedResultView("overview");
+    setSelectedRequirementId(null);
     setInputVersion((version) => version + 1);
   };
 
@@ -56,7 +58,15 @@ export function App() {
       </div>
       {session.phase === "ANALYZING" ? <AnalyzingPage /> : null}
       {session.phase === "RESULT_READY" && session.latestResult
-        ? <ResultWorkspace result={session.latestResult} activeView={selectedResultView} />
+        ? <ResultWorkspace
+            result={session.latestResult}
+            activeView={selectedResultView}
+            selectedRequirementId={selectedRequirementId}
+            onSelectRequirement={(requirementId) => {
+              setSelectedRequirementId(requirementId);
+              setSelectedResultView("requirements");
+            }}
+          />
         : null}
     </AppShell>
   );
