@@ -93,7 +93,9 @@ function crossResult(resultId: string, state: string, left = "R001", right = "R0
     outside_reasons: state === "OUTSIDE_V0_1_APPLICABILITY" ? ["METRIC_MISMATCH"] : [],
     evidence_refs: [{ requirement_id: left, evidence_id: "E-LEFT" }, { requirement_id: right, evidence_id: "E-RIGHT" }],
     diagnostic_refs: [{ requirement_id: left, feature_id: "quantitative_constraint", diagnostic_index: 0 }],
-    comparison_key: { normalized_metric: "response_time", normalized_context: "normal_load", unit: "SECOND" },
+    comparison_key: state === "CONFIRMED_CONFLICT" || state === "COMPATIBLE_WITHIN_RULE"
+      ? { normalized_metric: "response_time", normalized_context: "normal_load", unit: "SECOND" }
+      : null,
     comparison_contract: contract("QB-COMPARISON"), coverage_profile: contract("QB-v0.1"), non_claim_keys: ["NC-QB-BASE"],
   };
 }
@@ -544,5 +546,136 @@ describe("RUI-09 Specification page", () => {
     const projection = selectSpecificationPage(payload);
     expect(projection.qb).toBeNull();
     expect(projection.materiality).toBeNull();
+  });
+
+  it("rejects an observation ref owned by a foreign requirement", () => {
+    const payload = result();
+    const cross = (payload.specification.cross_results as Array<Record<string, unknown>>)[0];
+    (cross.observation_refs as Array<Record<string, unknown>>)[0].requirement_id = "R999";
+    expect(selectSpecificationPage(payload).crossResults[0]).toBeNull();
+  });
+
+  it("rejects a foreign observation even when its operand consistently points to it", () => {
+    const payload = result();
+    const cross = (payload.specification.cross_results as Array<Record<string, unknown>>)[0];
+    const foreign = { requirement_id: "R999", feature_id: "quantitative_constraint", observation_index: 0 };
+    (cross.observation_refs as unknown[])[0] = foreign;
+    ((cross.operands as Record<string, Record<string, unknown>>).left).observation_ref = foreign;
+    expect(selectSpecificationPage(payload).crossResults[0]).toBeNull();
+  });
+
+  it("rejects foreign, incomplete, or malformed cross-result Evidence ownership", () => {
+    const foreignPayload = result();
+    const foreignCross = (foreignPayload.specification.cross_results as Array<Record<string, unknown>>)[0];
+    foreignCross.evidence_refs = [
+      { requirement_id: "R001", evidence_id: "E-LEFT" },
+      { requirement_id: "R999", evidence_id: "E-FOREIGN" },
+    ];
+    expect(selectSpecificationPage(foreignPayload).crossResults[0]).toBeNull();
+
+    const uncoveredPayload = result();
+    const uncoveredCross = (uncoveredPayload.specification.cross_results as Array<Record<string, unknown>>)[0];
+    uncoveredCross.evidence_refs = [{ requirement_id: "R001", evidence_id: "E-LEFT" }];
+    expect(selectSpecificationPage(uncoveredPayload).crossResults[0]).toBeNull();
+
+    const malformedPayload = result();
+    const malformedCross = (malformedPayload.specification.cross_results as Array<Record<string, unknown>>)[0];
+    malformedCross.evidence_refs = [{ requirement_id: "R001" }, { requirement_id: "R002", evidence_id: "E-RIGHT" }];
+    expect(selectSpecificationPage(malformedPayload).crossResults[0]).toBeNull();
+  });
+
+  it("rejects a diagnostic ref owned by a non-participant", () => {
+    const payload = result();
+    const cross = (payload.specification.cross_results as Array<Record<string, unknown>>)[0];
+    cross.diagnostic_refs = [{ requirement_id: "R999", feature_id: "quantitative_constraint", diagnostic_index: 0 }];
+    expect(selectSpecificationPage(payload).crossResults[0]).toBeNull();
+  });
+
+  it("accepts valid canonical cross-result owner relationships unchanged", () => {
+    const projected = selectSpecificationPage(result()).crossResults[0];
+    expect(projected).not.toBeNull();
+    expect(projected?.observationRefs.map((ref) => ref.requirementId)).toEqual(["R001", "R002"]);
+    expect(projected?.evidenceRefs.map((ref) => ref?.requirementId)).toEqual(["R001", "R002"]);
+    expect(projected?.diagnosticRefs.map((ref) => ref.requirementId)).toEqual(["R001"]);
+  });
+
+  it.each([
+    ["CONFIRMED_CONFLICT without a comparison key", "CONFIRMED_CONFLICT", { comparison_key: null }],
+    ["COMPATIBLE_WITHIN_RULE with an incomplete operand", "COMPATIBLE_WITHIN_RULE", { incompleteOperand: true }],
+    ["ASSESSMENT_UNRESOLVED with a comparison key", "ASSESSMENT_UNRESOLVED", { comparison_key: { normalized_metric: "response_time", normalized_context: "normal_load", unit: "SECOND" } }],
+    ["OUTSIDE_V0_1_APPLICABILITY with a comparison key", "OUTSIDE_V0_1_APPLICABILITY", { comparison_key: { normalized_metric: "response_time", normalized_context: "normal_load", unit: "SECOND" } }],
+  ])("rejects an impossible complete/incomplete comparison state: %s", (_label, state, contradiction) => {
+    const payload = result();
+    const cross = crossResult("CR-1", state);
+    if ("comparison_key" in contradiction) cross.comparison_key = contradiction.comparison_key;
+    if ("incompleteOperand" in contradiction) (cross.operands.left as Record<string, unknown>).value = null;
+    (payload.specification.cross_results as unknown[])[0] = cross;
+    expect(selectSpecificationPage(payload).crossResults[0]).toBeNull();
+  });
+
+  it("rejects a materiality audit whose requirement/source identity disagrees with the population", () => {
+    const payload = result();
+    const audit = ((payload.specification.materiality as Record<string, unknown>).audit_records as Array<Record<string, unknown>>)[0];
+    audit.requirement_source_order = 1;
+    expect(selectSpecificationPage(payload).materiality).toBeNull();
+  });
+
+  it("rejects foreign matched-context Evidence and a differing audit materiality rule", () => {
+    const contextPayload = result();
+    const contextAudit = ((contextPayload.specification.materiality as Record<string, unknown>).audit_records as Array<Record<string, unknown>>)[0];
+    contextAudit.matched_context_evidence_ref = { requirement_id: "R002", evidence_id: "E-CONTEXT" };
+    expect(selectSpecificationPage(contextPayload).materiality).toBeNull();
+
+    const rulePayload = result();
+    const ruleAudit = ((rulePayload.specification.materiality as Record<string, unknown>).audit_records as Array<Record<string, unknown>>)[0];
+    ruleAudit.materiality_rule = contract("OTHER-MATERIALITY-RULE");
+    expect(selectSpecificationPage(rulePayload).materiality).toBeNull();
+  });
+
+  it.each([
+    ["one false gate", (audit: Record<string, unknown>) => {
+      (audit.gate_outcomes as Record<string, boolean>).provenance_integrity = false;
+    }],
+    ["missing context Evidence", (audit: Record<string, unknown>) => { audit.matched_context_evidence_ref = null; }],
+    ["missing allowlist contract", (audit: Record<string, unknown>) => { audit.matched_allowlist_contract = null; }],
+  ])("rejects QB_NON_MATERIAL proof with %s", (_label, mutate) => {
+    const payload = result();
+    const audit = ((payload.specification.materiality as Record<string, unknown>).audit_records as Array<Record<string, unknown>>)[0];
+    mutate(audit);
+    expect(selectSpecificationPage(payload).materiality).toBeNull();
+  });
+
+  it("rejects QB_MATERIAL_UNRESOLVED when all eight gates are true", () => {
+    const payload = result();
+    const materiality = payload.specification.materiality as Record<string, unknown>;
+    const audit = (materiality.audit_records as Array<Record<string, unknown>>)[0];
+    audit.disposition = "QB_MATERIAL_UNRESOLVED";
+    materiality.qb_material_count = 1;
+    materiality.qb_non_material_count = 0;
+    expect(selectSpecificationPage(payload).materiality).toBeNull();
+  });
+
+  it("keeps a valid QB_NON_MATERIAL audit visible with its complete proof", () => {
+    renderPage();
+    fireEvent.click(screen.getByText("Diagnostic audit records (1)"));
+    expect(screen.getByText("QB_NON_MATERIAL")).toBeTruthy();
+    expect(screen.getByText("E-CONTEXT")).toBeTruthy();
+    expect(screen.getByText("QB-MATERIALITY-ALLOWLIST")).toBeTruthy();
+  });
+
+  it("validates candidate offsets in Unicode code points rather than UTF-16 units", () => {
+    const validPayload = result();
+    const validAudit = ((validPayload.specification.materiality as Record<string, unknown>).audit_records as Array<Record<string, unknown>>)[0];
+    validAudit.candidate_text = "😀";
+    validAudit.diagnostic_start_offset = 10;
+    validAudit.diagnostic_end_offset = 11;
+    expect(selectSpecificationPage(validPayload).materiality).not.toBeNull();
+
+    const utf16Payload = result();
+    const utf16Audit = ((utf16Payload.specification.materiality as Record<string, unknown>).audit_records as Array<Record<string, unknown>>)[0];
+    utf16Audit.candidate_text = "😀";
+    utf16Audit.diagnostic_start_offset = 10;
+    utf16Audit.diagnostic_end_offset = 12;
+    expect(selectSpecificationPage(utf16Payload).materiality).toBeNull();
   });
 });

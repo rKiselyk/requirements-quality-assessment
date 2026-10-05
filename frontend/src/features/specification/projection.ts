@@ -276,6 +276,10 @@ function contract(value: unknown): ContractProjection | null {
   return contractId && version ? { contractId, version } : null;
 }
 
+function sameContract(left: ContractProjection, right: ContractProjection): boolean {
+  return left.contractId === right.contractId && left.version === right.version;
+}
+
 function characteristic(value: unknown, expectedCharacteristicId: string): CharacteristicValueProjection | null {
   const candidate = record(value);
   const projected = stateValue(value);
@@ -421,6 +425,15 @@ function comparisonKey(value: unknown): ComparisonKeyProjection | null {
   return normalizedMetric && normalizedContext && unit ? { normalizedMetric, normalizedContext, unit } : null;
 }
 
+function completeComparisonOperand(value: ComparisonOperandProjection): boolean {
+  return value.normalizedMetric !== null
+    && value.normalizedContext !== null
+    && value.comparator !== null
+    && value.inclusivity !== null
+    && value.value !== null
+    && value.unit !== null;
+}
+
 function qb(value: unknown, expectedSnapshotId: string, expectedRequirementCount: number): QbProjection | null {
   const candidate = record(value);
   const projected = stateValue(value);
@@ -496,7 +509,8 @@ function crossResult(value: unknown, expectedSnapshotId: string, requirementPopu
   const operandsRecord = record(candidate.operands);
   const leftOperand = operandsRecord && comparisonOperand(operandsRecord.left, expectedSnapshotId);
   const rightOperand = operandsRecord && comparisonOperand(operandsRecord.right, expectedSnapshotId);
-  const diagnosticRefs = Array.isArray(candidate.diagnostic_refs) ? candidate.diagnostic_refs.map(diagnosticRef) : [];
+  const evidenceRefs = Array.isArray(candidate.evidence_refs) ? candidate.evidence_refs.map(evidenceRef) : [null];
+  const diagnosticRefs = Array.isArray(candidate.diagnostic_refs) ? candidate.diagnostic_refs.map(diagnosticRef) : [null];
   const unresolvedReasons = stringArray(candidate.unresolved_reasons);
   const outsideReasons = stringArray(candidate.outside_reasons);
   const conflictClass = candidate.conflict_class === null ? null : text(candidate.conflict_class);
@@ -506,6 +520,7 @@ function crossResult(value: unknown, expectedSnapshotId: string, requirementPopu
     || participants.length !== 2 || participants.some((item) => item === null)
     || observationRefs.length !== 2 || observationRefs.some((item) => item === null)
     || !leftOperand || !rightOperand
+    || evidenceRefs.some((item) => item === null)
     || diagnosticRefs.some((item) => item === null)
     || unresolvedReasons === null || outsideReasons === null
     || (candidate.conflict_class !== null && conflictClass === null)
@@ -515,17 +530,28 @@ function crossResult(value: unknown, expectedSnapshotId: string, requirementPopu
       && state !== "ASSESSMENT_UNRESOLVED" && state !== "OUTSIDE_V0_1_APPLICABILITY")) return null;
   const typedParticipants = participants as [ParticipantProjection, ParticipantProjection];
   const typedObservationRefs = observationRefs as [ObservationRefProjection, ObservationRefProjection];
+  const participantIds = new Set(typedParticipants.map((item) => item.requirementId));
+  const typedEvidenceRefs = evidenceRefs as EvidenceRefProjection[];
+  const typedDiagnosticRefs = diagnosticRefs as DiagnosticRefProjection[];
   if (typedParticipants[0].requirementId === typedParticipants[1].requirementId
     || typedParticipants[0].sourceOrder >= typedParticipants[1].sourceOrder
+    || typedObservationRefs[0].requirementId !== typedParticipants[0].requirementId
+    || typedObservationRefs[1].requirementId !== typedParticipants[1].requirementId
     || !sameObservationRef(leftOperand.observationRef, typedObservationRefs[0])
-    || !sameObservationRef(rightOperand.observationRef, typedObservationRefs[1])) return null;
+    || !sameObservationRef(rightOperand.observationRef, typedObservationRefs[1])
+    || typedEvidenceRefs.some((item) => !participantIds.has(item.requirementId))
+    || typedParticipants.some((item) => !typedEvidenceRefs.some((ref) => ref.requirementId === item.requirementId))
+    || typedDiagnosticRefs.some((item) => !participantIds.has(item.requirementId))) return null;
+  const completeComparison = projectedComparisonKey !== null
+    && completeComparisonOperand(leftOperand)
+    && completeComparisonOperand(rightOperand);
   const stateMatrixValid = state === "CONFIRMED_CONFLICT"
-    ? conflictClass !== null && conflictSubtype !== null && unresolvedReasons.length === 0 && outsideReasons.length === 0
+    ? conflictClass !== null && conflictSubtype !== null && unresolvedReasons.length === 0 && outsideReasons.length === 0 && completeComparison
     : state === "COMPATIBLE_WITHIN_RULE"
-      ? conflictClass === null && conflictSubtype === null && unresolvedReasons.length === 0 && outsideReasons.length === 0
+      ? conflictClass === null && conflictSubtype === null && unresolvedReasons.length === 0 && outsideReasons.length === 0 && completeComparison
       : state === "ASSESSMENT_UNRESOLVED"
-        ? conflictClass === null && conflictSubtype === null && unresolvedReasons.length > 0 && outsideReasons.length === 0
-        : conflictClass === null && conflictSubtype === null && unresolvedReasons.length === 0 && outsideReasons.length > 0;
+        ? conflictClass === null && conflictSubtype === null && unresolvedReasons.length > 0 && outsideReasons.length === 0 && projectedComparisonKey === null
+        : conflictClass === null && conflictSubtype === null && unresolvedReasons.length === 0 && outsideReasons.length > 0 && projectedComparisonKey === null;
   if (!stateMatrixValid) return null;
   return {
     resultId,
@@ -534,21 +560,26 @@ function crossResult(value: unknown, expectedSnapshotId: string, requirementPopu
     participants: typedParticipants,
     observationRefs: typedObservationRefs,
     operands: { left: leftOperand, right: rightOperand },
-    diagnosticRefs: diagnosticRefs as DiagnosticRefProjection[],
+    diagnosticRefs: typedDiagnosticRefs,
     comparisonKey: projectedComparisonKey,
     relationKind,
     conflictClass,
     conflictSubtype,
     unresolvedReasons,
     outsideReasons,
-    evidenceRefs: Array.isArray(candidate.evidence_refs) ? candidate.evidence_refs.map(evidenceRef) : [null],
+    evidenceRefs: typedEvidenceRefs,
     comparisonContract: contract(candidate.comparison_contract),
     coverageProfile: contract(candidate.coverage_profile),
     nonClaimKeys: Array.isArray(candidate.non_claim_keys) ? candidate.non_claim_keys.map((item) => text(item)) : [null],
   };
 }
 
-function materialityAudit(value: unknown, expectedSnapshotId: string): MaterialityAuditProjection | null {
+function materialityAudit(
+  value: unknown,
+  expectedSnapshotId: string,
+  requirementPopulation: Map<number, string>,
+  expectedMaterialityRule: ContractProjection,
+): MaterialityAuditProjection | null {
   const candidate = record(value);
   if (!candidate) return null;
   const snapshotId = identifier(candidate.snapshot_id);
@@ -562,18 +593,29 @@ function materialityAudit(value: unknown, expectedSnapshotId: string): Materiali
   const startOffset = candidate.diagnostic_start_offset === null ? null : nonNegativeInteger(candidate.diagnostic_start_offset);
   const endOffset = candidate.diagnostic_end_offset === null ? null : nonNegativeInteger(candidate.diagnostic_end_offset);
   const spanValues = [candidateText, startOffset, endOffset];
-  const validSpan = spanValues.every((item) => item === null) || spanValues.every((item) => item !== null);
+  const spanAbsent = spanValues.every((item) => item === null);
+  const spanPresent = candidateText !== null && startOffset !== null && endOffset !== null;
+  const validSpan = spanAbsent || (spanPresent
+    && endOffset >= startOffset
+    && Array.from(candidateText).length === endOffset - startOffset);
   const matchedContextEvidenceRef = candidate.matched_context_evidence_ref === null ? null : evidenceRef(candidate.matched_context_evidence_ref);
   const matchedAllowlistContract = candidate.matched_allowlist_contract === null ? null : contract(candidate.matched_allowlist_contract);
   const materialityRule = contract(candidate.materiality_rule);
   const gates = record(candidate.gate_outcomes);
   const gateEntries = gates && materialityGateKeys.map((key) => [key, gates[key]] as const);
+  const allGatesTrue = gateEntries?.every(([, gate]) => gate === true) ?? false;
   if (snapshotId !== expectedSnapshotId || !requirementId || requirementSourceOrder === null || !projectedDiagnosticRef
+    || requirementPopulation.get(requirementSourceOrder) !== requirementId
     || projectedDiagnosticRef.requirementId !== requirementId || !diagnosticCode || !diagnosticRuleId
     || (disposition !== "QB_MATERIAL_UNRESOLVED" && disposition !== "QB_NON_MATERIAL") || !validSpan
     || (candidate.matched_context_evidence_ref !== null && matchedContextEvidenceRef === null)
+    || (matchedContextEvidenceRef !== null && matchedContextEvidenceRef.requirementId !== requirementId)
     || (candidate.matched_allowlist_contract !== null && matchedAllowlistContract === null)
-    || !materialityRule || !gateEntries || gateEntries.some(([, gate]) => typeof gate !== "boolean")) return null;
+    || !materialityRule || !sameContract(materialityRule, expectedMaterialityRule)
+    || !gateEntries || gateEntries.some(([, gate]) => typeof gate !== "boolean")
+    || (disposition === "QB_NON_MATERIAL"
+      && (!allGatesTrue || !spanPresent || matchedContextEvidenceRef === null || matchedAllowlistContract === null))
+    || (disposition === "QB_MATERIAL_UNRESOLVED" && allGatesTrue)) return null;
   return {
     snapshotId,
     requirementId,
@@ -592,19 +634,24 @@ function materialityAudit(value: unknown, expectedSnapshotId: string): Materiali
   };
 }
 
-function materiality(value: unknown, expectedSnapshotId: string): MaterialityProjection | null {
+function materiality(value: unknown, expectedSnapshotId: string, requirementPopulation: Map<number, string>): MaterialityProjection | null {
   const candidate = record(value);
   const snapshotId = candidate && identifier(candidate.snapshot_id);
   const materialityRule = candidate && contract(candidate.materiality_rule);
   const globalUnresolvedDiagnosticCount = candidate && nonNegativeInteger(candidate.global_unresolved_diagnostic_count);
   const qbMaterialCount = candidate && nonNegativeInteger(candidate.qb_material_count);
   const qbNonMaterialCount = candidate && nonNegativeInteger(candidate.qb_non_material_count);
-  const auditRecords = Array.isArray(candidate?.audit_records)
-    ? candidate.audit_records.map((item) => materialityAudit(item, expectedSnapshotId))
-    : [null];
   if (!candidate || snapshotId !== expectedSnapshotId || !materialityRule
-    || globalUnresolvedDiagnosticCount === null || qbMaterialCount === null || qbNonMaterialCount === null
-    || auditRecords.some((item) => item === null)
+    || globalUnresolvedDiagnosticCount === null || qbMaterialCount === null || qbNonMaterialCount === null) return null;
+  const auditRecords = Array.isArray(candidate.audit_records)
+    ? candidate.audit_records.map((item) => materialityAudit(
+      item,
+      expectedSnapshotId,
+      requirementPopulation,
+      materialityRule,
+    ))
+    : [null];
+  if (auditRecords.some((item) => item === null)
     || globalUnresolvedDiagnosticCount !== auditRecords.length
     || globalUnresolvedDiagnosticCount !== qbMaterialCount + qbNonMaterialCount
     || auditRecords.filter((item) => item?.disposition === "QB_MATERIAL_UNRESOLVED").length !== qbMaterialCount
@@ -683,7 +730,7 @@ export function selectSpecificationPage(response: CanonicalAnalyzeResponse): Spe
   let projectedQb = snapshotId !== null && aggregatePopulation !== null
     ? qb(specification?.qb_consistency, snapshotId, aggregatePopulation)
     : null;
-  let projectedMateriality = snapshotId !== null ? materiality(specification?.materiality, snapshotId) : null;
+  let projectedMateriality = snapshotId !== null ? materiality(specification?.materiality, snapshotId, requirementPopulation) : null;
   const projectedTrace = snapshotId !== null ? projectionTrace(specification?.projection_snapshot, snapshotId) : null;
 
   if (projectedQb && crossResults.every((item): item is CrossResultProjection => item !== null)) {
