@@ -103,6 +103,35 @@ function currentRecords(artifact = artifactV1, marker = "CURRENT") {
   };
   const criterionRef = { criterion_id: bindingId };
   const observationRef = { observation_id: observationId };
+  const sourceStatus = { status: "COMPUTED", applicability: "APPLICABLE" };
+  const metricEntry = (metricId: string) => ({ metric_profile_ref: profile.metric_profile_ref, metric_id: metricId });
+  const typedValues = [
+    { criterion_ref: criterionRef, metric_ref: metricRef, comparator: "LESS_THAN_OR_EQUAL", inclusivity: "INCLUSIVE", exact_decimal_bound: marker === "STALE" ? "99" : "2.0", unit: "SECOND", context_identity: criterionContext },
+    { metric_entry_ref: metricEntry("C"), exact_fraction_or_none: { numerator: 1, denominator: 1 }, numeric_representation: "EXACT_FRACTION", source_status: sourceStatus },
+    { metric_entry_ref: metricEntry("V"), exact_fraction_or_none: { numerator: 2, denominator: 3 }, numeric_representation: "EXACT_FRACTION", source_status: sourceStatus },
+    { metric_entry_ref: metricEntry("U"), exact_fraction_or_none: { numerator: 1, denominator: 2 }, numeric_representation: "EXACT_FRACTION", source_status: sourceStatus },
+    { qb_metric_entry_ref: metricEntry("QB"), source_metric_status: "COMPUTED", source_metric_applicability: "APPLICABLE", source_exact_fraction_or_none: { numerator: 4, denominator: 5 }, gate_decision: "TARGET_CLEAR", target_key: profile.target_key, ordered_cross_result_refs: [] },
+    { observation_ref: observationRef, metric_ref: metricRef, exact_decimal_value: marker === "STALE" ? "88" : "1.80", unit: "SECOND", context_identity: criterionContext },
+    { conformance_ref: conformanceId, outcome: "CONFORMS" },
+  ];
+  profile.features.forEach((feature, index) => { Object.assign(feature, { typed_value: typedValues[index] }); });
+  Object.assign(profile.provenance, {
+    artifact_ref: artifact,
+    source_assessment_ref: profile.source_assessment_ref,
+    source_snapshot_id: sourceSnapshotId,
+    metric_profile_ref: profile.metric_profile_ref,
+    criterion_binding_ref: bindingId,
+    observation_resolution_ref: slotRef,
+    conformance_assessment_ref: conformanceId,
+    dynamic_assessment_ref: dynamicAssessmentRef,
+    product_ref: profile.product_ref,
+    environment_ref_or_none: collectionRef.environment_ref,
+    collection_ref_or_none: collectionRef,
+    process_state_ref: profile.process_state_ref,
+    ordered_feature_entry_refs: profile.features.map((feature) => feature.feature_entry_id),
+    source_contract_refs: [{ contract_id: "FULL-MODEL-V0.1", contract_version: "1" }],
+    rule_refs: [rule],
+  });
   return {
     criterion_binding: {
       binding_id: bindingId, status: "AVAILABLE", applicability: "APPLICABLE",
@@ -127,11 +156,11 @@ function observed(artifact: typeof artifactV1, profile: ReturnType<typeof featur
   const parameterSetRef = { parameter_set_id: "PE-OBS-CONFORMANCE-001-PARAMETERS", parameter_set_version: "1" };
   const featureRefs = profile.features.map((feature) => feature.feature_entry_id);
   const evidenceRefs: unknown[] = [];
-  const assessmentEventRef = { assessment_event_id: `EVENT-${marker}`, assessment_event_version: "1" };
+  const assessmentEventRef = { assessment_event_id: `EVENT-${marker}`, assessment_event_version: "1", product_ref: profile.product_ref, artifact_ref: artifact };
   const assessmentId = { assessment_event_ref: assessmentEventRef, feature_profile_ref: profile.profile_id, characteristic_id: "PERFORMANCE_EFFICIENCY", result_kind: "OBSERVED_REFERENCE_INDICATOR", model_ref: modelRef, procedure_rule_ref: rule, parameter_set_ref: parameterSetRef };
   return {
     assessment_id: assessmentId, assessment_event_ref: assessmentEventRef, characteristic_id: "PERFORMANCE_EFFICIENCY", product_ref: profile.product_ref, artifact_ref: artifact, feature_profile_ref: profile.profile_id,
-    scope: { scope_kind: "SINGLE_CRITERION_SINGLE_OBSERVATION", characteristic_id: "PERFORMANCE_EFFICIENCY", criterion_ref: { criterion_id: criterionId }, observation_ref: { observation_id: observationId }, conformance_ref: conformanceId, product_ref: profile.product_ref, full_characteristic_coverage: "NOT_ESTABLISHED" }, scope_statement: "One response-time criterion and one observation.", result_kind: "OBSERVED_REFERENCE_INDICATOR", status: "AVAILABLE", applicability: "APPLICABLE", source_conformance_outcome: "CONFORMS", value: { numerator: 1, denominator: 1 }, prediction_value: null, observed_value: { numerator: 1, denominator: 1 }, numeric_representation: "EXACT_FRACTION", evidence_coverage: { coverage_kind: "BOUNDED_REQUIRED_CHANNEL_INVENTORY" }, reliability: null, uncertainty: null, explanation: "Bounded observed indicator.", feature_refs: featureRefs, evidence_refs: evidenceRefs, provenance: { feature_profile_ref: profile.profile_id, product_ref: profile.product_ref, process_state_ref: profile.process_state_ref, model_ref: modelRef, parameter_set_ref: parameterSetRef, ordered_feature_refs: featureRefs, source_evidence_refs: evidenceRefs, rule_refs: [rule] }, model_ref: modelRef, procedure_rule_ref: rule, parameter_set_ref: parameterSetRef, calibration_status: "PROVISIONAL_NOT_CALIBRATED", artifact_version: artifact.artifact_version, source_assessment_version: artifact.artifact_version, product_version: "1", product_quality_assessment_version: "1", non_claims: [...productQualityNonClaims],
+    scope: { scope_kind: "SINGLE_CRITERION_SINGLE_OBSERVATION", characteristic_id: "PERFORMANCE_EFFICIENCY", dynamic_metric_ref: { metric_id: "DYN.RESPONSE_TIME" }, criterion_ref: { criterion_id: criterionId }, observation_ref: { observation_id: observationId }, conformance_ref: conformanceId, product_ref: profile.product_ref, environment_ref: (profile.provenance as Record<string, unknown>).environment_ref_or_none, collection_ref: (profile.provenance as Record<string, unknown>).collection_ref_or_none, context_identity: { normalized_text: "500 concurrent users" }, unit: "SECOND", process_stage: "REFERENCE_VERIFICATION", full_characteristic_coverage: "NOT_ESTABLISHED" }, scope_statement: "One response-time criterion and one observation.", result_kind: "OBSERVED_REFERENCE_INDICATOR", status: "AVAILABLE", applicability: "APPLICABLE", source_conformance_outcome: "CONFORMS", value: { numerator: 1, denominator: 1 }, prediction_value: null, observed_value: { numerator: 1, denominator: 1 }, numeric_representation: "EXACT_FRACTION", evidence_coverage: { coverage_kind: "BOUNDED_REQUIRED_CHANNEL_INVENTORY" }, reliability: null, uncertainty: null, explanation: "Bounded observed indicator.", feature_refs: featureRefs, evidence_refs: evidenceRefs, provenance: { feature_profile_ref: profile.profile_id, product_ref: profile.product_ref, process_state_ref: profile.process_state_ref, model_ref: modelRef, parameter_set_ref: parameterSetRef, ordered_feature_refs: featureRefs, source_evidence_refs: evidenceRefs, rule_refs: [rule] }, model_ref: modelRef, procedure_rule_ref: rule, parameter_set_ref: parameterSetRef, calibration_status: "PROVISIONAL_NOT_CALIBRATED", artifact_version: artifact.artifact_version, source_assessment_version: profile.source_assessment_ref.assessment_version, product_version: profile.product_ref.product_version, product_quality_assessment_version: assessmentEventRef.assessment_event_version, non_claims: [...productQualityNonClaims],
   };
 }
 
@@ -534,6 +563,196 @@ describe("RUI-10 Product Quality", () => {
 
     const validProjection = selectProductQualityPage(response());
     expect(validProjection.kind === "AVAILABLE" && validProjection.prediction.kind).toBe("PRESENT");
+  });
+
+  it.each([
+    ["criterion", "criterion_binding", (record: Record<string, unknown>) => { record.criterion = null; }],
+    ["observation", "observation_resolution", (record: Record<string, unknown>) => { record.observation = null; }],
+    ["conformance", "conformance", (record: Record<string, unknown>) => { record.outcome = "INVALID_OUTCOME"; }],
+  ])("fails X_PE closed when the %s projection is malformed", (_label, field, mutate) => {
+    const value = response();
+    const model = value.full_model as Record<string, unknown>;
+    mutate(model[field] as Record<string, unknown>);
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.featureProfile).toBeNull();
+    expect(projected.observed).toBeNull();
+    expect(projected.prediction).toEqual({ kind: "MALFORMED" });
+  });
+
+  it("does not allow malformed X_PE to leave observed or a non-null prediction valid", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.provenance as Record<string, unknown>).criterion_binding_ref = { wrong: "binding" };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.featureProfile).toBeNull();
+    expect(projected.observed).toBeNull();
+    expect(projected.prediction).toEqual({ kind: "MALFORMED" });
+  });
+
+  it.each([
+    ["criterion binding", "criterion_binding_ref", { wrong: "binding" }],
+    ["observation resolution", "observation_resolution_ref", { wrong: "slot" }],
+    ["conformance", "conformance_assessment_ref", { wrong: "conformance" }],
+  ])("rejects X_PE provenance %s mismatch", (_label, field, replacement) => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.provenance as Record<string, unknown>)[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it.each([
+    ["artifact", "artifact_ref", artifactV2],
+    ["product", "product_ref", { product_id: "OTHER", product_version: "1" }],
+    ["process", "process_state_ref", { process_state_id: "OTHER", process_state_version: "1", stage: "REFERENCE_VERIFICATION" }],
+  ])("rejects X_PE provenance %s identity mismatch", (_label, field, replacement) => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.provenance as Record<string, unknown>)[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects X_PE provenance feature-entry refs in the wrong registry order", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    const provenance = profile.provenance as Record<string, unknown>;
+    provenance.ordered_feature_entry_refs = [...(provenance.ordered_feature_entry_refs as unknown[])].reverse();
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects a static X_PE feature carrying a product subject", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.features[0].product_ref = profile.product_ref;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it.each([[5, "observation"], [6, "conformance"]])("rejects dynamic %s feature with the wrong product subject", (index) => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.features[index].product_ref = { product_id: "OTHER", product_version: "1" };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects another typed-value family in the criterion registry slot", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.features[0].typed_value = profile.features[1].typed_value;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it.each([1, 2, 3])("rejects requirement metric slot %s without an exact fraction", (index) => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.features[index].typed_value as Record<string, unknown>).exact_fraction_or_none = null;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects a requirement metric feature without EXACT_FRACTION representation", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.features[1].typed_value as Record<string, unknown>).numeric_representation = "DECIMAL";
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects a malformed typed-value family in the QB slot", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    profile.features[4].typed_value = profile.features[1].typed_value;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects a QB typed-value target-key mismatch", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.features[4].typed_value as Record<string, unknown>).target_key = { key: "other-target" };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects an observation feature that names another observation", () => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.features[5].typed_value as Record<string, unknown>).observation_ref = { observation_id: { wrong: "observation" } };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("preserves the observation feature exact decimal as an untouched string", () => {
+    const projected = selectProductQualityPage(response());
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile?.features[5].typedValue?.exact_decimal_value).toBe("1.80");
+  });
+
+  it.each([
+    ["reference", "conformance_ref", { wrong: "conformance" }],
+    ["outcome", "outcome", "DOES_NOT_CONFORM"],
+  ])("rejects conformance feature %s mismatch without recomputing conformance", (_label, field, replacement) => {
+    const value = response();
+    const profile = (value.full_model as Record<string, unknown>).feature_profile as ReturnType<typeof featureProfile>;
+    (profile.features[6].typed_value as Record<string, unknown>)[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.conformance?.outcome).toBe("CONFORMS");
+    expect(projected.kind === "AVAILABLE" && projected.featureProfile).toBeNull();
+  });
+
+  it("rejects an observed assessment ID/event mismatch", () => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    (observedRecord.assessment_id as Record<string, unknown>).assessment_event_ref = { wrong: "event" };
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it.each([
+    ["artifact", "artifact_ref", artifactV2],
+    ["product", "product_ref", { product_id: "OTHER", product_version: "1" }],
+  ])("rejects an observed event %s mismatch", (_label, field, replacement) => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    const event = { ...(observedRecord.assessment_event_ref as Record<string, unknown>), [field]: replacement };
+    observedRecord.assessment_event_ref = event;
+    (observedRecord.assessment_id as Record<string, unknown>).assessment_event_ref = event;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it.each([
+    ["artifact", "artifact_version", "99"],
+    ["product", "product_version", "99"],
+    ["assessment", "product_quality_assessment_version", "99"],
+    ["source assessment", "source_assessment_version", "99"],
+  ])("rejects observed %s version mismatch", (_label, field, replacement) => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    observedRecord[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
+  });
+
+  it.each([
+    ["metric", "dynamic_metric_ref", { metric_id: "OTHER" }],
+    ["context", "context_identity", { normalized_text: "other context" }],
+    ["unit", "unit", "MILLISECOND"],
+    ["collection", "collection_ref", { wrong: "collection" }],
+    ["environment", "environment_ref", { wrong: "environment" }],
+  ])("rejects observed scope %s mismatch", (_label, field, replacement) => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    (observedRecord.scope as Record<string, unknown>)[field] = replacement;
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
   });
 
   it("disables criterion navigation when RUI-08 marks the matching requirement malformed", () => {

@@ -368,6 +368,11 @@ function featureProjection(
   profileId: JsonRecord,
   artifactRef: JsonRecord,
   sourceAssessmentRef: unknown,
+  productRef: JsonRecord,
+  targetKey: JsonRecord | null,
+  criterion: CriterionProjection,
+  observation: ObservationProjection,
+  conformance: ConformanceProjection,
 ): FeatureProjection | null {
   const candidate = record(value);
   const currentState = candidate && state(candidate, true);
@@ -381,16 +386,84 @@ function featureProjection(
   const ruleRefs = candidate && array(candidate.rule_refs);
   const featureEntryId = candidate && record(candidate.feature_entry_id);
   if (!candidate || !currentState || featureId !== peFeatureIds[index] || effect !== peFeatureEffects[index]
+    || candidate.characteristic_id !== "PERFORMANCE_EFFICIENCY"
     || !featureEntryId || !availabilityPoint || !explanation || sourceRefs === null || evidenceRefs === null || provenanceRefs === null || ruleRefs === null
     || featureEntryId.feature_id !== featureId
     || !deepEqual(featureEntryId.profile_id, profileId)
     || !deepEqual(candidate.artifact_ref, artifactRef)
-    || !deepEqual(candidate.source_assessment_ref, sourceAssessmentRef)) return null;
+    || !deepEqual(candidate.source_assessment_ref, sourceAssessmentRef)
+    || (index < 5 ? candidate.product_ref !== null : !deepEqual(candidate.product_ref, productRef))) return null;
   const typedValue = candidate.typed_value === null ? null : record(candidate.typed_value);
   if (candidate.typed_value !== null && !typedValue) return null;
   if (currentState.status === "AVAILABLE" && (currentState.applicability !== "APPLICABLE" || !typedValue)) return null;
   if (currentState.status !== "AVAILABLE" && typedValue !== null) return null;
+  if (typedValue && !validFeatureValue(index, typedValue, targetKey, criterion, observation, conformance)) return null;
   return { ...currentState, raw: candidate, featureId, effect, typedValue, availabilityPoint, explanation, sourceRefs, evidenceRefs, provenanceRefs, ruleRefs };
+}
+
+function validFeatureValue(
+  index: number,
+  value: JsonRecord,
+  targetKey: JsonRecord | null,
+  criterion: CriterionProjection,
+  observation: ObservationProjection,
+  conformance: ConformanceProjection,
+): boolean {
+  if (index === 0) {
+    const criterionRef = record(value.criterion_ref);
+    const metricRef = record(value.metric_ref);
+    const contextIdentity = record(value.context_identity);
+    const selected = criterion.criterion;
+    const selectedCriterionId = selected && record(selected.criterion_id);
+    return !!criterionRef && !!metricRef && !!contextIdentity && !!selected && !!selectedCriterionId
+      && !!text(value.comparator) && !!text(value.inclusivity) && !!text(value.exact_decimal_bound) && !!text(value.unit)
+      && deepEqual(criterionRef.criterion_id, selectedCriterionId)
+      && deepEqual(metricRef, selected.metric_ref)
+      && value.comparator === selected.comparator
+      && value.inclusivity === selected.inclusivity
+      && value.exact_decimal_bound === selected.bound
+      && value.unit === selected.unit
+      && deepEqual(contextIdentity, selected.context_identity);
+  }
+  if (index >= 1 && index <= 3) {
+    return !!record(value.metric_entry_ref)
+      && exactFraction(value.exact_fraction_or_none) !== null
+      && value.numeric_representation === "EXACT_FRACTION"
+      && !!record(value.source_status);
+  }
+  if (index === 4) {
+    const exactSource = value.source_exact_fraction_or_none;
+    const valueTargetKey = record(value.target_key);
+    return !!record(value.qb_metric_entry_ref)
+      && !!text(value.source_metric_status)
+      && !!text(value.source_metric_applicability)
+      && (exactSource === null || exactFraction(exactSource) !== null)
+      && (value.gate_decision === "TARGET_CLEAR" || value.gate_decision === "TARGET_CONFLICT")
+      && !!valueTargetKey
+      && Array.isArray(value.ordered_cross_result_refs)
+      && (targetKey === null || deepEqual(valueTargetKey, targetKey));
+  }
+  if (index === 5) {
+    const observationRef = record(value.observation_ref);
+    const metricRef = record(value.metric_ref);
+    const contextIdentity = record(value.context_identity);
+    const selected = observation.observation;
+    return !!observationRef && !!metricRef && !!contextIdentity && !!selected && !!observation.observationId
+      && !!text(value.exact_decimal_value) && !!text(value.unit)
+      && deepEqual(observationRef.observation_id, observation.observationId)
+      && deepEqual(metricRef, selected.metric_ref)
+      && value.exact_decimal_value === selected.observed_value
+      && value.unit === selected.unit
+      && deepEqual(contextIdentity, selected.context_identity);
+  }
+  if (index === 6) {
+    const conformanceRef = record(value.conformance_ref);
+    return !!conformanceRef
+      && (value.outcome === "CONFORMS" || value.outcome === "DOES_NOT_CONFORM")
+      && deepEqual(conformanceRef, conformance.conformanceId)
+      && value.outcome === conformance.outcome;
+  }
+  return false;
 }
 
 function featureProfileProjection(
@@ -406,10 +479,16 @@ function featureProfileProjection(
   const registryRef = candidate && record(candidate.registry_ref);
   const mappingRuleRef = candidate && record(candidate.mapping_rule_ref);
   const artifactRef = candidate && record(candidate.artifact_ref);
+  const sourceAssessmentRef = candidate && record(candidate.source_assessment_ref);
+  const metricProfileRef = candidate && record(candidate.metric_profile_ref);
+  const dynamicAssessmentRef = candidate && record(candidate.dynamic_assessment_ref);
   const productRef = candidate && record(candidate.product_ref);
   const processStateRef = candidate && record(candidate.process_state_ref);
   const featureValues = candidate && array(candidate.features);
-  if (!candidate || !currentState || !profileId || characteristicId !== "PERFORMANCE_EFFICIENCY" || !registryRef || !mappingRuleRef || !artifactRef || !productRef || !processStateRef || !featureValues || featureValues.length !== peFeatureIds.length) return null;
+  const provenance = candidate && record(candidate.provenance);
+  if (!candidate || !currentState || !criterion || !observation || !conformance || !profileId || characteristicId !== "PERFORMANCE_EFFICIENCY"
+    || !registryRef || !mappingRuleRef || !artifactRef || !sourceAssessmentRef || !metricProfileRef || !dynamicAssessmentRef
+    || !productRef || !processStateRef || !featureValues || featureValues.length !== peFeatureIds.length || !provenance) return null;
   const identityPairs: Array<[unknown, unknown]> = [
     [profileId.artifact_ref, artifactRef],
     [profileId.source_assessment_ref, candidate.source_assessment_ref],
@@ -424,11 +503,27 @@ function featureProfileProjection(
   const criterionSubjectRef = candidate.criterion_subject_ref === null ? null : record(candidate.criterion_subject_ref);
   const targetKey = candidate.target_key === null ? null : record(candidate.target_key);
   if (candidate.criterion_subject_ref !== null && !criterionSubjectRef || candidate.target_key !== null && !targetKey) return null;
-  if (criterion?.status === "AVAILABLE" && (!deepEqual(criterion.bindingId.artifact_ref, artifactRef) || !deepEqual(criterion.criterion?.requirement_subject_ref, criterionSubjectRef))) return null;
-  if (observation?.status === "AVAILABLE" && !deepEqual(observation.productRef, productRef)) return null;
-  if (conformance && (!deepEqual(conformance.raw.dynamic_assessment_ref, candidate.dynamic_assessment_ref) || !deepEqual(conformance.raw.criterion_binding_id, criterion?.bindingId))) return null;
-  const features = featureValues.map((feature, index) => featureProjection(feature, index, profileId, artifactRef, candidate.source_assessment_ref));
+  if (criterion.status === "AVAILABLE" && (!deepEqual(criterion.bindingId.artifact_ref, artifactRef) || !deepEqual(criterion.criterion?.requirement_subject_ref, criterionSubjectRef))) return null;
+  if (observation.status === "AVAILABLE" && !deepEqual(observation.productRef, productRef)) return null;
+  if (!deepEqual(conformance.raw.dynamic_assessment_ref, dynamicAssessmentRef) || !deepEqual(conformance.raw.criterion_binding_id, criterion.bindingId)) return null;
+  const features = featureValues.map((feature, index) => featureProjection(
+    feature, index, profileId, artifactRef, sourceAssessmentRef, productRef, targetKey, criterion, observation, conformance,
+  ));
   if (features.some((item) => item === null)) return null;
+  const featureEntryRefs = (features as FeatureProjection[]).map((feature) => feature.raw.feature_entry_id);
+  const provenancePairs: Array<[unknown, unknown]> = [
+    [provenance.artifact_ref, artifactRef],
+    [provenance.source_assessment_ref, sourceAssessmentRef],
+    [provenance.metric_profile_ref, metricProfileRef],
+    [provenance.dynamic_assessment_ref, dynamicAssessmentRef],
+    [provenance.product_ref, productRef],
+    [provenance.process_state_ref, processStateRef],
+    [provenance.criterion_binding_ref, criterion.bindingId],
+    [provenance.observation_resolution_ref, observation.slotRef],
+    [provenance.conformance_assessment_ref, conformance.conformanceId],
+    [provenance.ordered_feature_entry_refs, featureEntryRefs],
+  ];
+  if (provenancePairs.some(([left, right]) => !deepEqual(left, right))) return null;
   return { ...currentState, raw: candidate, profileId, characteristicId, criterionSubjectRef, targetKey, registryRef, mappingRuleRef, artifactRef, productRef, processStateRef, features: features as FeatureProjection[] };
 }
 
@@ -450,7 +545,8 @@ function observedProjection(
   const provenance = candidate && record(candidate.provenance);
   const scope = candidate && record(candidate.scope);
   const assessmentId = candidate && record(candidate.assessment_id);
-  if (!candidate || !currentState || resultKind !== "OBSERVED_REFERENCE_INDICATOR" || characteristicId !== "PERFORMANCE_EFFICIENCY" || !numericRepresentation || !scopeStatement || !calibrationStatus || !nonClaims || !deepEqual(nonClaims, productQualityNonClaims) || !provenance || !scope || !assessmentId || !featureProfile) return null;
+  const assessmentEventRef = candidate && record(candidate.assessment_event_ref);
+  if (!candidate || !currentState || resultKind !== "OBSERVED_REFERENCE_INDICATOR" || characteristicId !== "PERFORMANCE_EFFICIENCY" || !numericRepresentation || !scopeStatement || !calibrationStatus || !nonClaims || !deepEqual(nonClaims, productQualityNonClaims) || !provenance || !scope || !assessmentId || !assessmentEventRef || !featureProfile) return null;
   if (candidate.prediction_value !== null || candidate.reliability !== null || candidate.uncertainty !== null) return null;
   const valueProjection = exactFraction(candidate.value);
   const observedValue = exactFraction(candidate.observed_value);
@@ -473,6 +569,21 @@ function observedProjection(
     || !deepEqual(candidate.parameter_set_ref, provenance.parameter_set_ref)
     || !deepEqual(candidate.feature_refs, provenance.ordered_feature_refs)
     || !deepEqual(candidate.evidence_refs, provenance.source_evidence_refs)) return null;
+  const eventArtifactRef = record(assessmentEventRef.artifact_ref);
+  const eventProductRef = record(assessmentEventRef.product_ref);
+  const sourceAssessmentRef = record(featureProfile.raw.source_assessment_ref);
+  const artifactVersion = text(candidate.artifact_version);
+  const productVersion = text(candidate.product_version);
+  const assessmentVersion = text(candidate.product_quality_assessment_version);
+  const sourceAssessmentVersion = text(candidate.source_assessment_version);
+  if (!eventArtifactRef || !eventProductRef || !sourceAssessmentRef || !artifactVersion || !productVersion || !assessmentVersion || !sourceAssessmentVersion
+    || !deepEqual(assessmentId.assessment_event_ref, assessmentEventRef)
+    || !deepEqual(eventArtifactRef, candidate.artifact_ref)
+    || !deepEqual(eventProductRef, candidate.product_ref)
+    || artifactVersion !== record(candidate.artifact_ref)?.artifact_version
+    || productVersion !== record(candidate.product_ref)?.product_version
+    || assessmentVersion !== assessmentEventRef.assessment_event_version
+    || sourceAssessmentVersion !== sourceAssessmentRef.assessment_version) return null;
   const provenanceRules = array(provenance.rule_refs);
   if (!provenanceRules || !provenanceRules.some((item) => deepEqual(item, candidate.procedure_rule_ref))) return null;
   const assessmentIdentityPairs: Array<[unknown, unknown]> = [
@@ -486,9 +597,17 @@ function observedProjection(
   if (assessmentIdentityPairs.some(([left, right]) => !deepEqual(left, right))) return null;
   if (criterion?.status === "AVAILABLE") {
     const selectedCriterionId = criterion.criterion && record(criterion.criterion.criterion_id);
-    if (!selectedCriterionId || !deepEqual(scope.criterion_ref, { criterion_id: selectedCriterionId })) return null;
+    if (!selectedCriterionId || !deepEqual(record(scope.criterion_ref)?.criterion_id, selectedCriterionId)
+      || !optionalIdentity(scope, "dynamic_metric_ref", criterion.criterion?.metric_ref)
+      || !optionalIdentity(scope, "context_identity", criterion.criterion?.context_identity)
+      || !optionalIdentity(scope, "unit", criterion.criterion?.unit)) return null;
   }
-  if (observation?.status === "AVAILABLE" && !deepEqual(scope.observation_ref, { observation_id: observation.observationId })) return null;
+  if (observation?.status === "AVAILABLE" && (!deepEqual(record(scope.observation_ref)?.observation_id, observation.observationId)
+    || !optionalIdentity(scope, "dynamic_metric_ref", observation.observation?.metric_ref)
+    || !optionalIdentity(scope, "context_identity", observation.observation?.context_identity)
+    || !optionalIdentity(scope, "unit", observation.observation?.unit)
+    || !optionalIdentity(scope, "collection_ref", observation.collectionRef)
+    || !optionalIdentity(scope, "environment_ref", observation.environmentRef))) return null;
   if (conformance?.status === "AVAILABLE" && (!deepEqual(scope.conformance_ref, conformance.conformanceId) || sourceConformanceOutcome !== conformance.outcome)) return null;
   return { ...currentState, raw: candidate, resultKind, characteristicId, value: valueProjection, observedValue, numericRepresentation, sourceConformanceOutcome, scopeStatement, calibrationStatus, nonClaims };
 }
