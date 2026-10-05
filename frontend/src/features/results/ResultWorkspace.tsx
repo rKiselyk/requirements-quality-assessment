@@ -7,6 +7,7 @@ import type { ResultSectionId } from "./projection";
 import { RequirementsPage } from "../requirements/RequirementsPage";
 import { SpecificationPage } from "../specification/SpecificationPage";
 import { ProductQualityPage } from "../product-quality/ProductQualityPage";
+import { RiskPage } from "../risk/RiskPage";
 
 export function ResultWorkspace({
   result,
@@ -24,6 +25,7 @@ export function ResultWorkspace({
   if (activeView === "requirements") return <RequirementsPage result={result} selectedRequirementId={selectedRequirementId} onSelectRequirement={onSelectRequirement} />;
   if (activeView === "specification") return <SpecificationPage result={result} onSelectRequirement={onSelectRequirement} />;
   if (activeView === "product_quality") return <ProductQualityPage result={result} onSelectRequirement={onSelectRequirement} />;
+  if (activeView === "risk") return <RiskPage result={result} onSelectRequirement={onSelectRequirement} />;
   return (
     <section className="deferred-page">
       <PageHeader title={t(`navigation.${activeView}`)} subtitle={t("deferred.subtitle")} />
