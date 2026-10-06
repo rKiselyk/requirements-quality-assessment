@@ -137,6 +137,9 @@ function CheckpointCard({ checkpoint }: { checkpoint: CheckpointProjection }) {
         <Metadata>
           <MetadataItem label={t("checkpoints.selected.identity")}><code>{checkpoint.selectedResult.identity}</code></MetadataItem>
           <MetadataItem label={t("checkpoints.selected.value")}><ExactValue value={checkpoint.selectedResult.exactValue} /></MetadataItem>
+          {checkpoint.selectedResult.reasonCodes.length > 0 ? <MetadataItem label={t("checkpoints.selected.sourceReasons")}>
+            <span className="technical-code-list">{checkpoint.selectedResult.reasonCodes.map((reason, index) => <code key={index}>{String(reason)}</code>)}</span>
+          </MetadataItem> : null}
           <MetadataItem label={t("checkpoints.selected.resultRef")}><Identity value={checkpoint.selectedResult.resultRef} label={t("technical.reference")} /></MetadataItem>
           <MetadataItem label={t("checkpoints.selected.governingRef")}><Identity value={checkpoint.selectedResult.governingRef} label={t("technical.reference")} /></MetadataItem>
         </Metadata>

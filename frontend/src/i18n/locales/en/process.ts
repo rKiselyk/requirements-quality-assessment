@@ -69,7 +69,7 @@ export const process = {
     },
     selected: {
       title: "Selected result", identity: "Result identity", value: "Exact value",
-      resultRef: "Result reference", governingRef: "Governing contract or rule",
+      sourceReasons: "Source reasons", resultRef: "Result reference", governingRef: "Governing contract or rule",
     },
     policy: {
       title: "External threshold policy", identity: "Policy ID / version", source: "Policy source",

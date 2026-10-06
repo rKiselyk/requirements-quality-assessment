@@ -188,6 +188,16 @@ function fm(value: CanonicalAnalyzeResponse) { return value.full_model as Record
 function state(value: CanonicalAnalyzeResponse, name: "process_v1" | "process_v2") { return fm(value)[name] as Record<string, any>; }
 function checkpoints(value: CanonicalAnalyzeResponse) { return fm(value).checkpoint_evaluations as Array<Record<string, any>>; }
 function expectMalformed(value: CanonicalAnalyzeResponse) { expect(selectProcessPage(value).kind).toBe("MALFORMED"); }
+function responseWithSelectedSourceReasons(reasons: string[]) {
+  const value = clone(); const entry = checkpoints(value)[0];
+  entry.selected_result.status = "UNKNOWN";
+  entry.selected_result.applicability = "UNKNOWN";
+  entry.selected_result.exact_value = null;
+  entry.selected_result.reason_codes = reasons;
+  entry.outcome = "UNRESOLVED";
+  entry.reason_codes = ["SOURCE_VALUE_UNRESOLVED"];
+  return value;
+}
 
 describe("RUI-13 process projection", () => {
   beforeEach(async () => { window.sessionStorage.clear(); await i18n.changeLanguage("en"); });
@@ -592,6 +602,55 @@ describe("RUI-13 process projection", () => {
     render(<ProcessPage result={processResponse()} />);
     expect(screen.getByRole("heading", { name: /CHECKPOINT-v1/ })).toBeTruthy();
     expect(screen.getByRole("heading", { name: /CHECKPOINT-v2/ })).toBeTruthy();
+  });
+
+  it("renders a non-AVAILABLE selected result source reason separately from the checkpoint reason", () => {
+    render(<ProcessPage result={responseWithSelectedSourceReasons(["UPSTREAM_METRIC_UNRESOLVED"])} />);
+    const selected = screen.getAllByLabelText("Selected result")[0];
+    const evaluation = screen.getAllByLabelText("Evaluation")[0];
+    expect(within(selected).getByText("Source reasons")).toBeTruthy();
+    expect(within(selected).getByText("UPSTREAM_METRIC_UNRESOLVED")).toBeTruthy();
+    expect(within(selected).queryByText("SOURCE_VALUE_UNRESOLVED")).toBeNull();
+    expect(within(evaluation).getByText("SOURCE_VALUE_UNRESOLVED")).toBeTruthy();
+    expect(within(evaluation).queryByText("UPSTREAM_METRIC_UNRESOLVED")).toBeNull();
+  });
+
+  it("preserves several selected-result source reasons in canonical order without deduplication", () => {
+    const reasons = ["SOURCE_REASON_B", "SOURCE_REASON_A", "SOURCE_REASON_B"];
+    render(<ProcessPage result={responseWithSelectedSourceReasons(reasons)} />);
+    const row = screen.getByText("Source reasons").closest("div")!;
+    expect(Array.from(row.querySelectorAll("code"), (node) => node.textContent)).toEqual(reasons);
+  });
+
+  it("keeps selected-result source reason codes verbatim in English", () => {
+    render(<ProcessPage result={responseWithSelectedSourceReasons(["CANONICAL_SOURCE_REASON_UK_01"])} />);
+    expect(screen.getByText("Source reasons")).toBeTruthy();
+    expect(screen.getByText("CANONICAL_SOURCE_REASON_UK_01")).toBeTruthy();
+  });
+
+  it("keeps selected-result source reason codes verbatim in Ukrainian", async () => {
+    await i18n.changeLanguage("uk");
+    render(<ProcessPage result={responseWithSelectedSourceReasons(["CANONICAL_SOURCE_REASON_EN_01"])} />);
+    expect(screen.getByText("Причини джерела")).toBeTruthy();
+    expect(screen.getByText("CANONICAL_SOURCE_REASON_EN_01")).toBeTruthy();
+  });
+
+  it("locale switching changes only the source-reasons label", async () => {
+    const code = "SOURCE_REASON_VERBATIM";
+    render(<ProcessPage result={responseWithSelectedSourceReasons([code])} />);
+    expect(screen.getByText("Source reasons")).toBeTruthy();
+    expect(screen.getByText(code)).toBeTruthy();
+    await i18n.changeLanguage("uk");
+    expect(screen.getByText("Причини джерела")).toBeTruthy();
+    expect(screen.queryByText("Source reasons")).toBeNull();
+    expect(screen.getByText(code)).toBeTruthy();
+  });
+
+  it("omits the source-reasons row for an empty canonical population without fabricating a fallback", () => {
+    render(<ProcessPage result={processResponse()} />);
+    const selected = screen.getAllByLabelText("Selected result")[0];
+    expect(within(selected).queryByText("Source reasons")).toBeNull();
+    expect(within(selected).queryByText(/NONE|PREDICATE_TRUE/)).toBeNull();
   });
 
   it("INITIAL displays its canonical unavailable reason and fabricates no lifecycle records", () => {
