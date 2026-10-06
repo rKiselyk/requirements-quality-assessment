@@ -9,6 +9,7 @@ import { SpecificationPage } from "../specification/SpecificationPage";
 import { ProductQualityPage } from "../product-quality/ProductQualityPage";
 import { RiskPage } from "../risk/RiskPage";
 import { CorrectiveActionsPage } from "../corrective-actions/CorrectiveActionsPage";
+import { ProcessPage } from "../process/ProcessPage";
 import type { Rui05AnalyzeRequest } from "../specification-input/model";
 
 export function ResultWorkspace({
@@ -47,6 +48,7 @@ export function ResultWorkspace({
     onRetryReassessment={onRetryReassessment}
     onReassessmentDraftChange={onReassessmentDraftChange}
   />;
+  if (activeView === "process") return <ProcessPage result={result} />;
   return (
     <section className="deferred-page">
       <PageHeader title={t(`navigation.${activeView}`)} subtitle={t("deferred.subtitle")} />

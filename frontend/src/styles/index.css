@@ -454,6 +454,39 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .risk-guardrails .callout p { margin: 0 0 var(--space-2); }
 .risk-guardrails .callout p:last-child { margin-bottom: 0; }
 
+.process-page { min-width: 0; }
+.process-timeline-card, .current-process-state, .process-state-trace, .checkpoint-card { margin-bottom: var(--space-6); }
+.process-timeline { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.15fr) auto minmax(0, 1fr); align-items: stretch; gap: var(--space-3); }
+.process-timeline__node { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.process-timeline__node h3 { margin: 0; }
+.process-timeline__node > code, .process-timeline__node > span { overflow-wrap: anywhere; }
+.process-timeline__eyebrow { color: var(--color-text-muted); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.process-timeline__arrow { align-self: center; color: var(--color-text-muted); font-size: 1.5rem; }
+.process-current-label { margin-top: auto; padding-top: var(--space-2); border-top: 1px solid var(--color-border); color: var(--color-accent); font-size: 0.75rem; font-weight: 700; }
+.process-transition-refs { display: grid; gap: var(--space-2); }
+.process-technical { min-width: 0; }
+.process-technical summary { color: var(--color-accent); font-size: 0.75rem; font-weight: 650; cursor: pointer; }
+.process-technical pre { max-height: 24rem; margin: var(--space-2) 0 0; padding: var(--space-3); overflow: auto; border-radius: var(--radius-input); background: var(--color-code-bg); font-size: 0.68rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.process-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.process-state-traces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.process-association-group { margin-bottom: var(--space-4); }
+.process-association-group > summary { color: var(--color-accent); font-weight: 700; cursor: pointer; }
+.process-association-group > ol { display: grid; gap: var(--space-3); margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.process-association { min-width: 0; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.process-association > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.process-association__state { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.process-association__refs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); }
+.checkpoint-section { margin-top: var(--space-8); }
+.checkpoint-section > .section-heading-row { margin-bottom: var(--space-4); }
+.checkpoint-section > .section-heading-row p { color: var(--color-text-muted); }
+.checkpoint-context { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-bottom: var(--space-4); color: var(--color-text-muted); font-size: 0.8rem; }
+.checkpoint-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+.checkpoint-grid > section { min-width: 0; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-surface-subtle); }
+.checkpoint-grid h3 { margin-top: 0; }
+.checkpoint-grid .process-metadata { grid-template-columns: 1fr; }
+.checkpoint-card .callout { margin: var(--space-4) 0; }
+.checkpoint-card--malformed { border-style: dashed; }
+
 .corrective-actions-page { min-width: 0; }
 .corrective-actions-page > .card, .corrective-actions-page > .callout { margin-top: var(--space-5); }
 .unavailable-reason { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); color: var(--color-text-muted); font-size: 0.78rem; }
@@ -520,6 +553,9 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
   .observation-conformance-grid, .product-quality-metadata { grid-template-columns: 1fr; }
   .product-quality-primary-row, .product-quality-result-heading, .section-heading-row { flex-direction: column; }
   .risk-code-grid, .risk-summary-row, .operand-grid { grid-template-columns: 1fr; }
+  .process-timeline { grid-template-columns: 1fr; }
+  .process-timeline__arrow { transform: rotate(90deg); }
+  .process-state-traces, .checkpoint-grid, .process-metadata, .process-association__refs { grid-template-columns: 1fr; }
   .risk-result-heading, .quantitative-heading { flex-direction: column; }
   .action-metadata { grid-template-columns: 1fr; }
   .risk-layer--categorical, .risk-layer--quantitative { padding: var(--space-3); }
