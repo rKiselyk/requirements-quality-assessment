@@ -31,8 +31,9 @@ function jsonResponse(payload: unknown, ok = true): Response {
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((resolvePromise) => { resolve = resolvePromise; });
-  return { promise, resolve };
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => { resolve = resolvePromise; reject = rejectPromise; });
+  return { promise, resolve, reject };
 }
 
 function renderApp() {
@@ -317,5 +318,165 @@ describe("RUI-06 canonical response ownership", () => {
     expect(selectedView).toBe("future-requirements");
     expect(session.latestResult).toBe(retained);
     expect(session.latestResult).toBe(canonicalResult);
+  });
+});
+
+describe("RUI-12 reassessment session retention", () => {
+  beforeEach(async () => {
+    window.sessionStorage.clear();
+    await i18n.changeLanguage("en");
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function sessionProbe() {
+    let session!: AnalysisSession;
+    function Probe() {
+      session = useAnalysisSession();
+      return null;
+    }
+    const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: 3 } } });
+    render(<QueryClientProvider client={queryClient}><Probe /></QueryClientProvider>);
+    return () => session;
+  }
+
+  const controlledResult = {
+    ...canonicalResult,
+    analysis_case: "CONTROLLED_DEMO" as const,
+    controlled_scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" },
+    full_model: {},
+    reassessment_context: { scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" }, context_digest: "digest" },
+  };
+  const reassessedResult = { ...controlledResult, analysis_case: "REASSESSMENT" as const, result_marker: "canonical-v2" };
+  const reassessmentRequest: Rui05AnalyzeRequest = {
+    case: "REASSESSMENT",
+    requirements: [{ text: "Canonical revised requirement", source_line: 2 }],
+    prior_context: controlledResult.reassessment_context,
+  };
+
+  it("retains the prior result while the second request is pending and replaces it atomically after success", async () => {
+    const second = deferred<Response>();
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockImplementationOnce(() => second.promise);
+    const getSession = sessionProbe();
+
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+
+    expect(getSession().phase).toBe("RESULT_READY");
+    expect(getSession().reassessmentPending).toBe(true);
+    expect(getSession().latestResult).toBe(controlledResult);
+
+    second.resolve(jsonResponse(reassessedResult));
+    await waitFor(() => expect(getSession().latestResult).toBe(reassessedResult));
+    expect(getSession().reassessmentPending).toBe(false);
+  });
+
+  it("retains the prior result and result-ready phase when reassessment fails", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockRejectedValueOnce(new Error("second request failed"));
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+    await waitFor(() => expect(getSession().error).not.toBeNull());
+
+    expect(getSession().phase).toBe("RESULT_READY");
+    expect(getSession().latestResult).toBe(controlledResult);
+    expect(getSession().submittedRequest).toBe(reassessmentRequest);
+  });
+
+  it("retries the exact failed request and never enables automatic mutation retries", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockRejectedValueOnce(new Error("failed"))
+      .mockResolvedValueOnce(jsonResponse(reassessedResult));
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+    await waitFor(() => expect(getSession().error).not.toBeNull());
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    expect(getSession().submittedRequest).toBe(reassessmentRequest);
+
+    await act(async () => { getSession().retry(); });
+    await waitFor(() => expect(getSession().latestResult).toBe(reassessedResult));
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
+    expect(fetchSpy.mock.calls[1][1]?.body).toBe(fetchSpy.mock.calls[2][1]?.body);
+  });
+
+  it("invalidates a failed reassessment retry when the draft identity changes without clearing the prior result", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockRejectedValueOnce(new Error("failed"));
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+    await waitFor(() => expect(getSession().error).not.toBeNull());
+
+    act(() => { getSession().invalidateFailedAttempt(); });
+    expect(getSession().submittedRequest).toBeNull();
+    expect(getSession().error).toBeNull();
+    expect(getSession().latestResult).toBe(controlledResult);
+    expect(getSession().phase).toBe("RESULT_READY");
+  });
+
+  it("rejects a non-REASSESSMENT second response and still retains the prior result", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockResolvedValueOnce(jsonResponse(controlledResult));
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+    await waitFor(() => expect(getSession().error?.kind).toBe("MALFORMED_RESPONSE"));
+    expect(getSession().latestResult).toBe(controlledResult);
+  });
+
+  it("keeps the session reset when a pending reassessment returns a late success", async () => {
+    const late = deferred<Response>();
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockImplementationOnce(() => late.promise);
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+    expect(getSession().reassessmentPending).toBe(true);
+
+    act(() => { getSession().reset(); });
+    expect(getSession().phase).toBe("INPUT");
+    expect(getSession().latestResult).toBeNull();
+
+    await act(async () => { late.resolve(jsonResponse(reassessedResult)); await late.promise; });
+    await act(async () => { await Promise.resolve(); });
+    expect(getSession().phase).toBe("INPUT");
+    expect(getSession().latestResult).toBeNull();
+    expect(getSession().error).toBeNull();
+  });
+
+  it("keeps the session reset when a pending reassessment returns a late error", async () => {
+    const late = deferred<Response>();
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockImplementationOnce(() => late.promise);
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+
+    act(() => { getSession().reset(); });
+    await act(async () => { late.reject(new Error("late reassessment failure")); try { await late.promise; } catch { /* expected */ } });
+    await act(async () => { await Promise.resolve(); });
+    expect(getSession().phase).toBe("INPUT");
+    expect(getSession().latestResult).toBeNull();
+    expect(getSession().error).toBeNull();
   });
 });

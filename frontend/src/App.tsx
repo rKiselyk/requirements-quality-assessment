@@ -58,7 +58,7 @@ export function App() {
       </div>
       {session.phase === "ANALYZING" ? <AnalyzingPage /> : null}
       {session.phase === "RESULT_READY" && session.latestResult
-        ? <ResultWorkspace
+          ? <ResultWorkspace
             result={session.latestResult}
             activeView={selectedResultView}
             selectedRequirementId={selectedRequirementId}
@@ -66,6 +66,11 @@ export function App() {
               setSelectedRequirementId(requirementId);
               setSelectedResultView("requirements");
             }}
+            onAnalyzeReassessment={session.submit}
+            reassessmentPending={session.reassessmentPending}
+            reassessmentErrorMessage={session.latestResult && session.error ? errorMessage : null}
+            onRetryReassessment={session.latestResult && session.error && session.submittedRequest?.case === "REASSESSMENT" ? session.retry : undefined}
+            onReassessmentDraftChange={session.invalidateFailedAttempt}
           />
         : null}
     </AppShell>
