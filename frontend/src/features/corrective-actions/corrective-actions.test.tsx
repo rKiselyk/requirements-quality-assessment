@@ -34,6 +34,22 @@ const actionAfterRef = { action_id: actionId, action_record_version: "2" };
 const comparisonKey = { normalized_metric: "response time", normalized_context: "500 users", unit: "SECOND" };
 const changedSubject = { lineage_id: lineage2, before_subject_ref: subject2v1, after_subject_ref: subject2v2, change_kind: "REPLACE_TEXT" };
 
+function ruiRequirement(id: string, sourceLine: number, requirementText: string) {
+  const feature = (featureId: string) => ({ feature_id: featureId, status: "NOT_DETECTED", processing_status: "COMPLETE", observations: [], diagnostics: [] });
+  const assessment = (characteristicId: string) => ({ characteristic_id: characteristicId, state: "COMPUTED", value: { numerator: 1, denominator: 1 }, assessment_rule_id: `RULE-${characteristicId}`, findings: [], explanation: "Canonical explanation." });
+  const trace = (characteristicId: string) => ({ characteristic_id: characteristicId, governing_rule_id: `RULE-${characteristicId}`, decision_code: `${characteristicId}_DECISION`, inputs: [], finding_refs: [] });
+  return {
+    requirement: { id, source_line: sourceLine, text: requirementText },
+    features: {
+      condition_contexts: feature("condition_context"), expected_results: feature("expected_result"), acceptance_criteria: feature("acceptance_criterion"),
+      quantitative_constraints: feature("quantitative_constraint"), verification_methods: feature("verification_method"), vague_term_occurrences: feature("vague_term_occurrence"),
+    },
+    evidence: [],
+    quality_profile: { completeness: assessment("COMPLETENESS"), verifiability: assessment("VERIFIABILITY"), unambiguity: assessment("UNAMBIGUITY") },
+    trace: { requirement_id: id, coverage_profile_id: "MVP-V0.1-BOUNDED-CVU-001", characteristics: [trace("COMPLETENESS"), trace("VERIFIABILITY"), trace("UNAMBIGUITY")] },
+  };
+}
+
 function initialSpecification() {
   return {
     status: null, applicability: null,
@@ -117,7 +133,20 @@ function fixture(caseName: CanonicalAnalyzeResponse["analysis_case"] = "CONTROLL
     reason_codes: ["EXTERNAL_REVISION_MATERIALIZED"],
     applied_action: { ...action, action_record_version: "2", predecessor_action_ref: actionRef, status: "APPLIED", external_revision_ref: revisionRef, application_ref: applicationRef },
     child_specification: childSpecification,
-    transition: { transition_id: { id: "TRANSITION" }, parent_artifact_ref: artifactV1, child_artifact_ref: artifactV2, action_application_ref: applicationRef, revision_ref: revisionRef, changed_subjects: [changedSubject], provenance: { id: "TRANSITION_PROVENANCE" } },
+    transition: {
+      transition_id: { transition_instance_id: "TRANSITION", application_ref: applicationRef },
+      parent_artifact_ref: artifactV1, child_artifact_ref: artifactV2, action_application_ref: applicationRef, revision_ref: revisionRef, changed_subjects: [changedSubject],
+      provenance: { action_before_ref: actionRef, action_after_ref: actionAfterRef, application_ref: applicationRef, revision_ref: revisionRef, process_reassessment_contract_ref: processContract, application_rule_ref: applicationRule },
+    },
+  };
+  const processV1 = { process_state_id: "PROCESS", process_state_version: "v1", stage: "REFERENCE_VERIFICATION" };
+  const processV2 = { process_state_id: "PROCESS", process_state_version: "v2", stage: "REFERENCE_VERIFICATION" };
+  const componentVersionSet = { components: [{ component_role: "FULL_MODEL_CONTRACT", component_id: "FULL-MODEL-V0.1-CONTRACT", component_version: "1" }] };
+  const evidenceReuseDecisions = [{ id: "EVIDENCE-REUSE" }];
+  const reassessmentIdentity = { reassessment_id: "REASSESSMENT", reassessment_version: "1", child_process_state_ref: processV2, component_version_set: componentVersionSet };
+  const reassessment = {
+    reassessment_id: "REASSESSMENT", reassessment_version: "1", child_process_state_ref: processV2,
+    context: { predecessor_process_state_ref: processV1, action_application_ref: applicationRef, parent_artifact_ref: artifactV1, child_artifact_ref: artifactV2, component_version_set: componentVersionSet, evidence_reuse_decisions: evidenceReuseDecisions },
   };
   const fullModel: Record<string, unknown> = {
     initial_specification_assessment: { id: "INITIAL_ASSESSMENT" }, corrective_action_resolution: resolution,
@@ -125,18 +154,18 @@ function fixture(caseName: CanonicalAnalyzeResponse["analysis_case"] = "CONTROLL
     risk_assessments: [{ risk_assessment_id: riskRef.risk_assessment_id }],
     problem_resolutions: [{ problem: { problem_id: problemRef.problem_id } }],
     defect_quality_relations: [{ relation_id: relationRef.relation_id }],
-    process_v1: { id: "PROCESS-v1" }, process_v2: { id: "PROCESS-v2" }, process_transition: { id: "PROCESS-TRANSITION" }, comparisons: [{ id: "COMPARISON" }],
+    process_v1: processV1, process_v2: processV2, process_transition: { id: "PROCESS-TRANSITION" }, comparisons: [{ id: "COMPARISON" }], reassessment,
   };
   const scenario = { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" };
   const context = {
     scenario, context_digest: "sha256:context", initial_specification: initial, initial_specification_assessment: fullModel.initial_specification_assessment,
     predecessor_process_state: fullModel.process_v1, corrective_action_resolution: resolution, action_application: application,
-    external_revision: externalRevision, revised_specification: revised, evidence_reuse_decisions: [], reassessment_identity: { id: "REASSESSMENT" },
+    external_revision: externalRevision, revised_specification: revised, evidence_reuse_decisions: evidenceReuseDecisions, reassessment_identity: reassessmentIdentity,
     successor_process_state: fullModel.process_v2, process_transition: fullModel.process_transition, comparisons: fullModel.comparisons,
   };
   return {
     contract_version: "research-api-v1", analysis_case: caseName, controlled_scenario: scenario,
-    requirements: (caseName === "REASSESSMENT" ? revised.requirements : initial.requirements).map((item) => ({ requirement: { id: item.subject_ref.requirement_id, source_line: item.subject_ref.source_line, text: item.text } })),
+    requirements: (caseName === "REASSESSMENT" ? revised.requirements : initial.requirements).map((item) => ruiRequirement(item.subject_ref.requirement_id, item.subject_ref.source_line, item.text)),
     specification: { snapshot_id: "snapshot", quality_profile: {}, qb_consistency: {}, cross_results: [], materiality: {}, projection_snapshot: {} },
     section_availability: [{ section: "corrective_actions", availability: "AVAILABLE", reason_code: null }],
     full_model: fullModel, reassessment_context: context, limitations: [],
@@ -295,6 +324,7 @@ describe("RUI-12 corrective-action projection", () => {
   it("uses changed_subjects as authority rather than inferring by text comparison", () => {
     const response = cloneFixture();
     fullModel(response).revised_specification.requirements[1].text = "Response time >= 5 s";
+    fullModel(response).external_revision.replacements[0].replacement_text = "Response time >= 5 s";
     fullModel(response).action_application.child_specification.requirements[1].text = "Response time >= 5 s";
     const projected = selectCorrectiveActionsPage(response);
     expect(projected.kind).toBe("AVAILABLE");
@@ -337,6 +367,169 @@ describe("RUI-12 corrective-action projection", () => {
     const projected = selectCorrectiveActionsPage(response);
     expect(projected.kind).toBe("AVAILABLE");
     if (projected.kind === "AVAILABLE") expect(projected.reassessment).toBeNull();
+  });
+
+  describe("final lifecycle identity hardening", () => {
+    it.each([
+      ["initial subject artifact", (m: any) => { m.initial_specification.requirements[0].subject_ref.artifact_ref = artifactV2; }],
+      ["revised subject still v1", (m: any) => { m.revised_specification.requirements[0].subject_ref.artifact_ref = artifactV1; }],
+      ["initial source order", (m: any) => { m.initial_specification.requirements.reverse(); }],
+      ["revised source order", (m: any) => { m.revised_specification.requirements.reverse(); }],
+    ])("rejects malformed SpecificationVersion ownership/order: %s", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response));
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("rejects a structurally coherent action target absent from the initial specification", () => {
+      const response = cloneFixture();
+      const action = fullModel(response).corrective_action_resolution.action;
+      const resolution = fullModel(response).corrective_action_resolution;
+      const absentSubject = { artifact_ref: artifactV1, requirement_id: "R999", source_line: 9 };
+      const absentLineage = { artifact_id: "SPEC", origin_artifact_version: "v1", origin_requirement_id: "R999", origin_source_line: 9 };
+      const absentTarget = { lineage_id: absentLineage, subject_ref: absentSubject };
+      action.target_requirements[0] = absentTarget;
+      action.provenance.target_requirements[0] = absentTarget;
+      action.provenance.participant_refs[0] = absentSubject;
+      resolution.provenance.target_requirements[0] = absentTarget;
+      resolution.provenance.participant_refs[0] = absentSubject;
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["source risk", (id: any) => { id.source_risk_ref = { risk_assessment_id: { id: "OTHER" } }; }],
+      ["action kind", (id: any) => { id.requested_action_kind = "OTHER"; }],
+      ["rule", (id: any) => { id.rule_ref = { ...actionRule, rule_id: "OTHER" }; }],
+    ])("rejects contradictory resolution_id %s", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).corrective_action_resolution.resolution_id);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("validates provenance sources for a non-AVAILABLE resolution", () => {
+      const response = cloneFixture();
+      const resolution = fullModel(response).corrective_action_resolution;
+      resolution.status = "UNAVAILABLE";
+      resolution.applicability = "UNKNOWN";
+      resolution.reason_codes = ["SOURCE_UNAVAILABLE"];
+      resolution.action = null;
+      resolution.action_ref = null;
+      resolution.provenance.source_risk_ref = { risk_assessment_id: { id: "OTHER" } };
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["risk", (id: any) => { id.originating_risk_id = { id: "OTHER" }; }],
+      ["problem", (id: any) => { id.originating_problem_id = { id: "OTHER" }; }],
+      ["target artifact", (id: any) => { id.target_artifact_ref = artifactV2; }],
+    ])("rejects contradictory structured action_id %s identity", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).corrective_action_resolution.action.action_id);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("rejects proposal participant order differing from target order", () => {
+      const response = cloneFixture();
+      fullModel(response).corrective_action_resolution.action.provenance.participant_refs.reverse();
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["empty population", (m: any) => { m.external_revision.replacements = []; }],
+      ["line break", (m: any) => { m.external_revision.replacements[0].replacement_text = "Line one\nLine two"; }],
+      ["text differs from child", (m: any) => { m.external_revision.replacements[0].replacement_text = "Other text"; }],
+      ["non-replaced child text changed", (m: any) => { m.revised_specification.requirements[0].text = "Changed without replacement"; }],
+    ])("rejects malformed revision replacement coherence: %s", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response));
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("rejects replacement population that does not explain canonical changed subjects", () => {
+      const response = cloneFixture();
+      fullModel(response).external_revision.replacements = [{ lineage_id: lineage1, expected_parent_subject_ref: subject1v1, replacement_text: "Response time <= 2 s" }];
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("rejects a changed subject without a corresponding replacement", () => {
+      const response = cloneFixture();
+      const extra = { lineage_id: lineage1, before_subject_ref: subject1v1, after_subject_ref: subject1v2, change_kind: "REPLACE_TEXT" };
+      fullModel(response).revised_specification.changed_subjects.unshift(extra);
+      fullModel(response).action_application.changed_subjects.unshift(extra);
+      fullModel(response).action_application.transition.changed_subjects.unshift(extra);
+      fullModel(response).action_application.child_specification.changed_subjects.unshift(extra);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["action-before", (id: any) => { id.action_before_ref = actionAfterRef; }],
+      ["revision", (id: any) => { id.revision_ref = { revision_id: "OTHER", revision_version: "1" }; }],
+      ["child", (id: any) => { id.child_artifact_ref = artifactV1; }],
+    ])("rejects contradictory ActionApplicationId %s identity", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).action_application.application_id);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["targets", (applied: any) => { applied.target_requirements.reverse(); }],
+      ["comparison key", (applied: any) => { applied.comparison_key = { id: "OTHER" }; }],
+      ["rationale", (applied: any) => { applied.rationale = "Other rationale"; }],
+    ])("rejects APPLIED action with changed %s", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).action_application.applied_action);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("rejects application provenance from another provider", () => {
+      const response = cloneFixture();
+      fullModel(response).action_application.provenance.provider_ref = { provider_id: "OTHER", provider_version: "1" };
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["transition ID application", (a: any) => { a.transition.transition_id.application_ref = { id: "OTHER" }; }],
+      ["provenance action-before", (a: any) => { a.transition.provenance.action_before_ref = actionAfterRef; }],
+      ["provenance action-after", (a: any) => { a.transition.provenance.action_after_ref = actionRef; }],
+      ["provenance contract", (a: any) => { a.transition.provenance.process_reassessment_contract_ref = { contract_id: "OTHER", version: "1" }; }],
+      ["provenance rule", (a: any) => { a.transition.provenance.application_rule_ref = { ...applicationRule, rule_id: "OTHER" }; }],
+    ])("rejects malformed ArtifactTransition %s", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).action_application);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("keeps a malformed RUI-08 entry non-navigable", () => {
+      const response = cloneFixture();
+      delete (response.requirements[0] as any).quality_profile;
+      renderPage(response);
+      expect(screen.queryByRole("button", { name: "R001" })).toBeNull();
+      expect(screen.getByRole("button", { name: "R002" })).toBeTruthy();
+    });
+
+    it.each([
+      ["evidence reuse", (r: CanonicalAnalyzeResponse) => { context(r).evidence_reuse_decisions = [{ id: "OTHER" }]; }],
+      ["identity ID", (r: CanonicalAnalyzeResponse) => { context(r).reassessment_identity.reassessment_id = "OTHER"; }],
+      ["identity version", (r: CanonicalAnalyzeResponse) => { context(r).reassessment_identity.reassessment_version = "2"; }],
+      ["child process", (r: CanonicalAnalyzeResponse) => { context(r).reassessment_identity.child_process_state_ref = { id: "OTHER" }; }],
+      ["component versions", (r: CanonicalAnalyzeResponse) => { context(r).reassessment_identity.component_version_set = { components: [] }; }],
+      ["controlled scenario", (r: CanonicalAnalyzeResponse) => {
+        r.controlled_scenario = { id: "UNKNOWN", version: "1" };
+        context(r).scenario = { id: "UNKNOWN", version: "1" };
+      }],
+    ])("disables reassessment entry for mismatched %s", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(response);
+      const projected = selectCorrectiveActionsPage(response);
+      expect(projected.kind).toBe("AVAILABLE");
+      if (projected.kind === "AVAILABLE") expect(projected.reassessment).toBeNull();
+    });
+
+    it("keeps the complete canonical controlled lifecycle eligible", () => {
+      const projected = selectCorrectiveActionsPage(fixture());
+      expect(projected.kind).toBe("AVAILABLE");
+      if (projected.kind === "AVAILABLE") expect(projected.reassessment).not.toBeNull();
+    });
   });
 });
 

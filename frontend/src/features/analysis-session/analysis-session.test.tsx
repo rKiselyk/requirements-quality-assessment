@@ -31,8 +31,9 @@ function jsonResponse(payload: unknown, ok = true): Response {
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((resolvePromise) => { resolve = resolvePromise; });
-  return { promise, resolve };
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => { resolve = resolvePromise; reject = rejectPromise; });
+  return { promise, resolve, reject };
 }
 
 function renderApp() {
@@ -437,5 +438,45 @@ describe("RUI-12 reassessment session retention", () => {
     await act(async () => { getSession().submit(reassessmentRequest); });
     await waitFor(() => expect(getSession().error?.kind).toBe("MALFORMED_RESPONSE"));
     expect(getSession().latestResult).toBe(controlledResult);
+  });
+
+  it("keeps the session reset when a pending reassessment returns a late success", async () => {
+    const late = deferred<Response>();
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockImplementationOnce(() => late.promise);
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+    expect(getSession().reassessmentPending).toBe(true);
+
+    act(() => { getSession().reset(); });
+    expect(getSession().phase).toBe("INPUT");
+    expect(getSession().latestResult).toBeNull();
+
+    await act(async () => { late.resolve(jsonResponse(reassessedResult)); await late.promise; });
+    await act(async () => { await Promise.resolve(); });
+    expect(getSession().phase).toBe("INPUT");
+    expect(getSession().latestResult).toBeNull();
+    expect(getSession().error).toBeNull();
+  });
+
+  it("keeps the session reset when a pending reassessment returns a late error", async () => {
+    const late = deferred<Response>();
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(jsonResponse(controlledResult))
+      .mockImplementationOnce(() => late.promise);
+    const getSession = sessionProbe();
+    await act(async () => { getSession().submit({ case: "CONTROLLED_DEMO", scenario: { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" } }); });
+    await waitFor(() => expect(getSession().latestResult).toBe(controlledResult));
+    await act(async () => { getSession().submit(reassessmentRequest); });
+
+    act(() => { getSession().reset(); });
+    await act(async () => { late.reject(new Error("late reassessment failure")); try { await late.promise; } catch { /* expected */ } });
+    await act(async () => { await Promise.resolve(); });
+    expect(getSession().phase).toBe("INPUT");
+    expect(getSession().latestResult).toBeNull();
+    expect(getSession().error).toBeNull();
   });
 });

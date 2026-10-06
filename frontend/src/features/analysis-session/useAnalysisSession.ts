@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { analyzeSpecification, toSafeAnalyzeError, type CanonicalAnalyzeResponse, type SafeAnalyzeError } from "../../api/analyze";
 import type { Rui05AnalyzeRequest } from "../specification-input/model";
@@ -18,6 +18,7 @@ export interface AnalysisSession {
 }
 
 export function useAnalysisSession(): AnalysisSession {
+  const generation = useRef(0);
   const [phase, setPhase] = useState<AnalysisPhase>("INPUT");
   const [submittedRequest, setSubmittedRequest] = useState<Rui05AnalyzeRequest | null>(null);
   const [latestResult, setLatestResult] = useState<CanonicalAnalyzeResponse | null>(null);
@@ -27,15 +28,19 @@ export function useAnalysisSession(): AnalysisSession {
     mutationFn: (request: Rui05AnalyzeRequest) => analyzeSpecification(request),
     retry: false,
     onMutate: (request) => {
+      const requestGeneration = generation.current;
       setSubmittedRequest(request);
       setError(null);
       setPhase(request.case === "REASSESSMENT" && latestResult !== null ? "RESULT_READY" : "ANALYZING");
+      return { generation: requestGeneration };
     },
-    onSuccess: (response) => {
+    onSuccess: (response, _request, context) => {
+      if (context.generation !== generation.current) return;
       setLatestResult(response);
       setPhase("RESULT_READY");
     },
-    onError: (mutationError) => {
+    onError: (mutationError, _request, context) => {
+      if (context?.generation !== generation.current) return;
       setError(toSafeAnalyzeError(mutationError));
       setPhase(latestResult === null ? "INPUT" : "RESULT_READY");
     },
@@ -52,6 +57,7 @@ export function useAnalysisSession(): AnalysisSession {
     setError(null);
   };
   const reset = () => {
+    generation.current += 1;
     mutation.reset();
     setSubmittedRequest(null);
     setLatestResult(null);
