@@ -208,6 +208,18 @@ function contractRef(value: unknown): RecordValue | null {
   return candidate && canonicalString(candidate.contract_id) && canonicalString(candidate.version) ? candidate : null;
 }
 
+function ruleRef(value: unknown): RecordValue | null {
+  const candidate = record(value);
+  const ruleId = candidate && canonicalString(candidate.rule_id);
+  if (!candidate || !ruleId || (candidate.version_authority !== "STABLE_RULE_ID_POLICY" && candidate.version_authority !== "EXPLICIT_CONTRACT_VERSION")) return null;
+  if (candidate.version_authority === "STABLE_RULE_ID_POLICY") return candidate.explicit_version === null ? candidate : null;
+  return canonicalString(candidate.explicit_version) ? candidate : null;
+}
+
+function contractOrRuleRef(value: unknown): RecordValue | null {
+  return contractRef(value) ?? ruleRef(value);
+}
+
 function statusApplicability(statusValue: unknown, applicabilityValue: unknown): { status: FullModelStatus; applicability: Applicability } | null {
   const status = member(statusValue, FULL_MODEL_STATUSES);
   const applicability = member(applicabilityValue, APPLICABILITIES);
@@ -225,8 +237,27 @@ function statusApplicability(statusValue: unknown, applicabilityValue: unknown):
 
 function canonicalReasonArray(value: unknown, requireNonEmpty = false): unknown[] | null {
   const values = array(value);
-  if (!values || (requireNonEmpty && values.length === 0) || values.some((entry) => typeof entry === "string" && canonicalString(entry) === null)) return null;
+  if (!values || (requireNonEmpty && values.length === 0) || values.some((entry) => canonicalString(entry) === null)) return null;
   return values;
+}
+
+interface ActionRefProjection {
+  raw: RecordValue;
+  actionId: RecordValue;
+  targetArtifactRef: RecordValue;
+  originProcessStateRef: RecordValue;
+}
+
+function actionRef(value: unknown): ActionRefProjection | null {
+  const candidate = record(value);
+  const actionId = candidate && record(candidate.action_id);
+  const targetArtifact = actionId && artifactRef(actionId.target_artifact_ref);
+  const originatingRiskId = actionId && record(actionId.originating_risk_id);
+  const assessmentEvent = originatingRiskId && record(originatingRiskId.assessment_event_ref);
+  const originProcess = assessmentEvent && processRef(assessmentEvent.process_state_ref);
+  return candidate && actionId && canonicalString(candidate.action_record_version) && targetArtifact && originProcess
+    ? { raw: candidate, actionId, targetArtifactRef: targetArtifact, originProcessStateRef: originProcess }
+    : null;
 }
 
 function validateComponentVersions(value: unknown): RecordValue | null {
@@ -256,8 +287,8 @@ function projectComponents(value: unknown): ProcessAssociationProjection[] | nul
     const state = candidate && statusApplicability(candidate.status, candidate.applicability);
     const reasons = candidate && canonicalReasonArray(candidate.reason_codes, candidate.result_ref == null);
     const provenance = candidate && array(candidate.provenance);
-    if (!candidate || !role || order < 0 || order < previousOrder || !state || !reasons || !provenance || provenance.length === 0
-      || candidate.subject_or_scope_ref == null || !canonicalObject(candidate.producing_contract_or_rule_ref)
+    if (!candidate || !role || order < 0 || order < previousOrder || !state || !reasons || !provenance || provenance.length === 0 || provenance.some((entry) => entry === null)
+      || candidate.subject_or_scope_ref == null || !contractOrRuleRef(candidate.producing_contract_or_rule_ref)
       || (state.status === "AVAILABLE" && candidate.result_ref == null)) return null;
     previousOrder = order;
     seen.add(role);
@@ -288,7 +319,7 @@ function projectEvidence(value: unknown, ownArtifact: RecordValue, ownProcessRef
     const owner = candidate && canonicalObject(candidate.artifact_or_product_ref);
     const source = candidate && canonicalObject(candidate.source_or_collection_ref);
     const reuse = candidate?.reuse_decision_ref_or_none == null ? null : record(candidate.reuse_decision_ref_or_none);
-    if (!candidate || !role || order < 0 || order < previousOrder || !state || !reasons || !provenance || provenance.length === 0 || !owner || !source
+    if (!candidate || !role || order < 0 || order < previousOrder || !state || !reasons || !provenance || provenance.length === 0 || provenance.some((entry) => entry === null) || !owner || !source
       || (state.status === "AVAILABLE" && candidate.evidence_ref == null)
       || ("artifact_id" in owner && !structuralEqual(owner, ownArtifact))
       || (candidate.reuse_decision_ref_or_none != null && (!reuse || !structuralEqual(reuse.target_process_state_ref, ownProcessRef)))) return null;
@@ -346,7 +377,8 @@ function validateCurrentRefs(state: RecordValue, ownRef: RecordValue, ownArtifac
   const problems = array(state.confirmed_problem_refs);
   const relations = array(state.defect_quality_relation_refs);
   const risks = array(state.bounded_risk_assessment_refs);
-  if (!requirementRefs || !specification || !metric || !population || !problems || !relations || !risks) return false;
+  const actions = array(state.corrective_action_refs);
+  if (!requirementRefs || !specification || !metric || !population || !problems || !relations || !risks || !actions || actions.some((value) => actionRef(value) === null)) return false;
   if (requirementRefs.some((value) => {
     const item = record(value);
     const subject = item && record(item.requirement_subject_ref);
@@ -486,6 +518,8 @@ function validateLifecycleGraph(fullModel: RecordValue, predecessor: ProcessStat
     || !successorAction || !successorComparisons) return false;
   const revisedSpecification = record(fullModel.revised_specification);
   const application = record(fullModel.action_application);
+  const actionBefore = application && actionRef(application.action_before_ref);
+  const actionAfter = application && actionRef(application.action_after_ref);
   const applicationTransition = application && record(application.transition);
   const applicationTransitionId = applicationTransition && record(applicationTransition.transition_id);
   const applicationRef = refFromApplication(application);
@@ -494,7 +528,20 @@ function validateLifecycleGraph(fullModel: RecordValue, predecessor: ProcessStat
   const reassessmentContext = reassessmentRecord && record(reassessmentRecord.context);
   const reassessmentProvenance = reassessmentRecord && record(reassessmentRecord.provenance);
   const expectedArtifactTransition = applicationTransitionId ? { transition_id: applicationTransitionId } : null;
-  if (!revisedSpecification || !application || !applicationTransition || !applicationRef || !reassessmentRecord || !reassessmentRef || !reassessmentContext || !reassessmentProvenance || !expectedArtifactTransition
+  const predecessorActions = array(predecessor.raw.corrective_action_refs);
+  const successorActions = array(successor.raw.corrective_action_refs);
+  if (!revisedSpecification || !application || !actionBefore || !actionAfter || !applicationTransition || !applicationRef || !reassessmentRecord || !reassessmentRef || !reassessmentContext || !reassessmentProvenance || !expectedArtifactTransition || !predecessorActions || !successorActions
+    || predecessorActions.some((value) => {
+      const action = actionRef(value);
+      return !action || !structuralEqual(action.targetArtifactRef, predecessor.artifactRef) || !structuralEqual(action.originProcessStateRef, predecessor.ref);
+    })
+    || !structuralEqual(actionBefore.targetArtifactRef, predecessor.artifactRef)
+    || !structuralEqual(actionBefore.originProcessStateRef, predecessor.ref)
+    || !successorActions.some((value) => structuralEqual(value, actionAfter.raw))
+    || successorActions.some((value) => {
+      const action = actionRef(value);
+      return !action || !structuralEqual(action.actionId, actionAfter.actionId);
+    })
     || !structuralEqual(revisedSpecification.artifact_ref, successor.artifactRef)
     || !structuralEqual(application.child_artifact_ref, successor.artifactRef)
     || !structuralEqual(reassessmentRecord.child_process_state_ref, successor.ref)
@@ -524,14 +571,13 @@ function validateLifecycleGraph(fullModel: RecordValue, predecessor: ProcessStat
     || !structuralEqual(transition.reassessmentRef, successor.reassessmentRef)
     || !structuralEqual(transition.comparisonRefs, successorComparisons)) return false;
   const comparisons = array(fullModel.comparisons);
-  if (comparisons) {
-    const refs = comparisons.map((value) => {
-      const comparison = record(value);
-      return comparison && canonicalString(comparison.comparison_id) && canonicalString(comparison.comparison_version)
-        ? { comparison_id: comparison.comparison_id, comparison_version: comparison.comparison_version } : null;
-    });
-    if (refs.some((value) => value === null) || !structuralEqual(refs, transition.comparisonRefs)) return false;
-  }
+  if (!comparisons) return false;
+  const refs = comparisons.map((value) => {
+    const comparison = record(value);
+    return comparison && canonicalString(comparison.comparison_id) && canonicalString(comparison.comparison_version)
+      ? { comparison_id: comparison.comparison_id, comparison_version: comparison.comparison_version } : null;
+  });
+  if (refs.some((value) => value === null) || !structuralEqual(refs, successorComparisons) || !structuralEqual(refs, transition.comparisonRefs)) return false;
   return true;
 }
 
@@ -557,19 +603,28 @@ function projectCheckpoint(value: unknown, states: ProcessStateProjection[]): Ch
   const selectedProcess = processRef(selected.process_state_ref);
   const selectedReasons = canonicalReasonArray(selected.reason_codes);
   const selectedProvenance = array(selected.provenance);
-  const governingResultRef = canonicalObject(selected.governing_contract_or_rule_ref);
-  if (selected.result_ref == null || !selectedState || !identity || !selectedArtifact || !selectedProcess || !selectedReasons || !selectedProvenance || selectedProvenance.length === 0 || !governingResultRef) return null;
+  const governingResultRef = contractOrRuleRef(selected.governing_contract_or_rule_ref);
+  if (!selectedState || !identity || !selectedArtifact || !selectedProcess || !selectedReasons || !selectedProvenance || selectedProvenance.length === 0 || selectedProvenance.some((entry) => entry === null) || !governingResultRef) return null;
   const fraction = selected.exact_value == null ? null : exactFraction(selected.exact_value);
   if ((selectedState.status === "AVAILABLE" && (!fraction || selectedState.applicability !== "APPLICABLE"))
     || (selectedState.status !== "AVAILABLE" && selected.exact_value !== null)) return null;
   const artifactMatches = structuralEqual(selectedArtifact, checkpointArtifact);
   const processMatches = structuralEqual(selectedProcess, checkpointProcess);
-  if (reason === "ARTIFACT_PROVENANCE_MISMATCH" ? artifactMatches : !artifactMatches) return null;
-  if (reason === "PROCESS_STATE_PROVENANCE_MISMATCH" ? processMatches : !processMatches) return null;
   const resultRef = record(selected.result_ref);
-  if (resultRef && "profile_id" in resultRef) {
-    if (!structuralEqual(resultRef.profile_id, state.metricProfileRef) || resultRef.metric_id !== identity) return null;
-  }
+  const resultProfile = resultRef && record(resultRef.profile_id);
+  const resultScope = resultRef && member(resultRef.scope, ["REQUIREMENT", "SPECIFICATION"] as const);
+  const resultSubject = resultRef && record(resultRef.subject_ref);
+  if (!resultRef || !resultProfile || !resultScope || !resultSubject
+    || !structuralEqual(resultProfile, state.metricProfileRef) || resultRef.metric_id !== identity
+    || !structuralEqual(resultSubject.artifact_ref, checkpointArtifact)) return null;
+  if (resultScope === "REQUIREMENT" && (!canonicalString(resultSubject.requirement_id)
+    || !Number.isSafeInteger(resultSubject.source_line) || Number(resultSubject.source_line) < 1)) return null;
+
+  if (reason === "ARTIFACT_PROVENANCE_MISMATCH") {
+    if (artifactMatches) return null;
+  } else if (reason === "PROCESS_STATE_PROVENANCE_MISMATCH") {
+    if (!artifactMatches || processMatches) return null;
+  } else if (!artifactMatches || !processMatches) return null;
 
   const policyId = canonicalString(policy.policy_id);
   const policyVersion = canonicalString(policy.policy_version);

@@ -19,6 +19,14 @@ function artifact(version: string) { return { artifact_id: "SPEC-PROCESS", artif
 function assessment(version: string) { return { assessment_id: "ASSESS-PROCESS", assessment_version: version, artifact_ref: artifact(version) }; }
 function processRef(version: string) { return { process_state_id: "PROCESS-LINEAGE", process_state_version: version, stage: "REFERENCE_VERIFICATION" }; }
 function metric(version: string) { return { artifact_ref: artifact(version), assessment_ref: assessment(version), registry_ref: registry }; }
+function actionId() {
+  return {
+    action_instance_id: "ACTION",
+    target_artifact_ref: artifact("v1"),
+    originating_risk_id: { assessment_event_ref: { process_state_ref: processRef("v1") } },
+  };
+}
+function actionRef(version: string) { return { action_id: actionId(), action_record_version: version }; }
 
 function refs(version: string) {
   const ownArtifact = artifact(version);
@@ -33,7 +41,7 @@ function refs(version: string) {
   const problem = { problem_id: { artifact_ref: ownArtifact, source_assessment_ref: ownAssessment } };
   const relation = { relation_id: { problem_resolution_ref: { resolution_id: { artifact_ref: ownArtifact, source_assessment_ref: ownAssessment } } } };
   const risk = { risk_assessment_id: { assessment_event_ref: { artifact_ref: ownArtifact, process_state_ref: ownProcess } } };
-  const action = { action_id: { target_artifact_ref: ownArtifact }, action_record_version: version };
+  const action = actionRef(version);
   return { requirement, specification, metricProfile, feature, quality, population, problem, relation, risk, action };
 }
 
@@ -78,7 +86,7 @@ function processState(version: "v1" | "v2") {
   const predecessor = version === "v1" ? null : processRef("v1");
   const transitionRef = version === "v1" ? null : { transition_id: { transition_id: "ARTIFACT-TRANSITION" } };
   const reassessmentRef = version === "v1" ? null : { reassessment_id: "REASSESSMENT", reassessment_version: "1" };
-  const applicationRef = version === "v1" ? null : { application_id: { application_instance_id: "APPLICATION", action_before_ref: { id: "ACTION" }, revision_ref: { id: "REVISION" }, child_artifact_ref: artifact("v2") }, application_version: "1" };
+  const applicationRef = version === "v1" ? null : { application_id: { application_instance_id: "APPLICATION", action_before_ref: actionRef("v1"), revision_ref: { revision_id: "REVISION", revision_version: "1" }, child_artifact_ref: artifact("v2") }, application_version: "1" };
   const comparisons = version === "v1" ? [] : [{ comparison_id: "COMPARISON", comparison_version: "1" }];
   const state: Record<string, any> = {
     status: null, applicability: null,
@@ -151,6 +159,7 @@ export function processResponse(): CanonicalAnalyzeResponse {
       revised_specification: { artifact_ref: artifact("v2") },
       action_application: {
         application_id: applicationRef.application_id, application_version: applicationRef.application_version, child_artifact_ref: artifact("v2"),
+        action_before_ref: actionRef("v1"), action_after_ref: actionRef("v2"),
         transition: { transition_id: { transition_id: "ARTIFACT-TRANSITION" } },
       },
       reassessment: {
@@ -191,6 +200,212 @@ describe("RUI-13 process projection", () => {
     expect(projected.current).toBe(projected.successor);
     expect(projected.current.version).toBe("v2");
     expect(projected.predecessor.version).toBe("v1");
+  });
+
+  it.each([
+    ["another artifact", (ref: Record<string, any>) => { ref.action_id.target_artifact_ref = artifact("other"); }],
+    ["another process state", (ref: Record<string, any>) => { ref.action_id.originating_risk_id.assessment_event_ref.process_state_ref = processRef("other"); }],
+    ["missing action_record_version", (ref: Record<string, any>) => { delete ref.action_record_version; }],
+    ["blank action_record_version", (ref: Record<string, any>) => { ref.action_record_version = " "; }],
+  ])("rejects a process_v1 corrective ActionRef owned by %s", (_label, mutate) => {
+    const value = clone(); mutate(state(value, "process_v1").corrective_action_refs[0]); expectMalformed(value);
+  });
+
+  it("rejects process_v2 when corrective_action_refs omit the exact applied action_after_ref", () => {
+    const value = clone(); const v2 = state(value, "process_v2");
+    const replacement = actionRef("another-record-version");
+    v2.corrective_action_refs = [replacement];
+    v2.component_associations.find((item: any) => item.role === "CORRECTIVE_ACTION").result_ref = replacement;
+    expectMalformed(value);
+  });
+
+  it("rejects a process_v2 corrective ActionRef from a different action_id lineage", () => {
+    const value = clone(); const v2 = state(value, "process_v2");
+    const replacement = actionRef("v2"); replacement.action_id.action_instance_id = "OTHER-ACTION";
+    v2.corrective_action_refs = [replacement];
+    v2.component_associations.find((item: any) => item.role === "CORRECTIVE_ACTION").result_ref = replacement;
+    expectMalformed(value);
+  });
+
+  it("allows multiple successor ActionRefs in one lineage without requiring one record version", () => {
+    const value = clone(); const v2 = state(value, "process_v2");
+    const additional = actionRef("v3");
+    v2.corrective_action_refs.push(additional);
+    const association = structuredClone(v2.component_associations.find((item: any) => item.role === "CORRECTIVE_ACTION"));
+    association.result_ref = additional;
+    v2.component_associations.push(association);
+    v2.provenance.component_associations = v2.component_associations;
+    expect(selectProcessPage(value).kind).toBe("AVAILABLE");
+  });
+
+  it.each([
+    ["target artifact", (ref: Record<string, any>) => { ref.action_id.target_artifact_ref = artifact("other"); }],
+    ["origin risk process", (ref: Record<string, any>) => { ref.action_id.originating_risk_id.assessment_event_ref.process_state_ref = processRef("other"); }],
+  ])("rejects application action_before_ref with a different predecessor %s", (_label, mutate) => {
+    const value = clone(); mutate(fm(value).action_application.action_before_ref); expectMalformed(value);
+  });
+
+  it("rejects an arbitrary component producing source object", () => {
+    const value = clone(); state(value, "process_v1").component_associations[0].producing_contract_or_rule_ref = { arbitrary: "SOURCE" }; expectMalformed(value);
+  });
+
+  it.each([
+    ["ContractRef", { contract_id: "FUTURE-COMPONENT-CONTRACT", version: "3" }],
+    ["explicit RuleRef", { rule_id: "FUTURE-COMPONENT-RULE", explicit_version: "4", version_authority: "EXPLICIT_CONTRACT_VERSION" }],
+    ["stable RuleRef", { rule_id: "FUTURE-STABLE-RULE", explicit_version: null, version_authority: "STABLE_RULE_ID_POLICY" }],
+  ])("accepts a typed component producing %s", (_label, producingRef) => {
+    const value = clone(); state(value, "process_v1").component_associations[0].producing_contract_or_rule_ref = producingRef;
+    expect(selectProcessPage(value).kind).toBe("AVAILABLE");
+  });
+
+  it.each([
+    ["primitive result_ref", (c: Record<string, any>) => { c.selected_result.result_ref = "METRIC"; c.provenance.selected_result_ref = "METRIC"; }],
+    ["arbitrary result_ref", (c: Record<string, any>) => { c.selected_result.result_ref = { arbitrary: "METRIC" }; c.provenance.selected_result_ref = c.selected_result.result_ref; }],
+    ["profile mismatch", (c: Record<string, any>) => { c.selected_result.result_ref.profile_id = metric("other"); c.provenance.selected_result_ref = c.selected_result.result_ref; }],
+    ["metric identity mismatch", (c: Record<string, any>) => { c.selected_result.result_ref.metric_id = "OTHER"; c.provenance.selected_result_ref = c.selected_result.result_ref; }],
+    ["unsupported scope", (c: Record<string, any>) => { c.selected_result.result_ref.scope = "OTHER"; }],
+    ["missing subject", (c: Record<string, any>) => { delete c.selected_result.result_ref.subject_ref; c.provenance.selected_result_ref = c.selected_result.result_ref; }],
+  ])("isolates malformed typed MetricEntryId case: %s", (_label, mutate) => {
+    const value = clone(); mutate(checkpoints(value)[0]);
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("MALFORMED");
+  });
+
+  it("accepts a valid REQUIREMENT-scope MetricEntryId", () => {
+    const value = clone(); const entry = checkpoints(value)[0];
+    entry.selected_result.result_ref.scope = "REQUIREMENT";
+    entry.selected_result.result_ref.subject_ref = { artifact_ref: artifact("v1"), requirement_id: "R001", source_line: 1 };
+    entry.provenance.selected_result_ref = entry.selected_result.result_ref;
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("AVAILABLE");
+  });
+
+  it.each([
+    ["artifact mismatch", (subject: Record<string, any>) => { subject.artifact_ref = artifact("other"); }],
+    ["missing requirement_id", (subject: Record<string, any>) => { delete subject.requirement_id; }],
+    ["blank requirement_id", (subject: Record<string, any>) => { subject.requirement_id = " "; }],
+    ["zero source_line", (subject: Record<string, any>) => { subject.source_line = 0; }],
+    ["non-integer source_line", (subject: Record<string, any>) => { subject.source_line = 1.5; }],
+  ])("rejects malformed REQUIREMENT-scope MetricEntry subject %s", (_label, mutate) => {
+    const value = clone(); const entry = checkpoints(value)[0];
+    entry.selected_result.result_ref.scope = "REQUIREMENT";
+    entry.selected_result.result_ref.subject_ref = { artifact_ref: artifact("v1"), requirement_id: "R001", source_line: 1 };
+    mutate(entry.selected_result.result_ref.subject_ref);
+    entry.provenance.selected_result_ref = entry.selected_result.result_ref;
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("MALFORMED");
+  });
+
+  it("rejects a SPECIFICATION-scope MetricEntry subject artifact mismatch", () => {
+    const value = clone(); const entry = checkpoints(value)[0];
+    entry.selected_result.result_ref.subject_ref.artifact_ref = artifact("other");
+    entry.provenance.selected_result_ref = entry.selected_result.result_ref;
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("MALFORMED");
+  });
+
+  it("rejects an arbitrary selected-result governing ref", () => {
+    const value = clone(); checkpoints(value)[0].selected_result.governing_contract_or_rule_ref = { arbitrary: "GOVERNING" };
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("MALFORMED");
+  });
+
+  it.each([
+    ["ContractRef", { contract_id: "FUTURE-RESULT-CONTRACT", version: "2" }],
+    ["RuleRef", { rule_id: "FUTURE-RESULT-RULE", explicit_version: "2", version_authority: "EXPLICIT_CONTRACT_VERSION" }],
+  ])("accepts a typed selected-result governing %s", (_label, governingRef) => {
+    const value = clone(); checkpoints(value)[0].selected_result.governing_contract_or_rule_ref = governingRef;
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("AVAILABLE");
+  });
+
+  it.each([
+    ["component reason_codes", (r: CanonicalAnalyzeResponse) => { state(r, "process_v1").component_associations[0].reason_codes = [null]; }],
+    ["component provenance", (r: CanonicalAnalyzeResponse) => { state(r, "process_v1").component_associations[0].provenance = [null]; }],
+    ["evidence reason_codes", (r: CanonicalAnalyzeResponse) => { state(r, "process_v1").evidence_associations[0].reason_codes = [null]; }],
+    ["evidence provenance", (r: CanonicalAnalyzeResponse) => { state(r, "process_v1").evidence_associations[0].provenance = [null]; }],
+  ])("rejects a null item inside %s", (_label, mutate) => {
+    const value = clone(); mutate(value); expectMalformed(value);
+  });
+
+  it.each([
+    ["selected reason_codes", (c: Record<string, any>) => { c.selected_result.reason_codes = [null]; }],
+    ["selected provenance", (c: Record<string, any>) => { c.selected_result.provenance = [null]; c.provenance.selected_result_provenance = c.selected_result.provenance; }],
+  ])("isolates a null item inside %s", (_label, mutate) => {
+    const value = clone(); mutate(checkpoints(value)[0]);
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].kind).toBe("MALFORMED");
+  });
+
+  it("accepts ARTIFACT_PROVENANCE_MISMATCH when both selected artifact and process differ", () => {
+    const value = clone(); const entry = checkpoints(value)[0];
+    entry.outcome = "UNRESOLVED"; entry.reason_codes = ["ARTIFACT_PROVENANCE_MISMATCH"];
+    entry.selected_result.artifact_ref = artifact("other"); entry.selected_result.process_state_ref = processRef("other");
+    const projected = selectProcessPage(value);
+    expect(projected.kind).toBe("AVAILABLE");
+    if (projected.kind !== "AVAILABLE" || projected.checkpoints[0].kind !== "AVAILABLE") return;
+    expect(projected.checkpoints[0].value.reasonCode).toBe("ARTIFACT_PROVENANCE_MISMATCH");
+  });
+
+  it("accepts PROCESS_STATE_PROVENANCE_MISMATCH only while selected artifact still matches", () => {
+    const value = clone(); const entry = checkpoints(value)[0];
+    entry.outcome = "UNRESOLVED"; entry.reason_codes = ["PROCESS_STATE_PROVENANCE_MISMATCH"];
+    entry.selected_result.process_state_ref = processRef("other");
+    const accepted = selectProcessPage(value);
+    expect(accepted.kind).toBe("AVAILABLE");
+    if (accepted.kind !== "AVAILABLE") return;
+    expect(accepted.checkpoints[0].kind).toBe("AVAILABLE");
+    entry.selected_result.artifact_ref = artifact("other");
+    const rejected = selectProcessPage(value);
+    expect(rejected.kind).toBe("AVAILABLE");
+    if (rejected.kind !== "AVAILABLE") return;
+    expect(rejected.checkpoints[0].kind).toBe("MALFORMED");
+  });
+
+  it.each([
+    ["missing", (r: Record<string, any>) => { delete r.comparisons; }],
+    ["non-array", (r: Record<string, any>) => { r.comparisons = { comparison_id: "COMPARISON", comparison_version: "1" }; }],
+    ["malformed identity", (r: Record<string, any>) => { r.comparisons = [{ comparison_id: " ", comparison_version: "1" }]; }],
+  ])("rejects %s full_model.comparisons", (_label, mutate) => {
+    const value = clone(); mutate(fm(value)); expectMalformed(value);
+  });
+
+  it("requires comparison refs to match successor and transition exactly in source order", () => {
+    const value = clone();
+    fm(value).comparisons = [
+      { comparison_id: "COMPARISON", comparison_version: "1" },
+      { comparison_id: "COMPARISON-2", comparison_version: "1" },
+    ];
+    const reversed = [
+      { comparison_id: "COMPARISON-2", comparison_version: "1" },
+      { comparison_id: "COMPARISON", comparison_version: "1" },
+    ];
+    state(value, "process_v2").provenance.comparison_refs = reversed;
+    fm(value).process_transition.comparison_refs = reversed;
+    fm(value).process_transition.provenance.comparison_refs = reversed;
+    expectMalformed(value);
+  });
+
+  it("accepts an empty canonical comparisons population only with empty process refs", () => {
+    const value = clone(); fm(value).comparisons = [];
+    state(value, "process_v2").provenance.comparison_refs = [];
+    fm(value).process_transition.comparison_refs = [];
+    fm(value).process_transition.provenance.comparison_refs = [];
+    expect(selectProcessPage(value).kind).toBe("AVAILABLE");
   });
 
   it.each([
