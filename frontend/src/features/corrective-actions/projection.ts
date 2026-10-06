@@ -306,6 +306,7 @@ function projectAction(
     || !structuralEqual(actionId.originating_problem_id, record(raw.originating_problem_ref)?.problem_id)
     || !structuralEqual(actionId.target_artifact_ref, targetArtifact)
     || raw.predecessor_action_ref !== null || raw.external_revision_ref !== null || raw.application_ref !== null
+    || !hasOwn(raw, "rejection_source_ref") || raw.rejection_source_ref !== null
     || raw.action_kind !== "RECONCILE_QUANTITATIVE_BOUNDS" || raw.status !== "PROPOSED"
     || raw.proposed_change_kind !== "REPLACE_REQUIREMENT_TEXT"
     || raw.non_optimality_claim !== "CANDIDATE_NOT_OPTIMALITY_CLAIM"
@@ -347,10 +348,21 @@ function sourceGraphResolves(fullModel: JsonRecord, resolution: JsonRecord): boo
   const risks = array(fullModel.risk_assessments);
   const problems = array(fullModel.problem_resolutions);
   const relations = array(fullModel.defect_quality_relations);
-  return Boolean(risks && problems && relations
-    && risks.some((item) => structuralEqual({ risk_assessment_id: record(item)?.risk_assessment_id }, resolution.source_risk_ref))
-    && problems.some((item) => structuralEqual({ problem_id: record(record(item)?.problem)?.problem_id }, resolution.source_problem_ref))
-    && relations.some((item) => structuralEqual({ relation_id: record(item)?.relation_id }, resolution.source_relation_ref)));
+  if (!risks || !problems || !relations) return false;
+  const riskMatches = risks.filter((item) => structuralEqual(
+    { risk_assessment_id: record(item)?.risk_assessment_id },
+    resolution.source_risk_ref,
+  )).length;
+  const relationMatches = relations.filter((item) => structuralEqual(
+    { relation_id: record(item)?.relation_id },
+    resolution.source_relation_ref,
+  )).length;
+  if (riskMatches !== 1 || relationMatches !== 1) return false;
+  if (resolution.source_problem_ref === null) return true;
+  return problems.filter((item) => structuralEqual(
+    { problem_id: record(record(item)?.problem)?.problem_id },
+    resolution.source_problem_ref,
+  )).length === 1;
 }
 
 function projectResolution(value: unknown, fullModel: JsonRecord, initial: SpecificationProjection): ResolutionProjection | null {
@@ -362,10 +374,10 @@ function projectResolution(value: unknown, fullModel: JsonRecord, initial: Speci
   const provenance = raw && record(raw.provenance);
   const sourceRiskRef = raw && record(raw.source_risk_ref);
   const sourceProblemRef = raw?.source_problem_ref === null ? null : record(raw?.source_problem_ref);
-  const sourceRelationRef = raw?.source_relation_ref === null ? null : record(raw?.source_relation_ref);
+  const sourceRelationRef = raw && record(raw.source_relation_ref);
   if (!raw || !currentState || !resolutionId || !ruleRef || !reasons || reasons.length !== 1 || typeof reasons[0] !== "string"
     || !resolutionReasons.has(reasons[0]) || !provenance || !structuralEqual(ruleRef, canonicalActionRule)
-    || !canonicalString(resolutionId.action_instance_id, true) || !sourceRiskRef
+    || !canonicalString(resolutionId.action_instance_id, true) || !sourceRiskRef || !sourceRelationRef
     || !structuralEqual(resolutionId.source_risk_ref, sourceRiskRef)
     || resolutionId.requested_action_kind !== "RECONCILE_QUANTITATIVE_BOUNDS"
     || !structuralEqual(resolutionId.rule_ref, canonicalActionRule)
@@ -375,14 +387,14 @@ function projectResolution(value: unknown, fullModel: JsonRecord, initial: Speci
     || !structuralEqual(provenance.action_rule_ref, ruleRef)
     || !structuralEqual(provenance.full_model_contract_ref, canonicalFullModelContract)
     || !structuralEqual(provenance.defect_risk_contract_ref, canonicalDefectRiskContract)
-    || !structuralEqual(provenance.process_reassessment_contract_ref, canonicalProcessContract)) return null;
+    || !structuralEqual(provenance.process_reassessment_contract_ref, canonicalProcessContract)
+    || !sourceGraphResolves(fullModel, raw)) return null;
   if (currentState.status !== "AVAILABLE") {
     if (raw.action_ref !== null || raw.action !== null) return null;
     return { ...currentState, raw, resolutionId, actionRef: null, reasonCode: reasons[0], sourceRiskRef, sourceProblemRef, sourceRelationRef, ruleRef, action: null };
   }
   const actionRef = record(raw.action_ref);
-  if (!actionRef || !sourceRiskRef || !sourceProblemRef || !sourceRelationRef
-    || !sourceGraphResolves(fullModel, raw)) return null;
+  if (!actionRef || !sourceRiskRef || !sourceRelationRef) return null;
   const action = projectAction(raw.action, actionRef, raw, resolutionId, initial);
   const actionProvenance = action && record(action.raw.provenance);
   if (!action || !actionProvenance
@@ -501,6 +513,7 @@ function projectApplication(
     || applied.status !== "APPLIED" || appliedVersion === action.actionRecordVersion
     || !structuralEqual(applied.action_id, action.raw.action_id) || !structuralEqual(applied.predecessor_action_ref, action.actionRef)
     || !structuralEqual(applied.external_revision_ref, revision.revisionRef) || !structuralEqual(applied.application_ref, applicationRef)
+    || !hasOwn(applied, "rejection_source_ref") || applied.rejection_source_ref !== null
     || ![
       "action_kind", "rule_ref", "originating_risk_ref", "originating_problem_ref", "originating_relation_ref",
       "target_artifact_ref", "target_requirements", "comparison_key", "rationale", "proposed_change_kind",

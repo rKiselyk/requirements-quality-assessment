@@ -419,6 +419,108 @@ describe("RUI-12 corrective-action projection", () => {
     });
 
     it.each([
+      ["missing", (action: any) => { delete action.rejection_source_ref; }],
+      ["non-null", (action: any) => { action.rejection_source_ref = { source_id: "REJECTION" }; }],
+    ])("rejects a PROPOSED action with %s rejection_source_ref", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).corrective_action_resolution.action);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["missing", (action: any) => { delete action.rejection_source_ref; }],
+      ["non-null", (action: any) => { action.rejection_source_ref = { source_id: "REJECTION" }; }],
+    ])("rejects an APPLIED action with %s rejection_source_ref", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response).action_application.applied_action);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["null", null],
+      ["malformed", "RELATION"],
+    ])("rejects a non-AVAILABLE resolution with %s source_relation_ref", (_label, value) => {
+      const response = cloneFixture();
+      const resolution = fullModel(response).corrective_action_resolution;
+      resolution.status = "UNAVAILABLE";
+      resolution.applicability = "UNKNOWN";
+      resolution.reason_codes = ["SOURCE_UNAVAILABLE"];
+      resolution.action = null;
+      resolution.action_ref = null;
+      resolution.source_relation_ref = value;
+      resolution.provenance.source_relation_ref = value;
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["risk", (resolution: any) => {
+        const unknown = { risk_assessment_id: { id: "OTHER" } };
+        resolution.source_risk_ref = unknown;
+        resolution.resolution_id.source_risk_ref = unknown;
+        resolution.provenance.source_risk_ref = unknown;
+      }],
+      ["relation", (resolution: any) => {
+        const unknown = { relation_id: { id: "OTHER" } };
+        resolution.source_relation_ref = unknown;
+        resolution.provenance.source_relation_ref = unknown;
+      }],
+      ["problem", (resolution: any) => {
+        const unknown = { problem_id: { id: "OTHER" } };
+        resolution.source_problem_ref = unknown;
+        resolution.provenance.source_problem_ref = unknown;
+      }],
+    ])("rejects a non-AVAILABLE resolution with an unknown %s reference", (_label, mutate) => {
+      const response = cloneFixture();
+      const resolution = fullModel(response).corrective_action_resolution;
+      resolution.status = "UNAVAILABLE";
+      resolution.applicability = "UNKNOWN";
+      resolution.reason_codes = ["SOURCE_UNAVAILABLE"];
+      resolution.action = null;
+      resolution.action_ref = null;
+      mutate(resolution);
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it.each([
+      ["risk", (model: any) => { model.risk_assessments.push(structuredClone(model.risk_assessments[0])); }],
+      ["relation", (model: any) => { model.defect_quality_relations.push(structuredClone(model.defect_quality_relations[0])); }],
+      ["problem", (model: any) => { model.problem_resolutions.push(structuredClone(model.problem_resolutions[0])); }],
+    ])("rejects a resolution whose %s reference has multiple top-level matches", (_label, mutate) => {
+      const response = cloneFixture();
+      mutate(fullModel(response));
+      expect(selectCorrectiveActionsPage(response).kind).toBe("MALFORMED");
+    });
+
+    it("accepts canonical non-AVAILABLE resolution sources with an explicit null problem", () => {
+      const response = cloneFixture();
+      const resolution = fullModel(response).corrective_action_resolution;
+      resolution.status = "UNAVAILABLE";
+      resolution.applicability = "UNKNOWN";
+      resolution.reason_codes = ["SOURCE_UNAVAILABLE"];
+      resolution.action = null;
+      resolution.action_ref = null;
+      resolution.source_problem_ref = null;
+      resolution.provenance.source_problem_ref = null;
+      const projected = selectCorrectiveActionsPage(response);
+      expect(projected.kind).toBe("AVAILABLE");
+      if (projected.kind === "AVAILABLE") {
+        expect(projected.resolution.sourceProblemRef).toBeNull();
+        expect(projected.resolution.sourceRiskRef).toEqual(riskRef);
+        expect(projected.resolution.sourceRelationRef).toEqual(relationRef);
+        expect(projected.resolution.action).toBeNull();
+      }
+    });
+
+    it("accepts the canonical AVAILABLE chain with explicit null rejection references", () => {
+      const projected = selectCorrectiveActionsPage(fixture());
+      expect(projected.kind).toBe("AVAILABLE");
+      if (projected.kind === "AVAILABLE") {
+        expect(projected.resolution.action?.raw.rejection_source_ref).toBeNull();
+        expect(projected.application).not.toBeNull();
+      }
+    });
+
+    it.each([
       ["risk", (id: any) => { id.originating_risk_id = { id: "OTHER" }; }],
       ["problem", (id: any) => { id.originating_problem_id = { id: "OTHER" }; }],
       ["target artifact", (id: any) => { id.target_artifact_ref = artifactV2; }],
