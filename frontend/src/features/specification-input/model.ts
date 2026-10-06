@@ -16,7 +16,16 @@ export interface ControlledDemoAnalyzeRequest {
   };
 }
 
-export type Rui05AnalyzeRequest = InitialAnalyzeRequest | ControlledDemoAnalyzeRequest;
+export interface ReassessmentAnalyzeRequest {
+  case: "REASSESSMENT";
+  requirements: RequirementInput[];
+  prior_context: Record<string, unknown>;
+}
+
+export type AnalyzeRequest = InitialAnalyzeRequest | ControlledDemoAnalyzeRequest | ReassessmentAnalyzeRequest;
+
+/** Kept as a compatibility alias for the input/session API introduced by RUI-05. */
+export type Rui05AnalyzeRequest = AnalyzeRequest;
 
 export const CONTROLLED_DEMO_REQUEST: ControlledDemoAnalyzeRequest = {
   case: "CONTROLLED_DEMO",

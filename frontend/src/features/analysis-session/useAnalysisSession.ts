@@ -10,6 +10,7 @@ export interface AnalysisSession {
   submittedRequest: Rui05AnalyzeRequest | null;
   latestResult: CanonicalAnalyzeResponse | null;
   error: SafeAnalyzeError | null;
+  reassessmentPending: boolean;
   submit: (request: Rui05AnalyzeRequest) => void;
   retry: () => void;
   invalidateFailedAttempt: () => void;
@@ -28,7 +29,7 @@ export function useAnalysisSession(): AnalysisSession {
     onMutate: (request) => {
       setSubmittedRequest(request);
       setError(null);
-      setPhase("ANALYZING");
+      setPhase(request.case === "REASSESSMENT" && latestResult !== null ? "RESULT_READY" : "ANALYZING");
     },
     onSuccess: (response) => {
       setLatestResult(response);
@@ -36,13 +37,13 @@ export function useAnalysisSession(): AnalysisSession {
     },
     onError: (mutationError) => {
       setError(toSafeAnalyzeError(mutationError));
-      setPhase("INPUT");
+      setPhase(latestResult === null ? "INPUT" : "RESULT_READY");
     },
   });
 
   const submit = (request: Rui05AnalyzeRequest) => mutation.mutate(request);
   const retry = () => {
-    if (submittedRequest !== null && phase === "INPUT") mutation.mutate(submittedRequest);
+    if (submittedRequest !== null && error !== null && (phase === "INPUT" || latestResult !== null)) mutation.mutate(submittedRequest);
   };
   const invalidateFailedAttempt = () => {
     if (error === null) return;
@@ -58,5 +59,6 @@ export function useAnalysisSession(): AnalysisSession {
     setPhase("INPUT");
   };
 
-  return { phase, submittedRequest, latestResult, error, submit, retry, invalidateFailedAttempt, reset };
+  const reassessmentPending = mutation.isPending && submittedRequest?.case === "REASSESSMENT" && latestResult !== null;
+  return { phase, submittedRequest, latestResult, error, reassessmentPending, submit, retry, invalidateFailedAttempt, reset };
 }

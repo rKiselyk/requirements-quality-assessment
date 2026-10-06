@@ -150,6 +150,19 @@ describe("RUI-07 results workspace", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("opens the real INITIAL Corrective Actions page without another request", async () => {
+    renderApp(initialResult());
+    await analyze();
+    const fetchSpy = vi.mocked(globalThis.fetch);
+
+    fireEvent.click(screen.getByRole("button", { name: "Corrective Actions" }));
+
+    expect(await screen.findByRole("heading", { name: "Corrective Actions" })).toBeTruthy();
+    expect(screen.getByText("CONFIRMED_PROBLEM_NOT_AVAILABLE")).toBeTruthy();
+    expect(screen.queryByText("This page is reserved for a later Research UI milestone.")).toBeNull();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
   it("resets result and selected view for a new specification while retaining locale", async () => {
     renderApp(initialResult());
     await analyze();
