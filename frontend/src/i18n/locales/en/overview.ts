@@ -8,6 +8,8 @@ export const overview = {
     corrective_actions: "Corrective Actions",
     process: "Process",
     audit: "Audit",
+    reassessment: "Reassessment",
+    comparison: "Comparison",
   },
   title: "Overview",
   subtitle: "Full Model research assessment",

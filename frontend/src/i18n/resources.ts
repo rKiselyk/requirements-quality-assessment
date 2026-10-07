@@ -12,6 +12,8 @@ import { overview as enOverview } from "./locales/en/overview";
 import { requirements as enRequirements } from "./locales/en/requirements";
 import { specification as enSpecification } from "./locales/en/specification";
 import { actions as enActions } from "./locales/en/actions";
+import { reassessment as enReassessment } from "./locales/en/reassessment";
+import { comparison as enComparison } from "./locales/en/comparison";
 import { common as ukCommon } from "./locales/uk/common";
 import { input as ukInput } from "./locales/uk/input";
 import { assessment as ukAssessment } from "./locales/uk/assessment";
@@ -26,10 +28,12 @@ import { overview as ukOverview } from "./locales/uk/overview";
 import { requirements as ukRequirements } from "./locales/uk/requirements";
 import { specification as ukSpecification } from "./locales/uk/specification";
 import { actions as ukActions } from "./locales/uk/actions";
+import { reassessment as ukReassessment } from "./locales/uk/reassessment";
+import { comparison as ukComparison } from "./locales/uk/comparison";
 
 export const resources = {
-  uk: { common: ukCommon, input: ukInput, assessment: ukAssessment, productQuality: ukProductQuality, risk: ukRisk, process: ukProcess, audit: ukAudit, errors: ukErrors, limitations: ukLimitations, lifecycle: ukLifecycle, overview: ukOverview, requirements: ukRequirements, specification: ukSpecification, actions: ukActions },
-  en: { common: enCommon, input: enInput, assessment: enAssessment, productQuality: enProductQuality, risk: enRisk, process: enProcess, audit: enAudit, errors: enErrors, limitations: enLimitations, lifecycle: enLifecycle, overview: enOverview, requirements: enRequirements, specification: enSpecification, actions: enActions },
+  uk: { common: ukCommon, input: ukInput, assessment: ukAssessment, productQuality: ukProductQuality, risk: ukRisk, process: ukProcess, audit: ukAudit, errors: ukErrors, limitations: ukLimitations, lifecycle: ukLifecycle, overview: ukOverview, requirements: ukRequirements, specification: ukSpecification, actions: ukActions, reassessment: ukReassessment, comparison: ukComparison },
+  en: { common: enCommon, input: enInput, assessment: enAssessment, productQuality: enProductQuality, risk: enRisk, process: enProcess, audit: enAudit, errors: enErrors, limitations: enLimitations, lifecycle: enLifecycle, overview: enOverview, requirements: enRequirements, specification: enSpecification, actions: enActions, reassessment: enReassessment, comparison: enComparison },
 } as const;
 
-export const namespaces = ["common", "input", "assessment", "productQuality", "risk", "process", "audit", "errors", "limitations", "lifecycle", "overview", "requirements", "specification", "actions"] as const;
+export const namespaces = ["common", "input", "assessment", "productQuality", "risk", "process", "audit", "errors", "limitations", "lifecycle", "overview", "requirements", "specification", "actions", "reassessment", "comparison"] as const;

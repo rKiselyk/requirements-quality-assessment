@@ -5,7 +5,7 @@ import { Button } from "./components/ui";
 import { AnalyzingPage } from "./features/analysis-session/AnalyzingPage";
 import { useAnalysisSession } from "./features/analysis-session/useAnalysisSession";
 import { ResultWorkspace } from "./features/results/ResultWorkspace";
-import { resultSectionIds, type ResultSectionId } from "./features/results/projection";
+import { resultSectionIds, selectVisibleResultSections, type ResultSectionId } from "./features/results/projection";
 import { SpecificationInputPage } from "./features/specification-input/SpecificationInputPage";
 import { apiErrorTranslationKey } from "./i18n";
 
@@ -30,8 +30,11 @@ export function App() {
     setInputVersion((version) => version + 1);
   };
 
+  const visibleSections = session.phase === "RESULT_READY" && session.latestResult
+    ? selectVisibleResultSections(session.latestResult)
+    : [];
   const navigation = session.phase === "RESULT_READY"
-    ? resultSectionIds.map((id) => ({ id, label: overviewText(`navigation.${id}`) }))
+    ? visibleSections.map((id) => ({ id, label: overviewText(`navigation.${id}`) }))
     : undefined;
 
   return (
@@ -44,7 +47,7 @@ export function App() {
       navigation={navigation}
       activeNavigationId={selectedResultView}
       onNavigate={(id) => {
-        if (resultSectionIds.includes(id as ResultSectionId)) setSelectedResultView(id as ResultSectionId);
+        if (visibleSections.includes(id as ResultSectionId) && resultSectionIds.includes(id as ResultSectionId)) setSelectedResultView(id as ResultSectionId);
       }}
     >
       <div hidden={session.phase !== "INPUT"}>

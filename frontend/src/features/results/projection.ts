@@ -1,5 +1,7 @@
 import type { CanonicalAnalyzeResponse } from "../../api/analyze";
 import type { ExactValueData } from "../../components/scientific";
+import { selectComparisonProjection } from "../comparison/projection";
+import { selectReassessmentProjection } from "../reassessment/projection";
 
 export type ResultSectionId =
   | "overview"
@@ -9,9 +11,11 @@ export type ResultSectionId =
   | "risk"
   | "corrective_actions"
   | "process"
-  | "audit";
+  | "audit"
+  | "reassessment"
+  | "comparison";
 
-export const resultSectionIds: readonly ResultSectionId[] = [
+export const baseResultSectionIds = [
   "overview",
   "requirements",
   "specification",
@@ -20,6 +24,12 @@ export const resultSectionIds: readonly ResultSectionId[] = [
   "corrective_actions",
   "process",
   "audit",
+] as const satisfies readonly ResultSectionId[];
+
+export const resultSectionIds: readonly ResultSectionId[] = [
+  ...baseResultSectionIds,
+  "reassessment",
+  "comparison",
 ];
 
 export interface SectionAvailabilityProjection {
@@ -120,18 +130,24 @@ export function selectSectionAvailability(
   response: CanonicalAnalyzeResponse,
   section: string,
 ): SectionAvailabilityProjection | null {
-  for (const item of response.section_availability) {
-    const candidate = record(item);
-    if (!candidate || candidate.section !== section) continue;
-    if (candidate.availability !== "AVAILABLE" && candidate.availability !== "UNAVAILABLE") return null;
-    if (candidate.reason_code !== null && text(candidate.reason_code) === null) return null;
-    return {
-      section,
-      availability: candidate.availability,
-      reasonCode: candidate.reason_code === null ? null : text(candidate.reason_code),
-    };
-  }
-  return null;
+  const matches = response.section_availability.filter((item) => record(item)?.section === section);
+  if (matches.length !== 1) return null;
+  const candidate = record(matches[0]);
+  if (!candidate || (candidate.availability !== "AVAILABLE" && candidate.availability !== "UNAVAILABLE")) return null;
+  const reasonCode = candidate.reason_code === null ? null : text(candidate.reason_code);
+  if ((candidate.availability === "AVAILABLE" && candidate.reason_code !== null)
+    || (candidate.availability === "UNAVAILABLE" && reasonCode === null)) return null;
+  return { section, availability: candidate.availability, reasonCode };
+}
+
+export function selectVisibleResultSections(response: CanonicalAnalyzeResponse): ResultSectionId[] {
+  const visible: ResultSectionId[] = [...baseResultSectionIds];
+  if (response.analysis_case === "INITIAL") return visible;
+  // Imported lazily at module evaluation only; these selectors validate the
+  // canonical lifecycle and never derive scientific comparison semantics.
+  if (selectReassessmentProjection(response)) visible.push("reassessment");
+  if (selectComparisonProjection(response)) visible.push("comparison");
+  return visible;
 }
 
 function stateAndValue(value: unknown): Pick<MetricProjection, "state" | "value"> | null {

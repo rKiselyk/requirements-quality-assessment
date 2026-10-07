@@ -8,6 +8,8 @@ export const overview = {
     corrective_actions: "Коригувальні дії",
     process: "Процес",
     audit: "Аудит",
+    reassessment: "Повторне оцінювання",
+    comparison: "Порівняння",
   },
   title: "Огляд",
   subtitle: "Дослідницьке оцінювання за Повною моделлю",

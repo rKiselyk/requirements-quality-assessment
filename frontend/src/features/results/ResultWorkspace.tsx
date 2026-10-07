@@ -8,6 +8,8 @@ import { RiskPage } from "../risk/RiskPage";
 import { CorrectiveActionsPage } from "../corrective-actions/CorrectiveActionsPage";
 import { ProcessPage } from "../process/ProcessPage";
 import { AuditPage } from "../audit/AuditPage";
+import { ReassessmentPage } from "../reassessment/ReassessmentPage";
+import { ComparisonPage } from "../comparison/ComparisonPage";
 import type { Rui05AnalyzeRequest } from "../specification-input/model";
 
 export function ResultWorkspace({
@@ -47,5 +49,7 @@ export function ResultWorkspace({
   />;
   if (activeView === "process") return <ProcessPage result={result} />;
   if (activeView === "audit") return <AuditPage result={result} />;
+  if (activeView === "reassessment") return <ReassessmentPage result={result} />;
+  if (activeView === "comparison") return <ComparisonPage result={result} />;
   return null;
 }
