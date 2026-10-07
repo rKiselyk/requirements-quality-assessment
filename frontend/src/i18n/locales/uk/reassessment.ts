@@ -13,6 +13,8 @@ export const reassessment = {
     rule: "Правило",
     assessment: "Оцінювання дочірньої версії",
     application: "Застосування дії",
+    revision: "Зовнішня редакція",
+    provider: "Постачальник редакції",
     processBefore: "Попередній стан процесу",
     processAfter: "Дочірній стан процесу",
     reasons: "Причини",

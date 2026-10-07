@@ -13,6 +13,8 @@ export const reassessment = {
     rule: "Rule",
     assessment: "Child assessment",
     application: "Action application",
+    revision: "External revision",
+    provider: "Revision provider",
     processBefore: "Predecessor process state",
     processAfter: "Child process state",
     reasons: "Reasons",

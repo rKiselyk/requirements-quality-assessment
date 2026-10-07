@@ -135,7 +135,7 @@ function subject(value: unknown): JsonRecord | null {
     : null;
 }
 
-function comparison(value: unknown, lifecycle: ReassessmentProjection): ComparisonRecordProjection | null {
+function comparison(value: unknown, lifecycle: ReassessmentProjection, transitionId: JsonRecord): ComparisonRecordProjection | null {
   const candidate = record(value);
   if (!candidate || !nonEmptyText(candidate.comparison_id) || !nonEmptyText(candidate.comparison_version)
     || !statuses.includes(candidate.status as never)
@@ -156,6 +156,8 @@ function comparison(value: unknown, lifecycle: ReassessmentProjection): Comparis
     || (candidate.before_state_and_value !== null && !before)
     || (candidate.after_state_and_value !== null && !after)
     || (candidate.status === "AVAILABLE" && (!projectedSubject || !beforeRef || !afterRef || !before || !after))
+    || (beforeRef && beforeRef.result_family !== "FULL-MODEL-SERVICE-COMPARABLE")
+    || (afterRef && afterRef.result_family !== "FULL-MODEL-SERVICE-COMPARABLE")
     || (beforeRef && afterRef && structuralEqual(beforeRef, afterRef))) return null;
   const family = projectedSubject?.result_family as string | undefined;
 
@@ -164,11 +166,20 @@ function comparison(value: unknown, lifecycle: ReassessmentProjection): Comparis
   const nonClaims = canonicalStringArray(candidate.non_claims);
   const explanation = typeof candidate.explanation === "string" ? candidate.explanation : null;
   const calibration = candidate.calibration_status_or_none === null ? null : nonEmptyText(candidate.calibration_status_or_none);
+  const requestRef = { comparison_id: candidate.comparison_id, comparison_version: candidate.comparison_version };
+  const expectedProvenance = [
+    requestRef,
+    transitionId,
+    ...(beforeRef ? [beforeRef] : []),
+    ...(afterRef ? [afterRef] : []),
+    ...(declarationRefs ?? []),
+    COMPARISON_RULE,
+  ];
   if (!declarationRefs || !claims || !nonClaims || explanation === null || !Array.isArray(candidate.parameter_set_refs)
     || !Array.isArray(candidate.provenance) || (candidate.calibration_status_or_none !== null && !calibration)
     || claims.length !== 1 || claims[0] !== "STRUCTURED_CHANGE_ONLY"
-    || nonClaims.length !== mandatoryNonClaims.length
-    || mandatoryNonClaims.some((claim) => !nonClaims.includes(claim))) return null;
+    || !structuralEqual(nonClaims, mandatoryNonClaims)
+    || !structuralEqual(candidate.provenance, expectedProvenance)) return null;
 
   return {
     comparisonId: candidate.comparison_id as string,
@@ -198,9 +209,12 @@ function comparison(value: unknown, lifecycle: ReassessmentProjection): Comparis
 export function selectComparisonProjection(response: CanonicalAnalyzeResponse): ComparisonProjection | null {
   const lifecycle = selectReassessmentProjection(response);
   const fullModel = record(response.full_model);
+  const actionApplication = fullModel && record(fullModel.action_application);
+  const transition = actionApplication && record(actionApplication.transition);
+  const transitionId = transition && record(transition.transition_id);
   if (!lifecycle || !fullModel || !hasAvailableLifecycleSection(response, "comparison")
-    || !Array.isArray(fullModel.comparisons) || fullModel.comparisons.length === 0) return null;
-  const projected = fullModel.comparisons.map((item) => comparison(item, lifecycle));
+    || !transitionId || !Array.isArray(fullModel.comparisons) || fullModel.comparisons.length === 0) return null;
+  const projected = fullModel.comparisons.map((item) => comparison(item, lifecycle, transitionId));
   return projected.some((item) => item === null)
     ? null
     : { lifecycle, comparisons: projected as ComparisonRecordProjection[] };

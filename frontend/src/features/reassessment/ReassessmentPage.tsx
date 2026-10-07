@@ -36,7 +36,7 @@ export function ReassessmentPage({ result }: { result: CanonicalAnalyzeResponse 
     <PageHeader title={t("title")} subtitle={t("subtitle")} metadata={<><code>{projection.reassessmentId}</code><code>{projection.reassessmentVersion}</code></>} />
 
     <section className="lifecycle-section" aria-labelledby="reassessment-lifecycle"><h2 id="reassessment-lifecycle">{t("lifecycle")}</h2>
-      <div className="lifecycle-strip"><ArtifactLabel value={projection.parentArtifactRef} /><span>{t("externalRevision")}</span><ArtifactLabel value={projection.childArtifactRef} /></div>
+      <div className="lifecycle-strip"><ArtifactLabel value={projection.parentArtifactRef} /><span>{t("externalRevision")} <code>{projection.externalRevision.revisionId} / {projection.externalRevision.revisionVersion}</code></span><ArtifactLabel value={projection.childArtifactRef} /></div>
     </section>
 
     <Card title={t("identity.title")}>
@@ -46,6 +46,8 @@ export function ReassessmentPage({ result }: { result: CanonicalAnalyzeResponse 
         <Identity label={t("identity.rule")} value={projection.ruleRef} />
         <Identity label={t("identity.assessment")} value={projection.childAssessmentRef} />
         <Identity label={t("identity.application")} value={projection.actionApplicationRef} />
+        <Identity label={t("identity.revision")} value={projection.externalRevision.revisionRef} />
+        <Identity label={t("identity.provider")} value={{ provider_kind: projection.externalRevision.providerKind, provider_ref: projection.externalRevision.providerRef }} />
         <Identity label={t("identity.processBefore")} value={projection.predecessorProcessStateRef} />
         <Identity label={t("identity.processAfter")} value={projection.childProcessStateRef} />
         <Identity label={t("identity.reasons")} value={projection.reasonCodes} />

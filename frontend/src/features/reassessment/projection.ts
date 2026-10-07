@@ -11,6 +11,13 @@ const REASSESSMENT_RULE = {
 };
 const FULL_MODEL_CONTRACT = { contract_id: "FULL-MODEL-V0.1-CONTRACT", version: "1" };
 const PROCESS_CONTRACT = { contract_id: "FULL-MODEL-V0.1-PROCESS-REASSESSMENT", version: "1" };
+const APPLICATION_RULE = {
+  rule_id: "APPLY-EXTERNAL-REVISION-001",
+  explicit_version: "1",
+  version_authority: "EXPLICIT_CONTRACT_VERSION",
+};
+const APPROVED_SCENARIO = { id: "CONTROLLED_RESEARCH_REFERENCE_SCENARIO", version: "1" };
+const PROVIDER_KINDS = new Set(["STAKEHOLDER", "CONTROLLED_REFERENCE_FIXTURE"]);
 const CORE_FAMILY = "CORE_REQUIREMENT_SPECIFICATION_METRIC_PATH";
 const DYNAMIC_FAMILY = "FULL_MODEL_DYNAMIC_THROUGH_RISK_PATH";
 const characteristicFields = ["completeness", "verifiability", "unambiguity"] as const;
@@ -68,6 +75,15 @@ export interface ProducedResultProjection {
   result: JsonRecord;
 }
 
+export interface ExternalRevisionProjection {
+  revisionId: string;
+  revisionVersion: string;
+  revisionRef: JsonRecord;
+  providerKind: string;
+  providerRef: JsonRecord;
+  raw: JsonRecord;
+}
+
 export interface ReassessmentProjection {
   reassessmentId: string;
   reassessmentVersion: string;
@@ -81,6 +97,7 @@ export interface ReassessmentProjection {
   childProcessStateRef: JsonRecord;
   childAssessmentRef: JsonRecord;
   componentVersionSet: JsonRecord;
+  externalRevision: ExternalRevisionProjection;
   comparisonRequestRefs: JsonRecord[];
   producedResults: ProducedResultProjection[];
   requirements: RequirementBeforeAfter[];
@@ -168,6 +185,11 @@ function assessmentRef(value: unknown, expectedArtifact: JsonRecord): JsonRecord
     && structuralEqual(candidate.artifact_ref, expectedArtifact)
     ? candidate
     : null;
+}
+
+function contractRef(value: unknown): JsonRecord | null {
+  const candidate = record(value);
+  return candidate && nonEmptyText(candidate.contract_id) && nonEmptyText(candidate.version) ? candidate : null;
 }
 
 function sectionAvailable(response: CanonicalAnalyzeResponse, section: string): boolean {
@@ -278,8 +300,14 @@ function versionRequirements(value: unknown, expectedArtifact: JsonRecord, initi
   });
   if (projected.some((item) => item === null)) return null;
   const typed = projected as VersionedRequirementProjection[];
-  if (typed.some((item, index) => index > 0
-    && Number(item.subject.source_line) <= Number(typed[index - 1].subject.source_line))) return null;
+  if (typed.some((item, index) => {
+    if (index === 0) return false;
+    const previous = typed[index - 1].subject;
+    const currentLine = Number(item.subject.source_line);
+    const previousLine = Number(previous.source_line);
+    return currentLine < previousLine
+      || (currentLine === previousLine && String(item.subject.requirement_id) <= String(previous.requirement_id));
+  })) return null;
   if (typed.some((item, index) => typed.some((other, otherIndex) => otherIndex !== index
     && structuralEqual(item.lineage, other.lineage)))) return null;
   return typed;
@@ -319,7 +347,7 @@ function changedPopulation(value: unknown, before: VersionedRequirementProjectio
   return projected;
 }
 
-function evidenceReuse(value: unknown, childProcess: JsonRecord): EvidenceReuseProjection[] | null {
+function evidenceReuse(value: unknown, predecessorProcess: JsonRecord, childProcess: JsonRecord): EvidenceReuseProjection[] | null {
   if (!Array.isArray(value)) return null;
   const projected = value.map((item) => {
     const candidate = record(item);
@@ -328,8 +356,10 @@ function evidenceReuse(value: unknown, childProcess: JsonRecord): EvidenceReuseP
     const reasons = candidate && canonicalStringArray(candidate.reason_codes);
     if (!candidate || !provenance || !target || !reasons || reasons.length === 0
       || !structuralEqual(target, childProcess)
+      || !structuralEqual(provenance.source_process_state_ref, predecessorProcess)
       || !structuralEqual(provenance.target_process_state_ref, childProcess)
       || !structuralEqual(provenance.reassessment_rule_ref, REASSESSMENT_RULE)
+      || !contractRef(provenance.source_contract_ref)
       || (candidate.decision !== "REUSE_ALLOWED" && candidate.decision !== "REBUILD_OR_RECOLLECT_REQUIRED")
       || !Array.isArray(candidate.exact_identity_checks)) return null;
     const checks = candidate.exact_identity_checks.map((check) => {
@@ -363,13 +393,90 @@ function applicationRef(value: unknown): JsonRecord | null {
     : null;
 }
 
+function componentVersionSet(value: unknown): JsonRecord | null {
+  const candidate = record(value);
+  if (!candidate || !Array.isArray(candidate.components) || candidate.components.length === 0) return null;
+  const roles = new Set<string>();
+  for (const item of candidate.components) {
+    const component = record(item);
+    const role = component && nonEmptyText(component.component_role);
+    if (!component || !role || !nonEmptyText(component.component_id) || !nonEmptyText(component.component_version)
+      || roles.has(role)) return null;
+    roles.add(role);
+  }
+  return candidate;
+}
+
+function externalRevision(
+  value: unknown,
+  revisedVersion: JsonRecord,
+  parentArtifact: JsonRecord,
+  childArtifact: JsonRecord,
+  canonicalApplicationRef: JsonRecord,
+  canonicalActionRef: JsonRecord,
+): ExternalRevisionProjection | null {
+  const candidate = record(value);
+  const revisionId = candidate && nonEmptyText(candidate.revision_id);
+  const revisionVersion = candidate && nonEmptyText(candidate.revision_version);
+  const providerKind = candidate && nonEmptyText(candidate.provider_kind);
+  const providerRef = candidate && record(candidate.provider_ref);
+  const actionRef = candidate && record(candidate.action_ref);
+  const revisionProvenance = candidate && record(candidate.provenance);
+  const specificationProvenance = record(revisedVersion.provenance);
+  if (!candidate || !revisionId || !revisionVersion || !providerKind || !PROVIDER_KINDS.has(providerKind)
+    || !providerRef || !actionRef
+    || !nonEmptyText(providerRef.provider_id) || !nonEmptyText(providerRef.provider_version)
+    || !revisionProvenance || !specificationProvenance) return null;
+  const revisionRef = { revision_id: revisionId, revision_version: revisionVersion };
+  if (!structuralEqual(candidate.parent_artifact_ref, parentArtifact)
+    || !structuralEqual(candidate.requested_child_artifact_ref, childArtifact)
+    || !structuralEqual(revisionProvenance.revision_ref, revisionRef)
+    || !structuralEqual(actionRef, canonicalActionRef)
+    || !structuralEqual(revisionProvenance.action_ref, actionRef)
+    || !structuralEqual(revisionProvenance.parent_artifact_ref, parentArtifact)
+    || !structuralEqual(revisionProvenance.requested_child_artifact_ref, childArtifact)
+    || !structuralEqual(revisionProvenance.provider_ref, providerRef)
+    || !structuralEqual(revisionProvenance.process_reassessment_contract_ref, PROCESS_CONTRACT)
+    || !structuralEqual(revisionProvenance.application_rule_ref, APPLICATION_RULE)
+    || !structuralEqual(specificationProvenance.artifact_ref, childArtifact)
+    || !structuralEqual(specificationProvenance.parent_artifact_ref, parentArtifact)
+    || !structuralEqual(specificationProvenance.application_ref, canonicalApplicationRef)
+    || !structuralEqual(specificationProvenance.revision_ref, revisionRef)
+    || !structuralEqual(specificationProvenance.process_reassessment_contract_ref, PROCESS_CONTRACT)
+    || !structuralEqual(specificationProvenance.application_rule_ref_or_none, APPLICATION_RULE)) return null;
+  return { revisionId, revisionVersion, revisionRef, providerKind, providerRef, raw: candidate };
+}
+
 export function selectReassessmentProjection(response: CanonicalAnalyzeResponse): ReassessmentProjection | null {
-  if (response.analysis_case === "INITIAL" || !sectionAvailable(response, "reassessment")) return null;
+  if (response.contract_version !== "research-api-v1"
+    || (response.analysis_case !== "CONTROLLED_DEMO" && response.analysis_case !== "REASSESSMENT")
+    || !sectionAvailable(response, "reassessment")) return null;
+  const scenario = record(response.controlled_scenario);
+  const priorContext = record(response.reassessment_context);
+  const priorScenario = priorContext && record(priorContext.scenario);
+  if (!scenario || !priorContext || !priorScenario
+    || !structuralEqual(scenario, APPROVED_SCENARIO)
+    || !structuralEqual(priorScenario, scenario)
+    || !nonEmptyText(priorContext.context_digest)) return null;
   const fullModel = record(response.full_model);
   const reassessment = fullModel && record(fullModel.reassessment);
   const context = reassessment && record(reassessment.context);
   const provenance = reassessment && record(reassessment.provenance);
-  if (!fullModel || !reassessment || !context || !provenance
+  const priorPairs: Array<[string, string]> = [
+    ["initial_specification", "initial_specification"],
+    ["initial_specification_assessment", "initial_specification_assessment"],
+    ["predecessor_process_state", "process_v1"],
+    ["corrective_action_resolution", "corrective_action_resolution"],
+    ["action_application", "action_application"],
+    ["external_revision", "external_revision"],
+    ["revised_specification", "revised_specification"],
+    ["successor_process_state", "process_v2"],
+    ["process_transition", "process_transition"],
+    ["comparisons", "comparisons"],
+  ];
+  if (!fullModel || priorPairs.some(([priorField, modelField]) => priorContext[priorField] === undefined
+    || fullModel[modelField] === undefined || !structuralEqual(priorContext[priorField], fullModel[modelField]))) return null;
+  if (!reassessment || !context || !provenance
     || reassessment.status !== "AVAILABLE"
     || !nonEmptyText(reassessment.reassessment_id)
     || !nonEmptyText(reassessment.reassessment_version)
@@ -390,8 +497,10 @@ export function selectReassessmentProjection(response: CanonicalAnalyzeResponse)
   const initialVersion = record(fullModel.initial_specification);
   const revisedVersion = record(fullModel.revised_specification);
   const canonicalApplicationRef = applicationRef(fullModel.action_application);
+  const correctiveResolution = record(fullModel.corrective_action_resolution);
+  const canonicalActionRef = correctiveResolution && record(correctiveResolution.action_ref);
   if (!parentArtifact || !childArtifact || !predecessor || !childProcess || !processV1 || !processV2 || !childAssessment
-    || !initialVersion || !revisedVersion || !canonicalApplicationRef
+    || !initialVersion || !revisedVersion || !canonicalApplicationRef || !canonicalActionRef
     || parentArtifact.artifact_id !== childArtifact.artifact_id
     || parentArtifact.artifact_version === childArtifact.artifact_version
     || predecessor.process_state_id !== childProcess.process_state_id
@@ -403,6 +512,22 @@ export function selectReassessmentProjection(response: CanonicalAnalyzeResponse)
     || !structuralEqual(context.child_artifact_ref, revisedVersion.artifact_ref)
     || !structuralEqual(revisedVersion.parent_artifact_ref, parentArtifact)
     || !structuralEqual(revisedVersion.created_by_application_ref, canonicalApplicationRef)) return null;
+
+  const projectedRevision = externalRevision(
+    fullModel.external_revision,
+    revisedVersion,
+    parentArtifact,
+    childArtifact,
+    canonicalApplicationRef,
+    canonicalActionRef,
+  );
+  const priorIdentity = record(priorContext.reassessment_identity);
+  if (!projectedRevision || !priorIdentity
+    || priorIdentity.reassessment_id !== reassessment.reassessment_id
+    || priorIdentity.reassessment_version !== reassessment.reassessment_version
+    || !structuralEqual(priorIdentity.child_process_state_ref, reassessment.child_process_state_ref)
+    || !structuralEqual(priorIdentity.component_version_set, context.component_version_set)
+    || !structuralEqual(priorContext.evidence_reuse_decisions, context.evidence_reuse_decisions)) return null;
 
   const identity = { reassessment_id: reassessment.reassessment_id, reassessment_version: reassessment.reassessment_version };
   const equalityPairs: Array<[unknown, unknown]> = [
@@ -418,10 +543,10 @@ export function selectReassessmentProjection(response: CanonicalAnalyzeResponse)
     [provenance.produced_result_refs, reassessment.produced_result_refs],
   ];
   if (equalityPairs.some(([left, right]) => !structuralEqual(left, right))) return null;
-  const componentSet = record(context.component_version_set);
-  if (!componentSet || !Array.isArray(componentSet.components) || componentSet.components.length === 0) return null;
+  const componentSet = componentVersionSet(context.component_version_set);
+  if (!componentSet) return null;
 
-  const decisions = evidenceReuse(context.evidence_reuse_decisions, childProcess);
+  const decisions = evidenceReuse(context.evidence_reuse_decisions, predecessor, childProcess);
   const reasonCodes = canonicalStringArray(reassessment.reason_codes);
   const requestRefs = Array.isArray(reassessment.comparison_request_refs)
     && reassessment.comparison_request_refs.every((item) => {
@@ -515,6 +640,7 @@ export function selectReassessmentProjection(response: CanonicalAnalyzeResponse)
     childProcessStateRef: childProcess,
     childAssessmentRef: childAssessment,
     componentVersionSet: componentSet,
+    externalRevision: projectedRevision,
     comparisonRequestRefs: requestRefs,
     producedResults: pairs,
     requirements: requirementProjection,
