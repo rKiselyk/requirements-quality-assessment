@@ -664,13 +664,14 @@ describe("RUI-13 process projection", () => {
     expect(screen.queryByText("SATISFIED")).toBeNull();
   });
 
-  it("keeps Audit deferred while Process routes to the real page", () => {
+  it("keeps Process and the implemented Audit page independently routed", () => {
     const result = processResponse();
     const view = render(<ResultWorkspace result={result} activeView="process" selectedRequirementId={null} onSelectRequirement={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "Process timeline" })).toBeTruthy();
+    result.section_availability.push({ section: "audit", availability: "AVAILABLE", reason_code: null });
     view.rerender(<ResultWorkspace result={result} activeView="audit" selectedRequirementId={null} onSelectRequirement={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "Audit" })).toBeTruthy();
-    expect(screen.getByText("Section implementation follows")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Full Model Audit" })).toBeTruthy();
   });
 
   it("Process navigation and locale switching perform no analysis request", async () => {

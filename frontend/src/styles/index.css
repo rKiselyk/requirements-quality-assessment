@@ -512,6 +512,31 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .reassessment-editor .field__textarea { min-height: 12rem; font-family: var(--font-mono); line-height: 1.55; }
 .reassessment-editor__actions { justify-content: flex-end; }
 
+.audit-page { min-width: 0; }
+.audit-page__heading { margin: var(--space-6) 0 var(--space-3); }
+.audit-groups { display: grid; gap: var(--space-4); }
+.audit-group { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); }
+.audit-group > summary { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); cursor: pointer; font-weight: 700; }
+.audit-group > summary::marker, .audit-node--branch > summary::marker { color: var(--color-accent); }
+.audit-group > summary code { overflow-wrap: anywhere; color: var(--color-text-muted); font-size: 0.72rem; }
+.audit-group > .audit-tree { border-top: 1px solid var(--color-border); }
+.audit-tree { min-width: 0; padding: var(--space-2) var(--space-4) var(--space-4); }
+.audit-node { min-width: 0; border-left: 1px solid var(--color-border); }
+.audit-node--branch > summary, .audit-node--leaf { display: grid; grid-template-columns: minmax(10rem, 0.8fr) minmax(10rem, 1fr) auto auto minmax(0, auto); align-items: center; gap: var(--space-3); min-width: 0; padding: var(--space-2) var(--space-3); }
+.audit-node--branch > summary { cursor: pointer; }
+.audit-node--branch > summary:hover, .audit-node--branch > summary:focus-visible { background: var(--color-surface-subtle); }
+.audit-node__children { margin-left: var(--space-4); }
+.audit-node__label { min-width: 0; overflow-wrap: anywhere; font-size: 0.78rem; font-weight: 650; }
+.audit-node__key, .audit-node__value { min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.audit-node__key { color: var(--color-text-muted); font-size: 0.68rem; }
+.audit-node__type, .audit-node__count { color: var(--color-text-muted); font: 0.65rem var(--font-mono); white-space: nowrap; }
+.audit-node__value { padding: var(--space-1) var(--space-2); border-radius: var(--radius-input); background: var(--color-code-bg); font-size: 0.72rem; }
+.audit-node--unsupported .audit-node__value { border: 1px dashed var(--color-border-strong); background: transparent; }
+.audit-node .exact-value { font-size: 0.75rem; }
+.audit-evidence-action { margin: var(--space-2) var(--space-3); justify-self: start; }
+.audit-node--leaf .audit-evidence-action { margin: 0; }
+.audit-unavailable-reason { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes progress { 0% { left: -35%; } 55%, 100% { left: 100%; } }
 
@@ -558,6 +583,7 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
   .process-state-traces, .checkpoint-grid, .process-metadata, .process-association__refs { grid-template-columns: 1fr; }
   .risk-result-heading, .quantitative-heading { flex-direction: column; }
   .action-metadata { grid-template-columns: 1fr; }
+  .audit-node--branch > summary, .audit-node--leaf { grid-template-columns: minmax(8rem, 1fr) minmax(8rem, 1fr); }
   .risk-layer--categorical, .risk-layer--quantitative { padding: var(--space-3); }
   .requirement-navigator { position: static; max-height: 16rem; }
   .evidence-list li { grid-template-columns: 1fr; align-items: start; }
