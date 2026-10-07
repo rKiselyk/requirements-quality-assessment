@@ -23,10 +23,13 @@ function evidence(id = "E-1") {
 }
 
 function requirementRecord(text = sourceText, id = "E-1") {
+  const recordEvidence = evidence(id);
+  const start = Array.from(text).findIndex((_, index, all) => all.slice(index, index + 3).join("") === "має");
+  if (start >= 0) Object.assign(recordEvidence, { start_offset: start, end_offset: start + 3 });
   return {
     requirement: { id: "R001", source_line: 7, text },
     features: {},
-    evidence: [evidence(id)],
+    evidence: [recordEvidence],
     quality_profile: {
       completeness: {
         findings: [{
@@ -47,10 +50,18 @@ function requirementRecordFor(requirementId: string, sourceLine: number, evidenc
   return record;
 }
 
-function requirementEvidenceRef(requirementId: string, sourceLine: number, evidenceId: string) {
+function artifactRef(version = "v1") {
+  return { artifact_id: "SPEC", artifact_version: version };
+}
+
+function withArtifact(record: ReturnType<typeof requirementRecordFor>, version = "v1") {
+  return { artifact_ref: artifactRef(version), automatic_record: record };
+}
+
+function requirementEvidenceRef(requirementId: string, sourceLine: number, evidenceId: string, version = "v1") {
   return {
     requirement_subject_ref: {
-      artifact_ref: { artifact_id: "SPEC", artifact_version: "v1" },
+      artifact_ref: artifactRef(version),
       requirement_id: requirementId,
       source_line: sourceLine,
     },
@@ -348,39 +359,43 @@ describe("RUI-14 EvidenceDrawer resolution", () => {
   it("keeps the same CrossEvidenceRef ambiguous across v1 and v2", () => {
     const v1 = requirementRecordFor("R001", 2, "SHARED");
     const v2 = requirementRecordFor("R001", 2, "SHARED");
-    const index = buildEvidenceIndex({ v1, v2 });
+    const index = buildEvidenceIndex({ v1: withArtifact(v1, "v1"), v2: withArtifact(v2, "v2") });
     expect(index.resolve({ requirement_id: "R001", evidence_id: "SHARED" }, "evidence_refs")).toBeNull();
   });
 
   it("resolves canonical RequirementEvidenceRef through its nested subject", () => {
     const first = requirementRecordFor("R001", 2, "SHARED");
     const second = requirementRecordFor("R002", 2, "SHARED");
-    const index = buildEvidenceIndex({ first, second });
+    const index = buildEvidenceIndex({ first: withArtifact(first), second: withArtifact(second) });
     expect(index.resolve(requirementEvidenceRef("R002", 2, "SHARED"), "evidence_ref")?.evidence.requirementId).toBe("R002");
   });
 
   it("uses RequirementEvidenceRef source_line to narrow otherwise matching candidates", () => {
     const line2 = requirementRecordFor("R001", 2, "SHARED");
     const line9 = requirementRecordFor("R001", 9, "SHARED");
-    const index = buildEvidenceIndex({ line2, line9 });
+    const index = buildEvidenceIndex({ line2: withArtifact(line2), line9: withArtifact(line9) });
     expect(index.resolve(requirementEvidenceRef("R001", 9, "SHARED"), "evidence_ref")?.sourceLine).toBe(9);
   });
 
   it("rejects malformed nested requirement subjects", () => {
     const record = requirementRecordFor("R001", 2, "E-1");
-    const index = buildEvidenceIndex({ record });
+    const index = buildEvidenceIndex({ record: withArtifact(record) });
     expect(index.resolve({ requirement_subject_ref: { requirement_id: "R001", source_line: 2 }, evidence_id: "E-1" }, "evidence_ref")).toBeNull();
     expect(index.resolve({ requirement_subject_ref: { artifact_ref: {}, requirement_id: "R001", source_line: 0 }, evidence_id: "E-1" }, "evidence_ref")).toBeNull();
   });
 
   it("keeps a still-ambiguous RequirementEvidenceRef technical only", () => {
     const v1 = requirementRecordFor("R001", 2, "SHARED");
-    const v2 = requirementRecordFor("R001", 2, "SHARED");
-    const index = buildEvidenceIndex({ v1, v2 });
+    const alternate = requirementRecordFor("R001", 2, "SHARED", "Інша має вимога.");
+    const index = buildEvidenceIndex({ v1: withArtifact(v1), alternate: withArtifact(alternate) });
     expect(index.resolve(requirementEvidenceRef("R001", 2, "SHARED"), "evidence_ref")).toBeNull();
   });
 
-  it.each(["direct_criterion_evidence_refs", "source_component_refs", "evidence_refs"])(
+  it.each([
+    "evidence_refs", "ordered_evidence_refs", "ordered_cross_evidence_refs", "direct_criterion_evidence_refs",
+    "source_component_refs", "metric_evidence_refs", "comparator_evidence_refs", "value_evidence_refs",
+    "unit_evidence_refs", "context_evidence_refs", "matched_context_evidence_ref", "ref",
+  ])(
     "%s resolves an unambiguous CrossEvidenceRef",
     (fieldKey) => {
       const record = requirementRecordFor("R001", 2, "E-1");
@@ -388,6 +403,13 @@ describe("RUI-14 EvidenceDrawer resolution", () => {
       expect(index.resolve({ requirement_id: "R001", evidence_id: "E-1" }, fieldKey)?.evidence.evidenceId).toBe("E-1");
     },
   );
+
+  it("source_evidence_refs independently resolves CrossEvidenceRef and RequirementEvidenceRef shapes", () => {
+    const record = requirementRecordFor("R001", 2, "E-1");
+    const index = buildEvidenceIndex({ profile: withArtifact(record) });
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "E-1" }, "source_evidence_refs")?.evidence.evidenceId).toBe("E-1");
+    expect(index.resolve(requirementEvidenceRef("R001", 2, "E-1"), "source_evidence_refs")?.artifactRef).toEqual({ artifactId: "SPEC", artifactVersion: "v1" });
+  });
 
   it("exposes drawer actions at actual CrossEvidenceRef field locations without replacing raw refs", () => {
     const model = fullModel();
@@ -410,7 +432,7 @@ describe("RUI-14 EvidenceDrawer resolution", () => {
     }
   });
 
-  it.each(["diagnostic_ref", "observation_ref", "criterion_ref", "process_ref", "dynamic_observation_ref"])(
+  it.each(["diagnostic_ref", "diagnostic_refs", "observation_ref", "observation_refs", "criterion_ref", "criterion_refs", "process_ref", "dynamic_observation_ref", "arbitrary_refs"])(
     "does not route unrelated %s values to base Evidence",
     (fieldKey) => {
       const record = requirementRecordFor("R001", 2, "E-1");
@@ -432,6 +454,115 @@ describe("RUI-14 EvidenceDrawer resolution", () => {
     const index = buildEvidenceIndex({ record: requirementRecordFor("R001", 2, "E-1") });
     expect(index.resolve({ requirement_id: "R001", evidence_id: "MISSING" }, "direct_criterion_evidence_refs")).toBeNull();
     expect(index.resolve(requirementEvidenceRef("R001", 2, "MISSING"), "evidence_ref")).toBeNull();
+  });
+
+  it("uses canonical artifact identity to keep v1 and v2 candidates distinct", () => {
+    const v1 = requirementRecordFor("R001", 2, "SHARED");
+    const v2 = structuredClone(v1);
+    const root = {
+      initial_specification: { artifact_ref: artifactRef("v1") },
+      initial_specification_assessment: { records: [{ extraction_result: v1 }] },
+      reassessment: {
+        produced_results: [{
+          specification_version: { artifact_ref: artifactRef("v2") },
+          requirement_records: [v2],
+        }],
+      },
+    };
+    const index = buildEvidenceIndex(root);
+    expect(index.resolve(requirementEvidenceRef("R001", 2, "SHARED", "v1"), "source_evidence_refs")?.artifactRef).toEqual({ artifactId: "SPEC", artifactVersion: "v1" });
+    expect(index.resolve(requirementEvidenceRef("R001", 2, "SHARED", "v2"), "source_evidence_refs")?.artifactRef).toEqual({ artifactId: "SPEC", artifactVersion: "v2" });
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "SHARED" }, "evidence_refs")).toBeNull();
+  });
+
+  it("deduplicates repeated projections of the same complete artifact/source identity for lookup only", () => {
+    const first = requirementRecordFor("R001", 2, "SHARED");
+    const repeated = structuredClone(first);
+    const root = {
+      full_model: {
+        initial_specification: { artifact_ref: artifactRef("v1") },
+        initial_specification_assessment: { records: [{ extraction_result: first }] },
+      },
+      reassessment_context: {
+        initial_specification: { artifact_ref: artifactRef("v1") },
+        initial_specification_assessment: { records: [{ extraction_result: repeated }] },
+      },
+    };
+    const index = buildEvidenceIndex(root);
+    expect(index.resolve(requirementEvidenceRef("R001", 2, "SHARED", "v1"), "source_evidence_refs")).not.toBeNull();
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "SHARED" }, "evidence_refs")).not.toBeNull();
+    expect(index.resolve(first.evidence[0], "evidence")).not.toBeNull();
+    expect(index.resolve(repeated.evidence[0], "evidence")).not.toBeNull();
+  });
+
+  it("does not assign an artifact to a candidate without directly provable artifact context", () => {
+    const record = requirementRecordFor("R001", 2, "E-1");
+    const target = buildEvidenceIndex({ record }).resolve(record.evidence[0], "evidence");
+    expect(target?.artifactRef).toBeNull();
+    expect(buildEvidenceIndex({ record }).resolve(requirementEvidenceRef("R001", 2, "E-1"), "source_evidence_refs")).toBeNull();
+  });
+
+  it("rejects malformed RequirementEvidenceRef artifact identity", () => {
+    const record = requirementRecordFor("R001", 2, "E-1");
+    const index = buildEvidenceIndex({ profile: withArtifact(record) });
+    const malformed = requirementEvidenceRef("R001", 2, "E-1");
+    malformed.requirement_subject_ref.artifact_ref.artifact_version = "";
+    expect(index.resolve(malformed, "source_evidence_refs")).toBeNull();
+  });
+
+  it("handles a realistic repeated lifecycle transport without changing raw Audit occurrences", () => {
+    const v1 = requirementRecordFor("R001", 2, "LIFECYCLE-E");
+    const repeatedV1 = structuredClone(v1);
+    const v2 = structuredClone(v1);
+    const v1Ref = requirementEvidenceRef("R001", 2, "LIFECYCLE-E", "v1");
+    const v2Ref = requirementEvidenceRef("R001", 2, "LIFECYCLE-E", "v2");
+    const crossRef = { requirement_id: "R001", evidence_id: "LIFECYCLE-E" };
+    const model = fullModel();
+    Object.assign(model, {
+      initial_specification: { artifact_ref: artifactRef("v1") },
+      initial_specification_assessment: { records: [{ extraction_result: v1 }] },
+      metric_profile: { artifact_ref: artifactRef("v1"), provenance: { source_evidence_refs: [v1Ref] } },
+      observed_product_quality: { provenance: { source_evidence_refs: [v1Ref, v2Ref] } },
+      observation_resolution: {
+        snapshot_observation_manifest: {
+          metric_evidence_refs: [crossRef], comparator_evidence_refs: [crossRef], value_evidence_refs: [crossRef],
+          unit_evidence_refs: [crossRef], context_evidence_refs: [crossRef], evidence_refs: [crossRef],
+        },
+      },
+      reassessment: {
+        produced_results: [{ specification_version: { artifact_ref: artifactRef("v2") }, requirement_records: [v2] }],
+      },
+    });
+    const value = response({
+      analysis_case: "REASSESSMENT",
+      requirements: [structuredClone(v2)],
+      full_model: model,
+      reassessment_context: {
+        initial_specification: { artifact_ref: artifactRef("v1") },
+        initial_specification_assessment: { records: [{ extraction_result: repeatedV1 }] },
+      },
+    });
+    const index = buildEvidenceIndex(value);
+    expect(index.resolve(v1Ref, "source_evidence_refs")?.artifactRef?.artifactVersion).toBe("v1");
+    expect(index.resolve(v2Ref, "source_evidence_refs")?.artifactRef?.artifactVersion).toBe("v2");
+    expect(index.resolve(crossRef, "metric_evidence_refs")).toBeNull();
+
+    const view = renderAudit(value); expandAll(view.container);
+    for (const path of [
+      "$.requirements[0].evidence[0]",
+      "$.full_model.initial_specification_assessment.records[0].extraction_result.evidence[0]",
+      "$.full_model.reassessment.produced_results[0].requirement_records[0].evidence[0]",
+      "$.reassessment_context.initial_specification_assessment.records[0].extraction_result.evidence[0]",
+    ]) expect(view.container.querySelector(`[data-audit-path="${path}"]`)).not.toBeNull();
+
+    const v1Node = view.container.querySelector('[data-audit-path="$.full_model.metric_profile.provenance.source_evidence_refs[0]"]');
+    const v2Node = view.container.querySelector('[data-audit-path="$.full_model.observed_product_quality.provenance.source_evidence_refs[1]"]');
+    const ambiguousNode = view.container.querySelector('[data-audit-path="$.full_model.observation_resolution.snapshot_observation_manifest.metric_evidence_refs[0]"]');
+    expect(v1Node?.querySelector(".audit-evidence-action")).not.toBeNull();
+    expect(v2Node?.querySelector(".audit-evidence-action")).not.toBeNull();
+    expect(ambiguousNode?.querySelector(".audit-evidence-action")).toBeNull();
+    fireEvent.click(v1Node?.querySelector(".audit-evidence-action") as HTMLButtonElement);
+    expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
   it("rejects a mismatched source slice instead of creating a drawer target", () => {
@@ -470,7 +601,7 @@ describe("RUI-14 EvidenceDrawer resolution", () => {
   it("does not collapse identical evidence occurrences from distinct lifecycle contexts", () => {
     const v1 = requirementRecord(sourceText, "SAME");
     const v2 = structuredClone(v1);
-    const index = buildEvidenceIndex({ v1, v2 });
+    const index = buildEvidenceIndex({ v1: withArtifact(v1, "v1"), v2: withArtifact(v2, "v2") });
     expect(index.resolve("SAME", "evidence_ref")).toBeNull();
     expect(index.resolve(v1.evidence[0], "evidence")).not.toBeNull();
     expect(index.resolve(v2.evidence[0], "evidence")).not.toBeNull();

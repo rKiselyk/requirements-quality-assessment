@@ -6,6 +6,12 @@ export interface AuditEvidenceTarget {
   sourceLine: number | null;
   requirementText: string;
   linkedFindings: EvidenceDrawerFinding[];
+  artifactRef: AuditArtifactRef | null;
+}
+
+export interface AuditArtifactRef {
+  artifactId: string;
+  artifactVersion: string;
 }
 
 export interface AuditEvidenceIndex {
@@ -16,9 +22,18 @@ const referenceFields = new Set([
   "evidence_ref",
   "evidence_refs",
   "ordered_evidence_refs",
+  "ordered_cross_evidence_refs",
   "direct_criterion_evidence_refs",
   "source_component_refs",
   "source_evidence_ref",
+  "source_evidence_refs",
+  "metric_evidence_refs",
+  "comparator_evidence_refs",
+  "value_evidence_refs",
+  "unit_evidence_refs",
+  "context_evidence_refs",
+  "matched_context_evidence_ref",
+  "ref",
 ]);
 
 const stringReferenceFields = new Set([
@@ -31,6 +46,7 @@ interface EvidenceReferenceIdentity {
   evidenceId: string;
   requirementId?: string;
   sourceLine?: number;
+  artifactRef?: AuditArtifactRef;
 }
 
 function nonEmptyText(value: unknown): string | null {
@@ -44,6 +60,21 @@ function integer(value: unknown): number | null {
 function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
   const actual = Object.keys(value);
   return actual.length === keys.length && keys.every((key) => actual.includes(key));
+}
+
+function artifactRef(value: unknown): AuditArtifactRef | null {
+  if (!isPlainRecord(value) || !hasExactKeys(value, ["artifact_id", "artifact_version"])) return null;
+  const artifactId = nonEmptyText(value.artifact_id);
+  const artifactVersion = nonEmptyText(value.artifact_version);
+  return artifactId && artifactVersion ? { artifactId, artifactVersion } : null;
+}
+
+function sameArtifact(left: AuditArtifactRef, right: AuditArtifactRef): boolean {
+  return left.artifactId === right.artifactId && left.artifactVersion === right.artifactVersion;
+}
+
+function artifactKey(value: AuditArtifactRef): string {
+  return JSON.stringify([value.artifactId, value.artifactVersion]);
 }
 
 function sourceRequirement(value: unknown) {
@@ -103,7 +134,11 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
   const byId = new Map<string, AuditEvidenceTarget[]>();
   const visited = new WeakSet<object>();
 
-  const indexAssessment = (assessment: Record<string, unknown>, findingsOwner: unknown) => {
+  const indexAssessment = (
+    assessment: Record<string, unknown>,
+    findingsOwner: unknown,
+    inheritedArtifactRef: AuditArtifactRef | null,
+  ) => {
     const requirement = sourceRequirement(assessment.requirement);
     if (!requirement || !Array.isArray(assessment.evidence)) return;
     for (const item of assessment.evidence) {
@@ -114,6 +149,7 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
         sourceLine: requirement.sourceLine,
         requirementText: requirement.text,
         linkedFindings: collectFindings(findingsOwner, evidence.evidenceId),
+        artifactRef: inheritedArtifactRef,
       };
       const existing = byObject.get(item);
       if (existing) {
@@ -127,20 +163,48 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
     }
   };
 
-  const visit = (value: unknown) => {
+  const directlyContainedArtifact = (value: Record<string, unknown>, inherited: AuditArtifactRef | null) => {
+    if (Object.hasOwn(value, "artifact_ref")) return artifactRef(value.artifact_ref);
+    if (Object.hasOwn(value, "specification_version")) {
+      const specificationVersion = isPlainRecord(value.specification_version) ? value.specification_version : null;
+      return specificationVersion && Object.hasOwn(specificationVersion, "artifact_ref")
+        ? artifactRef(specificationVersion.artifact_ref)
+        : null;
+    }
+    return inherited;
+  };
+
+  const artifactForChild = (
+    parent: Record<string, unknown>,
+    key: string,
+    inherited: AuditArtifactRef | null,
+  ) => {
+    if (key === "initial_specification_assessment") {
+      const initialSpecification = isPlainRecord(parent.initial_specification) ? parent.initial_specification : null;
+      return initialSpecification && Object.hasOwn(initialSpecification, "artifact_ref")
+        ? artifactRef(initialSpecification.artifact_ref)
+        : inherited;
+    }
+    return inherited;
+  };
+
+  const visit = (value: unknown, inheritedArtifactRef: AuditArtifactRef | null = null) => {
     if (Array.isArray(value)) {
       if (visited.has(value)) return;
       visited.add(value);
-      for (const item of value) visit(item);
+      for (const item of value) visit(item, inheritedArtifactRef);
       return;
     }
     if (!isPlainRecord(value) || visited.has(value)) return;
     visited.add(value);
-    indexAssessment(value, value.quality_profile ?? value);
+    const currentArtifactRef = directlyContainedArtifact(value, inheritedArtifactRef);
+    indexAssessment(value, value.quality_profile ?? value, currentArtifactRef);
     if (isPlainRecord(value.extraction_result)) {
-      indexAssessment(value.extraction_result, value.quality_profile ?? value);
+      indexAssessment(value.extraction_result, value.quality_profile ?? value, currentArtifactRef);
     }
-    for (const nested of Object.values(value)) visit(nested);
+    for (const [key, nested] of Object.entries(value)) {
+      visit(nested, artifactForChild(value, key, currentArtifactRef));
+    }
   };
   visit(root);
 
@@ -157,8 +221,9 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
       const subject = isPlainRecord(value.requirement_subject_ref) ? value.requirement_subject_ref : null;
       const requirementId = subject && nonEmptyText(subject.requirement_id);
       const sourceLine = subject && integer(subject.source_line);
-      if (!subject || !isPlainRecord(subject.artifact_ref) || !requirementId || sourceLine === null || sourceLine < 1) return null;
-      return { evidenceId, requirementId, sourceLine };
+      const subjectArtifactRef = subject && artifactRef(subject.artifact_ref);
+      if (!subject || !subjectArtifactRef || !requirementId || sourceLine === null || sourceLine < 1) return null;
+      return { evidenceId, requirementId, sourceLine, artifactRef: subjectArtifactRef };
     }
 
     if (!hasExactKeys(value, ["requirement_id", "evidence_id"])) return null;
@@ -172,7 +237,38 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
     let candidates = [...(byId.get(reference.evidenceId) ?? [])];
     if (reference.requirementId) candidates = candidates.filter((item) => item.evidence.requirementId === reference.requirementId);
     if (reference.sourceLine !== undefined) candidates = candidates.filter((item) => item.sourceLine === reference.sourceLine);
-    return candidates.length === 1 ? candidates[0] : null;
+    if (reference.artifactRef) {
+      candidates = candidates.filter((item) => item.artifactRef !== null && sameArtifact(item.artifactRef, reference.artifactRef as AuditArtifactRef));
+    }
+
+    const bySourceIdentity = new Map<string, AuditEvidenceTarget[]>();
+    for (const candidate of candidates) {
+      const evidence = candidate.evidence;
+      const key = JSON.stringify([
+        evidence.requirementId, candidate.sourceLine, candidate.requirementText, evidence.evidenceId,
+        evidence.featureId, evidence.text, evidence.startOffset, evidence.endOffset, evidence.ruleId,
+      ]);
+      const group = bySourceIdentity.get(key) ?? [];
+      group.push(candidate);
+      bySourceIdentity.set(key, group);
+    }
+
+    const distinct: AuditEvidenceTarget[] = [];
+    for (const group of bySourceIdentity.values()) {
+      const knownArtifacts = new Map<string, AuditEvidenceTarget>();
+      const unknownArtifacts: AuditEvidenceTarget[] = [];
+      for (const candidate of group) {
+        if (candidate.artifactRef) {
+          const key = artifactKey(candidate.artifactRef);
+          if (!knownArtifacts.has(key)) knownArtifacts.set(key, candidate);
+        }
+        else unknownArtifacts.push(candidate);
+      }
+      distinct.push(...knownArtifacts.values());
+      if (knownArtifacts.size === 0 && unknownArtifacts.length) distinct.push(unknownArtifacts[0]);
+      else if (knownArtifacts.size > 1 && unknownArtifacts.length) distinct.push(unknownArtifacts[0]);
+    }
+    return distinct.length === 1 ? distinct[0] : null;
   };
 
   return {
@@ -181,7 +277,7 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
         const exact = byObject.get(value);
         if (exact) return exact;
       }
-      if (!fieldKey || fieldKey.includes("dynamic") || !referenceFields.has(fieldKey)) return null;
+      if (!fieldKey || !referenceFields.has(fieldKey)) return null;
       return resolveReference(value, fieldKey);
     },
   };
