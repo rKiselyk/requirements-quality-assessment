@@ -244,6 +244,35 @@ def test_controlled_demo_exposes_genuine_lifecycle_sections_and_records():
     assert body["reassessment_context"]["context_digest"].startswith("sha256:")
 
 
+def test_controlled_demo_preserves_canonical_evidence_reuse_decisions():
+    body = _controlled_demo().json()
+    prior_decisions = body["reassessment_context"]["evidence_reuse_decisions"]
+    canonical_decisions = body["full_model"]["reassessment"]["context"][
+        "evidence_reuse_decisions"
+    ]
+
+    assert prior_decisions == canonical_decisions
+    assert all("status" not in decision for decision in prior_decisions)
+    assert all("applicability" not in decision for decision in prior_decisions)
+
+    pairs = (
+        ("initial_specification", "initial_specification"),
+        ("initial_specification_assessment", "initial_specification_assessment"),
+        ("corrective_action_resolution", "corrective_action_resolution"),
+        ("action_application", "action_application"),
+        ("external_revision", "external_revision"),
+        ("revised_specification", "revised_specification"),
+        ("predecessor_process_state", "process_v1"),
+        ("successor_process_state", "process_v2"),
+        ("process_transition", "process_transition"),
+        ("comparisons", "comparisons"),
+    )
+    for context_field, model_field in pairs:
+        assert body["reassessment_context"][context_field] == body["full_model"][
+            model_field
+        ]
+
+
 def test_controlled_demo_rejects_unknown_scenario_and_overrides():
     unknown = client.post(
         "/api/v1/analyze",

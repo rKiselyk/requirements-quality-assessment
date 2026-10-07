@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EvidenceBadge, ExactValue } from "../../components/scientific";
 import type { AuditEvidenceIndex, AuditEvidenceTarget } from "./evidenceIndex";
 import { isCanonicalFraction, isPlainRecord } from "./tree";
@@ -81,6 +82,7 @@ function AuditTreeNode({
   onOpenEvidence: AuditTreeProps["onOpenEvidence"];
   ancestors: ReadonlySet<object>;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const friendlyLabel = presentationKey.startsWith("[") ? presentationKey : labels.fieldLabel(fieldKey);
   const referenceTarget = evidenceIndex.resolve(value, semanticKey);
   const isArray = Array.isArray(value);
@@ -102,7 +104,11 @@ function AuditTreeNode({
     const nextAncestors = new Set(ancestors);
     nextAncestors.add(value);
     return (
-      <details className="audit-node audit-node--branch" data-audit-path={path}>
+      <details
+        className="audit-node audit-node--branch"
+        data-audit-path={path}
+        onToggle={(event) => setExpanded(event.currentTarget.open)}
+      >
         <summary aria-label={`${friendlyLabel}, ${path}`}>
           <span className="audit-node__label">{friendlyLabel}</span>
           <code className="audit-node__key" title={`${labels.canonicalField}: ${fieldKey}`}>{presentationKey}</code>
@@ -110,7 +116,7 @@ function AuditTreeNode({
           <span className="audit-node__count">{entries.length} {isArray ? labels.items : labels.fields}</span>
           {fraction ? <ExactValue compact value={{ numerator: String(fraction.numerator), denominator: String(fraction.denominator) }} /> : null}
         </summary>
-        <div className="audit-node__children">
+        {expanded ? <div className="audit-node__children">
           {referenceTarget ? <OpenEvidence target={referenceTarget} labels={labels} onOpenEvidence={onOpenEvidence} /> : null}
           {entries.map(([key, child], index) => {
             const item = isArray;
@@ -129,7 +135,7 @@ function AuditTreeNode({
               />
             );
           })}
-        </div>
+        </div> : null}
       </details>
     );
   }

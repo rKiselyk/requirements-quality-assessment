@@ -17,11 +17,12 @@ within its declared bounded reference scope. Constructs outside those boundaries
 remain draft or unimplemented. [`docs/mvp-v0.1-baseline.md`](docs/mvp-v0.1-baseline.md)
 describes the historical subset and limitations.
 
-A stateless FastAPI adapter now exposes the accepted specification-assessment
-path for the forthcoming Research UI v1. Its frozen boundary is documented in
+A stateless FastAPI adapter exposes the accepted specification-assessment path
+for the completed Research UI v1 demonstration prototype. Its frozen boundary is documented in
 [`docs/research-ui-v1-contract.md`](docs/research-ui-v1-contract.md), with the approved page/component baseline in [`docs/research-ui-v1-design-spec.md`](docs/research-ui-v1-design-spec.md) and the primary visual reference in [`docs/assets/research-ui-v1-design.png`](docs/assets/research-ui-v1-design.png). No web UI
 recalculates scientific results or fabricates unavailable Full Model inputs.
-The reusable React frontend foundation lives in [`frontend/`](frontend/).
+The React frontend lives in [`frontend/`](frontend/). It is a local research
+demonstration, not a production SaaS application.
 
 ## Requirements and installation
 
@@ -36,14 +37,18 @@ python -m pip check
 
 On POSIX systems, activate with `. .venv/bin/activate`. The same `python -m pip install -e ".[dev,parser]"` command installs the package, tests, parser, and model. The model wheel is pinned in `pyproject.toml` by version and SHA-256. An internet connection or a package cache containing the pinned dependencies is needed for a fresh installation.
 
-## Run the frontend foundation
+## Run Research UI v1
 
-The RUI-03 React, TypeScript, and Vite foundation is in `frontend/`. It provides
-the shared shell, design tokens, reusable presentation components, and a static
-development showcase. It does not yet implement the specification workflow,
-API analysis integration, localization, or Research UI result pages.
+Prerequisites are Python 3.11 or newer, the Python development/parser extras
+installed as above, Node.js with npm, and a Chromium browser installed through
+Playwright for browser acceptance. Start the stateless backend from the
+repository root:
 
-Install and start the independent frontend development server:
+```powershell
+python -m uvicorn requirements_quality_assessment.api.app:app --host 127.0.0.1 --port 8000
+```
+
+In a second terminal, install and start the frontend:
 
 ```powershell
 cd frontend
@@ -51,16 +56,49 @@ npm install
 npm run dev
 ```
 
-Run the TypeScript check and create a production build with:
+Open [`http://127.0.0.1:5173`](http://127.0.0.1:5173). The Vite development
+server proxies `/api` to the backend at `http://127.0.0.1:8000`.
+
+The ordinary path accepts a UTF-8 `.txt` file or pasted text, displays the
+parsed non-empty physical-line count, and sends one `INITIAL` analysis request.
+The separate **Load demonstration example** action sends the exact versioned
+`CONTROLLED_DEMO` identity and exposes the complete supported Full Model
+lifecycle fixture. From its Corrective Actions page, **Reassess revised
+specification** opens the formal editor. Only the already accepted externally
+supplied canonical revision can be submitted with complete prior context; a
+successful submission sends a second `REASSESSMENT` request and atomically
+replaces the current response.
+
+Ukrainian is the default presentation locale and English is also available.
+Switching UA/EN changes labels only: it does not call the analysis endpoint,
+translate source/evidence text, alter canonical IDs/codes, change lifecycle
+eligibility, or recalculate results. The UI renders exact rational values from
+`{numerator, denominator}` transport objects without float conversion or
+rounding. Missing downstream evidence is shown with the canonical unavailable
+reason and is never represented as zero or as a fabricated domain record.
+
+Run frontend verification from `frontend/`:
 
 ```powershell
+npm test
+npm run lint
 npm run typecheck
 npm run build
+npx playwright install chromium
+npm run test:e2e
 ```
 
-The FastAPI backend remains the stateless scientific application boundary and
-can be run separately as described below. RUI-03 configures TanStack Query for
-later API integration but does not call or duplicate the backend contract.
+`npm run test:acceptance` runs the frontend unit, lint, typecheck, build, and
+browser gates after Chromium has been installed. Playwright starts dedicated
+real FastAPI and Vite test servers; the primary browser paths do not mock
+`/api/v1/analyze`. Generated reports, traces, videos, and screenshots remain
+under ignored `frontend/test-results/` and `frontend/playwright-report/` paths.
+
+Run the complete Python regression independently from the repository root:
+
+```powershell
+python -m pytest -q
+```
 
 ## Run the HTTP API
 

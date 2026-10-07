@@ -118,6 +118,11 @@ export function record(value: unknown): JsonRecord | null {
     : null;
 }
 
+function withoutTransportState(value: JsonRecord): JsonRecord {
+  const { status: _status, applicability: _applicability, ...canonical } = value;
+  return canonical;
+}
+
 export function nonEmptyText(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 && value === value.trim() ? value : null;
 }
@@ -589,7 +594,7 @@ export function selectReassessmentProjection(response: CanonicalAnalyzeResponse)
   const problemResolutions = Array.isArray(dynamic.result.problem_resolutions) ? dynamic.result.problem_resolutions : null;
   if (!coreVersion || !metricProfile || !dynamicArtifact || !riskAssessment || !problemResolutions
     || !structuralEqual(core.resultId, childAssessment)
-    || !structuralEqual(coreVersion, revisedVersion)
+    || !structuralEqual(coreVersion, withoutTransportState(revisedVersion))
     || !structuralEqual(coreVersion.artifact_ref, childArtifact)
     || !structuralEqual(metricProfile.artifact_ref, childArtifact)
     || !structuralEqual(metricProfile.assessment_ref, childAssessment)

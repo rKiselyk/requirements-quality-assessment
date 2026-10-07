@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type DragEvent, type InputHTMLAttributes, type KeyboardEvent, type TextareaHTMLAttributes } from "react";
+import { useId, useRef, useState, type DragEvent, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import { InlineValidation } from "./Feedback";
 
 interface FieldProps {
@@ -78,22 +78,10 @@ export function FileDropzone({ label, description, accept = ".txt,text/plain", d
     if (!disabled) receive(event.dataTransfer.files);
   };
 
-  const onKeyDown = (event: KeyboardEvent<HTMLLabelElement>) => {
-    if (disabled || (event.key !== "Enter" && event.key !== " ")) return;
-    event.preventDefault();
-    inputRef.current?.click();
-  };
-
   return (
     <label
       className={`dropzone ${dragging ? "dropzone--active" : ""} ${disabled ? "dropzone--disabled" : ""}`.trim()}
       htmlFor={id}
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      aria-label={label}
-      aria-describedby={description ? descriptionId : undefined}
-      aria-disabled={disabled || undefined}
-      onKeyDown={onKeyDown}
       onClick={(event) => { if (disabled) event.preventDefault(); }}
       onDragEnter={(event) => { event.preventDefault(); if (!disabled) setDragging(true); }}
       onDragOver={(event) => event.preventDefault()}
@@ -106,12 +94,12 @@ export function FileDropzone({ label, description, accept = ".txt,text/plain", d
       <input
         ref={inputRef}
         id={id}
-        className="visually-hidden"
+        className="dropzone__input"
         type="file"
         accept={accept}
         disabled={disabled}
-        tabIndex={-1}
         aria-label={label}
+        aria-describedby={description ? descriptionId : undefined}
         onChange={(event) => {
           receive(event.currentTarget.files);
           event.currentTarget.value = "";
