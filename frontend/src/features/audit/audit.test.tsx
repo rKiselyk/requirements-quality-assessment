@@ -107,7 +107,14 @@ function renderAudit(value = response()) {
 }
 
 function expandAll(container: HTMLElement) {
-  for (const detail of container.querySelectorAll("details")) detail.open = true;
+  let remaining = [...container.querySelectorAll<HTMLDetailsElement>("details:not([open])")];
+  while (remaining.length > 0) {
+    for (const detail of remaining) {
+      detail.open = true;
+      fireEvent(detail, new Event("toggle"));
+    }
+    remaining = [...container.querySelectorAll<HTMLDetailsElement>("details:not([open])")];
+  }
 }
 
 describe("RUI-14 Audit availability and integration", () => {
@@ -154,6 +161,7 @@ describe("RUI-14 Audit availability and integration", () => {
     expect(screen.getByText("research-api-v1")).toBeTruthy();
     await i18n.changeLanguage("uk");
     view.rerender(<AuditPage result={response()} />);
+    expandAll(view.container);
     expect(screen.getByRole("heading", { name: "Аудит повної моделі" })).toBeTruthy();
     expect(screen.getByText("research-api-v1")).toBeTruthy();
     expect(screen.getByText("NO_COMBINED_QUALITY_SCORE")).toBeTruthy();
@@ -199,6 +207,7 @@ describe("RUI-14 generic AuditTree preservation", () => {
 
   it("renders nested objects as accessible expandable details", () => {
     const view = renderAudit(response({ specification: { outer: { inner: "VALUE" } } }));
+    expandAll(view.container);
     const outer = view.container.querySelector('[data-audit-path="$.specification.outer"]');
     expect(outer?.tagName).toBe("DETAILS");
     expect(outer?.querySelector("summary")?.getAttribute("aria-label")).toContain("outer");

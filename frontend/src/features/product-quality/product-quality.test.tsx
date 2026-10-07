@@ -511,6 +511,19 @@ describe("RUI-10 Product Quality", () => {
     expect(projected.kind === "AVAILABLE" && projected.observed).toBeNull();
   });
 
+  it("preserves an unresolved observed result when lower-level conformance is available", () => {
+    const value = response();
+    const observedRecord = (value.full_model as Record<string, unknown>).observed_product_quality as Record<string, unknown>;
+    observedRecord.status = "UNRESOLVED";
+    observedRecord.value = null;
+    observedRecord.observed_value = null;
+    observedRecord.source_conformance_outcome = null;
+    observedRecord.numeric_representation = "NONE";
+
+    const projected = selectProductQualityPage(value);
+    expect(projected.kind === "AVAILABLE" && projected.observed?.status).toBe("UNRESOLVED");
+  });
+
   it.each([
     ["value differs from observed_value", { numerator: 0, denominator: 1 }],
     ["fraction exceeds one", { numerator: 2, denominator: 1 }],

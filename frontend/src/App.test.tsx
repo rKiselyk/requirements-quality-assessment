@@ -52,6 +52,15 @@ describe("RUI-05 specification input", () => {
     vi.restoreAllMocks();
   });
 
+  it("exposes one native keyboard-focusable file input without a nested button role", () => {
+    render(<Rui05Harness />);
+    const input = screen.getByLabelText("Drop specification here or choose a file");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+    expect(input).toHaveProperty("type", "file");
+    expect(input.getAttribute("tabindex")).not.toBe("-1");
+    expect(input.closest('[role="button"]')).toBeNull();
+  });
+
   it("ignores blank lines while preserving physical source lines", () => {
     expect(parseSpecificationText("First requirement\n   \nSecond requirement")).toEqual([
       { text: "First requirement", source_line: 1 },

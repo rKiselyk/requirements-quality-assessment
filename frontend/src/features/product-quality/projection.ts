@@ -609,7 +609,10 @@ function observedProjection(
     || !optionalIdentity(scope, "unit", observation.observation?.unit)
     || !optionalIdentity(scope, "collection_ref", observation.collectionRef)
     || !optionalIdentity(scope, "environment_ref", observation.environmentRef))) return null;
-  if (conformance?.status === "AVAILABLE" && (!deepEqual(scope.conformance_ref, conformance.conformanceId) || sourceConformanceOutcome !== conformance.outcome)) return null;
+  if (conformance?.status === "AVAILABLE" && (
+    !deepEqual(scope.conformance_ref, conformance.conformanceId)
+    || currentState.status === "AVAILABLE" && sourceConformanceOutcome !== conformance.outcome
+  )) return null;
   return { ...currentState, raw: candidate, resultKind, characteristicId, value: valueProjection, observedValue, numericRepresentation, sourceConformanceOutcome, scopeStatement, calibrationStatus, nonClaims };
 }
 

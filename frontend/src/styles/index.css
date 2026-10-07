@@ -171,10 +171,12 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .field__control--invalid { border-color: var(--color-critical); }
 .field__textarea { min-height: 6rem; resize: vertical; }
 .field__hint { color: var(--color-text-muted); font-size: 0.75rem; }
-.dropzone { display: grid; place-items: center; min-height: 10rem; padding: var(--space-6); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-card); background: var(--color-surface-subtle); text-align: center; cursor: pointer; }
+.dropzone { position: relative; display: grid; place-items: center; min-height: 10rem; padding: var(--space-6); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-card); background: var(--color-surface-subtle); text-align: center; cursor: pointer; }
 .dropzone:not(.dropzone--disabled):hover, .dropzone--active { border-color: var(--color-accent); background: var(--color-accent-subtle); }
-.dropzone:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-color: var(--color-accent); box-shadow: var(--focus-ring); }
+.dropzone:focus-within { outline: 2px solid var(--color-focus); outline-offset: 2px; border-color: var(--color-accent); box-shadow: var(--focus-ring); }
 .dropzone--disabled { opacity: 0.55; cursor: not-allowed; }
+.dropzone__input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.dropzone__input:disabled { cursor: not-allowed; }
 .dropzone__icon { color: var(--color-accent); font-size: 1.5rem; }
 .dropzone__label { font-weight: 650; }
 .dropzone__description { color: var(--color-text-muted); font-size: 0.75rem; }
@@ -242,6 +244,7 @@ code { padding: 0.1rem 0.3rem; border-radius: 0.25rem; background: var(--color-c
 .requirement-navigator button[aria-current="true"] { border-left-color: var(--color-accent); background: var(--color-accent-subtle); color: var(--color-accent); }
 .requirement-navigator button strong { font: 650 0.85rem var(--font-mono); }
 .requirement-navigator button span { color: var(--color-text-muted); font-size: 0.72rem; }
+.requirement-navigator button[aria-current="true"] span { color: var(--color-text); }
 .requirement-navigator button small { display: -webkit-box; overflow: hidden; color: var(--color-text); font-size: 0.75rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .requirement-navigator__malformed { display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); background: var(--color-surface-subtle); color: var(--color-text-muted); }
 .requirement-navigator__malformed strong { font-size: 0.78rem; font-weight: 600; }

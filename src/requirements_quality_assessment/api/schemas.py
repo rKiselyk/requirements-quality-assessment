@@ -83,7 +83,7 @@ class ReassessmentPriorContext(ApiModel):
     action_application: CanonicalScientificRecord
     external_revision: CanonicalScientificRecord
     revised_specification: CanonicalScientificRecord
-    evidence_reuse_decisions: list[CanonicalScientificRecord]
+    evidence_reuse_decisions: list[dict[str, Any]]
     reassessment_identity: CanonicalScientificRecord
     successor_process_state: CanonicalScientificRecord
     process_transition: CanonicalScientificRecord

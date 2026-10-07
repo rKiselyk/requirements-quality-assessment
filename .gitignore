@@ -14,6 +14,8 @@ build/
 dist/
 node_modules/
 frontend/.vite/
+frontend/playwright-report/
+frontend/test-results/
 *.tsbuildinfo
 *.egg-info/
 .eggs/
