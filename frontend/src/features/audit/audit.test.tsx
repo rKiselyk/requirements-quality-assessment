@@ -39,6 +39,25 @@ function requirementRecord(text = sourceText, id = "E-1") {
   };
 }
 
+function requirementRecordFor(requirementId: string, sourceLine: number, evidenceId: string, text = sourceText) {
+  const record = requirementRecord(text, evidenceId);
+  record.requirement.id = requirementId;
+  record.requirement.source_line = sourceLine;
+  record.evidence[0].requirement_id = requirementId;
+  return record;
+}
+
+function requirementEvidenceRef(requirementId: string, sourceLine: number, evidenceId: string) {
+  return {
+    requirement_subject_ref: {
+      artifact_ref: { artifact_id: "SPEC", artifact_version: "v1" },
+      requirement_id: requirementId,
+      source_line: sourceLine,
+    },
+    evidence_id: evidenceId,
+  };
+}
+
 const fullModelKeys = [
   "initial_specification_assessment", "metric_profile", "criterion_binding", "observation_resolution", "conformance",
   "feature_profile", "observed_product_quality", "problem_resolutions", "defect_population", "defect_quality_relations",
@@ -96,6 +115,19 @@ describe("RUI-14 Audit availability and integration", () => {
     renderAudit(response({ section_availability: [{ section: "audit", availability: "UNAVAILABLE", reason_code: "FUTURE_AUDIT_REASON" }] }));
     expect(screen.getByText("FUTURE_AUDIT_REASON")).toBeTruthy();
     expect(document.querySelector(".audit-tree")).toBeNull();
+  });
+
+  it("accepts only canonical AVAILABLE plus null reason", () => {
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "AVAILABLE", reason_code: null }] }))).toEqual({ kind: "AVAILABLE" });
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "AVAILABLE", reason_code: "CONTRADICTORY" }] })).kind).toBe("MALFORMED");
+  });
+
+  it("accepts only canonical UNAVAILABLE plus a non-empty reason", () => {
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "UNAVAILABLE", reason_code: "EXACT_REASON" }] }))).toEqual({ kind: "UNAVAILABLE", reasonCode: "EXACT_REASON" });
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "UNAVAILABLE", reason_code: null }] })).kind).toBe("MALFORMED");
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "UNAVAILABLE", reason_code: "" }] })).kind).toBe("MALFORMED");
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "UNAVAILABLE", reason_code: "   " }] })).kind).toBe("MALFORMED");
+    expect(selectAuditAvailability(response({ section_availability: [{ section: "audit", availability: "UNAVAILABLE", reason_code: 7 }] })).kind).toBe("MALFORMED");
   });
 
   it("routes Audit to the real page without making an Analyze request", () => {
@@ -303,6 +335,103 @@ describe("RUI-14 EvidenceDrawer resolution", () => {
     expect(target?.evidence.startOffset).toBe(evidenceStart);
     expect(target?.sourceLine).toBe(7);
     expect(target?.linkedFindings.map((item) => item.findingId)).toEqual(["F-1"]);
+  });
+
+  it("resolves a canonical CrossEvidenceRef only when its requirement and evidence identity is unique", () => {
+    const first = requirementRecordFor("R001", 2, "SHARED");
+    const second = requirementRecordFor("R002", 4, "SHARED");
+    const index = buildEvidenceIndex({ first, second });
+    expect(index.resolve({ requirement_id: "R002", evidence_id: "SHARED" }, "evidence_refs")?.sourceLine).toBe(4);
+    expect(index.resolve("SHARED", "evidence_refs")).toBeNull();
+  });
+
+  it("keeps the same CrossEvidenceRef ambiguous across v1 and v2", () => {
+    const v1 = requirementRecordFor("R001", 2, "SHARED");
+    const v2 = requirementRecordFor("R001", 2, "SHARED");
+    const index = buildEvidenceIndex({ v1, v2 });
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "SHARED" }, "evidence_refs")).toBeNull();
+  });
+
+  it("resolves canonical RequirementEvidenceRef through its nested subject", () => {
+    const first = requirementRecordFor("R001", 2, "SHARED");
+    const second = requirementRecordFor("R002", 2, "SHARED");
+    const index = buildEvidenceIndex({ first, second });
+    expect(index.resolve(requirementEvidenceRef("R002", 2, "SHARED"), "evidence_ref")?.evidence.requirementId).toBe("R002");
+  });
+
+  it("uses RequirementEvidenceRef source_line to narrow otherwise matching candidates", () => {
+    const line2 = requirementRecordFor("R001", 2, "SHARED");
+    const line9 = requirementRecordFor("R001", 9, "SHARED");
+    const index = buildEvidenceIndex({ line2, line9 });
+    expect(index.resolve(requirementEvidenceRef("R001", 9, "SHARED"), "evidence_ref")?.sourceLine).toBe(9);
+  });
+
+  it("rejects malformed nested requirement subjects", () => {
+    const record = requirementRecordFor("R001", 2, "E-1");
+    const index = buildEvidenceIndex({ record });
+    expect(index.resolve({ requirement_subject_ref: { requirement_id: "R001", source_line: 2 }, evidence_id: "E-1" }, "evidence_ref")).toBeNull();
+    expect(index.resolve({ requirement_subject_ref: { artifact_ref: {}, requirement_id: "R001", source_line: 0 }, evidence_id: "E-1" }, "evidence_ref")).toBeNull();
+  });
+
+  it("keeps a still-ambiguous RequirementEvidenceRef technical only", () => {
+    const v1 = requirementRecordFor("R001", 2, "SHARED");
+    const v2 = requirementRecordFor("R001", 2, "SHARED");
+    const index = buildEvidenceIndex({ v1, v2 });
+    expect(index.resolve(requirementEvidenceRef("R001", 2, "SHARED"), "evidence_ref")).toBeNull();
+  });
+
+  it.each(["direct_criterion_evidence_refs", "source_component_refs", "evidence_refs"])(
+    "%s resolves an unambiguous CrossEvidenceRef",
+    (fieldKey) => {
+      const record = requirementRecordFor("R001", 2, "E-1");
+      const index = buildEvidenceIndex({ record });
+      expect(index.resolve({ requirement_id: "R001", evidence_id: "E-1" }, fieldKey)?.evidence.evidenceId).toBe("E-1");
+    },
+  );
+
+  it("exposes drawer actions at actual CrossEvidenceRef field locations without replacing raw refs", () => {
+    const model = fullModel();
+    model.initial_specification_assessment = { records: [] };
+    model.criterion_binding = {
+      provenance: {
+        direct_criterion_evidence_refs: [{ requirement_id: "R001", evidence_id: "E-1" }],
+        source_component_refs: [{ requirement_id: "R001", evidence_id: "E-1" }],
+      },
+    };
+    const view = renderAudit(response({ analysis_case: "CONTROLLED_DEMO", full_model: model })); expandAll(view.container);
+    for (const path of [
+      "$.full_model.criterion_binding.provenance.direct_criterion_evidence_refs[0]",
+      "$.full_model.criterion_binding.provenance.source_component_refs[0]",
+    ]) {
+      const node = view.container.querySelector(`[data-audit-path="${path}"]`);
+      expect(node?.textContent).toContain("R001");
+      expect(node?.textContent).toContain("E-1");
+      expect(node?.querySelector(".audit-evidence-action")).not.toBeNull();
+    }
+  });
+
+  it.each(["diagnostic_ref", "observation_ref", "criterion_ref", "process_ref", "dynamic_observation_ref"])(
+    "does not route unrelated %s values to base Evidence",
+    (fieldKey) => {
+      const record = requirementRecordFor("R001", 2, "E-1");
+      const index = buildEvidenceIndex({ record });
+      expect(index.resolve({ requirement_id: "R001", evidence_id: "E-1" }, fieldKey)).toBeNull();
+    },
+  );
+
+  it("shape-gates source_evidence_ref to a canonical structured base Evidence identity", () => {
+    const record = requirementRecordFor("R001", 2, "E-1");
+    const index = buildEvidenceIndex({ record });
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "E-1" }, "source_evidence_ref")?.evidence.evidenceId).toBe("E-1");
+    expect(index.resolve("E-1", "source_evidence_ref")).toBeNull();
+    expect(index.resolve({ observation_id: "E-1", evidence_id: "E-1" }, "source_evidence_ref")).toBeNull();
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "E-1", observation_id: "OTHER-TYPE" }, "source_evidence_ref")).toBeNull();
+  });
+
+  it("leaves dangling canonical reference shapes non-interactive", () => {
+    const index = buildEvidenceIndex({ record: requirementRecordFor("R001", 2, "E-1") });
+    expect(index.resolve({ requirement_id: "R001", evidence_id: "MISSING" }, "direct_criterion_evidence_refs")).toBeNull();
+    expect(index.resolve(requirementEvidenceRef("R001", 2, "MISSING"), "evidence_ref")).toBeNull();
   });
 
   it("rejects a mismatched source slice instead of creating a drawer target", () => {

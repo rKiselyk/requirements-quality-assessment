@@ -16,8 +16,22 @@ const referenceFields = new Set([
   "evidence_ref",
   "evidence_refs",
   "ordered_evidence_refs",
+  "direct_criterion_evidence_refs",
+  "source_component_refs",
   "source_evidence_ref",
 ]);
+
+const stringReferenceFields = new Set([
+  "evidence_ref",
+  "evidence_refs",
+  "ordered_evidence_refs",
+]);
+
+interface EvidenceReferenceIdentity {
+  evidenceId: string;
+  requirementId?: string;
+  sourceLine?: number;
+}
 
 function nonEmptyText(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
@@ -25,6 +39,11 @@ function nonEmptyText(value: unknown): string | null {
 
 function integer(value: unknown): number | null {
   return typeof value === "number" && Number.isSafeInteger(value) ? value : null;
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value);
+  return actual.length === keys.length && keys.every((key) => actual.includes(key));
 }
 
 function sourceRequirement(value: unknown) {
@@ -125,28 +144,34 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
   };
   visit(root);
 
-  const resolveReference = (value: unknown): AuditEvidenceTarget | null => {
-    const reference = typeof value === "string" ? { evidenceId: value } : isPlainRecord(value)
-      ? {
-          evidenceId: nonEmptyText(value.evidence_id),
-          requirementId: nonEmptyText(value.requirement_id),
-          featureId: nonEmptyText(value.feature_id),
-          text: typeof value.text === "string" ? value.text : null,
-          startOffset: integer(value.start_offset),
-          endOffset: integer(value.end_offset),
-          ruleId: nonEmptyText(value.rule_id),
-          sourceLine: integer(value.source_line),
-        }
-      : null;
-    if (!reference?.evidenceId) return null;
+  const referenceIdentity = (value: unknown, fieldKey: string): EvidenceReferenceIdentity | null => {
+    if (typeof value === "string") {
+      return stringReferenceFields.has(fieldKey) && value.length > 0 ? { evidenceId: value } : null;
+    }
+    if (!isPlainRecord(value)) return null;
+    const evidenceId = nonEmptyText(value.evidence_id);
+    if (!evidenceId) return null;
+
+    if (Object.hasOwn(value, "requirement_subject_ref")) {
+      if (!hasExactKeys(value, ["requirement_subject_ref", "evidence_id"])) return null;
+      const subject = isPlainRecord(value.requirement_subject_ref) ? value.requirement_subject_ref : null;
+      const requirementId = subject && nonEmptyText(subject.requirement_id);
+      const sourceLine = subject && integer(subject.source_line);
+      if (!subject || !isPlainRecord(subject.artifact_ref) || !requirementId || sourceLine === null || sourceLine < 1) return null;
+      return { evidenceId, requirementId, sourceLine };
+    }
+
+    if (!hasExactKeys(value, ["requirement_id", "evidence_id"])) return null;
+    const requirementId = nonEmptyText(value.requirement_id);
+    return requirementId ? { evidenceId, requirementId } : null;
+  };
+
+  const resolveReference = (value: unknown, fieldKey: string): AuditEvidenceTarget | null => {
+    const reference = referenceIdentity(value, fieldKey);
+    if (!reference) return null;
     let candidates = [...(byId.get(reference.evidenceId) ?? [])];
-    if ("requirementId" in reference && reference.requirementId) candidates = candidates.filter((item) => item.evidence.requirementId === reference.requirementId);
-    if ("featureId" in reference && reference.featureId) candidates = candidates.filter((item) => item.evidence.featureId === reference.featureId);
-    if ("text" in reference && reference.text !== null) candidates = candidates.filter((item) => item.evidence.text === reference.text);
-    if ("startOffset" in reference && reference.startOffset !== null) candidates = candidates.filter((item) => item.evidence.startOffset === reference.startOffset);
-    if ("endOffset" in reference && reference.endOffset !== null) candidates = candidates.filter((item) => item.evidence.endOffset === reference.endOffset);
-    if ("ruleId" in reference && reference.ruleId) candidates = candidates.filter((item) => item.evidence.ruleId === reference.ruleId);
-    if ("sourceLine" in reference && reference.sourceLine !== null) candidates = candidates.filter((item) => item.sourceLine === reference.sourceLine);
+    if (reference.requirementId) candidates = candidates.filter((item) => item.evidence.requirementId === reference.requirementId);
+    if (reference.sourceLine !== undefined) candidates = candidates.filter((item) => item.sourceLine === reference.sourceLine);
     return candidates.length === 1 ? candidates[0] : null;
   };
 
@@ -157,7 +182,7 @@ export function buildEvidenceIndex(root: unknown): AuditEvidenceIndex {
         if (exact) return exact;
       }
       if (!fieldKey || fieldKey.includes("dynamic") || !referenceFields.has(fieldKey)) return null;
-      return resolveReference(value);
+      return resolveReference(value, fieldKey);
     },
   };
 }

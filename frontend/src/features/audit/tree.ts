@@ -22,9 +22,11 @@ export function selectAuditAvailability(response: CanonicalAnalyzeResponse): Aud
   const matches = response.section_availability.filter((value) => record(value)?.section === "audit");
   if (matches.length !== 1) return { kind: "MALFORMED" };
   const entry = record(matches[0]);
-  if (entry?.availability === "AVAILABLE") return { kind: "AVAILABLE" };
+  if (entry?.availability === "AVAILABLE" && entry.reason_code === null) return { kind: "AVAILABLE" };
   if (entry?.availability === "UNAVAILABLE") {
-    return { kind: "UNAVAILABLE", reasonCode: typeof entry.reason_code === "string" ? entry.reason_code : null };
+    return typeof entry.reason_code === "string" && entry.reason_code.trim().length > 0
+      ? { kind: "UNAVAILABLE", reasonCode: entry.reason_code }
+      : { kind: "MALFORMED" };
   }
   return { kind: "MALFORMED" };
 }
